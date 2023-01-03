@@ -1,0 +1,20 @@
+const mongoose = require('mongoose'),
+  Schema = mongoose.Schema;
+
+const SubSkillSetSchema = new Schema({
+  name: {
+    type: String,
+    default: ''
+  },
+  skillSetId: {
+    type: Schema.Types.ObjectId,
+    ref: 'SkillSet'
+  },
+  status: {
+    type: Number,
+    default: 0
+  },
+}, {
+  timestamps: true
+});
+module.exports = mongoose.model('SubSkillSet', SubSkillSetSchema);

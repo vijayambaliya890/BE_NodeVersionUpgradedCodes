@@ -1,0 +1,11 @@
+{
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.foldingStrategy": "indentation",
+  "javascript.validate.enable": false,
+  "prettier.printWidth": 80,
+  "[javascript]": {
+    "editor.codeActionsOnSave": [
+      "source.fixAll.format"
+    ]
+  }
+}

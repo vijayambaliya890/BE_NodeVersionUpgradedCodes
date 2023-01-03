@@ -1,0 +1,83 @@
+const path = require('path'),
+  __ = require('../../../helpers/globalFunctions');
+  var fs = require('fs');
+  var mime = require('mime-types')
+
+let downloadCsvController = function (req, res) {
+  // adding appropriate headers, so browsers can start downloading
+  // file as soon as this request starts to get served
+  let url = req.originalUrl;
+  let type = url.substring(url.lastIndexOf('.')+1);
+  if(type.includes('/')){
+    type = type.slice(0, -1);
+  }
+  console.log('ccccc', mime.contentType(type))
+console.log('type', type)
+ // let imageTypeArr = ['jpg', 'jpeg', 'png', 'gif'];
+  //if(!imageTypeArr.includes(type.toLowerCase())){
+  res.setHeader('Content-Type',  mime.contentType(type));
+  //res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', 'attachment');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Pragma', 'no-cache');
+
+  //return __.out(res, 239);
+  let csvFile = req.originalUrl;
+  csvFile = 'public/'+csvFile;
+  // for csv file export in challenge
+  if(csvFile.includes('uploads/1/challenge/')){
+    csvFile = csvFile.replace('uploads/1/','');
+  }
+  if(csvFile[csvFile.length-1]== '/'){
+    csvFile = csvFile.slice(0,-1);
+  }
+  console.log('fileName', csvFile);
+ // console.log(__dirname,path.join(__dirname +'\\'+ csvFile))
+  let absPathToCSV = (path.join(__dirname +'/../../../'+ csvFile));
+  console.log('absPathToCSV',absPathToCSV)
+  //let absPathToCSV = (path.join(__dirname + '../../../../' + csvFile));
+  return res.sendFile(absPathToCSV);
+// }else {
+//   let csvFile = req.originalUrl;
+//   csvFile = 'public/'+csvFile;
+//  // console.log(__dirname,path.join(__dirname +'\\'+ csvFile))
+//   let absPathToCSV = (path.join(__dirname +'/../../../'+ csvFile));
+//   console.log('image',absPathToCSV)
+//   var bitmap = fs.readFileSync(absPathToCSV);
+//   // convert binary data to base64 encoded string
+//   const dd =  new Buffer(bitmap).toString('base64');
+//   res.send(dd)
+// }
+}
+let downloadCsvControllerNew = function (req, res) {
+  console.log('callleddd')
+  let url = req.originalUrl;
+  let type = url.substring(url.lastIndexOf('.')+1);
+  if(type.includes('/')){
+    type = type.slice(0, -1);
+  }
+  console.log('ccccc', mime.contentType(type))
+  console.log('type', type)
+  console.log('asa', req.headers['sec-fetch-site'])
+  if(req.headers['sec-fetch-site']== 'same'){
+    req.headers.setHeader('sec-fetch-site', 'cross')
+  }
+  res.setHeader('Content-Type',  mime.contentType(type));
+  res.setHeader('Content-Disposition', 'attachment');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Pragma', 'no-cache');
+  let csvFile = req.originalUrl;
+  csvFile = 'public/'+csvFile;
+  if(csvFile.includes('uploads/1/challenge/')){
+    csvFile = csvFile.replace('uploads/1/','');
+  }
+  if(csvFile[csvFile.length-1]== '/'){
+    csvFile = csvFile.slice(0,-1);
+  }
+  console.log('fileName', csvFile);
+  let absPathToCSV = (path.join(__dirname +'/../../../'+ csvFile));
+  console.log('absPathToCSV',absPathToCSV)
+  return res.sendFile(absPathToCSV);
+}
+
+module.exports = {downloadCsvController,downloadCsvControllerNew};

@@ -1,0 +1,49 @@
+const mongoose = require('mongoose'),
+    Schema = mongoose.Schema;
+
+const opsTeamSchema = new Schema({
+
+    userId: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    adminId: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    buId: [{
+        type: Schema.Types.ObjectId,
+        ref: 'OpsGroup'
+    }],
+    updatedBy:[{
+        user:{
+            type: Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        dateTime:{
+            type: Date,
+            default: Date.now()
+    }
+
+    }],
+    createdBy:{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    opsGroupId: {
+        type: Schema.Types.ObjectId,
+        ref: 'OpsGroup'
+    },
+    name: {
+        type: String,
+    },
+
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
+}, {
+        timestamps: true
+    });
+
+module.exports = mongoose.model('opsTeam', opsTeamSchema)

@@ -1,0 +1,61 @@
+const mongoose = require('mongoose'),
+    Schema = mongoose.Schema;
+
+const EventSessionSchema = new Schema({
+    startDate: {
+        type: Date
+    },
+    endDate: {
+        type: Date
+    },
+    startTime: {
+        type: String
+    },
+    endTime: {
+        type: String
+    },
+    totalParticipantPerSession: {
+        type: Number,
+        default: 0
+    },
+    location:{
+        type: String
+    },
+    attendaceRequiredCount:{
+        type: Number,
+        default: 0
+    },
+    adminIds : [{
+        type: String
+    }],
+    assignAdmin: [{
+        type: Schema.Types.ObjectId,
+        ref: "AdminUser"
+    }],
+    createdOn: {
+        type: Date
+    },
+    updatedOn: {
+        type: Date
+    },
+    status: {
+        type: Number,
+        default: 0
+    },
+    checked:Boolean,
+    post : {
+        type: Schema.Types.ObjectId,
+        ref: 'Post'
+    },
+    isCancelled:{
+        type:Boolean,
+        default:false
+    }
+   
+}, {
+    timestamps: true
+});
+
+const EventSession = mongoose.model('eventsession', EventSessionSchema);
+
+module.exports = EventSession;

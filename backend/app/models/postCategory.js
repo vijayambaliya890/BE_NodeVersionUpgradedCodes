@@ -1,0 +1,20 @@
+const mongoose = require('mongoose'),
+    Schema = mongoose.Schema;
+
+const PostCategorySchema = new Schema({
+    name: {
+        type: String,
+        default: ''
+    },
+    channelId: {
+        type: String,
+        ref: 'Channel'
+    },
+    status: {
+        type: Number,
+        default: 1
+    }
+}, {
+    timestamps: true
+});
+module.exports = mongoose.model('PostCategory', PostCategorySchema);
