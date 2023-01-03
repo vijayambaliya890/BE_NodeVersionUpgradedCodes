@@ -11,13 +11,12 @@ const mongoose = require('mongoose'),
   staffShiftController = require('../staff/staffShiftController'),
   WeeklyStaffData = require('./weeklyStaffingController'),
   shiftLogController = require('./shiftLogController'),
-  assignShiftController = require('./assignShiftController');
-__ = require('../../../helpers/globalFunctions');
-(OtherNotification = require('../../models/otherNotifications')),
-  (moment = require('moment')),
-  (FCM = require('../../../helpers/fcm')),
-  (_ = require('lodash')),
-  (__ = require('../../../helpers/globalFunctions'));
+  assignShiftController = require('./assignShiftController'),
+  OtherNotification = require('../../models/otherNotifications'),
+  moment = require('moment'),
+  FCM = require('../../../helpers/fcm'),
+  _ = require('lodash'),
+  __ = require('../../../helpers/globalFunctions');
 const async = require('async');
 const AssignShift = require('../../models/assignShift');
 const ObjectId = require('mongoose').Types.ObjectId;
@@ -468,7 +467,7 @@ class shift {
                   isSplitShift: elem.isSplitShift ? true : false,
                   isParent: elem.isSplitShift ? 1 : null,
                   randomShiftId: elem.isSplitShift ? randomShiftId : null,
-                  geoReportingLocation: elementData.geoReportingLocation
+                  geoReportingLocation: elementData.geoReportingLocation,
                 };
 
                 shiftsNewFormat.push(shiftSeparated);
@@ -1843,8 +1842,8 @@ class shift {
               path: 'geoReportingLocation',
               select: 'name status',
               match: {
-                  status: 'active'
-              }
+                status: 'active',
+              },
             },
             {
               path: 'subSkillSets',
@@ -2007,7 +2006,10 @@ class shift {
             //console.log('element', element.isAssignShift)
             let totalExtension = 0;
             let totalExtensionHrs = 0;
-            if ((element.shiftId && element.shiftId.businessUnitId) || element.isAssignShift) {
+            if (
+              (element.shiftId && element.shiftId.businessUnitId) ||
+              element.isAssignShift
+            ) {
               let tz = element.timeZone;
               if (!tz) {
                 tz = '+0800';
@@ -4691,10 +4693,17 @@ class shift {
                   ],
                 },
               ]);
-              if (shiftDetails && shiftDetails.shiftId && shiftDetails.shiftId.businessUnitId) {
+              if (
+                shiftDetails &&
+                shiftDetails.shiftId &&
+                shiftDetails.shiftId.businessUnitId
+              ) {
                 // return res.json({ shiftDetails })
                 const redisBuId = shiftDetails.shiftId.businessUnitId;
-                if (shiftDetails.activeStatus && shiftDetails.activeStatus === true) {
+                if (
+                  shiftDetails.activeStatus &&
+                  shiftDetails.activeStatus === true
+                ) {
                   return __.out(
                     res,
                     300,
@@ -4943,8 +4952,8 @@ class shift {
                     newCount: newCount,
                   };
                   // const callTwoAtaTime = await Promise.all([
-                    // shiftLogController.create(statusLogData, res),
-                    // this.updateRedis(redisBuId),
+                  // shiftLogController.create(statusLogData, res),
+                  // this.updateRedis(redisBuId),
                   // ]);
                   // console.log('callTwoAtaTime', callTwoAtaTime);
                   await shiftLogController.create(statusLogData, res);

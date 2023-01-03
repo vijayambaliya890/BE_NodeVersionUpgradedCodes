@@ -1378,7 +1378,7 @@ class redisData {
                 );
               startUnixDateTime += 86400;
               endUnixDateTime += 86400;
-              for (var i = startUnixDateTime; i <= endUnixDateTime; i += 1800) {
+              for (let i = startUnixDateTime; i <= endUnixDateTime; i += 1800) {
                 var dateTimeUnix = i * 1000;
                 customShiftDetails = JSON.parse(
                   JSON.stringify(customShiftDetails),
@@ -1485,10 +1485,10 @@ class redisData {
               var formattedAppliedStaffDataAssign = {},
                 formattedNeedStaffDataAssing = {};
 
-              for (var appliedElement in staffAppliedWeekdaysObj) {
+              for (let appliedElement in staffAppliedWeekdaysObj) {
                 formattedAppliedStaffData[appliedElement] = [];
 
-                for (var time in staffAppliedWeekdaysObj[appliedElement]) {
+                for (let time in staffAppliedWeekdaysObj[appliedElement]) {
                   var array = [
                     Number(time),
                     Number(staffAppliedWeekdaysObj[appliedElement][time]),
@@ -1498,10 +1498,10 @@ class redisData {
                   }
                 }
               }
-              for (var needElement in staffNeedWeekdaysObj) {
+              for (let needElement in staffNeedWeekdaysObj) {
                 formattedNeedStaffData[needElement] = [];
 
-                for (var time in staffNeedWeekdaysObj[needElement]) {
+                for (let time in staffNeedWeekdaysObj[needElement]) {
                   var array = [
                     Number(time),
                     Number(staffNeedWeekdaysObj[needElement][time]),
@@ -1512,10 +1512,10 @@ class redisData {
                 }
               }
               // assign code
-              for (var appliedElement in staffAppliedWeekdaysObjAssign) {
+              for (let appliedElement in staffAppliedWeekdaysObjAssign) {
                 formattedAppliedStaffDataAssign[appliedElement] = [];
 
-                for (var time in staffAppliedWeekdaysObjAssign[
+                for (let time in staffAppliedWeekdaysObjAssign[
                   appliedElement
                 ]) {
                   var array = [
@@ -1529,10 +1529,10 @@ class redisData {
                   }
                 }
               }
-              for (var needElement in staffNeedWeekdaysObjAssign) {
+              for (let needElement in staffNeedWeekdaysObjAssign) {
                 formattedNeedStaffDataAssing[needElement] = [];
 
-                for (var time in staffNeedWeekdaysObjAssign[needElement]) {
+                for (let time in staffNeedWeekdaysObjAssign[needElement]) {
                   var array = [
                     Number(time),
                     Number(staffNeedWeekdaysObjAssign[needElement][time]),
@@ -1647,7 +1647,7 @@ class redisData {
                 });
               }
 
-              for (var prop in graphData) {
+              for (let prop in graphData) {
                 if (Object.prototype.hasOwnProperty.call(graphData, prop)) {
                   // do stuff
                   if (
@@ -1659,7 +1659,7 @@ class redisData {
                     );
                 }
               }
-              for (var prop in graphDataWeb) {
+              for (let prop in graphDataWeb) {
                 if (Object.prototype.hasOwnProperty.call(graphDataWeb, prop)) {
                   // do stuff
                   if (
@@ -2331,7 +2331,7 @@ class redisData {
                 );
               startUnixDateTime += 86400;
               endUnixDateTime += 86400;
-              for (var i = startUnixDateTime; i <= endUnixDateTime; i += 1800) {
+              for (let i = startUnixDateTime; i <= endUnixDateTime; i += 1800) {
                 var dateTimeUnix = i * 1000;
                 customShiftDetails = JSON.parse(
                   JSON.stringify(customShiftDetails),
@@ -2438,10 +2438,10 @@ class redisData {
               var formattedAppliedStaffDataAssign = {},
                 formattedNeedStaffDataAssing = {};
 
-              for (var appliedElement in staffAppliedWeekdaysObj) {
+              for (let appliedElement in staffAppliedWeekdaysObj) {
                 formattedAppliedStaffData[appliedElement] = [];
 
-                for (var time in staffAppliedWeekdaysObj[appliedElement]) {
+                for (let time in staffAppliedWeekdaysObj[appliedElement]) {
                   var array = [
                     Number(time),
                     Number(staffAppliedWeekdaysObj[appliedElement][time]),
@@ -2451,10 +2451,10 @@ class redisData {
                   }
                 }
               }
-              for (var needElement in staffNeedWeekdaysObj) {
+              for (let needElement in staffNeedWeekdaysObj) {
                 formattedNeedStaffData[needElement] = [];
 
-                for (var time in staffNeedWeekdaysObj[needElement]) {
+                for (let time in staffNeedWeekdaysObj[needElement]) {
                   var array = [
                     Number(time),
                     Number(staffNeedWeekdaysObj[needElement][time]),
@@ -2465,10 +2465,10 @@ class redisData {
                 }
               }
               // assign code
-              for (var appliedElement in staffAppliedWeekdaysObjAssign) {
+              for (let appliedElement in staffAppliedWeekdaysObjAssign) {
                 formattedAppliedStaffDataAssign[appliedElement] = [];
 
-                for (var time in staffAppliedWeekdaysObjAssign[
+                for (let time in staffAppliedWeekdaysObjAssign[
                   appliedElement
                 ]) {
                   var array = [
@@ -2482,10 +2482,10 @@ class redisData {
                   }
                 }
               }
-              for (var needElement in staffNeedWeekdaysObjAssign) {
+              for (let needElement in staffNeedWeekdaysObjAssign) {
                 formattedNeedStaffDataAssing[needElement] = [];
 
-                for (var time in staffNeedWeekdaysObjAssign[needElement]) {
+                for (let time in staffNeedWeekdaysObjAssign[needElement]) {
                   var array = [
                     Number(time),
                     Number(staffNeedWeekdaysObjAssign[needElement][time]),
@@ -2600,7 +2600,7 @@ class redisData {
                 });
               }
 
-              for (var prop in graphData) {
+              for (let prop in graphData) {
                 if (Object.prototype.hasOwnProperty.call(graphData, prop)) {
                   // do stuff
                   if (
@@ -2612,7 +2612,7 @@ class redisData {
                     );
                 }
               }
-              for (var prop in graphDataWeb) {
+              for (let prop in graphDataWeb) {
                 if (Object.prototype.hasOwnProperty.call(graphDataWeb, prop)) {
                   // do stuff
                   if (
@@ -3725,7 +3725,7 @@ class redisData {
                 staffAppliedWeekdaysObjAssign = _.cloneDeep(
                   staffNeedWeekdaysObjAssign,
                 );
-              for (var i = startUnixDateTime; i <= endUnixDateTime; i += 1800) {
+              for (let i = startUnixDateTime; i <= endUnixDateTime; i += 1800) {
                 var dateTimeUnix = i * 1000;
                 customShiftDetails = JSON.parse(
                   JSON.stringify(customShiftDetails),
@@ -3822,10 +3822,10 @@ class redisData {
               var formattedAppliedStaffDataAssign = {},
                 formattedNeedStaffDataAssing = {};
 
-              for (var appliedElement in staffAppliedWeekdaysObj) {
+              for (let appliedElement in staffAppliedWeekdaysObj) {
                 formattedAppliedStaffData[appliedElement] = [];
 
-                for (var time in staffAppliedWeekdaysObj[appliedElement]) {
+                for (let time in staffAppliedWeekdaysObj[appliedElement]) {
                   var array = [
                     Number(time),
                     Number(staffAppliedWeekdaysObj[appliedElement][time]),
@@ -3834,10 +3834,10 @@ class redisData {
                   formattedAppliedStaffData[appliedElement].push(array);
                 }
               }
-              for (var needElement in staffNeedWeekdaysObj) {
+              for (let needElement in staffNeedWeekdaysObj) {
                 formattedNeedStaffData[needElement] = [];
 
-                for (var time in staffNeedWeekdaysObj[needElement]) {
+                for (let time in staffNeedWeekdaysObj[needElement]) {
                   var array = [
                     Number(time),
                     Number(staffNeedWeekdaysObj[needElement][time]),
@@ -3847,10 +3847,10 @@ class redisData {
                 }
               }
               // assign code
-              for (var appliedElement in staffAppliedWeekdaysObjAssign) {
+              for (let appliedElement in staffAppliedWeekdaysObjAssign) {
                 formattedAppliedStaffDataAssign[appliedElement] = [];
 
-                for (var time in staffAppliedWeekdaysObjAssign[
+                for (let time in staffAppliedWeekdaysObjAssign[
                   appliedElement
                 ]) {
                   var array = [
@@ -3861,10 +3861,10 @@ class redisData {
                   formattedAppliedStaffDataAssign[appliedElement].push(array);
                 }
               }
-              for (var needElement in staffNeedWeekdaysObjAssign) {
+              for (let needElement in staffNeedWeekdaysObjAssign) {
                 formattedNeedStaffDataAssing[needElement] = [];
 
-                for (var time in staffNeedWeekdaysObjAssign[needElement]) {
+                for (let time in staffNeedWeekdaysObjAssign[needElement]) {
                   var array = [
                     Number(time),
                     Number(staffNeedWeekdaysObjAssign[needElement][time]),
@@ -3978,7 +3978,7 @@ class redisData {
                 });
               }
 
-              for (var prop in graphData) {
+              for (let prop in graphData) {
                 if (Object.prototype.hasOwnProperty.call(graphData, prop)) {
                   // do stuff
                   if (
@@ -3990,7 +3990,7 @@ class redisData {
                     );
                 }
               }
-              for (var prop in graphDataWeb) {
+              for (let prop in graphDataWeb) {
                 if (Object.prototype.hasOwnProperty.call(graphDataWeb, prop)) {
                   // do stuff
                   if (
@@ -4622,7 +4622,7 @@ class redisData {
                 staffAppliedWeekdaysObjAssign = _.cloneDeep(
                   staffNeedWeekdaysObjAssign,
                 );
-              for (var i = startUnixDateTime; i <= endUnixDateTime; i += 1800) {
+              for (let i = startUnixDateTime; i <= endUnixDateTime; i += 1800) {
                 var dateTimeUnix = i * 1000;
                 customShiftDetails = JSON.parse(
                   JSON.stringify(customShiftDetails),
@@ -4719,10 +4719,10 @@ class redisData {
               var formattedAppliedStaffDataAssign = {},
                 formattedNeedStaffDataAssing = {};
 
-              for (var appliedElement in staffAppliedWeekdaysObj) {
+              for (let appliedElement in staffAppliedWeekdaysObj) {
                 formattedAppliedStaffData[appliedElement] = [];
 
-                for (var time in staffAppliedWeekdaysObj[appliedElement]) {
+                for (let time in staffAppliedWeekdaysObj[appliedElement]) {
                   var array = [
                     Number(time),
                     Number(staffAppliedWeekdaysObj[appliedElement][time]),
@@ -4731,10 +4731,10 @@ class redisData {
                   formattedAppliedStaffData[appliedElement].push(array);
                 }
               }
-              for (var needElement in staffNeedWeekdaysObj) {
+              for (let needElement in staffNeedWeekdaysObj) {
                 formattedNeedStaffData[needElement] = [];
 
-                for (var time in staffNeedWeekdaysObj[needElement]) {
+                for (let time in staffNeedWeekdaysObj[needElement]) {
                   var array = [
                     Number(time),
                     Number(staffNeedWeekdaysObj[needElement][time]),
@@ -4744,10 +4744,10 @@ class redisData {
                 }
               }
               // assign code
-              for (var appliedElement in staffAppliedWeekdaysObjAssign) {
+              for (let appliedElement in staffAppliedWeekdaysObjAssign) {
                 formattedAppliedStaffDataAssign[appliedElement] = [];
 
-                for (var time in staffAppliedWeekdaysObjAssign[
+                for (let time in staffAppliedWeekdaysObjAssign[
                   appliedElement
                 ]) {
                   var array = [
@@ -4758,10 +4758,10 @@ class redisData {
                   formattedAppliedStaffDataAssign[appliedElement].push(array);
                 }
               }
-              for (var needElement in staffNeedWeekdaysObjAssign) {
+              for (let needElement in staffNeedWeekdaysObjAssign) {
                 formattedNeedStaffDataAssing[needElement] = [];
 
-                for (var time in staffNeedWeekdaysObjAssign[needElement]) {
+                for (let time in staffNeedWeekdaysObjAssign[needElement]) {
                   var array = [
                     Number(time),
                     Number(staffNeedWeekdaysObjAssign[needElement][time]),
@@ -4875,7 +4875,7 @@ class redisData {
                 });
               }
 
-              for (var prop in graphData) {
+              for (let prop in graphData) {
                 if (Object.prototype.hasOwnProperty.call(graphData, prop)) {
                   // do stuff
                   if (
@@ -4887,7 +4887,7 @@ class redisData {
                     );
                 }
               }
-              for (var prop in graphDataWeb) {
+              for (let prop in graphDataWeb) {
                 if (Object.prototype.hasOwnProperty.call(graphDataWeb, prop)) {
                   // do stuff
                   if (

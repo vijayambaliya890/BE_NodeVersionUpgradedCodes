@@ -1,38 +1,41 @@
-const mongoose = require("mongoose");
-const StaffSapData = require("../../models/staffSAPData");
-const Ballot = require("../../models/ballot");
-const opsLeaves = require("../../models/opsLeaves");
-const OpsGroup = require("../../models/ops");
-const userHoliday = require("../../models/userHoliday");
-const swopRequests = require("../../models/swapRequests");
-const OpsTeam = require("../../models/opsTeam");
-const User = require("../../models/user");
-const PageSettingModel = require("../../models/pageSetting");
-const userLeaves = require("../../models/userLeaves");
-const LeaveLog = require("../../models/leaveLogs");
+const mongoose = require('mongoose');
+const StaffSapData = require('../../models/staffSAPData');
+const Ballot = require('../../models/ballot');
+const opsLeaves = require('../../models/opsLeaves');
+const OpsGroup = require('../../models/ops');
+const userHoliday = require('../../models/userHoliday');
+const swopRequests = require('../../models/swapRequests');
+const OpsTeam = require('../../models/opsTeam');
+const User = require('../../models/user');
+const PageSettingModel = require('../../models/pageSetting');
+const userLeaves = require('../../models/userLeaves');
+const LeaveLog = require('../../models/leaveLogs');
 //const _ = require('lodash');
-var __ = require("../../../helpers/globalFunctions");
-const CronJob = require("cron").CronJob;
-var multiparty = require("multiparty");
-const async = require("async");
-const moment = require("moment");
-const FCM = require("../../../helpers/fcm");
-const leaveApplied = require("../../models/leaveApplied");
-__ = require("../../../helpers/globalFunctions");
+var __ = require('../../../helpers/globalFunctions');
+const CronJob = require('cron').CronJob;
+var multiparty = require('multiparty');
+const async = require('async');
+const moment = require('moment');
+const FCM = require('../../../helpers/fcm');
+const leaveApplied = require('../../models/leaveApplied');
+__ = require('../../../helpers/globalFunctions');
 
 class opsLeave {
   async opsLeaveDataPage(req, res) {
     try {
-      const opsGroups = await OpsGroup.find({ adminId: req.params.id, isDelete: false }, { _id: 1, opsTeamId: 1, opsGroupName: 1, userId: 1 })
+      const opsGroups = await OpsGroup.find(
+        { adminId: req.params.id, isDelete: false },
+        { _id: 1, opsTeamId: 1, opsGroupName: 1, userId: 1 },
+      )
         // const ballots = await Ballot.find({ops})
         .populate([
           {
-            path: "opsTeamId",
-            select: ["name", "_id", "userId"],
+            path: 'opsTeamId',
+            select: ['name', '_id', 'userId'],
           },
           {
-            path: "userId",
-            select: ["_id", "name", "staffId"],
+            path: 'userId',
+            select: ['_id', 'name', 'staffId'],
           },
         ]);
       // let opsIds = [];
@@ -50,7 +53,7 @@ class opsLeave {
           opsGroupId: opsGroups[op]._id,
         });
         if (opsleave) {
-          console.log("OPSLEAVE IS PRESENT: ", opsleave);
+          console.log('OPSLEAVE IS PRESENT: ', opsleave);
           opss.push(opsleave);
           var ops = {
             id: opsGroups[op]._id,
@@ -70,18 +73,18 @@ class opsLeave {
             opsData.push(ops);
           }
         } else {
-          console.log("No its not there");
+          console.log('No its not there');
           var opsLeave = {
             opsGroupId: opsGroups[op]._id,
             name: opsGroups[op].opsGroupName,
             createdBy: req.user._id,
             users: [],
-            opsTeamId: []
+            opsTeamId: [],
           };
           var ops = {
             id: opsGroups[op]._id,
             name: opsGroups[op].opsGroupName,
-            team: []
+            team: [],
           };
           opsLeave.companyId = req.user.companyId;
           if (opsGroups[op].opsTeamId.length > 0) {
@@ -94,25 +97,29 @@ class opsLeave {
             }
             for (let u = 0; u <= opsGroups[op].userId.length - 1; u++) {
               for (let t = 0; t <= opsGroups[op].opsTeamId.length - 1; t++) {
-                let ids = opsGroups[op].opsTeamId[t].userId.filter((id) => id == opsGroups[op].userId[u]._id.toString());
-                console.log("ids fund are: ", ids);
+                let ids = opsGroups[op].opsTeamId[t].userId.filter(
+                  (id) => id == opsGroups[op].userId[u]._id.toString(),
+                );
+                console.log('ids fund are: ', ids);
                 if (ids.length > 0) {
                   let user = {};
                   user.staffId = opsGroups[op].userId[u].staffId;
                   user.id = opsGroups[op].userId[u]._id;
                   user.name = opsGroups[op].userId[u].name;
-                  console.log("I am inside of if condition");
+                  console.log('I am inside of if condition');
                   user.teamId = opsGroups[op].opsTeamId[t]._id;
                   user.teamName = opsGroups[op].opsTeamId[t].name;
                   opsLeave.users.push(user);
                 } else {
-                  console.log("I am inside of else condition y");
+                  console.log('I am inside of else condition y');
                 }
 
-                if (!opsLeave.opsTeamId.includes(opsGroups[op].opsTeamId[t]._id)) {
+                if (
+                  !opsLeave.opsTeamId.includes(opsGroups[op].opsTeamId[t]._id)
+                ) {
                   opsLeave.opsTeamId.push(opsGroups[op].opsTeamId[t]._id);
                 } else {
-                  console.log("team id is already there");
+                  console.log('team id is already there');
                 }
               }
             }
@@ -124,7 +131,7 @@ class opsLeave {
         }
       }
       if (opsLeavess.length > 0) {
-        console.log("I am in here");
+        console.log('I am in here');
         let data = await opsLeaves.insertMany(opsLeavess);
         if (opss.length > 0) {
           data = data.concat(opss);
@@ -132,36 +139,38 @@ class opsLeave {
         res.status(201).json({
           status: true,
           data: { leavedata: data, opsids: opsData },
-          message: "Successfull!!",
+          message: 'Successfull!!',
         });
       } else {
-        console.log("I am tata", opss);
+        console.log('I am tata', opss);
         let data = opss;
         res.status(201).json({
           status: true,
           data: { leavedata: data, opsids: opsData },
-          message: "Got Successfully..!!",
+          message: 'Got Successfully..!!',
         });
       }
     } catch (e) {
-      res.status(501).json({ status: false, data: e, message: "Something went wrong!!" });
+      res
+        .status(501)
+        .json({ status: false, data: e, message: 'Something went wrong!!' });
     }
   }
   async opsLeaveDataPageSwap(req, res) {
     try {
       const opsGroups = await OpsGroup.find(
         { adminId: req.params.id, isDelete: false },
-        { _id: 1, opsTeamId: 1, opsGroupName: 1, userId: 1 }
+        { _id: 1, opsTeamId: 1, opsGroupName: 1, userId: 1 },
       )
         // const ballots = await Ballot.find({ops})
         .populate([
           {
-            path: "opsTeamId",
-            select: ["name", "_id", "userId"],
+            path: 'opsTeamId',
+            select: ['name', '_id', 'userId'],
           },
           {
-            path: "userId",
-            select: ["_id", "name", "staffId"],
+            path: 'userId',
+            select: ['_id', 'name', 'staffId'],
           },
         ]);
       // let opsIds = [];
@@ -179,7 +188,7 @@ class opsLeave {
           opsGroupId: opsGroups[op]._id,
         });
         if (opsleave) {
-          console.log("OPSLEAVE IS PRESENT: ", opsleave);
+          console.log('OPSLEAVE IS PRESENT: ', opsleave);
           opss.push(opsleave);
           var ops = {
             id: opsGroups[op]._id,
@@ -199,7 +208,7 @@ class opsLeave {
             opsData.push(ops);
           }
         } else {
-          console.log("No its not there");
+          console.log('No its not there');
           var opsLeave = {
             opsGroupId: opsGroups[op]._id,
             name: opsGroups[op].opsGroupName,
@@ -224,25 +233,29 @@ class opsLeave {
             }
             for (let u = 0; u <= opsGroups[op].userId.length - 1; u++) {
               for (let t = 0; t <= opsGroups[op].opsTeamId.length - 1; t++) {
-                let ids = opsGroups[op].opsTeamId[t].userId.filter((id) => id == opsGroups[op].userId[u]._id.toString());
-                console.log("ids fund are: ", ids);
+                let ids = opsGroups[op].opsTeamId[t].userId.filter(
+                  (id) => id == opsGroups[op].userId[u]._id.toString(),
+                );
+                console.log('ids fund are: ', ids);
                 if (ids.length > 0) {
                   let user = {};
                   user.staffId = opsGroups[op].userId[u].staffId;
                   user.id = opsGroups[op].userId[u]._id;
                   user.name = opsGroups[op].userId[u].name;
-                  console.log("I am inside of if condition");
+                  console.log('I am inside of if condition');
                   user.teamId = opsGroups[op].opsTeamId[t]._id;
                   user.teamName = opsGroups[op].opsTeamId[t].name;
                   opsLeave.users.push(user);
                 } else {
-                  console.log("I am inside of else condition y");
+                  console.log('I am inside of else condition y');
                 }
 
-                if (!opsLeave.opsTeamId.includes(opsGroups[op].opsTeamId[t]._id)) {
+                if (
+                  !opsLeave.opsTeamId.includes(opsGroups[op].opsTeamId[t]._id)
+                ) {
                   opsLeave.opsTeamId.push(opsGroups[op].opsTeamId[t]._id);
                 } else {
-                  console.log("team id is already there");
+                  console.log('team id is already there');
                 }
               }
             }
@@ -255,7 +268,7 @@ class opsLeave {
       }
 
       if (opsLeavess.length > 0) {
-        console.log("I am in here");
+        console.log('I am in here');
         let data = await opsLeaves.insertMany(opsLeavess);
         if (opss.length > 0) {
           data = data.concat(opss);
@@ -263,26 +276,28 @@ class opsLeave {
         res.status(201).json({
           status: true,
           data: { leavedata: data, opsids: opsData },
-          message: "Successfull!!",
+          message: 'Successfull!!',
         });
       } else {
-        console.log("I am tata", opss);
+        console.log('I am tata', opss);
         let data = opss;
         res.status(201).json({
           status: true,
           data: { leavedata: data, opsids: opsData },
-          message: "Got Successfully..!!",
+          message: 'Got Successfully..!!',
         });
       }
     } catch (e) {
-      res.status(501).json({ status: false, data: e, message: "Something went wrong!!" });
+      res
+        .status(501)
+        .json({ status: false, data: e, message: 'Something went wrong!!' });
     }
   }
   async getOpsLeaveCanlender(req, res) {
     try {
-      console.log("req.params.id: ", req.params.id);
+      console.log('req.params.id: ', req.params.id);
       const ballot = await Ballot.findOne({ _id: req.params.id });
-      console.log("Got BAllot:", ballot);
+      console.log('Got BAllot:', ballot);
       if (!ballot) {
         res.status(404).json({
           status: false,
@@ -293,18 +308,18 @@ class opsLeave {
         const opsLeaveData = await opsLeaves.findOne({
           ballots: { $in: [ballot._id] },
         });
-        console.log("got: ", opsLeaveData);
+        console.log('got: ', opsLeaveData);
         if (!opsLeaveData || opsLeaveData == null) {
-          console.log("I am inside of opsleavedata yep:");
+          console.log('I am inside of opsleavedata yep:');
           let allBallots = [];
           if (ballot.parentBallot) {
-            console.log("HERE ME!!!");
+            console.log('HERE ME!!!');
             let rounds = await this.findParent(res, ballot, allBallots);
-            console.log("Rounds Found here: ", rounds);
+            console.log('Rounds Found here: ', rounds);
             this.findQuotas(rounds, res, req);
           } else if (ballot.childBallots.length > 0) {
             //If selected ballot is parnt ballot
-            console.log("Its a parent ballot may be");
+            console.log('Its a parent ballot may be');
             //let allBallots=[];
             allBallots.push(ballot._id);
             for (let c = 0; c <= ballot.childBallots.length - 1; c++) {
@@ -320,7 +335,7 @@ class opsLeave {
           res.status(201).json({
             status: true,
             data: opsLeaveData,
-            message: "got it in ops Leaves.",
+            message: 'got it in ops Leaves.',
           });
         }
       }
@@ -328,29 +343,32 @@ class opsLeave {
       res.status(501).json({
         status: false,
         data: null,
-        message: "Oops! something went wrong.",
+        message: 'Oops! something went wrong.',
       });
     }
   }
   async findParent(ballotdata, allBallots) {
     try {
-      console.log("ballotData is : ");
+      console.log('ballotData is : ');
       if (ballotdata.parentBallot) {
-        let BBallot = await Ballot.findOne({ _id: ballotdata.parentBallot }, { _id: 1, parentBallot: 1, childBallots: 1 });
-        console.log("ballotData is : ", BBallot);
-        console.log("allBallots is : ", allBallots);
+        let BBallot = await Ballot.findOne(
+          { _id: ballotdata.parentBallot },
+          { _id: 1, parentBallot: 1, childBallots: 1 },
+        );
+        console.log('ballotData is : ', BBallot);
+        console.log('allBallots is : ', allBallots);
         return this.findParent(BBallot, allBallots);
       } else if (ballotdata.childBallots.length > 0) {
-        console.log("Yoooo!!! its has a child ballots");
+        console.log('Yoooo!!! its has a child ballots');
         allBallots.push(ballotdata._id);
         for (let c = 0; c <= ballotdata.childBallots.length - 1; c++) {
-          console.log("Inside of for loop here", ballotdata.childBallots[c]);
+          console.log('Inside of for loop here', ballotdata.childBallots[c]);
           allBallots.push(ballotdata.childBallots[c]);
         }
-        console.log("here at all Ballots e: ", allBallots);
+        console.log('here at all Ballots e: ', allBallots);
         //  return allBallots;
       } else {
-        console.log("It is just a ballot so no worries");
+        console.log('It is just a ballot so no worries');
       }
       return allBallots;
     } catch (err) {
@@ -360,9 +378,9 @@ class opsLeave {
   }
   async findQuotas(allballots, res, req) {
     try {
-      console.log("before reverse: ", allballots);
+      console.log('before reverse: ', allballots);
       allballots.reverse();
-      console.log("after reverse: ", allballots);
+      console.log('after reverse: ', allballots);
       //let ballotToWork = allballots[0];
       const ballotIs = await Ballot.findOne(
         { _id: allballots[0] },
@@ -374,23 +392,25 @@ class opsLeave {
           OpsGroupId: 1,
           wonStaff: 1,
           adminId: 1,
-        }
+        },
       );
       if (!ballotIs) {
-        res.status(204).json({ status: true, data: null, message: "Couldn't find ballot." });
+        res
+          .status(204)
+          .json({ status: true, data: null, message: "Couldn't find ballot." });
       }
       let slots = ballotIs.slotCreation;
       ballotIs.monthRange = [];
       ballotIs.monthRange = JSON.stringify(ballotIs.weekRange);
       ballotIs.monthRange = JSON.parse(ballotIs.monthRange);
       ballotIs.monthRange.forEach((dd, index) => {
-        dd.month = moment(dd.start).format("MMMM-YY");
+        dd.month = moment(dd.start).format('MMMM-YY');
         dd.weekNO = index;
       });
-      ballotIs.monthRange = groupBy(ballotIs.monthRange, "month");
+      ballotIs.monthRange = groupBy(ballotIs.monthRange, 'month');
       const MONTH = [];
       await Object.entries(ballotIs.monthRange).forEach((entry) => {
-        console.log("entry is:", entry);
+        console.log('entry is:', entry);
         let key = entry[0];
         let value = entry[1];
         var objTo = {};
@@ -415,15 +435,24 @@ class opsLeave {
           opsTeams: [],
         };
         for (let j = 0; j <= slots[i].arr.length - 1; j++) {
-          let currentweek = j + "A";
+          let currentweek = j + 'A';
           var found = ballotIs.wonStaff.filter(function (element) {
-            return element.opsGroupId.toString() === opsGrpid.toString() && element.weekNo === j;
+            return (
+              element.opsGroupId.toString() === opsGrpid.toString() &&
+              element.weekNo === j
+            );
           });
           //slots[i].weekRangeSlot[currentweek].weeksValues={};
-          slots[i].weekRangeSlot[currentweek].value = slots[i].weekRangeSlot[currentweek].value - found.length;
+          slots[i].weekRangeSlot[currentweek].value =
+            slots[i].weekRangeSlot[currentweek].value - found.length;
           let currentWeekIs = ballotIs.weekRange[j];
-          var daylist = getDaysArray(new Date(currentWeekIs.start), new Date(currentWeekIs.end), slots[i].weekRangeSlot[currentweek].value, j);
-          console.log("daylist is: ", daylist);
+          var daylist = getDaysArray(
+            new Date(currentWeekIs.start),
+            new Date(currentWeekIs.end),
+            slots[i].weekRangeSlot[currentweek].value,
+            j,
+          );
+          console.log('daylist is: ', daylist);
           opsGroup.weekdata = opsGroup.weekdata.concat(daylist);
           if (slots[i].opsTeam.length > 0) {
             slots[i].opsTeam.forEach((team, d) => {
@@ -431,24 +460,48 @@ class opsLeave {
               //console.logs("Current week in Team: ", currentweek);
               var found = ballotIs.wonStaff.filter(function (element) {
                 if (element.opsTeamId) {
-                  return element.opsTeamId.toString() === team._id.toString() && element.weekNo === j;
+                  return (
+                    element.opsTeamId.toString() === team._id.toString() &&
+                    element.weekNo === j
+                  );
                 } else {
-                  return element.opsGroupId === opsGrpid && !element.opsTeamId && element.weekNO === j;
+                  return (
+                    element.opsGroupId === opsGrpid &&
+                    !element.opsTeamId &&
+                    element.weekNO === j
+                  );
                 }
               });
               //console.logs("FOUND: ", found);
               //  slots[i].weekRangeSlot[currentweek].weeksValues={};
-              slots[i].weekRangeSlot[currentweek].value = slots[i].weekRangeSlot[currentweek].value - found.length;
-              if (opsGroup.opsTeams[d] && opsGroup.opsTeams[d].weekdata && opsGroup.opsTeams[d].weekdata.length > 0) {
+              slots[i].weekRangeSlot[currentweek].value =
+                slots[i].weekRangeSlot[currentweek].value - found.length;
+              if (
+                opsGroup.opsTeams[d] &&
+                opsGroup.opsTeams[d].weekdata &&
+                opsGroup.opsTeams[d].weekdata.length > 0
+              ) {
                 let currentWeekIs = ballotIs.weekRange[j];
-                var daylist = getDaysArray(new Date(currentWeekIs.start), new Date(currentWeekIs.end), slots[i].weekRangeSlot[currentweek].value, j);
-                opsGroup.opsTeams[d].weekdata = opsGroup.opsTeams[d].weekdata.concat(daylist);
+                var daylist = getDaysArray(
+                  new Date(currentWeekIs.start),
+                  new Date(currentWeekIs.end),
+                  slots[i].weekRangeSlot[currentweek].value,
+                  j,
+                );
+                opsGroup.opsTeams[d].weekdata =
+                  opsGroup.opsTeams[d].weekdata.concat(daylist);
               } else {
                 let tm = { id: team._id, name: team.name, weekdata: [] };
                 opsGroup.opsTeams.push(tm);
                 let currentWeekIs = ballotIs.weekRange[j];
-                var daylist = getDaysArray(new Date(currentWeekIs.start), new Date(currentWeekIs.end), slots[i].weekRangeSlot[currentweek].value, j);
-                opsGroup.opsTeams[d].weekdata = opsGroup.opsTeams[d].weekdata.concat(daylist);
+                var daylist = getDaysArray(
+                  new Date(currentWeekIs.start),
+                  new Date(currentWeekIs.end),
+                  slots[i].weekRangeSlot[currentweek].value,
+                  j,
+                );
+                opsGroup.opsTeams[d].weekdata =
+                  opsGroup.opsTeams[d].weekdata.concat(daylist);
               }
             });
           }
@@ -468,12 +521,18 @@ class opsLeave {
       OpsLeave.monthRange = ballotIs.monthRange;
       var opsleave = new opsLeaves(OpsLeave);
       var leaveops = await opsleave.save();
-      console.log("Successfully saved!!: ", leaveops);
-      res.status(201).json({ status: true, data: leaveops, message: "got it." });
+      console.log('Successfully saved!!: ', leaveops);
+      res
+        .status(201)
+        .json({ status: true, data: leaveops, message: 'got it.' });
       //  return(ballotIs);
       function getDaysArray(start, end, value, week) {
-        for (var arr = [], dt = start; dt <= end; dt.setDate(dt.getDate() + 1)) {
-          console.log("Arr: ", arr);
+        for (
+          var arr = [], dt = start;
+          dt <= end;
+          dt.setDate(dt.getDate() + 1)
+        ) {
+          console.log('Arr: ', arr);
           arr.push({ date: new Date(dt), value: value, weekNo: week });
         }
         return arr;
@@ -485,15 +544,25 @@ class opsLeave {
   }
   async getDateRange(req, res) {
     try {
-      const bb = await Ballot.findOne({ _id: req.params.id }, { _id: 1, weekRange: 1 });
+      const bb = await Ballot.findOne(
+        { _id: req.params.id },
+        { _id: 1, weekRange: 1 },
+      );
       let arrOfWeekIs = bb.weekRange[0];
-      console.log("arrOfWeekIs: ", arrOfWeekIs);
-      var daylist = getDaysArray(new Date(arrOfWeekIs.start), new Date(arrOfWeekIs.end));
-      console.log("dayList is:", daylist);
-      res.status(201).json({ status: true, data: daylist, message: "got it." });
+      console.log('arrOfWeekIs: ', arrOfWeekIs);
+      var daylist = getDaysArray(
+        new Date(arrOfWeekIs.start),
+        new Date(arrOfWeekIs.end),
+      );
+      console.log('dayList is:', daylist);
+      res.status(201).json({ status: true, data: daylist, message: 'got it.' });
       function getDaysArray(start, end) {
-        for (var arr = [], dt = start; dt <= end; dt.setDate(dt.getDate() + 1)) {
-          console.log("Arr: ", arr);
+        for (
+          var arr = [], dt = start;
+          dt <= end;
+          dt.setDate(dt.getDate() + 1)
+        ) {
+          console.log('Arr: ', arr);
           arr.push(new Date(dt));
         }
         return arr;
@@ -506,15 +575,18 @@ class opsLeave {
   async savePerDayOpsQuota(req, res) {
     try {
       let id = req.body.opsGroup.id;
-      let opsleave = await opsLeaves.findOne({ opsGroupId: id }, { _id: 1, perDayQuota: 1, opsTeamId: 1 });
+      let opsleave = await opsLeaves.findOne(
+        { opsGroupId: id },
+        { _id: 1, perDayQuota: 1, opsTeamId: 1 },
+      );
       if (!opsleave) {
         res.status(203).json({
           status: false,
           data: null,
-          message: "couldent find this ops group in opsLeave",
+          message: 'couldent find this ops group in opsLeave',
         });
       }
-      opsleave = JSON.parse(JSON.stringify(opsleave))
+      opsleave = JSON.parse(JSON.stringify(opsleave));
       let data = req.body.opsGroup;
       let key;
       let values;
@@ -561,20 +633,36 @@ class opsLeave {
             key1 = Object.keys(dd)[0];
             values1 = Object.values(dd)[0];
           });
-          let Isteam = opsleave.perDayQuota.opsTeams.filter((qa) => qa.id === req.body.opsTeam.id);
+          let Isteam = opsleave.perDayQuota.opsTeams.filter(
+            (qa) => qa.id === req.body.opsTeam.id,
+          );
           if (Isteam && Isteam.length > 0) {
             //This ieam exists there replace it in opsteam array.
-            for (let tm = 0; tm <= opsleave.perDayQuota.opsTeams.length - 1; tm++) {
+            for (
+              let tm = 0;
+              tm <= opsleave.perDayQuota.opsTeams.length - 1;
+              tm++
+            ) {
               if (opsleave.perDayQuota.opsTeams[tm].id == req.body.opsTeam.id) {
                 //update value
-                let filtertmquota = opsleave.perDayQuota.opsTeams[tm].quota.filter((q) => {
+                let filtertmquota = opsleave.perDayQuota.opsTeams[
+                  tm
+                ].quota.filter((q) => {
                   let qq = q.hasOwnProperty(key1);
                   return qq;
                 });
                 if (filtertmquota.length > 0) {
-                  for (let kk = 0; kk <= opsleave.perDayQuota.opsTeams[tm].quota.length - 1; kk++) {
-                    if (opsleave.perDayQuota.opsTeams[tm].quota[kk].hasOwnProperty(key1)) {
-                      console.log("foing in if as I foind that property");
+                  for (
+                    let kk = 0;
+                    kk <= opsleave.perDayQuota.opsTeams[tm].quota.length - 1;
+                    kk++
+                  ) {
+                    if (
+                      opsleave.perDayQuota.opsTeams[tm].quota[
+                        kk
+                      ].hasOwnProperty(key1)
+                    ) {
+                      console.log('foing in if as I foind that property');
                       opsleave.perDayQuota.opsTeams[tm].quota[kk] = {};
                       opsleave.perDayQuota.opsTeams[tm].quota[kk] = ttquota;
                     } else {
@@ -582,11 +670,14 @@ class opsLeave {
                     }
                   }
                 } else {
-                  console.log("I am going in this case");
+                  console.log('I am going in this case');
                   opsleave.perDayQuota.opsTeams[tm].quota.push(ttquota);
                 }
                 // opsleave.perDayQuota.opsTeams[tm].quota = req.body.opsTeam.quota;
-                console.log("updated that :", opsleave.perDayQuota.opsTeams[tm]);
+                console.log(
+                  'updated that :',
+                  opsleave.perDayQuota.opsTeams[tm],
+                );
               } else {
                 //nothing to update or save
               }
@@ -599,19 +690,28 @@ class opsLeave {
           opsleave.perDayQuota.opsTeams.push(req.body.opsTeam);
         }
       } else {
-        console.log("Does not have teams");
+        console.log('Does not have teams');
       }
 
-      console.log("per day quots id: ", opsleave.perDayQuota);
-      let updated = await opsLeaves.update({ _id: opsleave._id }, { $set: { perDayQuota: opsleave.perDayQuota } });
+      console.log('per day quots id: ', opsleave.perDayQuota);
+      let updated = await opsLeaves.update(
+        { _id: opsleave._id },
+        { $set: { perDayQuota: opsleave.perDayQuota } },
+      );
       if (updated) {
         res.status(201).json({
           status: true,
           data: updated,
-          message: "Successfully updated quota values.",
+          message: 'Successfully updated quota values.',
         });
       } else {
-        res.status(203).json({ status: false, data: null, message: "couldn't update values" });
+        res
+          .status(203)
+          .json({
+            status: false,
+            data: null,
+            message: "couldn't update values",
+          });
       }
     } catch (err) {
       __.log(err);
@@ -621,18 +721,21 @@ class opsLeave {
   async getQuotaByOpsGroup(req, res) {
     try {
       let id = req.params.id;
-      const opsleave = await opsLeaves.findOne({ opsGroupId: id }, { _id: 1, perDayQuota: 1, opsTeamId: 1 });
+      const opsleave = await opsLeaves.findOne(
+        { opsGroupId: id },
+        { _id: 1, perDayQuota: 1, opsTeamId: 1 },
+      );
       if (!opsleave) {
         res.status(203).json({
           status: false,
           data: null,
-          message: "couldent find this ops group in opsLeave",
+          message: 'couldent find this ops group in opsLeave',
         });
       } else {
         res.status(201).json({
           status: true,
           data: opsleave,
-          message: "found data successfully",
+          message: 'found data successfully',
         });
       }
     } catch (err) {
@@ -643,39 +746,42 @@ class opsLeave {
   async quotaByOpsGroup(req, res) {
     try {
       const body = req.body;
-      const opsleave = await opsLeaves.findOne({ opsGroupId: body.opsGroupId }, { _id: 1, perDayQuota: 1, opsTeamId: 1 });
+      const opsleave = await opsLeaves.findOne(
+        { opsGroupId: body.opsGroupId },
+        { _id: 1, perDayQuota: 1, opsTeamId: 1 },
+      );
       let obj = {};
       if (!opsleave) {
         obj.perDayQuota = {
-          quota: []
+          quota: [],
         };
         if (body.opsTeamId) {
           obj.perDayQuota.opsTeams = {
             id: body.opsTeamId,
-            quota: []
-          }
+            quota: [],
+          };
         }
         return res.status(200).json({
           status: false,
           data: obj,
-          message: "couldent find this ops group in opsLeave",
+          message: 'couldent find this ops group in opsLeave',
         });
       }
       const perDayQuota = opsleave.perDayQuota;
       if (!perDayQuota) {
         obj.perDayQuota = {
-          quota: []
+          quota: [],
         };
         if (body.opsTeamId) {
           obj.perDayQuota.opsTeams = {
             id: body.opsTeamId,
-            quota: []
-          }
+            quota: [],
+          };
         }
         return res.status(200).json({
           status: false,
           data: obj,
-          message: "Per day quota not found",
+          message: 'Per day quota not found',
         });
       }
       // return res.json({ perDayQuota })
@@ -685,8 +791,8 @@ class opsLeave {
       });
       if (data.length > 0) {
         obj.perDayQuota = {
-          quota: data[0]
-        }
+          quota: data[0],
+        };
         if (body.opsTeamId && perDayQuota.opsTeams.length > 0) {
           let finalTeam = null;
           for (let i = 0; i < perDayQuota.opsTeams.length; i++) {
@@ -705,41 +811,39 @@ class opsLeave {
               obj.perDayQuota.opsTeams = {
                 quota: teamQuota[0],
                 id: finalTeam.id,
-                name: finalTeam.name
-              }
+                name: finalTeam.name,
+              };
             } else {
               obj.perDayQuota.opsTeams = {
                 id: body.opsTeamId,
                 quota: [],
-                name: finalTeam.name
-              }
+                name: finalTeam.name,
+              };
             }
           } else {
             obj.perDayQuota.opsTeams = {
               id: body.opsTeamId,
-              quota: []
-            }
+              quota: [],
+            };
           }
-
         } else if (body.opsTeamId) {
           obj.perDayQuota.opsTeams = {
             id: body.opsTeamId,
-            quota: []
-          }
+            quota: [],
+          };
         }
       } else {
-
         obj.perDayQuota = {
-          quota: []
-        }
+          quota: [],
+        };
         if (body.opsTeamId) {
           obj.perDayQuota.opsTeams = {
             id: body.opsTeamId,
-            quota: []
-          }
+            quota: [],
+          };
         }
       }
-      return res.json({ status: true, data: obj })
+      return res.json({ status: true, data: obj });
     } catch (err) {
       __.log(err);
       __.out(res, 500, err);
@@ -749,8 +853,14 @@ class opsLeave {
     try {
       let data = req.body;
       let id = req.body.opsGroupId;
-      const opsGrp = await OpsGroup.findOne({ _id: id }, { userId: 1, opsTeamId: 1 });
-      const opsleave = await opsLeaves.findOne({ opsGroupId: id }, { _id: 1, perDayQuota: 1, opsTeamId: 1 });
+      const opsGrp = await OpsGroup.findOne(
+        { _id: id },
+        { userId: 1, opsTeamId: 1 },
+      );
+      const opsleave = await opsLeaves.findOne(
+        { opsGroupId: id },
+        { _id: 1, perDayQuota: 1, opsTeamId: 1 },
+      );
       //    let userOnHoliday= await userHoliday.find({opsGroupId:id});//,fromdate:data.date
       //    const Ballots = await Ballot.find({opsGroupId : data.opsGroupId,isCanceled:false},{_id:1,ballotName:1,ballotStartDate:1,ballotEndDate:1,weekRange:1,wonStaff:1});
       // return res.json({opsleave, userOnHoliday})
@@ -758,7 +868,7 @@ class opsLeave {
         res.status(203).json({
           status: false,
           data: null,
-          message: "couldent find this ops group in opsLeave",
+          message: 'couldent find this ops group in opsLeave',
         });
       }
       if (!req.body.opsTeamId) {
@@ -766,13 +876,13 @@ class opsLeave {
           res.status(203).json({
             status: false,
             data: null,
-            message: "Please set per day quota for requested ops group",
+            message: 'Please set per day quota for requested ops group',
           });
         } else {
           let userOnHoliday = await leaveApplied.find({
             userId: { $in: opsGrp.userId },
             status: { $in: [0, 1, 3, 4, 7, 8] },
-            $expr: { $eq: [{ $year: "$startDate" }, req.body.year] }
+            $expr: { $eq: [{ $year: '$startDate' }, req.body.year] },
           });
           //return res.json({ userOnHoliday })
           if (opsleave.perDayQuota.quota.length > 0) {
@@ -781,17 +891,21 @@ class opsLeave {
               if (opsleave.perDayQuota.quota[q].hasOwnProperty(req.body.year)) {
                 isQuotaForYear = false;
                 let finalData = opsleave.perDayQuota.quota[q];
-                console.log("finalData : ", finalData);
+                console.log('finalData : ', finalData);
                 //return res.json({finalData, q})
                 // if(finalData){
                 for (let j = 0; j < finalData[req.body.year].length; j++) {
                   const dayData = finalData[req.body.year][j];
                   //Here I have dates of data.
                   // dd-mm-yyyy
-                  let currdate = dayData.date.split("-");
+                  let currdate = dayData.date.split('-');
                   // currdate = new Date(+currdate[2], currdate[1] - 1, +currdate[0] + 1).getTime();
-                  currdate = new Date(+currdate[2], currdate[1] - 1, +currdate[0]).getTime(); //Add +1 for local as above commented line
-                  console.log("Currdate here is: ", currdate);
+                  currdate = new Date(
+                    +currdate[2],
+                    currdate[1] - 1,
+                    +currdate[0],
+                  ).getTime(); //Add +1 for local as above commented line
+                  console.log('Currdate here is: ', currdate);
                   let woncount = 0;
                   // console.log("WONCOUNT S: ", woncount);
                   const countUser = userOnHoliday.filter((item) => {
@@ -800,8 +914,8 @@ class opsLeave {
                     return currdate <= dateParteee && currdate >= datePartsss;
                   });
                   //  var filtered = countUser.filter(filterWithStatus);
-                  var countFiltered = countUser.length //- filtered.length;
-                  console.log("countFiltered", countFiltered)
+                  var countFiltered = countUser.length; //- filtered.length;
+                  console.log('countFiltered', countFiltered);
                   const qo = parseInt(dayData.value);
                   let v = qo - (countFiltered + woncount);
                   finalData[req.body.year][j].value = v;
@@ -810,27 +924,39 @@ class opsLeave {
                 res.status(201).json({
                   status: true,
                   data: opsleave.perDayQuota.quota[q],
-                  message: "Found requested quota",
+                  message: 'Found requested quota',
                 });
               } else {
-                console.log("Its not requested year");
+                console.log('Its not requested year');
               }
             }
             if (isQuotaForYear) {
-              return res.json({ "status": false, "data": null, "message": "Please set per day quota for requested ops group" })
+              return res.json({
+                status: false,
+                data: null,
+                message: 'Please set per day quota for requested ops group',
+              });
             }
           } else {
-            return res.json({ "status": false, "data": null, "message": "Please set per day quota for requested ops group" })
+            return res.json({
+              status: false,
+              data: null,
+              message: 'Please set per day quota for requested ops group',
+            });
           }
         }
       } else {
         // console.log("Hi i m in else:", opsleave.perDayQuota);
-        const opsTm = await OpsTeam.findOne({ _id: req.body.opsTeamId }, { userId: 1 });
+        const opsTm = await OpsTeam.findOne(
+          { _id: req.body.opsTeamId },
+          { userId: 1 },
+        );
         if (!opsleave.perDayQuota) {
           res.status(203).json({
             status: false,
             data: null,
-            message: "Please set per day quota for requested ops group and ops team",
+            message:
+              'Please set per day quota for requested ops group and ops team',
           });
         } else {
           let opsData = {};
@@ -842,19 +968,23 @@ class opsLeave {
                 opsData = opsleave.perDayQuota.quota[q];
                 break;
               } else {
-                console.log("not in");
+                console.log('not in');
               }
             }
           }
           if (opsleave.perDayQuota.opsTeams.length > 0) {
             let allTeams = [];
-            var filteOtherTeams = opsleave.perDayQuota.opsTeams.filter((q) => q.id !== req.body.opsTeamId);
+            var filteOtherTeams = opsleave.perDayQuota.opsTeams.filter(
+              (q) => q.id !== req.body.opsTeamId,
+            );
             //console.log("filteOtherTeams:", filteOtherTeams);
             if (filteOtherTeams.length > 0) {
               for (let ot = 0; ot <= filteOtherTeams.length - 1; ot++) {
                 let curreQuota = filteOtherTeams[ot].quota;
                 //   console.log("current quota is: ");
-                var filterwithprop = curreQuota.filter((cc) => cc.hasOwnProperty(req.body.year));
+                var filterwithprop = curreQuota.filter((cc) =>
+                  cc.hasOwnProperty(req.body.year),
+                );
                 //   console.log("current quota isfilterwithprop: ", filterwithprop);
                 if (filterwithprop.length > 0) {
                   allTeams.push(filterwithprop[0]);
@@ -862,15 +992,17 @@ class opsLeave {
               }
             }
 
-            var opsTeamdata = opsleave.perDayQuota.opsTeams.filter((q) => q.id == req.body.opsTeamId);
+            var opsTeamdata = opsleave.perDayQuota.opsTeams.filter(
+              (q) => q.id == req.body.opsTeamId,
+            );
             // console.log("opsTeamdata: ", opsTeamdata);
             if (opsTeamdata.length > 0) {
               let userOnHoliday = await leaveApplied.find({
                 userId: { $in: opsTm.userId },
                 status: { $in: [1, 3, 4, 7, 8] },
-                $expr: { $eq: [{ $year: "$startDate" }, req.body.year] }
+                $expr: { $eq: [{ $year: '$startDate' }, req.body.year] },
               });
-              console.log("userOnHoliday", userOnHoliday.length)
+              console.log('userOnHoliday', userOnHoliday.length);
               let isQuotaForYear = true;
               for (let q = 0; q <= opsTeamdata[0].quota.length - 1; q++) {
                 if (opsTeamdata[0].quota[q].hasOwnProperty(req.body.year)) {
@@ -879,45 +1011,58 @@ class opsLeave {
                   let finalData = opsTeamdata[0].quota[q];
                   for (let j = 0; j < finalData[req.body.year].length; j++) {
                     const dayData = finalData[req.body.year][j];
-                    let currdate = dayData.date.split("-");
-                    currdate = new Date(+currdate[2], currdate[1] - 1, +currdate[0]).getTime();
+                    let currdate = dayData.date.split('-');
+                    currdate = new Date(
+                      +currdate[2],
+                      currdate[1] - 1,
+                      +currdate[0],
+                    ).getTime();
                     //get ballot won counts from ballots
                     let woncount = 0;
                     //Here I have dates of data from casual holidays.
                     const countUser = userOnHoliday.filter((item) => {
                       var datePartsss = new Date(item.startDate).getTime();
                       var dateParteee = new Date(item.endDate).getTime();
-                      return currdate <= dateParteee && currdate >= datePartsss
+                      return currdate <= dateParteee && currdate >= datePartsss;
                     });
                     var countFiltered = countUser.length;
                     const qo = parseInt(dayData.value);
                     let v = countFiltered + woncount;
                     finalData[req.body.year][j].quota = parseInt(qo);
-                    finalData[req.body.year][j].value = finalData[req.body.year][j].quota - v;
+                    finalData[req.body.year][j].value =
+                      finalData[req.body.year][j].quota - v;
                   }
                   // }
                   res.status(201).json({
                     status: true,
                     data: finalData,
                     userOnHoliday,
-                    message: "Found requested quota 1",
+                    message: 'Found requested quota 1',
                   });
                 } else {
-                  console.log("Its not requested year");
+                  console.log('Its not requested year');
                 }
               }
               if (isQuotaForYear) {
-                return res.json({ "status": false, "data": null, "message": "Please set per day quota for requested ops group" })
+                return res.json({
+                  status: false,
+                  data: null,
+                  message: 'Please set per day quota for requested ops group',
+                });
               }
             } else {
               res.status(203).json({
                 status: false,
                 data: null,
-                message: "Please set Quota Values for requested year first",
+                message: 'Please set Quota Values for requested year first',
               });
             }
           } else {
-            return res.json({ "status": false, "data": null, "message": "Please set per day quota for requested ops group" })
+            return res.json({
+              status: false,
+              data: null,
+              message: 'Please set per day quota for requested ops group',
+            });
           }
         }
       }
@@ -925,29 +1070,39 @@ class opsLeave {
       res.status(203).json({
         status: false,
         data: null,
-        message: "something went worng or Please check selected year",
+        message: 'something went worng or Please check selected year',
       });
     }
     function filterWithStatus(event) {
-      return event.status == "cancelled";
+      return event.status == 'cancelled';
     }
   }
   async getUserByDate(req, res) {
     let data = req.body;
     try {
-      const opsleave = await opsLeaves.findOne({ opsGroupId: data.opsGroupId }, { _id: 1, perDayQuota: 1, opsTeamId: 1, users: 1 });
-      const ops = await OpsGroup.findOne({ _id: data.opsGroupId }, { userId: 1, opsTeamId: 1 });
-      var dateParts = data.date.split("-");
+      const opsleave = await opsLeaves.findOne(
+        { opsGroupId: data.opsGroupId },
+        { _id: 1, perDayQuota: 1, opsTeamId: 1, users: 1 },
+      );
+      const ops = await OpsGroup.findOne(
+        { _id: data.opsGroupId },
+        { userId: 1, opsTeamId: 1 },
+      );
+      var dateParts = data.date.split('-');
       // dateParts:  [ '04', '01', '2020' ]
       // dateObject:  2020-01-03T18:30:00.000Z
       // month is 0-based, that's why we need dataParts[1] - 1
-      var dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0] + 1);
+      var dateObject = new Date(
+        +dateParts[2],
+        dateParts[1] - 1,
+        +dateParts[0] + 1,
+      );
       let woncount = 0;
       if (!opsleave || !ops) {
         res.status(203).json({
           status: false,
           data: null,
-          message: "couldnt find this ops group in opsLeave",
+          message: 'couldnt find this ops group in opsLeave',
         });
       } else {
         if (opsleave.perDayQuota) {
@@ -957,18 +1112,22 @@ class opsLeave {
             let userOnHoliday = await userLeaves.find({
               userId: { $in: ops.userId },
             });
-            console.log("No team id in request: ", userOnHoliday);
-            userOnHoliday = userOnHoliday.reduce(function (accumulator, currentValue) {
+            console.log('No team id in request: ', userOnHoliday);
+            userOnHoliday = userOnHoliday.reduce(function (
+              accumulator,
+              currentValue,
+            ) {
               var startdd = new Date(currentValue.fromdate);
               var startdd1 = nextDayUTC(startdd);
               var enddd = new Date(currentValue.todate);
               let end1 = nextDayUTC(enddd);
               if (dateObject <= end1 && dateObject >= startdd1) {
-                console.log("Motha if");
+                console.log('Motha if');
                 accumulator.push(currentValue);
               }
               return accumulator;
-            }, []);
+            },
+            []);
             function nextDayUTC(d) {
               var aDay = 1440 * 60 * 1000;
               var d2 = new Date(Math.trunc((d.getTime() + aDay) / aDay) * aDay);
@@ -977,18 +1136,26 @@ class opsLeave {
             //var filtered = userOnHoliday.filter(filterWithStatus);
             // let casualCount = userOnHoliday.length;
             //casualCount = userOnHoliday.length - filtered.length;
-            let casualcount = userOnHoliday.filter((uu) => uu.type == 2 && uu.status !== "cancelled");
+            let casualcount = userOnHoliday.filter(
+              (uu) => uu.type == 2 && uu.status !== 'cancelled',
+            );
             casualCount = casualcount.length;
-            let specialCount = userOnHoliday.filter((uuh) => uuh.type == 4 && uuh.status !== "cancelled");
+            let specialCount = userOnHoliday.filter(
+              (uuh) => uuh.type == 4 && uuh.status !== 'cancelled',
+            );
             let specialcount = specialCount.length;
-            let blockCount = userOnHoliday.filter((uh) => uh.type == 3 && uh.status !== "cancelled");
-            let wonsballot = userOnHoliday.filter((uh) => uh.type == 1 && uh.status !== "cancelled");
+            let blockCount = userOnHoliday.filter(
+              (uh) => uh.type == 3 && uh.status !== 'cancelled',
+            );
+            let wonsballot = userOnHoliday.filter(
+              (uh) => uh.type == 1 && uh.status !== 'cancelled',
+            );
             woncount = wonsballot.length;
             woncount = woncount + blockCount.length;
             // userOnHoliday = userOnHoliday.concat(allUsers);
             // casualCount = casualCount -(specialcount+blockCount.length);
             if (opsleave.perDayQuota.quota.length > 0) {
-              console.log("here inside of if me");
+              console.log('here inside of if me');
               let yeardata = opsleave.perDayQuota.quota.filter((q) => {
                 if (q.hasOwnProperty(data.year)) {
                   return q;
@@ -996,19 +1163,26 @@ class opsLeave {
               });
               // console.log("yeardata is:",yeardata);
               if (yeardata.length > 0) {
-                console.log("in if");
+                console.log('in if');
                 // find quota for that date and the users.
                 let key = Object.keys(yeardata[0])[0];
-                console.log("keyis: ", key);
-                let thatdateIs = yeardata[0][key].filter((qa) => qa.date == data.date);
+                console.log('keyis: ', key);
+                let thatdateIs = yeardata[0][key].filter(
+                  (qa) => qa.date == data.date,
+                );
                 // console.log("thatdate is : ",thatdateIs);
                 if (thatdateIs.length > 0) {
-                  let balance = thatdateIs[0].value - (casualCount + specialcount + woncount);
+                  let balance =
+                    thatdateIs[0].value -
+                    (casualCount + specialcount + woncount);
                   if (balance < 0) {
                     balance = 0;
                   }
-                  let UsersOnHoliday = groupUsersByLeaves(userOnHoliday, "userId");
-                  console.log("USERS HERE ARE: ", UsersOnHoliday);
+                  let UsersOnHoliday = groupUsersByLeaves(
+                    userOnHoliday,
+                    'userId',
+                  );
+                  console.log('USERS HERE ARE: ', UsersOnHoliday);
                   var datatosend = {
                     date: thatdateIs[0],
                     users: opsleave.users,
@@ -1024,89 +1198,124 @@ class opsLeave {
                   res.status(203).json({
                     status: false,
                     data: null,
-                    message: "date is not found ",
+                    message: 'date is not found ',
                   });
                 }
               } else {
                 res.status(203).json({
                   status: false,
                   data: null,
-                  message: "requested object does not found",
+                  message: 'requested object does not found',
                 });
               }
             } else {
               res.status(203).json({
                 status: false,
                 data: null,
-                message: "Please set quota values for requested ops group",
+                message: 'Please set quota values for requested ops group',
               });
             }
           } else {
             let opsdateIs = [];
             if (opsleave.perDayQuota.quota.length > 0) {
               for (let q = 0; q <= opsleave.perDayQuota.quota.length - 1; q++) {
-                if (opsleave.perDayQuota.quota[q].hasOwnProperty(req.body.year)) {
+                if (
+                  opsleave.perDayQuota.quota[q].hasOwnProperty(req.body.year)
+                ) {
                   let opsData = opsleave.perDayQuota.quota[q];
-                  opsdateIs = opsData[req.body.year].filter((qa) => qa.date == data.date);
+                  opsdateIs = opsData[req.body.year].filter(
+                    (qa) => qa.date == data.date,
+                  );
                   break;
                 } else {
-                  console.log("not in");
+                  console.log('not in');
                 }
               }
             }
 
-            if (opsleave.opsTeamId.length > 0 && opsleave.perDayQuota.opsTeams.length > 0) {
+            if (
+              opsleave.opsTeamId.length > 0 &&
+              opsleave.perDayQuota.opsTeams.length > 0
+            ) {
               //to find all other teams quotas
               let allTeams = [];
-              var filteOtherTeams = opsleave.perDayQuota.opsTeams.filter((q) => q.id !== req.body.opsTeamId);
-              console.log("filteOtherTeams:", filteOtherTeams);
+              var filteOtherTeams = opsleave.perDayQuota.opsTeams.filter(
+                (q) => q.id !== req.body.opsTeamId,
+              );
+              console.log('filteOtherTeams:', filteOtherTeams);
               if (filteOtherTeams.length > 0) {
                 for (let ot = 0; ot <= filteOtherTeams.length - 1; ot++) {
                   let curreQuota = filteOtherTeams[ot].quota;
-                  console.log("current quota is: ");
-                  var filterwithprop = curreQuota.filter((cc) => cc.hasOwnProperty(req.body.year));
-                  console.log("current quota isfilterwithprop: ", filterwithprop);
+                  console.log('current quota is: ');
+                  var filterwithprop = curreQuota.filter((cc) =>
+                    cc.hasOwnProperty(req.body.year),
+                  );
+                  console.log(
+                    'current quota isfilterwithprop: ',
+                    filterwithprop,
+                  );
                   if (filterwithprop.length > 0) {
                     allTeams.push(filterwithprop[0]);
                   }
                 }
               }
               //TILL HERE
-              const opsTeam = await OpsTeam.findOne({ _id: data.opsTeamId }, { userId: 1 });
+              const opsTeam = await OpsTeam.findOne(
+                { _id: data.opsTeamId },
+                { userId: 1 },
+              );
               let userOnHoliday = await userLeaves.find({
                 userId: { $in: opsTeam.userId },
               });
               //    let userOnHoliday= await userHoliday.find({opsGroupId:data.opsGroupId,opsTeamId: data.opsTeamId}).populate({path:"userId",select:"staffId"});
-              userOnHoliday = userOnHoliday.reduce(function (accumulator, currentValue) {
+              userOnHoliday = userOnHoliday.reduce(function (
+                accumulator,
+                currentValue,
+              ) {
                 let startdd = new Date(currentValue.fromdate);
                 var startdd1 = nextDayUTC(startdd);
                 let enddd = new Date(currentValue.todate);
                 let end1 = nextDayUTC(enddd);
                 if (dateObject <= end1 && dateObject >= startdd1) {
-                  console.log("Motha if");
+                  console.log('Motha if');
                   accumulator.push(currentValue);
                 }
                 return accumulator;
-              }, []);
+              },
+              []);
 
               function nextDayUTC(d) {
                 var aDay = 1440 * 60 * 1000;
-                var d2 = new Date(Math.trunc((d.getTime() + aDay) / aDay) * aDay);
+                var d2 = new Date(
+                  Math.trunc((d.getTime() + aDay) / aDay) * aDay,
+                );
                 return d2;
               }
 
-              let casualcount = userOnHoliday.filter((uu) => uu.type == 2 && uu.status !== "cancelled");
-              let specialCount = userOnHoliday.filter((uuh) => uuh.type == 4 && uuh.status !== "cancelled");
+              let casualcount = userOnHoliday.filter(
+                (uu) => uu.type == 2 && uu.status !== 'cancelled',
+              );
+              let specialCount = userOnHoliday.filter(
+                (uuh) => uuh.type == 4 && uuh.status !== 'cancelled',
+              );
               casualCount = casualcount.length;
               let specialcount = specialCount.length;
-              let blockCount = userOnHoliday.filter((uh) => uh.type == 3 && uh.status !== "cancelled");
-              let winballots = userOnHoliday.filter((uh) => uh.type == 1 && uh.status !== "cancelled");
+              let blockCount = userOnHoliday.filter(
+                (uh) => uh.type == 3 && uh.status !== 'cancelled',
+              );
+              let winballots = userOnHoliday.filter(
+                (uh) => uh.type == 1 && uh.status !== 'cancelled',
+              );
               woncount = winballots.length;
               woncount = woncount + blockCount.length;
               // let casualCount = userOnHoliday.length;
-              let usersHere = opsleave.users.filter((u) => u.teamId.toString() == data.opsTeamId.toString());
+              let usersHere = opsleave.users.filter(
+                (u) => u.teamId.toString() == data.opsTeamId.toString(),
+              );
               // casualCount = casualCount -(specialcount+blockCount.length);
-              let teamSelectedIs = opsleave.perDayQuota.opsTeams.filter((q) => q.id == data.opsTeamId);
+              let teamSelectedIs = opsleave.perDayQuota.opsTeams.filter(
+                (q) => q.id == data.opsTeamId,
+              );
               if (teamSelectedIs.length > 0) {
                 let yeardata = teamSelectedIs[0].quota.filter((q) => {
                   if (q.hasOwnProperty(data.year)) {
@@ -1115,48 +1324,61 @@ class opsLeave {
                 });
                 // console.log("yeardata in team is:",yeardata);
                 if (yeardata.length > 0) {
-                  console.log("in if");
+                  console.log('in if');
                   // find quota for that date and the users.
                   let key = Object.keys(yeardata[0])[0];
-                  console.log("keyis team: ", key);
-                  let thatdateIs = yeardata[0][key].filter((qa) => qa.date == data.date);
+                  console.log('keyis team: ', key);
+                  let thatdateIs = yeardata[0][key].filter(
+                    (qa) => qa.date == data.date,
+                  );
                   let teamquota = 0;
                   if (allTeams.length > 0) {
                     for (let i = 0; i <= allTeams.length - 1; i++) {
-                      console.log("In if here: ");
-                      let teamCurrQuota = allTeams[i][req.body.year].filter((da) => da.date == data.date);
+                      console.log('In if here: ');
+                      let teamCurrQuota = allTeams[i][req.body.year].filter(
+                        (da) => da.date == data.date,
+                      );
                       if (teamCurrQuota.length > 0) {
-                        teamquota = teamquota + parseInt(teamCurrQuota[0].value);
+                        teamquota =
+                          teamquota + parseInt(teamCurrQuota[0].value);
                       }
-                      console.log("teamquota: ", teamquota);
+                      console.log('teamquota: ', teamquota);
                     }
                   }
-                  console.log("thatdate is : ", thatdateIs);
+                  console.log('thatdate is : ', thatdateIs);
                   if (thatdateIs.length > 0) {
-                    const totalsOfTeam = parseInt(thatdateIs[0].value) + parseInt(teamquota);
-                    console.log("TOTALS FO TEAM IS: ", totalsOfTeam);
+                    const totalsOfTeam =
+                      parseInt(thatdateIs[0].value) + parseInt(teamquota);
+                    console.log('TOTALS FO TEAM IS: ', totalsOfTeam);
                     let opsBalance = 0;
                     let balanceToUse = 0;
                     if (opsdateIs.length > 0) {
-                      console.log("Inside check og opsdate is cha balance: ", opsdateIs);
+                      console.log(
+                        'Inside check og opsdate is cha balance: ',
+                        opsdateIs,
+                      );
                       opsBalance = opsdateIs[0].value;
                     }
-                    console.log("OPS BALANCE IS: ", opsBalance);
+                    console.log('OPS BALANCE IS: ', opsBalance);
                     if (parseInt(opsBalance) > totalsOfTeam) {
-                      console.log("IN IFA ");
+                      console.log('IN IFA ');
                       balanceToUse = thatdateIs[0].value;
                     } else {
-                      console.log("IN IFA  ELSE");
+                      console.log('IN IFA  ELSE');
                       balanceToUse = opsBalance;
                       thatdateIs[0] = opsdateIs[0];
                     }
-                    console.log("blance to use is: ", balanceToUse);
-                    let balance = balanceToUse - (casualCount + specialcount + woncount);
+                    console.log('blance to use is: ', balanceToUse);
+                    let balance =
+                      balanceToUse - (casualCount + specialcount + woncount);
                     // let balance = thatdateIs[0].value - (casualCount+specialcount+blockCount.length);
                     if (balance < 0) {
                       balance = 0;
                     }
-                    let UsersOnHoliday = groupUsersByLeaves(userOnHoliday, "userId");
+                    let UsersOnHoliday = groupUsersByLeaves(
+                      userOnHoliday,
+                      'userId',
+                    );
                     var datatosend = {
                       date: thatdateIs[0],
                       users: usersHere,
@@ -1172,21 +1394,21 @@ class opsLeave {
                     res.status(203).json({
                       status: false,
                       data: null,
-                      message: "date is not found ",
+                      message: 'date is not found ',
                     });
                   }
                 } else {
                   res.status(203).json({
                     status: false,
                     data: null,
-                    message: "requested object does not found",
+                    message: 'requested object does not found',
                   });
                 }
               } else {
                 res.status(203).json({
                   status: false,
                   data: null,
-                  message: "please set ops team quota first",
+                  message: 'please set ops team quota first',
                 });
               }
             }
@@ -1195,7 +1417,8 @@ class opsLeave {
           res.status(203).json({
             status: false,
             data: null,
-            message: "Please set quota values for requested ops group and ops teams",
+            message:
+              'Please set quota values for requested ops group and ops teams',
           });
         }
 
@@ -1207,17 +1430,22 @@ class opsLeave {
         }
       }
     } catch (e) {
-      res.status(501).json({ status: false, data: null, message: "Something went wrong!" });
+      res
+        .status(501)
+        .json({ status: false, data: null, message: 'Something went wrong!' });
     }
   }
   async sendResponse(datar, res) {
     let response = [];
-    console.log("I m here");
+    console.log('I m here');
     for (let [key, value] of Object.entries(datar.userOnHoliday)) {
-      console.log("key: ", key);
+      console.log('key: ', key);
       try {
-        const user = await User.findOne({ _id: key }, { name: 1, staffId: 1, isLeaveSwapAllowed: 1 });
-        console.log("user : ", user);
+        const user = await User.findOne(
+          { _id: key },
+          { name: 1, staffId: 1, isLeaveSwapAllowed: 1 },
+        );
+        console.log('user : ', user);
         var User1 = {
           id: user._id,
           name: user.name,
@@ -1232,17 +1460,23 @@ class opsLeave {
         }
         response.push(User1);
       } catch (e) {
-        console.log("e", e);
-        res.status(501).json({ status: false, data: null, message: "Something went wrong!" });
+        console.log('e', e);
+        res
+          .status(501)
+          .json({
+            status: false,
+            data: null,
+            message: 'Something went wrong!',
+          });
       }
     }
     delete datar.userOnHoliday;
     datar.userOnHoliday = response;
-    console.log("found object as such: ", datar);
+    console.log('found object as such: ', datar);
     res.status(201).json({
       status: true,
       data: datar,
-      message: "Successfully reveived data.",
+      message: 'Successfully reveived data.',
     });
   }
   async allocateLeave(req, res) {
@@ -1258,7 +1492,7 @@ class opsLeave {
       request.logs.push(myLog);
       // console.log("request:" ,request);
       var userholiday = new userLeaves(request);
-      console.log("userholiday:", userholiday);
+      console.log('userholiday:', userholiday);
       var holiday = await userholiday.save();
       let startdd = new Date(request.fromdate);
       let enddd = new Date(request.todate);
@@ -1268,7 +1502,7 @@ class opsLeave {
         companyId: req.user.companyId,
         status: 1,
       })
-        .select("opsGroup")
+        .select('opsGroup')
         .lean();
 
       var configurationNumber = 2;
@@ -1289,7 +1523,7 @@ class opsLeave {
       }
       if (daysToDeduct > 0 && daysToDeduct < 7) {
         if (daysToDeduct == 6) {
-          console.log("AT HHHHHH");
+          console.log('AT HHHHHH');
           daysToDeduct = 5;
         } else {
           daysToDeduct = daysToDeduct - configurationNumber * 0;
@@ -1309,81 +1543,112 @@ class opsLeave {
       //       let daysOfFreeLeaves = no*2;
       //       days = days - daysOfFreeLeaves;
       //   }
-      let sapupdate = await StaffSapData.update({ staff_Id: request.userId }, { $inc: { ballotLeaveBalanced: -daysToDeduct } });
+      let sapupdate = await StaffSapData.update(
+        { staff_Id: request.userId },
+        { $inc: { ballotLeaveBalanced: -daysToDeduct } },
+      );
       //let holiday= await userHoliday.save(userholiday);
-      console.log("holiday: ", holiday);
+      console.log('holiday: ', holiday);
       if (holiday) {
         res.status(201).json({
           status: true,
           data: holiday,
-          message: "Successfully Allocated leave to user.",
+          message: 'Successfully Allocated leave to user.',
         });
         //Notification saying leave is allocated.
-        const user = await User.findOne({ _id: req.body.userId }, { _id: 0, deviceToken: 1 });
+        const user = await User.findOne(
+          { _id: req.body.userId },
+          { _id: 0, deviceToken: 1 },
+        );
         let usersDeviceTokens = [];
         var dd = new Date();
         if (user && user.deviceToken) {
-          console.log("USER: ", user);
+          console.log('USER: ', user);
           usersDeviceTokens.push(user.deviceToken);
           var collapseKey = holiday._id;
-          var strt = holiday.fromdate.split("-");
-          strt = strt[2] + "-" + strt[1] + "-" + strt[0];
-          var end = holiday.todate.split("-");
-          end = end[2] + "-" + end[1] + "-" + end[0];
+          var strt = holiday.fromdate.split('-');
+          strt = strt[2] + '-' + strt[1] + '-' + strt[0];
+          var end = holiday.todate.split('-');
+          end = end[2] + '-' + end[1] + '-' + end[0];
           let notificationObj = {
-            title: "Leave Allocated.",
-            body: "Leave dated from  " + strt + " to " + end + " has been allocated to you.",
-            bodyText: "Leave dated from  " + strt + " to " + end + " has been allocated to you.",
+            title: 'Leave Allocated.',
+            body:
+              'Leave dated from  ' +
+              strt +
+              ' to ' +
+              end +
+              ' has been allocated to you.',
+            bodyText:
+              'Leave dated from  ' +
+              strt +
+              ' to ' +
+              end +
+              ' has been allocated to you.',
             bodyTime: dd,
-            bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
+            bodyTimeFormat: ['DD-MMM-YYYY HH:mm'],
           };
           FCM.push(usersDeviceTokens, notificationObj, collapseKey);
-          console.log("sent");
+          console.log('sent');
         }
       } else {
         res.status(203).json({
           status: false,
           data: null,
-          message: "Unable to allocate leave",
+          message: 'Unable to allocate leave',
         });
       }
     } catch (e) {
-      res.status(501).json({ status: false, data: null, message: "Something went wrong!" });
+      res
+        .status(501)
+        .json({ status: false, data: null, message: 'Something went wrong!' });
     }
   }
   async getMobileScreenForLeave(req, res) {
-    console.log("request body is: ", req.body); //,fromdate:req.body.date
+    console.log('request body is: ', req.body); //,fromdate:req.body.date
     try {
-      const ops = await OpsGroup.findOne({ userId: req.body.userId, isDelete: false }, { _id: 1, opsGroupName: 1 });
-      const user = await User.findOne({ _id: req.body.userId }, { _id: 0, parentBussinessUnitId: 1 }).populate({
-        path: "parentBussinessUnitId",
-        select: "name",
+      const ops = await OpsGroup.findOne(
+        { userId: req.body.userId, isDelete: false },
+        { _id: 1, opsGroupName: 1 },
+      );
+      const user = await User.findOne(
+        { _id: req.body.userId },
+        { _id: 0, parentBussinessUnitId: 1 },
+      ).populate({
+        path: 'parentBussinessUnitId',
+        select: 'name',
         populate: {
-          path: "sectionId",
-          select: "name",
+          path: 'sectionId',
+          select: 'name',
           populate: {
-            path: "departmentId",
-            select: "name",
+            path: 'departmentId',
+            select: 'name',
             populate: {
-              path: "companyId",
-              select: "name",
+              path: 'companyId',
+              select: 'name',
             },
           },
         },
       });
       let BU =
-        user.parentBussinessUnitId.sectionId.departmentId.companyId.name + " > " +
-        user.parentBussinessUnitId.sectionId.departmentId.name + " > " +
-        user.parentBussinessUnitId.sectionId.name + " > " +
+        user.parentBussinessUnitId.sectionId.departmentId.companyId.name +
+        ' > ' +
+        user.parentBussinessUnitId.sectionId.departmentId.name +
+        ' > ' +
+        user.parentBussinessUnitId.sectionId.name +
+        ' > ' +
         user.parentBussinessUnitId.name;
       //  .populate([{
       //      path:'parentBussinessUnitId',select:"name"
       //  }]);
       let dateHere = new Date(req.body.date);
-      dateHere = moment(dateHere).format("DD-MM-YYYY");
-      var dateParts = req.body.date.split("-");
-      var dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0] + 1);
-      console.log("dateObject is:", dateObject);
+      dateHere = moment(dateHere).format('DD-MM-YYYY');
+      var dateParts = req.body.date.split('-');
+      var dateObject = new Date(
+        +dateParts[2],
+        dateParts[1] - 1,
+        +dateParts[0] + 1,
+      );
+      console.log('dateObject is:', dateObject);
       let leaves1 = await userLeaves.find(
         { userId: req.body.userId },
         {
@@ -1396,7 +1661,7 @@ class opsLeave {
           reason: 1,
           userId: 1,
           isSwapable: 1,
-        }
+        },
       );
       // const Ballots = await Ballot.find({opsGroupId : ops._id,isCanceled:false},{_id:1,ballotName:1,ballotStartDate:1,ballotEndDate:1,weekRange:1,wonStaff:1});
       let leaves = JSON.stringify(leaves1);
@@ -1428,18 +1693,23 @@ class opsLeave {
       res.status(201).json({
         status: true,
         data: dataToSend,
-        message: "successfully received data.",
+        message: 'successfully received data.',
       });
     } catch (e) {
-      res.status(500).json({ status: false, data: e, message: "Something went wrong." });
+      res
+        .status(500)
+        .json({ status: false, data: e, message: 'Something went wrong.' });
     }
   }
   async cancelLeaveForStaff(req, res) {
-    console.log("request here is: ", req.body);
+    console.log('request here is: ', req.body);
     try {
       const holiday = await userLeaves.findOne({ _id: req.body._id });
-      const user = await User.findOne({ _id: req.body.userid }, { _id: 0, deviceToken: 1 });
-      console.log("holiday found is:", holiday);
+      const user = await User.findOne(
+        { _id: req.body.userid },
+        { _id: 0, deviceToken: 1 },
+      );
+      console.log('holiday found is:', holiday);
       if (holiday) {
         let log = holiday.logs;
         var myLog = {
@@ -1450,8 +1720,8 @@ class opsLeave {
         };
         log.push(myLog);
         holiday.logs = log;
-        console.log("HERE: ", holiday.logs);
-        holiday.status = "cancelled";
+        console.log('HERE: ', holiday.logs);
+        holiday.status = 'cancelled';
         try {
           await holiday.save();
           let startdd = new Date(holiday.fromdate);
@@ -1459,92 +1729,117 @@ class opsLeave {
           var days = Math.floor((enddd - startdd) / (1000 * 60 * 60 * 24));
           days = days + 1;
           var daysAsLeaves = await noOfDays(res, days);
-          let sapupdate = await StaffSapData.update({ staff_Id: holiday.userId }, { $inc: { ballotLeaveBalanced: daysAsLeaves } });
+          let sapupdate = await StaffSapData.update(
+            { staff_Id: holiday.userId },
+            { $inc: { ballotLeaveBalanced: daysAsLeaves } },
+          );
         } catch (e) {
-          res.status(203).json({ status: false, data: e, message: "error" });
+          res.status(203).json({ status: false, data: e, message: 'error' });
         }
-        res.status(201).json({ status: false, data: holiday, message: "Cancelled leave" });
+        res
+          .status(201)
+          .json({ status: false, data: holiday, message: 'Cancelled leave' });
         //Notification saying leave is cancelled.
         let usersDeviceTokens = [];
         var dd = new Date();
         if (user && user.deviceToken) {
-          let leaveType = "Casual";
+          let leaveType = 'Casual';
           if (holiday.type == 1 || holiday.type == 3) {
-            leaveType = "Block";
+            leaveType = 'Block';
           }
-          console.log("USER: ", user);
+          console.log('USER: ', user);
           usersDeviceTokens.push(user.deviceToken);
           var collapseKey = holiday._id;
-          var strt = holiday.fromdate.split("-");
-          strt = strt[2] + "-" + strt[1] + "-" + strt[0];
-          var end = holiday.todate.split("-");
-          end = end[2] + "-" + end[1] + "-" + end[0];
+          var strt = holiday.fromdate.split('-');
+          strt = strt[2] + '-' + strt[1] + '-' + strt[0];
+          var end = holiday.todate.split('-');
+          end = end[2] + '-' + end[1] + '-' + end[0];
           let notificationObj = {
-            title: "Your Leave has been cancelled.",
-            body: "Your " + leaveType + " leave dated from " + strt + " to " + end + " has been cancelled.",
-            bodyText: "Your " + leaveType + " leave dated from " + strt + " to " + end + " has been cancelled.",
+            title: 'Your Leave has been cancelled.',
+            body:
+              'Your ' +
+              leaveType +
+              ' leave dated from ' +
+              strt +
+              ' to ' +
+              end +
+              ' has been cancelled.',
+            bodyText:
+              'Your ' +
+              leaveType +
+              ' leave dated from ' +
+              strt +
+              ' to ' +
+              end +
+              ' has been cancelled.',
             bodyTime: dd,
-            bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
+            bodyTimeFormat: ['DD-MMM-YYYY HH:mm'],
           };
-          console.log("usersDeviceTokens", usersDeviceTokens);
-          console.log("notificationObj", notificationObj);
-          console.log("collapseKey", collapseKey);
+          console.log('usersDeviceTokens', usersDeviceTokens);
+          console.log('notificationObj', notificationObj);
+          console.log('collapseKey', collapseKey);
           FCM.push(usersDeviceTokens, notificationObj, collapseKey);
         }
       } else {
         res.status(203).json({
           status: false,
           data: null,
-          message: "Sorry ! couldnt find similar data",
+          message: 'Sorry ! couldnt find similar data',
         });
       }
     } catch (e) {
-      res.status(501).json({ status: false, data: null, message: "Something went wrong!" });
+      res
+        .status(501)
+        .json({ status: false, data: null, message: 'Something went wrong!' });
     }
   }
   async changeLeaveDates(req, res) {
-    console.log("request data: ", req.body);
+    console.log('request data: ', req.body);
     let data = req.body;
-    let frmDt = data.startdate.split("-");
-    frmDt = frmDt[2] + "-" + frmDt[1] + "-" + frmDt[0];
-    let toDt = data.enddate.split("-");
-    toDt = toDt[2] + "-" + toDt[1] + "-" + toDt[0];
+    let frmDt = data.startdate.split('-');
+    frmDt = frmDt[2] + '-' + frmDt[1] + '-' + frmDt[0];
+    let toDt = data.enddate.split('-');
+    toDt = toDt[2] + '-' + toDt[1] + '-' + toDt[0];
     //Check if these dates lready assigned;
     let dates = [];
     let startdd = new Date(frmDt);
     let enddd = new Date(toDt);
     //check in that dates.
     dates = getDateArray(startdd, enddd);
-    console.log("date: ", dates);
+    console.log('date: ', dates);
     const leaves = await userLeaves.find({
       userId: data.userId,
-      status: { $ne: "cancelled" },
+      status: { $ne: 'cancelled' },
       type: { $in: [1, 2] },
     });
-    console.log("date: ", leaves.length);
+    console.log('date: ', leaves.length);
     for (let km = 0; km <= dates.length - 1; km++) {
       for (let leave = 0; leave <= leaves.length - 1; leave++) {
         let leavestart = new Date(leaves[leave].fromdate);
         let leaveend = new Date(leaves[leave].todate);
         if (data._id && data._id.toString() == leaves[leave]._id.toString()) {
-          console.log("same id found", data.idis);
+          console.log('same id found', data.idis);
         } else {
-          if (dates[km] >= leavestart && dates[km] <= leaveend && leaves[leave].status !== "cancelled") {
+          if (
+            dates[km] >= leavestart &&
+            dates[km] <= leaveend &&
+            leaves[leave].status !== 'cancelled'
+          ) {
             // 0 says dates overlapping..
             return res.status(203).json({
               status: false,
               data: null,
-              message: "Dates Overlapping",
+              message: 'Dates Overlapping',
             });
             //break;
           } else {
-            console.log("notfound");
+            console.log('notfound');
           }
         }
       }
     }
     try {
-      console.log("coming here");
+      console.log('coming here');
       let leave = await userLeaves.findOne({ _id: data._id });
       let existingleavedates = [];
       let currentStartDate = new Date(leave.fromdate);
@@ -1557,7 +1852,10 @@ class opsLeave {
         if (leave.type == 1 || leave.type == 3) {
           var existingdates = await noOfDays(res, existingleavedates.length);
           //console.log("existingdates: ",existingdates);
-          let firstAddUsersBallotBalance = await StaffSapData.update({ staff_Id: leave.userId }, { $inc: { ballotLeaveBalanced: existingdates } });
+          let firstAddUsersBallotBalance = await StaffSapData.update(
+            { staff_Id: leave.userId },
+            { $inc: { ballotLeaveBalanced: existingdates } },
+          );
           let log = leave.logs;
           var myLog = {
             updatedBy: req.user.name,
@@ -1571,10 +1869,10 @@ class opsLeave {
           leave.logs = log;
           leave.fromdate = frmDt;
           leave.todate = toDt;
-          leave.status = "Allocated";
+          leave.status = 'Allocated';
           leave.type = 3;
           leave.isSwapable = data.isSwapable;
-          console.log("leave", leave);
+          console.log('leave', leave);
           await leave.save();
           let daysTodeduct = await noOfDays(res, dates.length);
           // console.log("daysTodeduct: ",daysTodeduct);
@@ -1584,18 +1882,21 @@ class opsLeave {
           //        let daysOfFreeLeaves = no*2;
           //        daysTodeduct = daysTodeduct - daysOfFreeLeaves;
           //    }
-          let sapupdate = await StaffSapData.update({ staff_Id: leave.userId }, { $inc: { ballotLeaveBalanced: -daysTodeduct } });
+          let sapupdate = await StaffSapData.update(
+            { staff_Id: leave.userId },
+            { $inc: { ballotLeaveBalanced: -daysTodeduct } },
+          );
           console.log;
           res.status(201).json({
             status: false,
             data: leave,
-            message: "dates changed",
+            message: 'dates changed',
           });
         } else {
           res.status(203).json({
             status: false,
             data: leave,
-            message: "Casual leave cannot be more than 5 days.",
+            message: 'Casual leave cannot be more than 5 days.',
           });
         }
       } else {
@@ -1613,67 +1914,88 @@ class opsLeave {
           leave.logs = log;
           leave.fromdate = frmDt;
           leave.todate = toDt;
-          leave.status = "Allocated";
+          leave.status = 'Allocated';
           leave.type = 2;
           await leave.save();
           if (existingleavedates.length > dates.length) {
             let diff = existingleavedates.length - dates.length;
-            let sapupdate = await StaffSapData.update({ staff_Id: leave.userId }, { $inc: { ballotLeaveBalanced: diff } });
+            let sapupdate = await StaffSapData.update(
+              { staff_Id: leave.userId },
+              { $inc: { ballotLeaveBalanced: diff } },
+            );
           } else if (dates.length > existingleavedates.length) {
             let diff = dates.length - existingleavedates.length;
-            let sapupdate = await StaffSapData.update({ staff_Id: leave.userId }, { $inc: { ballotLeaveBalanced: -diff } });
+            let sapupdate = await StaffSapData.update(
+              { staff_Id: leave.userId },
+              { $inc: { ballotLeaveBalanced: -diff } },
+            );
           }
           res.status(201).json({
             status: false,
             data: leave,
-            message: "dates changed",
+            message: 'dates changed',
           });
         } else {
           res.status(203).json({
             status: false,
             data: leave,
-            message: "Block leave cannot be less than 5 days.",
+            message: 'Block leave cannot be less than 5 days.',
           });
         }
       }
-      const user = await User.findOne({ _id: leave.userId }, { _id: 1, name: 1, deviceToken: 1 });
+      const user = await User.findOne(
+        { _id: leave.userId },
+        { _id: 1, name: 1, deviceToken: 1 },
+      );
       let usersDeviceTokens = [];
       var dd = new Date();
       if (user && user.deviceToken) {
-        let leaveType = "Casual";
+        let leaveType = 'Casual';
         if (leave.type == 1 || leave.type == 3) {
-          leaveType = "Block";
+          leaveType = 'Block';
         }
         usersDeviceTokens.push(user.deviceToken);
         var collapseKey = leave._id;
         let notificationObj = {
-          title: "Leave Changed.",
-          body: "Your " + leaveType + " Leaves dates have been changed to " + data.startdate + " to " + data.enddate,
-          bodyText: "Your " + leaveType + " Leaves dates have been changed to " + data.startdate + " to " + data.enddate,
+          title: 'Leave Changed.',
+          body:
+            'Your ' +
+            leaveType +
+            ' Leaves dates have been changed to ' +
+            data.startdate +
+            ' to ' +
+            data.enddate,
+          bodyText:
+            'Your ' +
+            leaveType +
+            ' Leaves dates have been changed to ' +
+            data.startdate +
+            ' to ' +
+            data.enddate,
           bodyTime: dd,
-          bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
+          bodyTimeFormat: ['DD-MMM-YYYY HH:mm'],
         };
         FCM.push(usersDeviceTokens, notificationObj, collapseKey);
-        console.log("sent");
+        console.log('sent');
       }
     } catch (e) {
       res.status(500).json({
         status: false,
         data: e,
-        message: "Something went wrong!.",
+        message: 'Something went wrong!.',
       });
     }
 
     function getDateArray(start, end) {
-      console.log("In get dates : ");
+      console.log('In get dates : ');
       var arr = new Array(),
         dt = new Date(start);
       while (dt <= end) {
-        console.log("in while....");
+        console.log('in while....');
         arr.push(new Date(dt));
         dt.setDate(dt.getDate() + 1);
       }
-      console.log("At array: ", arr);
+      console.log('At array: ', arr);
       return arr;
     }
   }
@@ -1683,15 +2005,18 @@ class opsLeave {
         return res.status(203).json({
           status: false,
           data: null,
-          message: "please select user and OpsGroup.",
+          message: 'please select user and OpsGroup.',
         });
       }
-      var ballotBalance = await StaffSapData.findOne({ staff_Id: req.body.userId }, { ballotLeaveBalanced: 1 });
+      var ballotBalance = await StaffSapData.findOne(
+        { staff_Id: req.body.userId },
+        { ballotLeaveBalanced: 1 },
+      );
       if (!ballotBalance) {
         return res.status(203).json({
           status: false,
           data: null,
-          message: "Could not find leave balance for this staff.",
+          message: 'Could not find leave balance for this staff.',
         });
       }
 
@@ -1699,19 +2024,19 @@ class opsLeave {
         companyId: req.user.companyId,
         status: 1,
       })
-        .select("opsGroup")
+        .select('opsGroup')
         .lean();
 
       let dates = [];
       //var startDate = req.body.fromdate.split("-");
       let startdd = new Date(req.body.fromdate);
-      console.log("StartDD : ", startdd);
+      console.log('StartDD : ', startdd);
       //let endDate= req.body.todate.split("-");
       let enddd = new Date(req.body.todate);
-      console.log("enddd : ", enddd);
+      console.log('enddd : ', enddd);
       //check in that dates.
       dates = getDateArray(startdd, enddd);
-      console.log("DAtes: ", dates);
+      console.log('DAtes: ', dates);
       var configurationNumber = 2;
       if (pageSettingData.opsGroup.blockLeaveConfiguration == 1) {
         configurationNumber = 2;
@@ -1730,7 +2055,7 @@ class opsLeave {
       }
       if (daysToDeduct > 0 && daysToDeduct < 7) {
         if (daysToDeduct == 6) {
-          console.log("AT HHHHHH");
+          console.log('AT HHHHHH');
           daysToDeduct = 5;
         } else {
           daysToDeduct = daysToDeduct - configurationNumber * 0;
@@ -1750,44 +2075,52 @@ class opsLeave {
         return res.status(203).json({
           status: false,
           data: null,
-          message: "This staff does not have sufficient leave ballance",
+          message: 'This staff does not have sufficient leave ballance',
         });
       }
-      let leaves = await userLeaves.find({ userId: req.body.userId }, { _id: 1, fromdate: 1, todate: 1, type: 1, status: 1 });
+      let leaves = await userLeaves.find(
+        { userId: req.body.userId },
+        { _id: 1, fromdate: 1, todate: 1, type: 1, status: 1 },
+      );
       // const Ballots = await Ballot.find({opsGroupId : req.body.opsGroupId,isCanceled:false},{_id:1,ballotName:1,ballotStartDate:1,ballotEndDate:1,weekRange:1,wonStaff:1});
-      console.log("Leaves found are: ", leaves);
+      console.log('Leaves found are: ', leaves);
       for (let km = 0; km <= dates.length - 1; km++) {
         for (let leave = 0; leave <= leaves.length - 1; leave++) {
           let leavestart = new Date(leaves[leave].fromdate);
           let leaveend = new Date(leaves[leave].todate);
-          if (dates[km] >= leavestart && dates[km] <= leaveend && leaves[leave].status !== "cancelled") {
+          if (
+            dates[km] >= leavestart &&
+            dates[km] <= leaveend &&
+            leaves[leave].status !== 'cancelled'
+          ) {
             return res.status(203).json({
               status: false,
               data: null,
-              message: "Dates overlapping.. please check this user has assigned leave in requested period",
+              message:
+                'Dates overlapping.. please check this user has assigned leave in requested period',
             });
             //break;
           } else {
-            console.log("notfound");
+            console.log('notfound');
           }
         }
       }
-      console.log("Coming out here: ");
-      res.status(201).json({ status: false, message: "Everything is Fine" });
+      console.log('Coming out here: ');
+      res.status(201).json({ status: false, message: 'Everything is Fine' });
     } catch (e) {
-      res.status(500).json({ status: false, message: "Something went wrong!" });
+      res.status(500).json({ status: false, message: 'Something went wrong!' });
     }
 
     function getDateArray(start, end) {
-      console.log("In get dates : ");
+      console.log('In get dates : ');
       var arr = new Array(),
         dt = new Date(start);
       while (dt <= end) {
-        console.log("in while....");
+        console.log('in while....');
         arr.push(new Date(dt));
         dt.setDate(dt.getDate() + 1);
       }
-      console.log("At array: ", arr);
+      console.log('At array: ', arr);
       return arr;
     }
   }
@@ -1797,11 +2130,14 @@ class opsLeave {
         return res.status(203).json({
           status: false,
           data: null,
-          message: "please select user and OpsGroup.",
+          message: 'please select user and OpsGroup.',
         });
       }
       let isSwap = true;
-      let ops = await OpsGroup.findOne({ _id: req.body.opsGroupId }, { swopSetup: 1, userId: 1 });
+      let ops = await OpsGroup.findOne(
+        { _id: req.body.opsGroupId },
+        { swopSetup: 1, userId: 1 },
+      );
       if (ops && ops.swopSetup) {
         let isSwappable = parseInt(ops.swopSetup);
         if (isSwappable == 0) {
@@ -1810,75 +2146,81 @@ class opsLeave {
           isSwap = true;
         }
       }
-      console.log("HER reached");
-      let leaves = await userLeaves.find({ userId: req.body.userId }, { _id: 1, fromdate: 1, todate: 1, type: 1, status: 1, isSwapable: 1 });
+      console.log('HER reached');
+      let leaves = await userLeaves.find(
+        { userId: req.body.userId },
+        { _id: 1, fromdate: 1, todate: 1, type: 1, status: 1, isSwapable: 1 },
+      );
       for (let l = 0; l <= leaves.length - 1; l++) {
         if (leaves[l].isSwapable == true) {
-          console.log("true ahe");
+          console.log('true ahe');
         } else {
           leaves[l].isSwapable = isSwap;
         }
       }
 
       //From usersHolidays
-      var leaves1 = leaves.filter((ff) => ff.status !== "cancelled");
+      var leaves1 = leaves.filter((ff) => ff.status !== 'cancelled');
       // console.log("LEAVES: ",leaves1);
       let resp = { isSwap: isSwap, data: leaves1 };
       //console.log("User data id: ",all);
       res.status(201).json({
         status: true,
         data: resp,
-        message: "successfully received data.",
+        message: 'successfully received data.',
       });
     } catch (e) {
-      res.status(500).json({ status: false, message: "Something went wrong!" });
+      res.status(500).json({ status: false, message: 'Something went wrong!' });
     }
   }
   async getUserLeaveLogs(req, res) {
     try {
       let leaves = await LeaveLog.find({
         userId: req.body.userId,
-        $expr: { $eq: [{ $year: "$startDate" }, req.body.year] },
+        $expr: { $eq: [{ $year: '$startDate' }, req.body.year] },
         $or: [
           {
-            isChangeDate: true
+            isChangeDate: true,
           },
           { status: 5 },
           {
-            submittedFrom: 3
-          }
+            submittedFrom: 3,
+          },
         ],
-      }).populate([{
-        path: 'cancelledBy',
-        select: 'staffId name'
-      }, {
-        path: 'changeDateHistory.changeBy',
-        select: 'staffId name'
-      },
-      {
-        path: 'allocatedBy',
-        select: 'staffId name'
-      }]);
-      leaves = JSON.parse(JSON.stringify(leaves))
+      }).populate([
+        {
+          path: 'cancelledBy',
+          select: 'staffId name',
+        },
+        {
+          path: 'changeDateHistory.changeBy',
+          select: 'staffId name',
+        },
+        {
+          path: 'allocatedBy',
+          select: 'staffId name',
+        },
+      ]);
+      leaves = JSON.parse(JSON.stringify(leaves));
       const finalLeave = [];
       for (let i = 0; i < leaves.length; i++) {
         if (leaves[i].isChangeDate) {
           const obj = leaves[i];
           for (let j = 0; j < obj.changeDateHistory.length; j++) {
             obj.changedBy = obj.changeDateHistory[j];
-            finalLeave.push(obj)
+            finalLeave.push(obj);
           }
         } else {
-          finalLeave.push(leaves[i])
+          finalLeave.push(leaves[i]);
         }
       }
       res.status(201).json({
         status: true,
         data: leaves,
-        message: "successfully received data.",
+        message: 'successfully received data.',
       });
     } catch (e) {
-      res.status(500).json({ status: false, message: "Something went wrong!" });
+      res.status(500).json({ status: false, message: 'Something went wrong!' });
     }
   }
   async getUsersListWithSwap(req, res) {
@@ -1886,7 +2228,10 @@ class opsLeave {
     try {
       if (requestdata.opsTeamId) {
         //ops team id is present there.
-        const users = await OpsTeam.findOne({ _id: requestdata.opsTeamId }, { _id: 0, userId: 1 });
+        const users = await OpsTeam.findOne(
+          { _id: requestdata.opsTeamId },
+          { _id: 0, userId: 1 },
+        );
         const leaves = await userLeaves.find(
           { userId: { $in: users.userId } },
           {
@@ -1897,26 +2242,32 @@ class opsLeave {
             status: 1,
             isSwapable: 1,
             userId: 1,
-          }
+          },
         );
         // const Ballotings = await Ballot.find({opsGroupId : requestdata.opsGroupId,isCanceled:false},{_id:1,ballotName:1,ballotStartDate:1,ballotEndDate:1,weekRange:1,wonStaff:1});
         let wons = [];
         wons = wons.concat(leaves);
-        let data = groupBy(wons, "userId");
+        let data = groupBy(wons, 'userId');
         //find data of individual user
         let response = [];
         for (let [key, value] of Object.entries(data)) {
           //console.log("key: ",key);
           try {
-            const ops = await OpsGroup.findOne({ userId: key, isDelete: false }, { swopSetup: 1 });
-            const user = await User.findOne({ _id: key }, { name: 1, staffId: 1, isLeaveSwapAllowed: 1 });
+            const ops = await OpsGroup.findOne(
+              { userId: key, isDelete: false },
+              { swopSetup: 1 },
+            );
+            const user = await User.findOne(
+              { _id: key },
+              { name: 1, staffId: 1, isLeaveSwapAllowed: 1 },
+            );
             ops.swopSetup = parseInt(ops.swopSetup);
             let isSwap = false;
             if (ops.swopSetup == 0) {
               isSwap = false;
               if (user.isLeaveSwapAllowed == true) {
                 isSwap = false;
-              } else if (user.hasOwnProperty("isLeaveSwapAllowed")) {
+              } else if (user.hasOwnProperty('isLeaveSwapAllowed')) {
                 isSwap = user.isLeaveSwapAllowed;
               } else if (user.isLeaveSwapAllowed == false) {
                 isSwap = false;
@@ -1927,7 +2278,7 @@ class opsLeave {
               isSwap = false;
               if (user.isLeaveSwapAllowed == true) {
                 isSwap = true;
-              } else if (user.hasOwnProperty("isLeaveSwapAllowed")) {
+              } else if (user.hasOwnProperty('isLeaveSwapAllowed')) {
                 isSwap = user.isLeaveSwapAllowed;
               } else if (user.isLeaveSwapAllowed == false) {
                 isSwap = false;
@@ -1944,7 +2295,7 @@ class opsLeave {
                   entry.isSwapable = true;
                 }
               } else {
-                console.log("kuch nhi");
+                console.log('kuch nhi');
               }
               return entry;
             });
@@ -1957,17 +2308,20 @@ class opsLeave {
             };
             response.push(User1);
           } catch (e) {
-            console.log("e", e);
+            console.log('e', e);
             // res.send(e);
           }
         }
         res.status(201).json({
           status: true,
           data: response,
-          message: "successfully received data.",
+          message: 'successfully received data.',
         });
       } else {
-        const users = await OpsGroup.findOne({ _id: requestdata.opsGroupId }, { _id: 0, userId: 1 });
+        const users = await OpsGroup.findOne(
+          { _id: requestdata.opsGroupId },
+          { _id: 0, userId: 1 },
+        );
         const leaves = await userLeaves.find(
           { userId: { $in: users.userId } },
           {
@@ -1978,25 +2332,31 @@ class opsLeave {
             status: 1,
             isSwapable: 1,
             userId: 1,
-          }
+          },
         );
         let wons = [];
         wons = wons.concat(leaves);
-        let data = groupBy(wons, "userId");
+        let data = groupBy(wons, 'userId');
         //find data of individual user
         let response = [];
         for (let [key, value] of Object.entries(data)) {
-          console.log("key: ", key);
+          console.log('key: ', key);
           try {
-            const ops = await OpsGroup.findOne({ userId: key, isDelete: false }, { swopSetup: 1 });
-            const user = await User.findOne({ _id: key }, { name: 1, staffId: 1, isLeaveSwapAllowed: 1 });
+            const ops = await OpsGroup.findOne(
+              { userId: key, isDelete: false },
+              { swopSetup: 1 },
+            );
+            const user = await User.findOne(
+              { _id: key },
+              { name: 1, staffId: 1, isLeaveSwapAllowed: 1 },
+            );
             ops.swopSetup = parseInt(ops.swopSetup);
             let isSwap = false;
             if (ops.swopSetup == 0) {
               isSwap = false;
               if (user.isLeaveSwapAllowed == true) {
                 isSwap = false;
-              } else if (user.hasOwnProperty("isLeaveSwapAllowed")) {
+              } else if (user.hasOwnProperty('isLeaveSwapAllowed')) {
                 isSwap = user.isLeaveSwapAllowed;
               } else if (user.isLeaveSwapAllowed == false) {
                 isSwap = false;
@@ -2007,7 +2367,7 @@ class opsLeave {
               isSwap = false;
               if (user.isLeaveSwapAllowed == true) {
                 isSwap = true;
-              } else if (user.hasOwnProperty("isLeaveSwapAllowed")) {
+              } else if (user.hasOwnProperty('isLeaveSwapAllowed')) {
                 isSwap = user.isLeaveSwapAllowed;
               } else if (user.isLeaveSwapAllowed == false) {
                 isSwap = false;
@@ -2024,7 +2384,7 @@ class opsLeave {
                   entry.isSwapable = true;
                 }
               } else {
-                console.log("kuch nhi");
+                console.log('kuch nhi');
               }
               return entry;
             });
@@ -2038,18 +2398,18 @@ class opsLeave {
             };
             response.push(User1);
           } catch (e) {
-            console.log("e", e);
+            console.log('e', e);
             // res.send(e);
           }
         }
         res.status(201).json({
           status: true,
           data: response,
-          message: "successfully received data.",
+          message: 'successfully received data.',
         });
       }
     } catch (e) {
-      res.status(500).json({ status: false, message: "Something went wrong!" });
+      res.status(500).json({ status: false, message: 'Something went wrong!' });
     }
     function groupBy(xs, key) {
       return xs.reduce(function (rv, x) {
@@ -2063,32 +2423,38 @@ class opsLeave {
     try {
       if (requestdata.opsTeamId) {
         //ops team id is present there.
-        const users = await OpsTeam.findOne({ _id: requestdata.opsTeamId }, { _id: 0, userId: 1 }).populate([
+        const users = await OpsTeam.findOne(
+          { _id: requestdata.opsTeamId },
+          { _id: 0, userId: 1 },
+        ).populate([
           {
-            path: "userId",
-            select: "name staffId isLeaveSwapAllowed",
+            path: 'userId',
+            select: 'name staffId isLeaveSwapAllowed',
           },
         ]);
         res.status(201).json({
           status: true,
           data: users,
-          message: "successfully received data.",
+          message: 'successfully received data.',
         });
       } else {
-        const users = await OpsGroup.findOne({ _id: requestdata.opsGroupId }, { _id: 0, userId: 1 }).populate([
+        const users = await OpsGroup.findOne(
+          { _id: requestdata.opsGroupId },
+          { _id: 0, userId: 1 },
+        ).populate([
           {
-            path: "userId",
-            select: "name staffId isLeaveSwapAllowed",
+            path: 'userId',
+            select: 'name staffId isLeaveSwapAllowed',
           },
         ]);
         res.status(201).json({
           status: true,
           data: users,
-          message: "successfully received data.",
+          message: 'successfully received data.',
         });
       }
     } catch (e) {
-      res.status(500).json({ status: false, message: "Something went wrong!" });
+      res.status(500).json({ status: false, message: 'Something went wrong!' });
     }
     function groupBy(xs, key) {
       return xs.reduce(function (rv, x) {
@@ -2098,33 +2464,48 @@ class opsLeave {
     }
   }
   async swapRestrictToUser(req, res) {
-    try { 
+    try {
       let userId = req.params.userid;
-      const user = await User.findOne({ _id: userId }, { isLeaveSwapAllowed: 1 });
+      const user = await User.findOne(
+        { _id: userId },
+        { isLeaveSwapAllowed: 1 },
+      );
       if (user.isLeaveSwapAllowed && user.isLeaveSwapAllowed == true) {
-        await User.findByIdAndUpdate({ _id: userId }, { isLeaveSwapAllowed: false }, function (err, doc) {
-          if (err) {
-            res.status(203).json({
-              status: false,
-              data: err,
-              message: "error when updating.",
-            });
-          } else {
-            res.status(201).json({ status: true, message: "successfully updated." });
-          }
-        });
+        await User.findByIdAndUpdate(
+          { _id: userId },
+          { isLeaveSwapAllowed: false },
+          function (err, doc) {
+            if (err) {
+              res.status(203).json({
+                status: false,
+                data: err,
+                message: 'error when updating.',
+              });
+            } else {
+              res
+                .status(201)
+                .json({ status: true, message: 'successfully updated.' });
+            }
+          },
+        );
       } else {
-        await User.findByIdAndUpdate({ _id: userId }, { isLeaveSwapAllowed: true }, function (err, doc) {
-          if (err) {
-            res.status(203).json({
-              status: false,
-              data: err,
-              message: "error when updating.",
-            });
-          } else {
-            res.status(201).json({ status: true, message: "successfully updated." });
-          }
-        });
+        await User.findByIdAndUpdate(
+          { _id: userId },
+          { isLeaveSwapAllowed: true },
+          function (err, doc) {
+            if (err) {
+              res.status(203).json({
+                status: false,
+                data: err,
+                message: 'error when updating.',
+              });
+            } else {
+              res
+                .status(201)
+                .json({ status: true, message: 'successfully updated.' });
+            }
+          },
+        );
       }
     } catch (err) {
       __.log(err);
@@ -2134,13 +2515,20 @@ class opsLeave {
   async checkForDateOverlapWhenApply(res, data) {
     try {
       let dates = [];
-      var startDate = data.fromdate.split("-");
-      let startdd = new Date(+startDate[2], startDate[1] - 1, +startDate[0] + 1);
-      let endDate = data.todate.split("-");
+      var startDate = data.fromdate.split('-');
+      let startdd = new Date(
+        +startDate[2],
+        startDate[1] - 1,
+        +startDate[0] + 1,
+      );
+      let endDate = data.todate.split('-');
       let enddd = new Date(+endDate[2], endDate[1] - 1, +endDate[0] + 1);
       //check in that dates.
       dates = getDateArray(startdd, enddd);
-      let leaves = await userHoliday.find({ userId: data.userId }, { _id: 1, fromdate: 1, todate: 1, type: 1 });
+      let leaves = await userHoliday.find(
+        { userId: data.userId },
+        { _id: 1, fromdate: 1, todate: 1, type: 1 },
+      );
       const Ballots = await Ballot.find(
         { opsGroupId: data.opsGroupId, isCanceled: false },
         {
@@ -2150,26 +2538,41 @@ class opsLeave {
           ballotEndDate: 1,
           weekRange: 1,
           wonStaff: 1,
-        }
+        },
       );
 
       for (let km = 0; km <= dates.length - 1; km++) {
         for (let leave = 0; leave <= leaves.length - 1; leave++) {
           let leaveend;
-          var leavestart = leaves[leave].fromdate.split("-");
-          leavestart = new Date(+leavestart[2], leavestart[1] - 1, +leavestart[0] + 1);
+          var leavestart = leaves[leave].fromdate.split('-');
+          leavestart = new Date(
+            +leavestart[2],
+            leavestart[1] - 1,
+            +leavestart[0] + 1,
+          );
           if (leaves[leave].todate) {
-            leaveend = leaves[leave].todate.split("-");
-            leaveend = new Date(+leaveend[2], leaveend[1] - 1, +leaveend[0] + 1);
+            leaveend = leaves[leave].todate.split('-');
+            leaveend = new Date(
+              +leaveend[2],
+              leaveend[1] - 1,
+              +leaveend[0] + 1,
+            );
           }
-          if (data.idis && data.idis.toString() == leaves[leave]._id.toString()) {
-            console.log("same id found", data.idis);
+          if (
+            data.idis &&
+            data.idis.toString() == leaves[leave]._id.toString()
+          ) {
+            console.log('same id found', data.idis);
           } else {
-            if (dates[km] >= leavestart && dates[km] <= leaveend && leaves[leave].status !== "cancelled") {
+            if (
+              dates[km] >= leavestart &&
+              dates[km] <= leaveend &&
+              leaves[leave].status !== 'cancelled'
+            ) {
               return 0; // 0 says dates overlapping..
               //break;
             } else {
-              console.log("notfound");
+              console.log('notfound');
             }
           }
         }
@@ -2182,12 +2585,17 @@ class opsLeave {
             let end = new Date(Ballots[bb].weekRange[dm].end);
             let end1 = nextDayUTC(end);
             if (dates[km] <= end1 && dates[km] >= start) {
-              let wondate = Ballots[bb].wonStaff.filter((ws) => ws.opsGroupId == data.opsGroupId && ws.userId == data.userId && ws.weekNo == dm);
+              let wondate = Ballots[bb].wonStaff.filter(
+                (ws) =>
+                  ws.opsGroupId == data.opsGroupId &&
+                  ws.userId == data.userId &&
+                  ws.weekNo == dm,
+              );
               if (wondate.length > 0) {
                 return 0; //0 says dates overlapping
                 // return res.status(203).json({status: false, data: null, message: "Dates overlapping.. plese check if this user has won some ballots"});
               } else {
-                console.log("in ballotings");
+                console.log('in ballotings');
               }
             }
             //to add day in end date found from end date of ballot weekRange.
@@ -2199,18 +2607,18 @@ class opsLeave {
           }
         }
       }
-      console.log("returnong");
+      console.log('returnong');
       return 1;
       function getDateArray(start, end) {
-        console.log("In get dates : ");
+        console.log('In get dates : ');
         var arr = new Array(),
           dt = new Date(start);
         while (dt <= end) {
-          console.log("in while....");
+          console.log('in while....');
           arr.push(new Date(dt));
           dt.setDate(dt.getDate() + 1);
         }
-        console.log("At array: ", arr);
+        console.log('At array: ', arr);
         return arr;
       }
     } catch (err) {
@@ -2220,10 +2628,16 @@ class opsLeave {
   }
   async applyForLeave(req, res) {
     try {
-      console.log("here see");
+      console.log('here see');
       let request = req.body;
-      const ops = await OpsGroup.findOne({ userId: request.userId, isDelete: false }, { _id: 1 });
-      const opsTeam = await OpsTeam.findOne({ userId: request.userId, isDeleted: false }, { _id: 1 });
+      const ops = await OpsGroup.findOne(
+        { userId: request.userId, isDelete: false },
+        { _id: 1 },
+      );
+      const opsTeam = await OpsTeam.findOne(
+        { userId: request.userId, isDeleted: false },
+        { _id: 1 },
+      );
       let data = {
         fromdate: request.fromdate,
         todate: request.todate,
@@ -2231,15 +2645,15 @@ class opsLeave {
         opsGroupId: ops._id,
       };
       var check = await this.checkForDateOverlapWhenApply(res, data);
-      console.log("here check is: ", check);
+      console.log('here check is: ', check);
       if (check == 0) {
         return res.status(300).json({
           success: false,
           data: check,
-          message: "Dates overlapping!",
+          message: 'Dates overlapping!',
         });
       }
-      console.log("check", check);
+      console.log('check', check);
       var myLog = {
         updatedBy: req.user.name,
         message: 4, //1-Allocation 2- Change date 3-cancellation,4-applied
@@ -2253,7 +2667,7 @@ class opsLeave {
         todate: request.todate,
         type: request.leaveType,
         reason: request.reason,
-        status: "Applied",
+        status: 'Applied',
         opsGroupId: ops._id,
         logs: [myLog],
       };
@@ -2264,22 +2678,22 @@ class opsLeave {
       if (opsTeam) {
         leaveapplication.opsTeamId = opsTeam._id;
       }
-      console.log("leave: ", leaveapplication);
+      console.log('leave: ', leaveapplication);
       var apply = new userHoliday(leaveapplication);
       apply.save(function (err, applied) {
         if (err) {
-          console.log("ree: ", err);
+          console.log('ree: ', err);
           return res.status(500).json({
             success: false,
             data: err,
-            message: "Something went wrong!",
+            message: 'Something went wrong!',
           });
         } else {
-          console.log("in else");
+          console.log('in else');
           return res.status(201).json({
             success: true,
             data: applied,
-            message: "Successfully saved!",
+            message: 'Successfully saved!',
           });
         }
       });
@@ -2287,7 +2701,7 @@ class opsLeave {
       return res.status(500).json({
         success: false,
         data: e,
-        message: "Something went wrong!",
+        message: 'Something went wrong!',
       });
     }
   }
@@ -2305,15 +2719,23 @@ class opsLeave {
           type: 1,
           status: 1,
           isSwapable: 1,
-        }
+        },
       );
       let leaves = JSON.stringify(leaves1);
       leaves = JSON.parse(leaves);
       for (let l = 0; l <= leaves.length - 1; l++) {
-        var datePartsss = leaves[l].fromdate.split("-");
-        var dateParteee = leaves[l].todate.split("-");
-        let startdd = new Date(+datePartsss[2], datePartsss[1] - 1, +datePartsss[0] + 1);
-        let enddd = new Date(+dateParteee[2], dateParteee[1] - 1, +dateParteee[0] + 1);
+        var datePartsss = leaves[l].fromdate.split('-');
+        var dateParteee = leaves[l].todate.split('-');
+        let startdd = new Date(
+          +datePartsss[2],
+          datePartsss[1] - 1,
+          +datePartsss[0] + 1,
+        );
+        let enddd = new Date(
+          +dateParteee[2],
+          dateParteee[1] - 1,
+          +dateParteee[0] + 1,
+        );
         const leaveswaprequest = await swopRequests.find({
           userTo: req.user._id,
           leaveTo: leaves[l]._id,
@@ -2332,7 +2754,7 @@ class opsLeave {
           return res.status(500).json({
             success: false,
             data: e,
-            message: "Something went wrong!",
+            message: 'Something went wrong!',
           });
         }
       }
@@ -2340,13 +2762,13 @@ class opsLeave {
       return res.status(201).json({
         success: true,
         data: leaves,
-        message: "received!",
+        message: 'received!',
       });
     } catch (e) {
       return res.status(500).json({
         success: false,
         data: e,
-        message: "Something went wrong!",
+        message: 'Something went wrong!',
       });
     }
   }
@@ -2381,26 +2803,26 @@ class opsLeave {
           attachment: 1,
           isSwapable: 1,
           type: 1,
-        }
+        },
       );
       return res.status(201).json({
         success: true,
         data: leave,
-        message: "received!",
+        message: 'received!',
       });
     } catch (e) {
       return res.status(500).json({
         success: false,
         data: e,
-        message: "Something went wrong!",
+        message: 'Something went wrong!',
       });
     }
   }
   async updateLeave(req, res) {
     try {
-      console.log("req,", req.body);
+      console.log('req,', req.body);
       const currentLeave = await userHoliday.findOne({ _id: req.body._id });
-      console.log("curr leave: ", currentLeave);
+      console.log('curr leave: ', currentLeave);
       let data = {
         opsGroupId: currentLeave.opsGroupId,
         userId: req.user._id,
@@ -2413,12 +2835,12 @@ class opsLeave {
         return res.status(300).json({
           success: false,
           data: check,
-          message: "Dates overlapping!",
+          message: 'Dates overlapping!',
         });
       } else {
-        console.log("in else");
+        console.log('in else');
         if (currentLeave) {
-          console.log("Here currentleave is: ", currentLeave);
+          console.log('Here currentleave is: ', currentLeave);
           let log = currentLeave.logs;
           var myLog = {
             updatedBy: req.user.name,
@@ -2440,39 +2862,47 @@ class opsLeave {
           return res.status(201).json({
             success: true,
             data: currentLeave,
-            message: "Updated Successfully!",
+            message: 'Updated Successfully!',
           });
         } else {
           res.status(203).json({
             status: false,
             data: null,
-            message: "Sorry ! couldnt find similar data",
+            message: 'Sorry ! couldnt find similar data',
           });
         }
       }
     } catch (e) {
-      res.status(501).json({ status: false, data: null, message: "Something went wrong!" });
+      res
+        .status(501)
+        .json({ status: false, data: null, message: 'Something went wrong!' });
     }
   }
   async checkIfHasParent(res, ballotid) {
     try {
-      console.log("parat alao");
-      let currentBallot = await Ballot.findOne({ _id: ballotid }, { parentBallot: 1, childBallots: 1 });
+      console.log('parat alao');
+      let currentBallot = await Ballot.findOne(
+        { _id: ballotid },
+        { parentBallot: 1, childBallots: 1 },
+      );
       if (!currentBallot) {
         //console.logs("NO ballot found");
       } else {
         //console.logs("in else of current data found");
         if (currentBallot.parentBallot) {
-          console.log("here in parent checkbaga baga");
+          console.log('here in parent checkbaga baga');
           //console.logs("in if of parent data",currentBallot.parentBallot);
           return this.checkIfHasParent(res, currentBallot.parentBallot);
         }
-        if (currentBallot.childBallots && currentBallot.childBallots.length > 0) {
-          console.log("here baga baga");
+        if (
+          currentBallot.childBallots &&
+          currentBallot.childBallots.length > 0
+        ) {
+          console.log('here baga baga');
           let list = [];
           list.push(currentBallot._id);
           list = list.concat(currentBallot.childBallots);
-          console.log("list s: ", list);
+          console.log('list s: ', list);
           return list;
         }
       }
@@ -2492,50 +2922,62 @@ class opsLeave {
       let frm = leave.fromdate;
       let tm = leave.todate;
       slotDates = { start: frm, end: tm };
-      const ops = await OpsGroup.findOne({ userId: req.user._id, isDelete: false }, { opsGroupName: 1, swopSetup: 1, userId: 1 });
+      const ops = await OpsGroup.findOne(
+        { userId: req.user._id, isDelete: false },
+        { opsGroupName: 1, swopSetup: 1, userId: 1 },
+      );
       // .populate({path:'userId',select:'name staffId'});
       if (ops) {
-        const currentuser = await User.findOne({ _id: req.user._id }, { _id: 0, parentBussinessUnitId: 1 }).populate({
-          path: "parentBussinessUnitId",
-          select: "name",
+        const currentuser = await User.findOne(
+          { _id: req.user._id },
+          { _id: 0, parentBussinessUnitId: 1 },
+        ).populate({
+          path: 'parentBussinessUnitId',
+          select: 'name',
           populate: {
-            path: "sectionId",
-            select: "name",
+            path: 'sectionId',
+            select: 'name',
             populate: {
-              path: "departmentId",
-              select: "name",
+              path: 'departmentId',
+              select: 'name',
               populate: {
-                path: "companyId",
-                select: "name",
+                path: 'companyId',
+                select: 'name',
               },
             },
           },
         });
         let BU =
-          currentuser.parentBussinessUnitId.sectionId.departmentId.companyId.name + " > " +
-          currentuser.parentBussinessUnitId.sectionId.departmentId.name + " > " +
-          currentuser.parentBussinessUnitId.sectionId.name + " > " +
+          currentuser.parentBussinessUnitId.sectionId.departmentId.companyId
+            .name +
+          ' > ' +
+          currentuser.parentBussinessUnitId.sectionId.departmentId.name +
+          ' > ' +
+          currentuser.parentBussinessUnitId.sectionId.name +
+          ' > ' +
           currentuser.parentBussinessUnitId.name;
         let resObj = {};
-        let allUsers = ops.userId.filter((op) => op.toString() !== req.user._id.toString());
+        let allUsers = ops.userId.filter(
+          (op) => op.toString() !== req.user._id.toString(),
+        );
         let allLeaves = [];
         if (leave.type == 1 || leave.type == 3) {
           const balloted = await userLeaves.find({
             type: 1,
-            status: "Balloted",
+            status: 'Balloted',
             userId: { $in: allUsers },
           });
           allLeaves = allLeaves.concat(balloted);
           const blockAllocated = await userLeaves.find({
             type: 3,
-            status: "Allocated",
+            status: 'Allocated',
             userId: { $in: allUsers },
           });
           allLeaves = allLeaves.concat(blockAllocated);
         } else {
           const casualAllocated = await userLeaves.find({
             type: 2,
-            status: "Allocated",
+            status: 'Allocated',
             userId: { $in: allUsers },
           });
           allLeaves = allLeaves.concat(casualAllocated);
@@ -2545,16 +2987,16 @@ class opsLeave {
         resObj.opsName = ops.opsGroupName;
         resObj.opsGroupId = ops._id;
         if (leave.type == 1) {
-          resObj.type = "Block-Balloted";
+          resObj.type = 'Block-Balloted';
         }
         if (leave.type == 3) {
-          resObj.type = "Block-Allocated";
+          resObj.type = 'Block-Allocated';
         }
         if (leave.type == 2) {
-          resObj.type = "Casual";
+          resObj.type = 'Casual';
         }
         if (leave.type == 4) {
-          resObj.type = "Special";
+          resObj.type = 'Special';
         }
         var datePartsss = leave.fromdate;
         var dateParteee = leave.todate;
@@ -2568,8 +3010,11 @@ class opsLeave {
         resObj.leaveId = reqdata.leaveId;
         resObj.weekRange = [];
         for (let key = 0; key <= allLeaves.length - 1; key++) {
-          if (leave.fromdate == allLeaves[key].fromdate && leave.todate == allLeaves[key].todate) {
-            console.log("same ahe");
+          if (
+            leave.fromdate == allLeaves[key].fromdate &&
+            leave.todate == allLeaves[key].todate
+          ) {
+            console.log('same ahe');
           } else {
             let from = allLeaves[key].fromdate;
             let to = allLeaves[key].todate;
@@ -2577,11 +3022,11 @@ class opsLeave {
             let todd = new Date(to);
             var totaldays = Math.floor((todd - frmdd) / (1000 * 60 * 60 * 24));
             totaldays = totaldays + 1;
-            let type = "";
+            let type = '';
             if (totaldays > 7) {
-              type = "Non-standanrd";
+              type = 'Non-standanrd';
             } else {
-              type = "standard";
+              type = 'standard';
             }
             let range = {
               date: frmdd,
@@ -2595,14 +3040,18 @@ class opsLeave {
         }
 
         if (leave.type == 1 || leave.type == 3) {
-          console.log("INSIDE ME ");
+          console.log('INSIDE ME ');
           let weekRange = [];
-          var standards = resObj.weekRange.filter((qq) => qq.type == "standard");
+          var standards = resObj.weekRange.filter(
+            (qq) => qq.type == 'standard',
+          );
           const BB = standards.sort((a, b) => b.date - a.date);
           BB == BB.reverse();
-          var trrObject = removeDuplicates(BB, "start", "end");
+          var trrObject = removeDuplicates(BB, 'start', 'end');
           weekRange = weekRange.concat(trrObject);
-          var nonstandards = resObj.weekRange.filter((qq) => qq.type == "Non-standanrd");
+          var nonstandards = resObj.weekRange.filter(
+            (qq) => qq.type == 'Non-standanrd',
+          );
           const BB1 = nonstandards.sort((a, b) => b.date - a.date);
           BB1 == BB1.reverse();
           weekRange = weekRange.concat(BB1);
@@ -2615,7 +3064,7 @@ class opsLeave {
           resObj.weekRange = [];
           resObj.weekRange = BB;
         }
-        console.log("OUTSIDE ME ");
+        console.log('OUTSIDE ME ');
 
         function removeDuplicates(originalArray, objKey, objKey1) {
           var trimmedArray = [];
@@ -2632,7 +3081,7 @@ class opsLeave {
               trimmedArray.push(originalArray[i]);
               values.push(val1);
             } else {
-              console.log("in else else /...");
+              console.log('in else else /...');
             }
           }
           return trimmedArray;
@@ -2642,7 +3091,7 @@ class opsLeave {
         return res.status(201).json({
           success: true,
           data: resObj,
-          message: "received!",
+          message: 'received!',
         });
       } else {
         return res.status(300).json({
@@ -2666,21 +3115,30 @@ class opsLeave {
     try {
       const leave = await userLeaves.findOne({ _id: req.body.leaveId });
       let dates = [];
-      var startDate = req.body.start.split("-");
-      startDate = startDate[2] + "-" + startDate[1] + "-" + startDate[0];
-      startDate = startDate.split("-");
-      let startdd = new Date(+startDate[2], startDate[1] - 1, +startDate[0] + 1);
+      var startDate = req.body.start.split('-');
+      startDate = startDate[2] + '-' + startDate[1] + '-' + startDate[0];
+      startDate = startDate.split('-');
+      let startdd = new Date(
+        +startDate[2],
+        startDate[1] - 1,
+        +startDate[0] + 1,
+      );
       // let startdd = new Date(req.body.start);
       // let enddd = new Date(req.body.end);
-      let endDate = req.body.end.split("-");
-      endDate = endDate[2] + "-" + endDate[1] + "-" + endDate[0];
-      endDate = endDate.split("-");
+      let endDate = req.body.end.split('-');
+      endDate = endDate[2] + '-' + endDate[1] + '-' + endDate[0];
+      endDate = endDate.split('-');
       let enddd = new Date(+endDate[2], endDate[1] - 1, +endDate[0] + 1);
       //check in that dates.
       dates = await getDateArray(startdd, enddd);
       //console.log("userleave: ",leave);
-      const ops = await OpsGroup.findOne({ _id: req.body.opsGroupId }, { opsGroupName: 1, userId: 1 });
-      let allUsers = ops.userId.filter((op) => op.toString() !== req.user._id.toString());
+      const ops = await OpsGroup.findOne(
+        { _id: req.body.opsGroupId },
+        { opsGroupName: 1, userId: 1 },
+      );
+      let allUsers = ops.userId.filter(
+        (op) => op.toString() !== req.user._id.toString(),
+      );
       // console.log("allUsers",allUsers);
       let userleaves = [];
       if (leave.type == 1 || leave.type == 3) {
@@ -2688,38 +3146,55 @@ class opsLeave {
           .find({
             userId: { $in: allUsers },
             type: { $in: [1, 3] },
-            status: { $in: ["Allocated", "Balloted"] },
+            status: { $in: ['Allocated', 'Balloted'] },
           })
-          .populate([{ path: "userId", select: "name staffId" }]);
+          .populate([{ path: 'userId', select: 'name staffId' }]);
       } else {
-        userleaves = await userLeaves.find({ userId: { $in: allUsers }, type: 2, status: "Allocated" }).populate([{ path: "userId", select: "name staffId" }]);
+        userleaves = await userLeaves
+          .find({ userId: { $in: allUsers }, type: 2, status: 'Allocated' })
+          .populate([{ path: 'userId', select: 'name staffId' }]);
       }
       //  console.log("userleaves are: ",userleaves);
       if (userleaves && userleaves.length > 0) {
         let resArr = [];
         for (let i = 0; i <= userleaves.length - 1; i++) {
           var dateInLeave = [];
-          var startleave = userleaves[i].fromdate.split("-");
-          startleave = startleave[2] + "-" + startleave[1] + "-" + startleave[0];
-          startleave = startleave.split("-");
-          let startddleave = new Date(+startleave[2], startleave[1] - 1, +startleave[0] + 1);
+          var startleave = userleaves[i].fromdate.split('-');
+          startleave =
+            startleave[2] + '-' + startleave[1] + '-' + startleave[0];
+          startleave = startleave.split('-');
+          let startddleave = new Date(
+            +startleave[2],
+            startleave[1] - 1,
+            +startleave[0] + 1,
+          );
           //let startddleave = new Date(startleave);
           //    let endddleave = new Date(userleaves[i].todate);
-          let endleave = userleaves[i].todate.split("-");
-          endleave = endleave[2] + "-" + endleave[1] + "-" + endleave[0];
-          endleave = endleave.split("-");
-          let endddleave = new Date(+endleave[2], endleave[1] - 1, +endleave[0] + 1);
+          let endleave = userleaves[i].todate.split('-');
+          endleave = endleave[2] + '-' + endleave[1] + '-' + endleave[0];
+          endleave = endleave.split('-');
+          let endddleave = new Date(
+            +endleave[2],
+            endleave[1] - 1,
+            +endleave[0] + 1,
+          );
           //    let endleave= userleaves[i].todate.split("-");
           //    let endddleave = new Date(endleave);
           //check in that dates.
           dateInLeave = await getDateArray(startddleave, endddleave);
           var check = findCommonElement(dates, dateInLeave);
           if (check == true) {
-            const sapData = await StaffSapData.findOne({ staff_Id: userleaves[i].userId._id }, { ballotLeaveBalanced: 1 });
+            const sapData = await StaffSapData.findOne(
+              { staff_Id: userleaves[i].userId._id },
+              { ballotLeaveBalanced: 1 },
+            );
             let currObj = {};
             var checkIfUserAlreadyExists;
             if (resArr.length > 0) {
-              var checkIfUserAlreadyExists = checkOfUser(resArr, userleaves[i].userId._id);
+              var checkIfUserAlreadyExists = checkOfUser(
+                resArr,
+                userleaves[i].userId._id,
+              );
             }
 
             if (checkIfUserAlreadyExists !== -1) {
@@ -2731,7 +3206,7 @@ class opsLeave {
               currObj.ballotBalance = sapData.ballotLeaveBalanced;
               resArr.push(currObj);
             } else {
-              console.log("need not to push");
+              console.log('need not to push');
             }
           }
         }
@@ -2740,7 +3215,7 @@ class opsLeave {
             if (array[i]._id.toString() == currentuserid.toString()) {
               return -1;
             } else {
-              console.log("no");
+              console.log('no');
             }
           }
         }
@@ -2748,7 +3223,7 @@ class opsLeave {
         return res.status(201).json({
           success: true,
           data: resArr,
-          message: "received!",
+          message: 'received!',
         });
       } else {
         return res.status(300).json({
@@ -2792,12 +3267,18 @@ class opsLeave {
   async saveSwopRequest(req, res) {
     try {
       let reqObject = req.body;
-      let requiredResult = await __.checkRequiredFields(req, ["userFrom", "userTo", "opsGroupId", "leaveFrom", "leaveTo"]);
+      let requiredResult = await __.checkRequiredFields(req, [
+        'userFrom',
+        'userTo',
+        'opsGroupId',
+        'leaveFrom',
+        'leaveTo',
+      ]);
       if (requiredResult.status == false) {
         return res.status(300).json({
           success: false,
           data: null,
-          message: "Missing Fields Error!",
+          message: 'Missing Fields Error!',
         });
       } else {
         const requestsswoping = await swopRequests.find({
@@ -2809,12 +3290,15 @@ class opsLeave {
           return res.status(300).json({
             success: false,
             data: null,
-            message: "You have already sent request for these leave dates!",
+            message: 'You have already sent request for these leave dates!',
           });
         }
 
         //check if userFrom already have dates which he is requesting for
-        const leaveTo = await userLeaves.findOne({ _id: reqObject.leaveTo }, { fromdate: 1, todate: 1 });
+        const leaveTo = await userLeaves.findOne(
+          { _id: reqObject.leaveTo },
+          { fromdate: 1, todate: 1 },
+        );
         if (leaveTo) {
           const userFrom = await userLeaves.find({
             userId: reqObject.userFrom,
@@ -2825,16 +3309,16 @@ class opsLeave {
             return res.status(300).json({
               success: false,
               data: null,
-              message: "You already have these dates.",
+              message: 'You already have these dates.',
             });
           } else {
-            console.log("Go ahead");
+            console.log('Go ahead');
           }
         } else {
           return res.status(300).json({
             success: false,
             data: null,
-            message: "Could not find your leave data!",
+            message: 'Could not find your leave data!',
           });
         }
 
@@ -2849,45 +3333,52 @@ class opsLeave {
 
           //check in that dates.
           dates = getArrayOfDates(startdd, enddd);
-          console.log("date: ", dates);
+          console.log('date: ', dates);
 
           for (let km = 0; km <= dates.length - 1; km++) {
             for (let leave = 0; leave <= userFromLeaves.length - 1; leave++) {
               let leavestart = new Date(userFromLeaves[leave].fromdate);
               let leaveend = new Date(userFromLeaves[leave].todate);
 
-              if (dates[km] >= leavestart && dates[km] <= leaveend && userFromLeaves[leave].status !== "cancelled") {
+              if (
+                dates[km] >= leavestart &&
+                dates[km] <= leaveend &&
+                userFromLeaves[leave].status !== 'cancelled'
+              ) {
                 // 0 says dates overlapping..
                 return res.status(300).json({
                   success: false,
                   data: null,
-                  message: "This staff has these dates within this date range.",
+                  message: 'This staff has these dates within this date range.',
                 });
                 //break;
               } else {
-                console.log("notfound");
+                console.log('notfound');
               }
             }
           }
           function getArrayOfDates(start, end) {
-            console.log("In get dates : ");
+            console.log('In get dates : ');
             var arr = new Array(),
               dt = new Date(start);
 
             while (dt <= end) {
-              console.log("in while....");
+              console.log('in while....');
               arr.push(new Date(dt));
               dt.setDate(dt.getDate() + 1);
             }
-            console.log("At array: ", arr);
+            console.log('At array: ', arr);
             return arr;
           }
         } else {
-          console.log("in els go ahead");
+          console.log('in els go ahead');
         }
 
         //Check if userTo already have those dates which are requested.
-        const leaveFrom = await userLeaves.findOne({ _id: reqObject.leaveFrom }, { fromdate: 1, todate: 1 });
+        const leaveFrom = await userLeaves.findOne(
+          { _id: reqObject.leaveFrom },
+          { fromdate: 1, todate: 1 },
+        );
         if (leaveFrom) {
           const userTo = await userLeaves.find({
             userId: reqObject.userTo,
@@ -2898,16 +3389,16 @@ class opsLeave {
             return res.status(300).json({
               success: false,
               data: null,
-              message: "This staff already has these dates.",
+              message: 'This staff already has these dates.',
             });
           } else {
-            console.log("Go ahead");
+            console.log('Go ahead');
           }
         } else {
           return res.status(300).json({
             success: false,
             data: null,
-            message: "Could not find leave you are requesting to!",
+            message: 'Could not find leave you are requesting to!',
           });
         }
 
@@ -2917,32 +3408,38 @@ class opsLeave {
             return res.status(500).json({
               success: false,
               data: err,
-              message: "Something went wrong!!",
+              message: 'Something went wrong!!',
             });
           } else {
             res.status(201).json({
               success: true,
               data: resObj,
-              message: "Saved!!",
+              message: 'Saved!!',
             });
-            const user = await User.findOne({ _id: reqObject.userTo }, { _id: 0, deviceToken: 1 });
-            const userFrom = await User.findOne({ _id: resObj.userFrom }, { name: 1 });
+            const user = await User.findOne(
+              { _id: reqObject.userTo },
+              { _id: 0, deviceToken: 1 },
+            );
+            const userFrom = await User.findOne(
+              { _id: resObj.userFrom },
+              { name: 1 },
+            );
             let usersDeviceTokens = [];
             var dd = new Date();
             if (user && user.deviceToken) {
-              console.log("USER: ", user);
+              console.log('USER: ', user);
               usersDeviceTokens.push(user.deviceToken);
               var collapseKey = resObj._id;
               let notificationObj = {
-                title: "Leave Swap Request.",
-                body: "You have Leave Swap request from " + userFrom.name + ".",
-                bodyText: "You have Leave Swap request " + userFrom.name + ".",
+                title: 'Leave Swap Request.',
+                body: 'You have Leave Swap request from ' + userFrom.name + '.',
+                bodyText: 'You have Leave Swap request ' + userFrom.name + '.',
                 bodyTime: dd,
-                bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
+                bodyTimeFormat: ['DD-MMM-YYYY HH:mm'],
               };
 
               FCM.push(usersDeviceTokens, notificationObj, collapseKey);
-              console.log("sent");
+              console.log('sent');
             }
           }
         });
@@ -2962,10 +3459,10 @@ class opsLeave {
           requestStatus: 1,
         })
         .populate([
-          { path: "userFrom", select: "name staffId" },
-          { path: "opsGroupId", select: "opsGroupName" },
-          { path: "leaveFrom", select: "fromdate todate type status" },
-          { path: "leaveTo", select: "fromdate todate type status" },
+          { path: 'userFrom', select: 'name staffId' },
+          { path: 'opsGroupId', select: 'opsGroupName' },
+          { path: 'leaveFrom', select: 'fromdate todate type status' },
+          { path: 'leaveTo', select: 'fromdate todate type status' },
         ]);
       let resdata = [];
       if (swapRequests.length > 0) {
@@ -2973,42 +3470,48 @@ class opsLeave {
           var startslotdate = swapRequests[i].leaveFrom.fromdate;
           var endslotdate = swapRequests[i].leaveFrom.todate;
           let slotDates = { start: startslotdate, end: endslotdate };
-          const user = await User.findOne({ _id: swapRequests[i].userFrom._id }, { _id: 0, parentBussinessUnitId: 1 }).populate({
-            path: "parentBussinessUnitId",
-            select: "name",
+          const user = await User.findOne(
+            { _id: swapRequests[i].userFrom._id },
+            { _id: 0, parentBussinessUnitId: 1 },
+          ).populate({
+            path: 'parentBussinessUnitId',
+            select: 'name',
             populate: {
-              path: "sectionId",
-              select: "name",
+              path: 'sectionId',
+              select: 'name',
               populate: {
-                path: "departmentId",
-                select: "name",
+                path: 'departmentId',
+                select: 'name',
                 populate: {
-                  path: "companyId",
-                  select: "name",
+                  path: 'companyId',
+                  select: 'name',
                 },
               },
             },
           });
           let BU =
-            user.parentBussinessUnitId.sectionId.departmentId.companyId.name + " > " +
-            user.parentBussinessUnitId.sectionId.departmentId.name + " > " +
-            user.parentBussinessUnitId.sectionId.name + " > " +
+            user.parentBussinessUnitId.sectionId.departmentId.companyId.name +
+            ' > ' +
+            user.parentBussinessUnitId.sectionId.departmentId.name +
+            ' > ' +
+            user.parentBussinessUnitId.sectionId.name +
+            ' > ' +
             user.parentBussinessUnitId.name;
           let data = {};
           data.Bu = BU;
           data.opsName = swapRequests[i].opsGroupId.opsGroupName;
           data.opsGroupId = swapRequests[i].opsGroupId._id;
           if (swapRequests[i].leaveFrom.type == 1) {
-            data.type = "Block-Balloted";
+            data.type = 'Block-Balloted';
           }
           if (swapRequests[i].leaveFrom.type == 3) {
-            data.type = "Block-Allocated";
+            data.type = 'Block-Allocated';
           }
           if (swapRequests[i].leaveFrom.type == 2) {
-            data.type = "Casual";
+            data.type = 'Casual';
           }
           if (swapRequests[i].leaveFrom.type == 4) {
-            data.type = "Special";
+            data.type = 'Special';
           }
           // var datePartsss = swapRequests[i].leaveFrom.fromdate.split("-");
           // var dateParteee = swapRequests[i].leaveFrom.todate.split("-");
@@ -3043,7 +3546,7 @@ class opsLeave {
         return res.status(201).json({
           success: true,
           data: resdata,
-          message: "received!",
+          message: 'received!',
         });
       } else {
         return res.status(300).json({
@@ -3060,9 +3563,9 @@ class opsLeave {
   async acceptSwopRequest(req, res) {
     try {
       let data = req.body;
-      console.log("data: ", data);
+      console.log('data: ', data);
       const swopReq = await swopRequests.findOne({ _id: data.requestId });
-      console.log("SWON: ", swopReq);
+      console.log('SWON: ', swopReq);
       if (!swopReq) {
         return res.status(300).json({
           success: false,
@@ -3071,15 +3574,23 @@ class opsLeave {
         });
       } else {
         if (data.action == 2) {
-          const leaveTo = await userLeaves.findOne({ _id: swopReq.leaveTo }, { fromdate: 1, todate: 1, type: 1 });
-          const leaveFrom = await userLeaves.findOne({ _id: swopReq.leaveFrom }, { fromdate: 1, todate: 1, type: 1 });
+          const leaveTo = await userLeaves.findOne(
+            { _id: swopReq.leaveTo },
+            { fromdate: 1, todate: 1, type: 1 },
+          );
+          const leaveFrom = await userLeaves.findOne(
+            { _id: swopReq.leaveFrom },
+            { fromdate: 1, todate: 1, type: 1 },
+          );
           //check diffrences of leaves
           //For leaveTodats here
           // var dateLeaveToPartsss = leaveTo.fromdate.split("-");
           // var dateLeaveToParteee = leaveTo.todate.split("-");
           let startLeaveTodd = new Date(leaveTo.fromdate);
           let endLeaveTodd = new Date(leaveTo.todate);
-          var LeaveTodays = Math.floor((endLeaveTodd - startLeaveTodd) / (1000 * 60 * 60 * 24));
+          var LeaveTodays = Math.floor(
+            (endLeaveTodd - startLeaveTodd) / (1000 * 60 * 60 * 24),
+          );
           LeaveTodays = LeaveTodays + 1;
           if (leaveTo.type == 1 || leaveTo.type == 3) {
             LeaveTodays = await noOfDays(res, LeaveTodays);
@@ -3088,33 +3599,53 @@ class opsLeave {
           //  var dateLeaveFromParteee = leaveFrom.todate.split("-");
           let startLeaveFromdd = new Date(leaveFrom.fromdate);
           let endLeaveFromdd = new Date(leaveFrom.todate);
-          var LeaveFromdays = Math.floor((endLeaveFromdd - startLeaveFromdd) / (1000 * 60 * 60 * 24));
+          var LeaveFromdays = Math.floor(
+            (endLeaveFromdd - startLeaveFromdd) / (1000 * 60 * 60 * 24),
+          );
           LeaveFromdays = LeaveFromdays + 1;
           if (leaveFrom.type == 1 || leaveFrom.type == 3) {
             LeaveFromdays = await noOfDays(res, LeaveFromdays);
           }
 
           if (LeaveFromdays == LeaveTodays) {
-            console.log("sssame");
+            console.log('sssame');
           }
           if (LeaveFromdays > LeaveTodays) {
-            console.log("From is greater");
+            console.log('From is greater');
             var diff = LeaveFromdays - LeaveTodays;
-            let updateduserFrom = await StaffSapData.update({ staff_Id: swopReq.userFrom }, { $inc: { ballotLeaveBalanced: diff } });
-            let updateduserTo = await StaffSapData.update({ staff_Id: swopReq.userTo }, { $inc: { ballotLeaveBalanced: -diff } });
+            let updateduserFrom = await StaffSapData.update(
+              { staff_Id: swopReq.userFrom },
+              { $inc: { ballotLeaveBalanced: diff } },
+            );
+            let updateduserTo = await StaffSapData.update(
+              { staff_Id: swopReq.userTo },
+              { $inc: { ballotLeaveBalanced: -diff } },
+            );
           }
           if (LeaveFromdays < LeaveTodays) {
-            console.log("From is lesser");
+            console.log('From is lesser');
             var diff = LeaveTodays - LeaveFromdays;
-            let updateduserFrom = await StaffSapData.update({ staff_Id: swopReq.userFrom }, { $inc: { ballotLeaveBalanced: -diff } });
-            let updateduserTo = await StaffSapData.update({ staff_Id: swopReq.userTo }, { $inc: { ballotLeaveBalanced: diff } });
+            let updateduserFrom = await StaffSapData.update(
+              { staff_Id: swopReq.userFrom },
+              { $inc: { ballotLeaveBalanced: -diff } },
+            );
+            let updateduserTo = await StaffSapData.update(
+              { staff_Id: swopReq.userTo },
+              { $inc: { ballotLeaveBalanced: diff } },
+            );
           }
           //Exchange Actual leaves
           //LevaeFrom
-          const userFrom = await User.findOne({ _id: swopReq.userFrom }, { name: 1, staffId: 1 });
+          const userFrom = await User.findOne(
+            { _id: swopReq.userFrom },
+            { name: 1, staffId: 1 },
+          );
           leaveTo.userId = userFrom._id;
           await leaveTo.save();
-          const userTo = await User.findOne({ _id: swopReq.userTo }, { name: 1, staffId: 1 });
+          const userTo = await User.findOne(
+            { _id: swopReq.userTo },
+            { name: 1, staffId: 1 },
+          );
           leaveFrom.userId = userTo._id;
           await leaveFrom.save();
           swopReq.requestStatus = 2;
@@ -3136,12 +3667,23 @@ class opsLeave {
               });
               if (sameLeaveFroms.length > 0) {
                 let idss = [];
-                for (let element = 0; element <= sameLeaveFroms.length - 1; element++) {
+                for (
+                  let element = 0;
+                  element <= sameLeaveFroms.length - 1;
+                  element++
+                ) {
                   idss.push(sameLeaveFroms[element]._id);
-                  const userFrm = await User.findOne({ _id: sameLeaveFroms[element].userFrom }, { _id: 0, deviceToken: 1 });
+                  const userFrm = await User.findOne(
+                    { _id: sameLeaveFroms[element].userFrom },
+                    { _id: 0, deviceToken: 1 },
+                  );
                   userFromTokens.push(userFrm.deviceToken);
                 }
-                await swopRequests.update({ _id: { $in: idss } }, { $set: { requestStatus: 3 } }, { multi: true });
+                await swopRequests.update(
+                  { _id: { $in: idss } },
+                  { $set: { requestStatus: 3 } },
+                  { multi: true },
+                );
               }
             }
           }
@@ -3154,45 +3696,74 @@ class opsLeave {
           });
           if (sameLeaveTos.length > 0) {
             let idss = [];
-            for (let element = 0; element <= sameLeaveTos.length - 1; element++) {
+            for (
+              let element = 0;
+              element <= sameLeaveTos.length - 1;
+              element++
+            ) {
               idss.push(sameLeaveTos[element]._id);
-              const userFrm = await User.findOne({ _id: swopReq.userFrom }, { _id: 0, deviceToken: 1 });
+              const userFrm = await User.findOne(
+                { _id: swopReq.userFrom },
+                { _id: 0, deviceToken: 1 },
+              );
               userFromTokens.push(userFrm.deviceToken);
             }
-            await swopRequests.update({ _id: { $in: idss } }, { $set: { requestStatus: 3 } }, { multi: true });
+            await swopRequests.update(
+              { _id: { $in: idss } },
+              { $set: { requestStatus: 3 } },
+              { multi: true },
+            );
           }
           res.status(201).json({
             success: true,
             data: swopReq,
-            message: "updated!.",
+            message: 'updated!.',
           });
 
-          const user = await User.findOne({ _id: swopReq.userFrom }, { _id: 0, deviceToken: 1 });
-          const userTo1 = await User.findOne({ _id: swopReq.userTo }, { name: 1 });
+          const user = await User.findOne(
+            { _id: swopReq.userFrom },
+            { _id: 0, deviceToken: 1 },
+          );
+          const userTo1 = await User.findOne(
+            { _id: swopReq.userTo },
+            { name: 1 },
+          );
           let usersDeviceTokens = [];
           var dd = new Date();
           if (user && user.deviceToken) {
-            console.log("USER: ", user);
+            console.log('USER: ', user);
             usersDeviceTokens.push(user.deviceToken);
             var collapseKey = swopReq._id;
             let notificationObj = {
-              title: "Leave Swap Request Accepted.",
-              body: "Your leave swap request with " + userTo1.name + " is Accepted.",
-              bodyText: "Your leave swap request with " + userTo1.name + " is Accepted.",
+              title: 'Leave Swap Request Accepted.',
+              body:
+                'Your leave swap request with ' +
+                userTo1.name +
+                ' is Accepted.',
+              bodyText:
+                'Your leave swap request with ' +
+                userTo1.name +
+                ' is Accepted.',
               bodyTime: dd,
-              bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
+              bodyTimeFormat: ['DD-MMM-YYYY HH:mm'],
             };
             FCM.push(usersDeviceTokens, notificationObj, collapseKey);
-            console.log("sent");
+            console.log('sent');
           }
           if (userFromTokens.length > 0) {
             var collapseKey = swopReq._id;
             let notificationObj = {
-              title: "Leave Swap Request Rejected.",
-              body: "Your leave swap request with " + userTo1.name + " is Rejected.",
-              bodyText: "Your leave swap request with " + userTo1.name + " is Rejected.",
+              title: 'Leave Swap Request Rejected.',
+              body:
+                'Your leave swap request with ' +
+                userTo1.name +
+                ' is Rejected.',
+              bodyText:
+                'Your leave swap request with ' +
+                userTo1.name +
+                ' is Rejected.',
               bodyTime: dd,
-              bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
+              bodyTimeFormat: ['DD-MMM-YYYY HH:mm'],
             };
             FCM.push(userFromTokens, notificationObj, collapseKey);
           }
@@ -3203,25 +3774,33 @@ class opsLeave {
           res.status(201).json({
             success: true,
             data: swopReq,
-            message: "updated!.",
+            message: 'updated!.',
           });
-          const user = await User.findOne({ _id: swopReq.userFrom }, { _id: 0, deviceToken: 1 });
-          const userTo = await User.findOne({ _id: swopReq.userTo }, { name: 1 });
+          const user = await User.findOne(
+            { _id: swopReq.userFrom },
+            { _id: 0, deviceToken: 1 },
+          );
+          const userTo = await User.findOne(
+            { _id: swopReq.userTo },
+            { name: 1 },
+          );
           let usersDeviceTokens = [];
           var dd = new Date();
           if (user && user.deviceToken) {
-            console.log("USER: ", user);
+            console.log('USER: ', user);
             usersDeviceTokens.push(user.deviceToken);
             var collapseKey = swopReq._id;
             let notificationObj = {
-              title: "Leave Swap Request Rejected.",
-              body: "Your leave swap request with " + userTo.name + " is rejected.",
-              bodyText: "Your leave swap request with " + userTo.name + " is rejected.",
+              title: 'Leave Swap Request Rejected.',
+              body:
+                'Your leave swap request with ' + userTo.name + ' is rejected.',
+              bodyText:
+                'Your leave swap request with ' + userTo.name + ' is rejected.',
               bodyTime: dd,
-              bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
+              bodyTimeFormat: ['DD-MMM-YYYY HH:mm'],
             };
             FCM.push(usersDeviceTokens, notificationObj, collapseKey);
-            console.log("sent");
+            console.log('sent');
           }
         }
       }
@@ -3236,14 +3815,17 @@ class opsLeave {
       let users = [];
       let allUsers = [];
       let data = {};
-      const opsGrp = await OpsGroup.findOne({ userId: req.user._id, isDelete: false }, { userId: 1, swopSetup: 1, opsGroupName: 1 }).populate([
+      const opsGrp = await OpsGroup.findOne(
+        { userId: req.user._id, isDelete: false },
+        { userId: 1, swopSetup: 1, opsGroupName: 1 },
+      ).populate([
         {
-          path: "opsTeamId",
-          select: ["name", "_id", "userId"],
+          path: 'opsTeamId',
+          select: ['name', '_id', 'userId'],
         },
         {
-          path: "userId",
-          select: ["_id", "name", "staffId"],
+          path: 'userId',
+          select: ['_id', 'name', 'staffId'],
         },
       ]);
       if (!opsGrp) {
@@ -3259,10 +3841,13 @@ class opsLeave {
         if (swopsetup == 0 || swopsetup == 1) {
           users = opsGrp.userId;
         } else {
-          const opsTm = await OpsTeam.findOne({ userId: req.user._id, isDeleted: false }, { userId: 1, name: 1 }).populate([
+          const opsTm = await OpsTeam.findOne(
+            { userId: req.user._id, isDeleted: false },
+            { userId: 1, name: 1 },
+          ).populate([
             {
-              path: "userId",
-              select: ["_id", "name", "staffId"],
+              path: 'userId',
+              select: ['_id', 'name', 'staffId'],
             },
           ]);
           if (opsTm && opsTm.userId.length > 0) {
@@ -3273,34 +3858,53 @@ class opsLeave {
             users = opsGrp.userId;
           }
         }
-        var dateParts = reqObj.date.split("-");
-        var dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0] + 1);
+        var dateParts = reqObj.date.split('-');
+        var dateObject = new Date(
+          +dateParts[2],
+          dateParts[1] - 1,
+          +dateParts[0] + 1,
+        );
         //Leaves data
         let userOnHoliday;
-        userOnHoliday = await userLeaves.find({ userId: { $in: users } }).populate([
-          {
-            path: "userId",
-            select: "name staffId",
-            populate: {
-              path: "appointmentId",
-              select: "name",
+        userOnHoliday = await userLeaves
+          .find({ userId: { $in: users } })
+          .populate([
+            {
+              path: 'userId',
+              select: 'name staffId',
+              populate: {
+                path: 'appointmentId',
+                select: 'name',
+              },
             },
-          },
-        ]);
+          ]);
 
         //    let userOnHoliday= await userHoliday.find({opsGroupId:data.opsGroupId,opsTeamId: data.opsTeamId}).populate({path:"userId",select:"staffId"});
-        userOnHoliday = userOnHoliday.reduce(function (accumulator, currentValue) {
+        userOnHoliday = userOnHoliday.reduce(function (
+          accumulator,
+          currentValue,
+        ) {
           if (currentValue.todate) {
-            var datePartsss = currentValue.fromdate.split("-");
-            datePartsss = datePartsss[2] + "-" + datePartsss[1] + "-" + datePartsss[0];
-            datePartsss = datePartsss.split("-");
-            var dateParteee = currentValue.todate.split("-");
-            dateParteee = dateParteee[2] + "-" + dateParteee[1] + "-" + dateParteee[0];
-            dateParteee = dateParteee.split("-");
-            let startdd = new Date(+datePartsss[2], datePartsss[1] - 1, +datePartsss[0] + 1);
-            let enddd = new Date(+dateParteee[2], dateParteee[1] - 1, +dateParteee[0] + 1);
+            var datePartsss = currentValue.fromdate.split('-');
+            datePartsss =
+              datePartsss[2] + '-' + datePartsss[1] + '-' + datePartsss[0];
+            datePartsss = datePartsss.split('-');
+            var dateParteee = currentValue.todate.split('-');
+            dateParteee =
+              dateParteee[2] + '-' + dateParteee[1] + '-' + dateParteee[0];
+            dateParteee = dateParteee.split('-');
+            let startdd = new Date(
+              +datePartsss[2],
+              datePartsss[1] - 1,
+              +datePartsss[0] + 1,
+            );
+            let enddd = new Date(
+              +dateParteee[2],
+              dateParteee[1] - 1,
+              +dateParteee[0] + 1,
+            );
             if (dateObject <= enddd && dateObject >= startdd) {
-              console.log("Motha if");
+              console.log('Motha if');
               accumulator.push(currentValue);
             }
             // if(currentValue.fromdate == data.date || currentValue.todate == data.date){
@@ -3308,13 +3912,14 @@ class opsLeave {
             // }
           } else {
             if (currentValue.fromdate == data.date) {
-              console.log("else cha if");
+              console.log('else cha if');
               accumulator.push(currentValue);
             }
           }
           return accumulator;
-        }, []);
-        userOnHoliday = userOnHoliday.filter((uu) => uu.status !== "cancelled");
+        },
+        []);
+        userOnHoliday = userOnHoliday.filter((uu) => uu.status !== 'cancelled');
         allUsers = allUsers.concat(userOnHoliday);
         var Users = [];
         var appointments = [];
@@ -3334,21 +3939,24 @@ class opsLeave {
         return res.status(201).json({
           success: true,
           data: { users: Users, appointment: uniqueArray },
-          message: "Received!.",
+          message: 'Received!.',
         });
       }
     } catch (e) {
       return res.status(500).json({
         success: false,
         data: e,
-        message: "Something went Wrong!.",
+        message: 'Something went Wrong!.',
       });
     }
   }
   async getLeaveDetails(req, res) {
     try {
       let reqObject = req.body;
-      const ops = await OpsGroup.findOne({ userId: req.body.userId, isDelete: false }, { _id: 1, opsGroupName: 1 });
+      const ops = await OpsGroup.findOne(
+        { userId: req.body.userId, isDelete: false },
+        { _id: 1, opsGroupName: 1 },
+      );
       const user = await User.findOne(
         { _id: req.body.userId },
         {
@@ -3359,36 +3967,42 @@ class opsLeave {
           email: 1,
           profilePicture: 1,
           contactNumber: 1,
-        }
+        },
       ).populate([
         {
-          path: "parentBussinessUnitId",
-          select: "name",
+          path: 'parentBussinessUnitId',
+          select: 'name',
           populate: {
-            path: "sectionId",
-            select: "name",
+            path: 'sectionId',
+            select: 'name',
             populate: {
-              path: "departmentId",
-              select: "name",
+              path: 'departmentId',
+              select: 'name',
               populate: {
-                path: "companyId",
-                select: "name",
+                path: 'companyId',
+                select: 'name',
               },
             },
           },
         },
         {
-          path: "appointmentId",
-          select: "name",
+          path: 'appointmentId',
+          select: 'name',
         },
       ]);
       let BU =
-        user.parentBussinessUnitId.sectionId.departmentId.companyId.name + " > " +
-        user.parentBussinessUnitId.sectionId.departmentId.name + " > " +
-        user.parentBussinessUnitId.sectionId.name + " > " +
+        user.parentBussinessUnitId.sectionId.departmentId.companyId.name +
+        ' > ' +
+        user.parentBussinessUnitId.sectionId.departmentId.name +
+        ' > ' +
+        user.parentBussinessUnitId.sectionId.name +
+        ' > ' +
         user.parentBussinessUnitId.name;
 
-      const leave = await userLeaves.findOne({ _id: reqObject.leaveId }, { fromdate: 1, todate: 1, type: 1 });
+      const leave = await userLeaves.findOne(
+        { _id: reqObject.leaveId },
+        { fromdate: 1, todate: 1, type: 1 },
+      );
       if (!leave) {
         return res.status(300).json({
           success: false,
@@ -3407,21 +4021,21 @@ class opsLeave {
         useResponse.name = user.name;
         useResponse.appointment = user.appointmentId.name;
         if (leave.type == 1) {
-          useResponse.type = "Block-Balloted";
+          useResponse.type = 'Block-Balloted';
         }
         if (leave.type == 2) {
-          useResponse.type = "Casual Leave";
+          useResponse.type = 'Casual Leave';
         }
         if (leave.type == 3) {
-          useResponse.type = "Block-Allocated";
+          useResponse.type = 'Block-Allocated';
         }
         if (leave.type == 4) {
-          useResponse.type = "Special Leave";
+          useResponse.type = 'Special Leave';
         }
         return res.status(201).json({
           success: true,
           data: useResponse,
-          message: "data received!.",
+          message: 'data received!.',
         });
       }
     } catch (err) {
@@ -3451,136 +4065,180 @@ class opsLeave {
             ballotId: { $in: ballotList },
             $or: [
               {
-                $and: [{ userFrom: reqdata.userId }, { slotNumberTo: reqdata.weekNo }],
+                $and: [
+                  { userFrom: reqdata.userId },
+                  { slotNumberTo: reqdata.weekNo },
+                ],
               },
               {
-                $and: [{ userTo: reqdata.userId }, { slotNumberFrom: reqdata.weekNo }],
+                $and: [
+                  { userTo: reqdata.userId },
+                  { slotNumberFrom: reqdata.weekNo },
+                ],
               },
             ],
             requestStatus: 2,
           })
           .populate([
             {
-              path: "userTo",
-              select: "name staffId",
+              path: 'userTo',
+              select: 'name staffId',
             },
             {
-              path: "opsGroupId",
-              select: "opsGroupName opsTeamId",
+              path: 'opsGroupId',
+              select: 'opsGroupName opsTeamId',
             },
             {
-              path: "userFrom",
-              select: "name staffId",
+              path: 'userFrom',
+              select: 'name staffId',
             },
             {
-              path: "ballotId",
-              select: "ballotName",
+              path: 'ballotId',
+              select: 'ballotName',
             },
           ]);
         let swapRequests = JSON.stringify(swapRequests1);
         swapRequests = JSON.parse(swapRequests);
         let resdata = [];
         for (let i = 0; i <= swapRequests.length - 1; i++) {
-          console.log("in here");
-          if (swapRequests[i].userFrom._id.toString() == reqdata.userId.toString()) {
-            console.log("in first if");
+          console.log('in here');
+          if (
+            swapRequests[i].userFrom._id.toString() == reqdata.userId.toString()
+          ) {
+            console.log('in first if');
             if (swapRequests[i].opsGroupId.opsTeamId.length > 0) {
-              const Tm = await OpsTeam.findOne({ userId: swapRequests[i].userTo._id, isDeleted: false }, { name: 1 });
+              const Tm = await OpsTeam.findOne(
+                { userId: swapRequests[i].userTo._id, isDeleted: false },
+                { name: 1 },
+              );
               swapRequests[i].teamName = Tm.name;
             }
-            swapRequests[i].status = "Sent";
-            let start = ballot.weekRange[swapRequests[i].slotNumberFrom].start.split("-");
-            swapRequests[i].formdate = start[2] + "-" + start[1] + "-" + start[0];
-            let end = ballot.weekRange[swapRequests[i].slotNumberFrom].end.split("-");
-            swapRequests[i].todate = end[2] + "-" + end[1] + "-" + end[0];
+            swapRequests[i].status = 'Sent';
+            let start =
+              ballot.weekRange[swapRequests[i].slotNumberFrom].start.split('-');
+            swapRequests[i].formdate =
+              start[2] + '-' + start[1] + '-' + start[0];
+            let end =
+              ballot.weekRange[swapRequests[i].slotNumberFrom].end.split('-');
+            swapRequests[i].todate = end[2] + '-' + end[1] + '-' + end[0];
           }
-          if (swapRequests[i].userTo._id.toString() == reqdata.userId.toString()) {
-            console.log("in second if");
+          if (
+            swapRequests[i].userTo._id.toString() == reqdata.userId.toString()
+          ) {
+            console.log('in second if');
             if (swapRequests[i].opsGroupId.opsTeamId.length > 0) {
-              const Tm = await OpsTeam.findOne({ userId: swapRequests[i].userFrom._id, isDeleted: false }, { name: 1 });
+              const Tm = await OpsTeam.findOne(
+                { userId: swapRequests[i].userFrom._id, isDeleted: false },
+                { name: 1 },
+              );
               swapRequests[i].teamName = Tm.name;
             }
-            swapRequests[i].status = "Received";
-            let start = ballot.weekRange[swapRequests[i].slotNumberTo].start.split("-");
-            swapRequests[i].formdate = start[2] + "-" + start[1] + "-" + start[0];
-            let end = ballot.weekRange[swapRequests[i].slotNumberTo].end.split("-");
-            swapRequests[i].todate = end[2] + "-" + end[1] + "-" + end[0];
+            swapRequests[i].status = 'Received';
+            let start =
+              ballot.weekRange[swapRequests[i].slotNumberTo].start.split('-');
+            swapRequests[i].formdate =
+              start[2] + '-' + start[1] + '-' + start[0];
+            let end =
+              ballot.weekRange[swapRequests[i].slotNumberTo].end.split('-');
+            swapRequests[i].todate = end[2] + '-' + end[1] + '-' + end[0];
           }
-          console.log("pushing the data");
+          console.log('pushing the data');
           resdata.push(swapRequests[i]);
         }
-        res.status(201).json({ status: true, data: resdata, message: "Received!" });
+        res
+          .status(201)
+          .json({ status: true, data: resdata, message: 'Received!' });
       } else {
-        console.log("IN ELSE");
+        console.log('IN ELSE');
 
         const swapRequests1 = await swopRequests
           .find({
             $or: [
               {
-                $and: [{ userFrom: reqdata.userId }, { leaveTo: reqdata.leaveId }],
+                $and: [
+                  { userFrom: reqdata.userId },
+                  { leaveTo: reqdata.leaveId },
+                ],
               },
               {
-                $and: [{ userTo: reqdata.userId }, { leaveFrom: reqdata.leaveId }],
+                $and: [
+                  { userTo: reqdata.userId },
+                  { leaveFrom: reqdata.leaveId },
+                ],
               },
             ],
             requestStatus: 2,
           })
           .populate([
             {
-              path: "userTo",
-              select: "name staffId",
+              path: 'userTo',
+              select: 'name staffId',
             },
             {
-              path: "opsGroupId",
-              select: "opsGroupName opsTeamId",
+              path: 'opsGroupId',
+              select: 'opsGroupName opsTeamId',
             },
             {
-              path: "userFrom",
-              select: "name staffId",
+              path: 'userFrom',
+              select: 'name staffId',
             },
             {
-              path: "leaveTo",
-              select: "fromdate todate type",
+              path: 'leaveTo',
+              select: 'fromdate todate type',
             },
             {
-              path: "leaveFrom",
-              select: "fromdate todate type",
+              path: 'leaveFrom',
+              select: 'fromdate todate type',
             },
           ]);
         let swapRequests = JSON.stringify(swapRequests1);
         swapRequests = JSON.parse(swapRequests);
         let resdata = [];
         for (let i = 0; i <= swapRequests.length - 1; i++) {
-          console.log("in here");
-          if (swapRequests[i].userFrom._id.toString() == reqdata.userId.toString()) {
-            console.log("in first if");
+          console.log('in here');
+          if (
+            swapRequests[i].userFrom._id.toString() == reqdata.userId.toString()
+          ) {
+            console.log('in first if');
             if (swapRequests[i].opsGroupId.opsTeamId.length > 0) {
-              const Tm = await OpsTeam.findOne({ userId: swapRequests[i].userTo._id, isDeleted: false }, { name: 1 });
+              const Tm = await OpsTeam.findOne(
+                { userId: swapRequests[i].userTo._id, isDeleted: false },
+                { name: 1 },
+              );
               swapRequests[i].teamName = Tm.name;
             }
-            swapRequests[i].status = "Sent";
+            swapRequests[i].status = 'Sent';
             swapRequests[i].formdate = swapRequests[i].leaveFrom.fromdate;
             swapRequests[i].todate = swapRequests[i].leaveFrom.todate;
             swapRequests[i].type = swapRequests[i].leaveFrom.type;
           }
-          if (swapRequests[i].userTo._id.toString() == reqdata.userId.toString()) {
-            console.log("in second if");
+          if (
+            swapRequests[i].userTo._id.toString() == reqdata.userId.toString()
+          ) {
+            console.log('in second if');
             if (swapRequests[i].opsGroupId.opsTeamId.length > 0) {
-              const Tm = await OpsTeam.findOne({ userId: swapRequests[i].userFrom._id, isDeleted: false }, { name: 1 });
+              const Tm = await OpsTeam.findOne(
+                { userId: swapRequests[i].userFrom._id, isDeleted: false },
+                { name: 1 },
+              );
               swapRequests[i].teamName = Tm.name;
             }
-            swapRequests[i].status = "Received";
+            swapRequests[i].status = 'Received';
             swapRequests[i].formdate = swapRequests[i].leaveTo.fromdate;
             swapRequests[i].todate = swapRequests[i].leaveTo.todate;
             swapRequests[i].type = swapRequests[i].leaveTo.type;
           }
-          console.log("pushing the data");
+          console.log('pushing the data');
           resdata.push(swapRequests[i]);
         }
-        res.status(201).json({ status: true, data: swapRequests, message: "Received!" });
+        res
+          .status(201)
+          .json({ status: true, data: swapRequests, message: 'Received!' });
       }
     } catch (e) {
-      res.status(203).json({ status: false, data: null, message: "something went wrong!" });
+      res
+        .status(203)
+        .json({ status: false, data: null, message: 'something went wrong!' });
     }
   }
   async getMySentSwapRequests(req, res) {
@@ -3593,54 +4251,60 @@ class opsLeave {
           requestStatus: 1,
         })
         .populate([
-          { path: "userTo", select: "name staffId" },
-          { path: "opsGroupId", select: "opsGroupName" },
-          { path: "leaveFrom", select: "fromdate todate type status" },
-          { path: "leaveTo", select: "fromdate todate type status" },
+          { path: 'userTo', select: 'name staffId' },
+          { path: 'opsGroupId', select: 'opsGroupName' },
+          { path: 'leaveFrom', select: 'fromdate todate type status' },
+          { path: 'leaveTo', select: 'fromdate todate type status' },
         ]);
-      console.log("Wop requests: ", swapRequests);
+      console.log('Wop requests: ', swapRequests);
       let resdata = [];
       if (swapRequests.length > 0) {
         for (let i = 0; i <= swapRequests.length - 1; i++) {
           var startslotdate = swapRequests[i].leaveFrom.fromdate;
           var endslotdate = swapRequests[i].leaveFrom.todate;
           let slotDates = { start: startslotdate, end: endslotdate };
-          const user = await User.findOne({ _id: swapRequests[i].userTo._id }, { _id: 0, parentBussinessUnitId: 1 }).populate({
-            path: "parentBussinessUnitId",
-            select: "name",
+          const user = await User.findOne(
+            { _id: swapRequests[i].userTo._id },
+            { _id: 0, parentBussinessUnitId: 1 },
+          ).populate({
+            path: 'parentBussinessUnitId',
+            select: 'name',
             populate: {
-              path: "sectionId",
-              select: "name",
+              path: 'sectionId',
+              select: 'name',
               populate: {
-                path: "departmentId",
-                select: "name",
+                path: 'departmentId',
+                select: 'name',
                 populate: {
-                  path: "companyId",
-                  select: "name",
+                  path: 'companyId',
+                  select: 'name',
                 },
               },
             },
           });
           let BU =
-            user.parentBussinessUnitId.sectionId.departmentId.companyId.name + " > " +
-            user.parentBussinessUnitId.sectionId.departmentId.name + " > " +
-            user.parentBussinessUnitId.sectionId.name + " > " +
+            user.parentBussinessUnitId.sectionId.departmentId.companyId.name +
+            ' > ' +
+            user.parentBussinessUnitId.sectionId.departmentId.name +
+            ' > ' +
+            user.parentBussinessUnitId.sectionId.name +
+            ' > ' +
             user.parentBussinessUnitId.name;
           let data = {};
           data.Bu = BU;
           data.opsName = swapRequests[i].opsGroupId.opsGroupName;
           data.opsGroupId = swapRequests[i].opsGroupId._id;
           if (swapRequests[i].leaveFrom.type == 1) {
-            data.type = "Block-Balloted";
+            data.type = 'Block-Balloted';
           }
           if (swapRequests[i].leaveFrom.type == 3) {
-            data.type = "Block-Allocated";
+            data.type = 'Block-Allocated';
           }
           if (swapRequests[i].leaveFrom.type == 2) {
-            data.type = "Casual";
+            data.type = 'Casual';
           }
           if (swapRequests[i].leaveFrom.type == 4) {
-            data.type = "Special";
+            data.type = 'Special';
           }
           // var datePartsss = swapRequests[i].leaveTo.fromdate.split("-");
           // var dateParteee = swapRequests[i].leaveTo.todate.split("-");
@@ -3672,7 +4336,7 @@ class opsLeave {
         return res.status(201).json({
           success: true,
           data: resdata,
-          message: "received!",
+          message: 'received!',
         });
       } else {
         return res.status(300).json({
@@ -3687,31 +4351,40 @@ class opsLeave {
     }
   }
   async cancelMySwopRequest(req, res) {
-    try { 
+    try {
       let swopId = req.params.id;
-      let updated = await swopRequests.update({ _id: swopId }, { $set: { requestStatus: 4 } });
+      let updated = await swopRequests.update(
+        { _id: swopId },
+        { $set: { requestStatus: 4 } },
+      );
       if (updated) {
         res.status(201).json({
           status: true,
           data: updated,
-          message: "Successfully updated.",
+          message: 'Successfully updated.',
         });
       } else {
-        res.status(203).json({ status: false, data: null, message: "couldn't update values" });
+        res
+          .status(203)
+          .json({
+            status: false,
+            data: null,
+            message: "couldn't update values",
+          });
       }
     } catch (err) {
       __.log(err);
       return __.out(res, 500);
     }
   }
-}  
-async function noOfDays(res, totaldays) { 
+}
+async function noOfDays(res, totaldays) {
   try {
     let pageSettingData = await PageSettingModel.findOne({
-      companyId: "5a9d162b36ab4f444b4271c8",
+      companyId: '5a9d162b36ab4f444b4271c8',
       status: 1,
     })
-      .select("opsGroup")
+      .select('opsGroup')
       .lean();
 
     var configurationNumber = 2;
@@ -3732,7 +4405,7 @@ async function noOfDays(res, totaldays) {
     }
     if (daysToDeduct > 0 && daysToDeduct < 7) {
       if (daysToDeduct == 6) {
-        console.log("AT HHHHHH");
+        console.log('AT HHHHHH');
         daysToDeduct = 5;
       } else {
         daysToDeduct = daysToDeduct - configurationNumber * 0;
@@ -3756,18 +4429,18 @@ async function noOfDays(res, totaldays) {
 }
 
 async function autoTerminateSwapRequest() {
-  console.log("in auto cancel request");
+  console.log('in auto cancel request');
   const todayIs = new Date();
   let weeksToApply = 1;
   let pageSettingData = await PageSettingModel.findOne({
-    companyId: "5a9d162b36ab4f444b4271c8",
+    companyId: '5a9d162b36ab4f444b4271c8',
     status: 1,
   })
-    .select("opsGroup")
+    .select('opsGroup')
     .lean();
   if (pageSettingData.opsGroup.minWeeksBeforeSwop) {
     weeksToApply = pageSettingData.opsGroup.minWeeksBeforeSwop;
-    console.log("pagesettngs weeks are: ", weeksToApply);
+    console.log('pagesettngs weeks are: ', weeksToApply);
   }
   let totaldays = weeksToApply * 7;
   const swapList = await swopRequests.find({
@@ -3775,17 +4448,23 @@ async function autoTerminateSwapRequest() {
   });
   if (swapList.length > 0) {
     for (let i = 0; i <= swapList.length - 1; i++) {
-      console.log(" ");
-      const leaveTo = await userLeaves.findOne({ _id: swapList[i].leaveTo }, { fromdate: 1 });
+      console.log(' ');
+      const leaveTo = await userLeaves.findOne(
+        { _id: swapList[i].leaveTo },
+        { fromdate: 1 },
+      );
       //var leaveStart = leaveTo.fromdate.split("-");
       var leaveStart = new Date(leaveTo.fromdate);
       var daysleft = Math.floor((leaveStart - todayIs) / (1000 * 60 * 60 * 24));
-      console.log("daysleft 1: ", daysleft);
+      console.log('daysleft 1: ', daysleft);
       daysleft = daysleft + 1;
-      console.log("daysleft 2: ", daysleft);
-      console.log("startdate", startdate);
+      console.log('daysleft 2: ', daysleft);
+      console.log('startdate', startdate);
       if (daysleft < 0 || daysleft < totaldays) {
-        let updated = await swopRequests.update({ _id: swapList[i]._id }, { $set: { requestStatus: 5 } });
+        let updated = await swopRequests.update(
+          { _id: swapList[i]._id },
+          { $set: { requestStatus: 5 } },
+        );
       }
     }
   }
@@ -3793,18 +4472,18 @@ async function autoTerminateSwapRequest() {
 
 let methods = {};
 methods.autoTerminateSwapRequest = async function () {
-  console.log("in auto cancel request");
+  console.log('in auto cancel request');
   const todayIs = new Date();
   let weeksToApply = 1;
   let pageSettingData = await PageSettingModel.findOne({
-    companyId: "5a9d162b36ab4f444b4271c8",
+    companyId: '5a9d162b36ab4f444b4271c8',
     status: 1,
   })
-    .select("opsGroup")
+    .select('opsGroup')
     .lean();
   if (pageSettingData.opsGroup.minWeeksBeforeSwop) {
     weeksToApply = pageSettingData.opsGroup.minWeeksBeforeSwop;
-    console.log("pagesettngs weeks are: ", weeksToApply);
+    console.log('pagesettngs weeks are: ', weeksToApply);
   }
   let totaldays = weeksToApply * 7;
   const swapList = await swopRequests.find({
@@ -3812,22 +4491,28 @@ methods.autoTerminateSwapRequest = async function () {
   });
   if (swapList.length > 0) {
     for (let i = 0; i <= swapList.length - 1; i++) {
-      console.log(" ");
-      const leaveTo = await userLeaves.findOne({ _id: swapList[i].leaveTo }, { fromdate: 1 });
+      console.log(' ');
+      const leaveTo = await userLeaves.findOne(
+        { _id: swapList[i].leaveTo },
+        { fromdate: 1 },
+      );
       //var leaveStart = leaveTo.fromdate.split("-");
       var leaveStart = new Date(leaveTo.fromdate);
       var daysleft = Math.floor((leaveStart - todayIs) / (1000 * 60 * 60 * 24));
       daysleft = daysleft + 1;
       if (daysleft < 0 || daysleft < totaldays) {
-        let updated = await swopRequests.update({ _id: swapList[i]._id }, { $set: { requestStatus: 5 } });
+        let updated = await swopRequests.update(
+          { _id: swapList[i]._id },
+          { $set: { requestStatus: 5 } },
+        );
       }
     }
   }
 };
 new CronJob({
-  cronTime: "0 18 * * *",
+  cronTime: '0 18 * * *',
   onTick: function () {
-    console.log("yuup");
+    console.log('yuup');
     autoTerminateSwapRequest();
     //Your code that is to be executed on every midnight
   },
@@ -3835,6 +4520,6 @@ new CronJob({
   runOnInit: false,
 });
 
-opsleave = new opsLeave();
+const opsleave = new opsLeave();
 module.exports = opsleave;
 module.exports.myMethod = methods;
