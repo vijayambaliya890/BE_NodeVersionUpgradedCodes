@@ -1,21 +1,21 @@
 // Controller Code Starts here
 const mongoose = require('mongoose'),
-  Schema = mongoose.Schema;
-(Post = require('../../models/post')),
-  (User = require('../../models/user')),
-  (Event = require('../../models/Event')),
-  (EventSession = require('../../models/EventSession')),
-  (EventSessionLog = require('../../models/eventSessionLogs'));
-(StaffAttendance = require('../../models/StaffAttendance')),
-  (RSVPRequest = require('../../models/RSVPRequest')),
-  (moment = require('moment')),
-  (_ = require('lodash')),
-  (__ = require('../../../helpers/globalFunctions')),
-  (fs = require('fs')),
-  (json2csv = require('json2csv').parse);
+  Schema = mongoose.Schema,
+  Post = require('../../models/post'),
+  User = require('../../models/user'),
+  Event = require('../../models/Event'),
+  EventSession = require('../../models/EventSession'),
+  EventSessionLog = require('../../models/eventSessionLogs'),
+  StaffAttendance = require('../../models/StaffAttendance'),
+  RSVPRequest = require('../../models/RSVPRequest'),
+  moment = require('moment'),
+  _ = require('lodash'),
+  __ = require('../../../helpers/globalFunctions'),
+  fs = require('fs'),
+  json2csv = require('json2csv').parse;
 let striptags = require('striptags');
 const async = require('async');
-FCM = require('../../../helpers/fcm');
+const FCM = require('../../../helpers/fcm');
 let ChallengeModule = require('../common/challengeController');
 
 function saveeventSessionLog(session, eventId) {
