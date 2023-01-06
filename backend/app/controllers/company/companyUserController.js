@@ -1861,6 +1861,178 @@ class user {
     __.out(res, 201, response);
   }
 
+  async readUser(req, res) {
+    try {
+      console.log('Inside getting all users');
+      req.query.filter = req.query.filter || {};
+      if (
+        req.query.filter['parentBussinessUnitId'] &&
+        req.query.filter['parentBussinessUnitId'].length
+      ) {
+      } else {
+        const businessUnitIds = await User.findOne(
+          {
+            _id: req.user._id,
+          },
+          {
+            planBussinessUnitId: 1,
+          },
+        );
+        req.query.filter['parentBussinessUnitId'] =
+          businessUnitIds['planBussinessUnitId'];
+      }
+      const users = await this.findAllUser(req.query);
+      return res.json({ data: users });
+    } catch (err) {
+      __.log(err);
+      __.out(res, 500, err);
+    }
+  }
+
+  async findAllUser({ page, limit, search, sortBy, sortWith, filter }) {
+    const skip = !!page ? (parseInt(page) - 1) * limit : 0;
+    filter = Object.assign(
+      {
+        // status: ['active', 'inactive', 'locked'],
+        staffIds: [],
+        parentBussinessUnitId: [],
+        fields: [
+          'staffId',
+          '_id',
+          'name',
+          'appointmentId',
+          'role',
+          'parentBussinessUnitId',
+          'contactNumber',
+          'doj',
+        ],
+        searchable: ['staffId', 'name', 'email'],
+      },
+      filter,
+    );
+
+    // const db = await getDB(this.dbName);
+    // const userModel = await db.getModel(MODELS.USER),
+    //   subSectionModel = await db.getModel(MODELS.SUBSECTION);
+    const select = filter.fields.reduce((prev, v) => {
+      prev[v] = 1;
+      return prev;
+    }, {});
+    console.log(filter.status);
+    filter.status = Array.isArray(filter.status)
+      ? filter.status.map((s) => parseInt(s))
+      : null;
+    const statusCondtion = Array.isArray(filter.status)
+      ? filter.status
+      : [parseInt(filter.status)];
+
+    const businessUnitCondtion =
+      filter.parentBussinessUnitId && filter.parentBussinessUnitId.length
+        ? { parentBussinessUnitId: { $in: filter.parentBussinessUnitId } }
+        : {};
+    const appointmentIdCondition =
+      filter.appointmentId && filter.appointmentId.length
+        ? { appointmentId: { $in: filter.appointmentId } }
+        : {};
+    const staffIdCondtion = filter.staffIds.length
+      ? { staffId: { $in: filter.staffIds } }
+      : {};
+
+    let searchCondition = {};
+
+    if (search) {
+      const reg = new RegExp(search, 'i');
+      searchCondition['$or'] = filter.searchable.map((v) => ({
+        [v]: reg,
+      }));
+    }
+    console.log(
+      JSON.stringify({
+        ...businessUnitCondtion,
+        ...appointmentIdCondition,
+        ...searchCondition,
+        ...staffIdCondtion,
+        status: {
+          $in: statusCondtion,
+        },
+      }),
+    );
+    const count = await User.countDocuments({
+      ...businessUnitCondtion,
+      ...appointmentIdCondition,
+      ...searchCondition,
+      ...staffIdCondtion,
+      status: {
+        $in: statusCondtion,
+      },
+    });
+    let model = User.find(
+      {
+        ...businessUnitCondtion,
+        ...appointmentIdCondition,
+        ...searchCondition,
+        ...staffIdCondtion,
+        status: {
+          $in: statusCondtion,
+        },
+      },
+      {
+        ...select,
+      },
+      { skip, limit },
+    ).sort({
+      [sortWith || 'createdAt']: sortBy === 'desc' ? -1 : 1,
+    });
+    if (filter.fields.includes('appointmentId')) {
+      model.populate({
+        path: 'appointmentId',
+        select: '_id name',
+      });
+    }
+    if (filter.fields.includes('role')) {
+      model.populate({
+        path: 'role',
+        select: '_id name',
+      });
+    }
+    if (filter.fields.includes('parentBussinessUnitId')) {
+      model.populate({
+        path: 'parentBussinessUnitId',
+        select: '_id orgName',
+      });
+    }
+    if (filter.fields.includes('otherFields')) {
+      model.populate({
+        path: 'otherFields.fieldId',
+        select: '_id fieldName',
+      });
+    }
+
+    const users = await model.lean();
+    /* if (filter.fields.includes('parentBussinessUnitId')) {
+        const businessUnitIds = users.map(v => v.parentBussinessUnitId._id);
+        const businessUnits = await subSectionModel.find({
+            _id: {
+                $in: businessUnitIds
+            }
+        }, '_id name').populate({
+            path: 'sectionId',
+            select: '_id name',
+            populate: {
+                path: 'departmentId',
+                select: '_id name'
+            }
+        });
+
+        users = users.map(o => {
+            let v = {...o.toObject() };
+            v['businessUnit'] = businessUnits.find(bu => bu._id.equals(v.parentBussinessUnitId._id));
+            return v;
+        });
+    } */
+    return { count, data: users };
+  }
+
   //=======================>>>>>>>>>>>>>>>>>>Bulk file upload<<<<<<<<<<<<<<<<<<<<<<<===========================================
   async uploadBulkUsers(req, res) {
     try {

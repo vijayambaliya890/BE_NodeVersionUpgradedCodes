@@ -8,13 +8,12 @@ const mongoose = require('mongoose'),
   PostView = require('../../models/wallPostView'),
   PostLike = require('../../models/channelPostLike'),
   PostComment = require('../../models/channelPostComment'),
-  _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
-const json2csv = require('json2csv').parse;
 var moment = require('moment');
 var fs = require('fs');
 const path = require('path');
 const ObjectsToCsv = require('objects-to-csv');
+import { logInfo, logError } from '../../../helpers/logger.helper';
 
 class channel {
   async exportReport(req, res) {
@@ -339,10 +338,20 @@ class channel {
                     res.status(200).send(csv);
                 });*/
         } else {
-          return res.json({ status: false, message: 'No data found' });
+          return res.status(400).json({
+            success: false,
+            error: {
+              message: 'No data found',
+            },
+          });
         }
       } else {
-        return res.json({ status: false, message: 'No data found' });
+        return res.status(400).json({
+          success: false,
+          error: {
+            message: 'No data found',
+          },
+        });
       }
     } catch (err) {
       __.log(err);
@@ -357,7 +366,7 @@ class channel {
       let requiredResult = await __.checkRequiredFields(req, [
         'name',
         'category',
-        'userDetails',
+        'assignUsers',
       ]);
       if (!requiredResult.status) {
         return __.out(res, 400, requiredResult.missingFields);
@@ -372,9 +381,13 @@ class channel {
       if (channelExists) {
         return __.out(res, 300, 'Channel Name Already Exists');
       }
+      req.body.assignUsers.forEach((m, index) => {
+        req.body.assignUsers[index].authors = [];
+        req.body.assignUsers[index].authors = req.body.assignUsers[index].user;
+      });
       let insertChannel = {
         name: req.body.name,
-        userDetails: req.body.userDetails,
+        userDetails: req.body.assignUsers,
         companyId: req.user.companyId,
         status: req.body.status,
         createdBy: req.user._id,
@@ -406,10 +419,9 @@ class channel {
         return __.out(res, 300, `You've entered malicious input`);
       }
       let requiredResult = await __.checkRequiredFields(req, [
-        'channelId',
         'name',
         'category',
-        'userDetails',
+        'assignUsers',
         'status',
       ]);
       if (requiredResult.status === false) {
@@ -417,7 +429,7 @@ class channel {
       }
       let channelExists = await Channel.findOne({
         _id: {
-          $ne: req.body.channelId,
+          $ne: req.params.channelId,
         },
         name: req.body.name,
         companyId: req.user.companyId,
@@ -429,7 +441,7 @@ class channel {
         return __.out(res, 300, 'Channel Name Already Exists');
       }
       let channelData = await Channel.findOne({
-        _id: req.body.channelId,
+        _id: req.params.channelId,
         companyId: req.user.companyId,
         userDetails: {
           $elemMatch: {
@@ -445,32 +457,15 @@ class channel {
       }
 
       /******** GET businessUnitIds,exclusionAppointmentIds,authors **********/
-      let userDetails = [];
-      let getUserDetails = async function () {
-        let int = 0;
-        for (let elem of req.body.userDetails) {
-          let newUserDetails = {};
-          newUserDetails.bussinessUnitId = elem.bussinessUnitId;
-          newUserDetails.exclusionAppointmentIds = [];
-          newUserDetails.authors = [];
-          newUserDetails.allBuToken = elem.allBuToken;
-          for (let exclusionAppointmentId of elem.exclusionAppointmentIds) {
-            newUserDetails.exclusionAppointmentIds.push(
-              exclusionAppointmentId._id,
-            );
-          }
-          for (let author of elem.authors) {
-            newUserDetails.authors.push(author._id);
-          }
-          userDetails.push(newUserDetails);
-          int++;
-        }
-      };
       // await getUserDetails();
       /******** End GET businessUnitIds,exclusionAppointmentIds,authors **********/
       // Create Channel
+      req.body.assignUsers.forEach((m, index) => {
+        req.body.assignUsers[index].authors = [];
+        req.body.assignUsers[index].authors = req.body.assignUsers[index].user;
+      });
       channelData.name = req.body.name;
-      channelData.userDetails = req.body.userDetails;
+      channelData.userDetails = req.body.assignUsers;
       channelData.status = req.body.status;
       let updatedChannel = await channelData.save();
       let existingCatIds = [];
@@ -556,6 +551,10 @@ class channel {
 
   async readOne(req, res) {
     try {
+      logInfo('ChannelController:read', {
+        userId: req.user._id,
+        channelId: req.params.channelId,
+      });
       if (!__.checkHtmlContent(req.params)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -566,62 +565,134 @@ class channel {
           $nin: [3],
         },
       };
-      var channelData = await Channel.findOne(where).lean();
+      var channelData = await Channel.findOne(
+        where,
+        'orgName, name status userDetails.authors, userDetails.customField userDetails.buFilterType userDetails.subSkillSets userDetails.allBuToken userDetails.allBuTokenStaffId',
+      )
+        .populate({
+          path: 'userDetails.businessUnits',
+          strictPopulate: false,
+          select: 'orgName name status sectionId',
+        })
+        .populate({
+          path: 'userDetails.appointments',
+          strictPopulate: false,
+          select: 'name status',
+        })
+        .populate({
+          path: 'userDetails.authors',
+          strictPopulate: false,
+          select: 'name staffId',
+        })
+        .populate({
+          path: 'userDetails.admin',
+          strictPopulate: false,
+          select: 'name staffId',
+        });
       if (!channelData) {
         return __.out(res, 300, 'Channel Not Found');
       }
-      if (typeof channelData == 'object' && channelData.userDetails) {
-        channelData.businessUnitDetails = [];
-        channelData.adminDetails = [];
-        channelData.authorDetails = [];
-        for (let i = 0; i < channelData.userDetails.length; ++i) {
-          let user = channelData.userDetails[i];
-          if (user.businessUnits) {
-            for (let j = 0; j < user.businessUnits.length; ++j) {
-              let businessUnit = user.businessUnits[j];
-              let details = await SubSection.findById(businessUnit, 'name');
-              channelData.businessUnitDetails.push(details);
-              console.log({ details });
-            }
-          }
-          if (user.admin) {
-            for (let j = 0; j < user.admin.length; ++j) {
-              let adminuser = user.admin[j];
-              let details = await User.findById(adminuser, 'name staffId');
-              if (channelData.adminDetails.indexOf(details) < 0)
-                channelData.adminDetails.push(details);
-              console.log({ details });
-            }
-          }
-          if (user.authors) {
-            for (let j = 0; j < user.authors.length; ++j) {
-              let author = user.authors[j];
-              let details = await User.findById(author, 'name staffId');
-              if (channelData.authorDetails.indexOf(details) < 0)
-                channelData.authorDetails.push(details);
-              console.log({ details });
-            }
-          }
-        }
+      // if (typeof channelData == 'object' && channelData.userDetails) {
+      //   channelData.businessUnitDetails = [];
+      //   channelData.adminDetails = [];
+      //   channelData.authorDetails = [];
+      //   channelData.assignUsers = channelData.userDetails;
+      //   for (let i = 0; i < channelData.userDetails.length; ++i) {
+      //     let user = channelData.userDetails[i];
+      //     if (user.businessUnits) {
+      //       for (let j = 0; j < user.businessUnits.length; ++j) {
+      //         let businessUnit = user.businessUnits[j];
+      //         let details = await SubSection.findById(businessUnit, 'name');
+      //         channelData.businessUnitDetails.push(details);
+      //         console.log({ details });
+      //       }
+      //     }
+      //     if (user.admin) {
+      //       for (let j = 0; j < user.admin.length; ++j) {
+      //         let adminuser = user.admin[j];
+      //         let details = await User.findById(adminuser, 'name staffId');
+      //         if (channelData.adminDetails.indexOf(details) < 0)
+      //           channelData.adminDetails.push(details);
+      //       }
+      //     }
+      //     if (user.authors) {
+      //       for (let j = 0; j < user.authors.length; ++j) {
+      //         let author = user.authors[j];
+      //         let details = await User.findById(author, 'name staffId');
+      //         if (channelData.authorDetails.indexOf(details) < 0)
+      //           channelData.authorDetails.push(details);
+      //         console.log({ details });
+      //       }
+      //     }
+      //   }
+      // }
+      let AssignUsers = [];
+
+      if (channelData.userDetails) {
+        channelData.userDetails.forEach((e) => {
+          let BU = [];
+          e.businessUnits.forEach((k) => {
+            let _id = k._id;
+            let obj = {
+              _id: _id,
+              name: k.orgName,
+            };
+            BU.push(obj);
+          });
+          let appointments = e.appointments;
+          let user = e.authors;
+          let admin = e.admin;
+          let customField = e.customField;
+          let buFilterType = e.buFilterType;
+          let subSkillSets = e.subSkillSets;
+          let allBuToken = e.allBuToken;
+          let allBuTokenStaffId = e.allBuTokenStaffId;
+
+          let obj1 = {
+            businessUnits: BU,
+            buFilterType: buFilterType,
+            appointments: appointments,
+            subSkillSets: subSkillSets,
+            user: user,
+            admin: admin,
+            allBuToken: allBuToken,
+            allBuTokenStaffId: allBuTokenStaffId,
+            customField: customField,
+          };
+          AssignUsers.push(obj1);
+        });
       }
+
       // Add Category List
       let categoryList = await PostCategory.find({
         channelId: channelData._id,
         status: 1,
       });
-      channelData.categoryList = categoryList;
-      return __.out(res, 201, channelData);
+      let data = {
+        _id: channelData._id,
+        name: channelData.name,
+        status: channelData.status,
+        assignUsers: AssignUsers,
+        category: categoryList,
+      };
+      return res.json({ data: data });
     } catch (err) {
-      __.log(err);
+      logError('ChannelController:read', {
+        userId: req.user._id,
+        channelId: req.params.channelId,
+        err,
+        stack: err.stack,
+      });
       return __.out(res, 500, err);
     }
   }
 
   async read(req, res) {
-    if (!__.checkHtmlContent(req.query)) {
-      return __.out(res, 300, `You've entered malicious input`);
-    }
     try {
+      logInfo('ChannelController:read', { userId: req.user._id });
+      if (!__.checkHtmlContent(req.query)) {
+        return __.out(res, 300, `You've entered malicious input`);
+      }
       let where = {
         companyId: req.user.companyId,
         status: {
@@ -635,136 +706,42 @@ class channel {
           },
         },
       };
-      const draw = req.query.draw;
-      let recordsTotal = await Channel.count(where),
-        recordsFiltered;
-      if (req.query.search.value) {
+      const { sortWith, sortBy, page, limit, search } = req.query;
+      const skip = (parseInt(page) - 1) * parseInt(limit);
+      if (search) {
         where.$or = [
           {
             name: {
-              $regex: req.query.search.value,
+              $regex: req.query.search,
               $options: 'i',
             },
           },
         ];
-        recordsFiltered = await Channel.count(where);
-      } else {
-        recordsFiltered = recordsTotal;
       }
-      // let newQuery = await Channel.aggregate([
-      //     {e
-      //         $match:where
-      //     }
-      // ])
       let sort = {};
-      if (req.query.order) {
-        let orderData = req.query.order;
-        const getSort = (val) => ('asc' === val ? 1 : -1);
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
-            case '0':
-              sort[`name`] = getSort(orderData[i].dir);
-              break;
-            case '1':
-              sort[`status`] = getSort(orderData[i].dir);
-              break;
-          }
-        }
-      }
 
-      const channels = await Channel.find(where)
-        .populate({
-          path: 'userDetails.businessUnits',
-          select: 'name status sectionId',
-          populate: {
-            path: 'sectionId',
-            select: 'name status departmentId',
-            populate: {
-              path: 'departmentId',
-              select: 'name status companyId',
-              populate: {
-                path: 'companyId',
-                select: 'name status',
-              },
-            },
-          },
-        })
-        .populate({
-          path: 'userDetails.appointments',
-          select: 'name',
-        })
-        .populate({
-          path: 'userDetails.subSkillSets',
-          select: 'name status',
-          match: {
-            status: 1,
-          },
-          populate: {
-            path: 'skillSetId',
-            select: 'name status',
-            match: {
-              status: 1,
-            },
-          },
-        })
-        .populate({
-          path: 'userDetails.authors',
-          select: 'name staffId',
-        })
-        .populate({
-          path: 'userDetails.admin',
-          select: 'name staffId',
-        })
-        .sort(sort)
-        .skip(parseInt(req.query.start))
-        .limit(parseInt(req.query.length))
-        .lean();
-      const channelsId = channels.map((v) => v._id.toString());
-      console.log('sss', channelsId);
-      let categories = await PostCategory.aggregate([
-        {
-          $match: {
-            channelId: {
-              $in: channelsId,
-            },
-          },
-        },
-        {
-          $group: {
-            _id: '$channelId',
-            categoryList: {
-              $push: { _id: '$_id', name: '$name', channelId: '$channelId' },
-            },
-          },
-        },
-      ]);
-      for (let i = 0; i < channels.length; i++) {
-        const channel = channels[i];
-        const index = categories.findIndex(
-          (c) => c._id.toString() === channel._id.toString(),
-        );
-        channels[i].categoryList = categories[index].categoryList;
+      if (sortWith) {
+        sort = { [sortWith]: 'asc' === sortBy ? 1 : -1 };
       }
-      let data = channels;
-      /*
-            // Add Corresponding Categories
-            let i = 0, data=[];
-            for (let channel of channels) {
-                let catList = await PostCategory.find({
-                    channelId: channel._id,
-                    status: 1
-                }).lean();
-                //channel['categoryList'] = catList;
-                data[i]=channel;
-                data[i].categoryList=catList
-                i++;
-            }*/
-      //__.log(JSON.stringify(data.map(v=>v._id)));
-      let d = { draw, recordsTotal, recordsFiltered, data };
-      return res.status(201).json(d);
-      //return __.out(res, 201, {draw, recordsTotal, recordsFiltered, data});
+      const allCalls = [
+        Channel.find(where, { name: 1, status: 1 })
+          .sort(sort)
+          .skip(skip)
+          .limit(parseInt(limit))
+          .lean(),
+        Channel.count(where),
+      ];
+      let [channels, recordsTotal, recordsFiltered] = await Promise.all(
+        allCalls,
+      );
+      let d = { recordsTotal, data: channels };
+      return res.status(200).json(d);
     } catch (err) {
-      __.log(err);
+      logError('ChannelController:read', {
+        userId: req.user._id,
+        err,
+        stack: err.stack,
+      });
       return __.out(res, 500, err);
     }
   }

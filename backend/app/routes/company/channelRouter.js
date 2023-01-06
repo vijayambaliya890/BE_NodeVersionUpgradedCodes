@@ -20,26 +20,22 @@ channelRouter.use(
   },
 );
 
-channelRouter.post(
-  '/create',
-  __.checkRole('channelSetup').validate,
-  (req, res) => {
-    channelController.create(req, res);
-  },
-);
-channelRouter.post(
-  '/update',
+channelRouter.post('/', __.checkRole('channelSetup').validate, (req, res) => {
+  channelController.create(req, res);
+});
+channelRouter.put(
+  '/:channelId',
   __.checkRole('channelSetup').validate,
   (req, res) => {
     channelController.update(req, res);
   },
 );
-
-channelRouter.get('/read', (req, res) => {
+// API transform
+channelRouter.get('/', (req, res) => {
   channelController.read(req, res);
 });
-
-channelRouter.get('/readOne/:channelId', (req, res) => {
+// API transform
+channelRouter.get('/:channelId', (req, res) => {
   channelController.readOne(req, res);
 });
 
