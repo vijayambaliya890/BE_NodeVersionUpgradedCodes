@@ -13,7 +13,7 @@ var moment = require('moment');
 var fs = require('fs');
 const path = require('path');
 const ObjectsToCsv = require('objects-to-csv');
-import { logInfo, logError } from '../../../helpers/logger.helper';
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class channel {
   async exportReport(req, res) {

@@ -5,8 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "mocha",
-    "dev": "nodemon --exec npm run start",
-    "start": "babel-node ./bin/www",
+    "start": "nodemon app.js",
     "preinstall": "npx npm-force-resolutions"
 
   },

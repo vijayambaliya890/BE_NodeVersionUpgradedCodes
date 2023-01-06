@@ -12,7 +12,7 @@ const os = require('os'),
   cors = require('cors'),
   __ = require('./helpers/globalFunctions'),
   rateLimit = require('express-rate-limit');
-import { logInfo } from './helpers/logger.helper.js';
+const { logInfo } = require('./helpers/logger.helper.js');
 let db_host;
 let environment = 'live';
 let port;
