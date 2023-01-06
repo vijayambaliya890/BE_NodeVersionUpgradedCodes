@@ -870,7 +870,7 @@ class businessUnit {
         .populate([
           {
             path: 'geoReportingLocation',
-            select: 'name status'
+            select: 'name status',
           },
           {
             path: 'reportingLocation',
@@ -988,18 +988,18 @@ class businessUnit {
         ...req.user.planBussinessUnitId,
         ...req.user.viewBussinessUnitId,
         req.user.parentBussinessUnitId,
-      ]
+      ];
 
-      const removeDuplicates = inputArray => {
+      const removeDuplicates = (inputArray) => {
         const ids = [];
         return inputArray.reduce((sum, element) => {
-           if(!ids.includes(element.toString())) {
-              sum.push(element);
-              ids.push(element.toString());
-           }
-           return sum;
+          if (!ids.includes(element.toString())) {
+            sum.push(element);
+            ids.push(element.toString());
+          }
+          return sum;
         }, []);
-      };   
+      };
 
       let where = {
         $or: [
@@ -1209,6 +1209,78 @@ class businessUnit {
         recordsTotal,
         recordsFiltered,
         parentBussinessUnitId: req.user.parentBussinessUnitId,
+        businessUnitList: businessUnitList != null ? businessUnitList : [],
+      });
+    } catch (err) {
+      __.log(err);
+      __.out(res, 300, 'Something went wrong try later');
+    }
+  }
+
+  async readWithPnV2(req, res) {
+    try {
+      if (!__.checkHtmlContent(req.body)) {
+        return __.out(res, 300, `You've entered malicious input`);
+      }
+      const pageNum = !!req.query.page ? parseInt(req.query.page) : 0;
+      const limit = !!req.query.limit ? parseInt(req.query.limit) : 10;
+      const skip = !!req.query.skip
+        ? parseInt(req.query.skip)
+        : (pageNum * limit) / limit;
+      const draw = req.query.draw || 0;
+      let allBus = new Set([
+        ...req.user.planBussinessUnitId,
+        ...req.user.viewBussinessUnitId,
+        req.user.parentBussinessUnitId,
+      ]);
+      let where = {
+        status: {
+          $in: [1],
+        },
+        _id: {
+          $in: [...allBus],
+        },
+        sectionId: {
+          $exists: true,
+        },
+        status: 1,
+      };
+      // const recordsTotal = await SubSection.count(where).lean();
+      // let recordsFiltered = recordsTotal;
+      let businessUnitList = await SubSection.find(where)
+        .skip(skip)
+        .limit(limit)
+        .select(
+          'orgName _id name status cancelShiftPermission standByShiftPermission shiftCancelHours techEmail adminEmail notificRemindHours notificRemindDays appointments sectionId noOfWeek breakInMinutes shiftTimeInMinutes isBreakTime shiftBreak mainSkillSets skillSetTierType plannedHours',
+        )
+        .populate([
+          {
+            path: 'sectionId',
+            select: 'name departmentId status',
+            populate: {
+              path: 'departmentId',
+              select: 'name status companyId',
+              populate: {
+                path: 'companyId',
+                select: 'name',
+              },
+            },
+          },
+        ])
+        .lean();
+      businessUnitList = businessUnitList.filter(
+        (bu) =>
+          !!bu.sectionId &&
+          !!bu.sectionId.departmentId &&
+          !!bu.sectionId.departmentId.companyId &&
+          bu.sectionId.departmentId.companyId._id.toString() ==
+            req.user.companyId,
+      );
+
+      return res.status(200).json({
+        // draw,
+        // recordsTotal,
+        // recordsFiltered,
         businessUnitList: businessUnitList != null ? businessUnitList : [],
       });
     } catch (err) {
@@ -2013,18 +2085,18 @@ class businessUnit {
         }
         if (req.body.geoReportingLocation) {
           const locationName = [];
-            let reportLocationId = [];
-            if (req.body.geoReportingLocation.length) {
-                req.body.geoReportingLocation.forEach(location => {
-                  locationName.push({ name: location })
-                });
-            }
-
-            const response = await GeoReportingLocation.insertMany(locationName);
-            response.forEach(locationId => {
-              reportLocationId.push(mongoose.Types.ObjectId(locationId._id));
+          let reportLocationId = [];
+          if (req.body.geoReportingLocation.length) {
+            req.body.geoReportingLocation.forEach((location) => {
+              locationName.push({ name: location });
             });
-            updateData.geoReportingLocation = reportLocationId
+          }
+
+          const response = await GeoReportingLocation.insertMany(locationName);
+          response.forEach((locationId) => {
+            reportLocationId.push(mongoose.Types.ObjectId(locationId._id));
+          });
+          updateData.geoReportingLocation = reportLocationId;
         }
 
         // if (req.body.cutOffDaysForBookingAndCancelling) {
@@ -2480,27 +2552,30 @@ class businessUnit {
   }
   async getBusinessUnitSetting(req, res) {
     try {
-        const result = await SubSection.findOne({ _id: req.params.businessUnitId }).select('proximity isCheckInEnabled isProximityEnabled');
-        return res.json({ success: true, result: result })
+      const result = await SubSection.findOne({
+        _id: req.params.businessUnitId,
+      }).select('proximity isCheckInEnabled isProximityEnabled');
+      return res.json({ success: true, result: result });
     } catch (error) {
-        return res.error(error);
+      return res.error(error);
     }
   }
 
   async getSingleGeoLocation(req, res) {
-    
     try {
-      const result = await SubSection.findOne({ _id: req.params.businessUnitId })
-      .select('proximity isCheckInEnabled isProximityEnabled')
-      .populate([
-        {
+      const result = await SubSection.findOne({
+        _id: req.params.businessUnitId,
+      })
+        .select('proximity isCheckInEnabled isProximityEnabled')
+        .populate([
+          {
             path: 'geoReportingLocation',
-            select: 'name status'
-        }
-      ]);
-      return res.json({ success: true, result: result })
+            select: 'name status',
+          },
+        ]);
+      return res.json({ success: true, result: result });
     } catch (error) {
-        return res.error(error);
+      return res.error(error);
     }
   }
 }
