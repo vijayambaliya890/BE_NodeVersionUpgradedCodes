@@ -1,4 +1,4 @@
-import winston from 'winston';
+const winston = require('winston');
 
 require('winston-daily-rotate-file');
 
@@ -56,13 +56,18 @@ const errorLogger = winston.createLogger({
   ),
 });
 
-export const logError = (message, obj) => {
+const logError = (message, obj) => {
   errorLogger.log('error', message, { obj });
 };
 
-export const logInfo = (message, obj) => {
+const logInfo = (message, obj) => {
   logger.log('info', message, { obj });
 };
-export const logDebug = (message, obj) => {
+const logDebug = (message, obj) => {
   logger.log('debug', message, { obj });
+};
+module.exports = {
+  logError,
+  logInfo,
+  logDebug,
 };
