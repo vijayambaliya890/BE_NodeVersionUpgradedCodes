@@ -7,6 +7,8 @@ let express = require('express'),
 
 const multer = require('multer');
 
+const { uploadPostFiles, uploadFile } = require('../../../helpers/utils');
+
 // Single File Upload
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -66,6 +68,18 @@ postRouter.use(
 postRouter.post('/create', multiUpload, (req, res) => {
   postController.create(req, res);
 });
+
+postRouter.post('/', (req, res) => {
+  postController.create(req, res);
+});
+postRouter.post(
+  '/uploadFile',
+  uploadPostFiles.single('file'),
+  uploadFile,
+  (req, res) => {
+    postController.uploadFile(req, res);
+  },
+);
 
 postRouter.post('/update', multiUpload, (req, res) => {
   postController.update(req, res);

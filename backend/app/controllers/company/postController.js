@@ -21,6 +21,14 @@ const mongoose = require('mongoose'),
   __ = require('../../../helpers/globalFunctions');
 
 class post {
+  async uploadFile(req, res) {
+    try {
+      return res.success({ path: `${req.file.path.split('public')[1]}` });
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+
   async create(req, res) {
     try {
       let bodyContent = JSON.parse(JSON.stringify(req.body));
@@ -65,13 +73,15 @@ class post {
         );
       }
       /** Parsing Data  */
-      req.body.teaser = JSON.parse(req.body.teaser);
-      req.body.content = JSON.parse(req.body.content);
-      req.body.eventDetails = JSON.parse(req.body.eventDetails);
-      req.body.publishing = JSON.parse(req.body.publishing);
-      req.body.userOptions = JSON.parse(req.body.userOptions);
-      if (req.body.postType !== 'news') {
-        req.body.wallTitle = JSON.parse(req.body.wallTitle);
+      if (typeof req.body.teaser === 'string') {
+        req.body.teaser = JSON.parse(req.body.teaser);
+        req.body.content = JSON.parse(req.body.content);
+        req.body.eventDetails = JSON.parse(req.body.eventDetails);
+        req.body.publishing = JSON.parse(req.body.publishing);
+        req.body.userOptions = JSON.parse(req.body.userOptions);
+        if (req.body.postType !== 'news') {
+          req.body.wallTitle = JSON.parse(req.body.wallTitle);
+        }
       }
 
       /* Date Conversion */
@@ -371,13 +381,15 @@ class post {
       __.log(req.body);
 
       /** Parsing Data  */
-      req.body.teaser = JSON.parse(req.body.teaser);
-      req.body.content = JSON.parse(req.body.content);
-      req.body.eventDetails = JSON.parse(req.body.eventDetails);
-      req.body.publishing = JSON.parse(req.body.publishing);
-      req.body.userOptions = JSON.parse(req.body.userOptions);
-      if (req.body.postType !== 'news') {
-        req.body.wallTitle = JSON.parse(req.body.wallTitle);
+      if (typeof req.body.teaser === 'string') {
+        req.body.teaser = JSON.parse(req.body.teaser);
+        req.body.content = JSON.parse(req.body.content);
+        req.body.eventDetails = JSON.parse(req.body.eventDetails);
+        req.body.publishing = JSON.parse(req.body.publishing);
+        req.body.userOptions = JSON.parse(req.body.userOptions);
+        if (req.body.postType !== 'news') {
+          req.body.wallTitle = JSON.parse(req.body.wallTitle);
+        }
       }
       /* Date Conversion */
       __.log(req.body.eventDetails, 'date format');
@@ -1939,6 +1951,22 @@ class post {
     }
   }
   async getPostList(condition, { page, limit, sortBy, sortWith, search }) {
+    if (search) {
+      condition['$or'] = [
+        {
+          'teaser.title': {
+            $regex: `${search}`,
+            $options: 'i',
+          },
+        },
+        {
+          'channelId.name': {
+            $regex: `${search}`,
+            $options: 'i',
+          },
+        },
+      ];
+    }
     const count = await Post.countDocuments(condition);
     const data = await Post.find(condition)
       .populate({
