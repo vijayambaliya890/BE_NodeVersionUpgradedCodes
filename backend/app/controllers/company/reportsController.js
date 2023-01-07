@@ -860,8 +860,7 @@ class reports {
             },
             {
               path: 'shiftId',
-              select:
-                'businessUnitId plannedBy weekRangeStartsAt weekRangeEndsAt createdAt',
+              select: 'businessUnitId plannedBy weekRangeStartsAt weekRangeEndsAt createdAt',
               populate: [
                 {
                   path: 'plannedBy',
@@ -1779,8 +1778,8 @@ class reports {
         users = await User.find(match)
           .populate([
             {
-              path: 'parentBussinessUnitId allBUAccess',
-              select: 'name status',
+              path: 'parentBussinessUnitId',
+              select: 'name status allBUAccess',
               match: {
                 status: 1,
               },
