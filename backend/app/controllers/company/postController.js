@@ -1887,6 +1887,99 @@ class post {
       __.out(res, 500);
     }
   }
+
+  async getAllNews(req, res) {
+    try {
+      let channels = await Channel.find(
+        {
+          assignUsers: {
+            $elemMatch: {
+              admin: {
+                $in: [req.user._id],
+              },
+            },
+          },
+          status: 1,
+        },
+        {
+          _id: 1,
+        },
+      );
+
+      let channelIds = channels.map((c) => c._id);
+
+      let where = {
+        status: {
+          $nin: [2],
+        },
+      };
+      if (!!channelIds && channelIds.length) {
+        where.channelId = {
+          $in: channelIds,
+        };
+      } else {
+        return res.success({ postList: [] });
+      }
+
+      if (req.query.postType) {
+        where.postType = req.query.postType;
+      }
+      if (req.query.channelId) {
+        where.channelId = req.query.channelId;
+      }
+      if (req.query.categoryId) {
+        where.categoryId = req.query.categoryId;
+      }
+
+      let postList = await this.getPostList(where, req.query);
+
+      return res.success(postList);
+    } catch (e) {
+      return res.error();
+    }
+  }
+  async getPostList(condition, { page, limit, sortBy, sortWith, search }) {
+    const count = await Post.countDocuments(condition);
+    const data = await Post.find(condition)
+      .populate({
+        path: 'authorId',
+        select: 'name orgName parentBussinessUnitId profilePicture',
+        populate: {
+          path: 'parentBussinessUnitId',
+          select: 'orgName name status sectionId',
+          populate: {
+            path: 'sectionId',
+            select: 'name status departmentId',
+            populate: {
+              path: 'departmentId',
+              select: 'name status companyName',
+            },
+          },
+        },
+      })
+      .populate({
+        path: 'channelId',
+        select: 'name logo',
+      })
+      .populate({
+        path: 'categoryId',
+        select: 'name',
+      })
+      .populate({
+        path: 'wallId',
+      })
+      .sort({
+        createdAt: -1,
+      })
+      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(parseInt(limit))
+      .sort({
+        [sortWith]: sortBy === 'desc' ? -1 : 1,
+      })
+      .lean();
+
+    return { count, data };
+  }
 }
 post = new post();
 module.exports = post;
