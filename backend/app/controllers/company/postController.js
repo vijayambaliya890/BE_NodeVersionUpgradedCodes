@@ -976,11 +976,11 @@ class post {
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      let pageNum = req.query.start ? parseInt(req.query.start) : 0;
-      let limit = req.query.length ? parseInt(req.query.length) : 10;
+      let pageNum = req.query.page ? parseInt(req.query.page) : 0;
+      let limit = req.query.limit ? parseInt(req.query.limit) : 10;
       let skip = req.query.skip
         ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
+        : (pageNum - 1) * limit;
       // User as admin in chennel
       let searchQuery = {
         companyId: req.user.companyId,
@@ -1012,18 +1012,18 @@ class post {
       };
 
       var isSearched = false;
-      if (req.query.search.value) {
+      if (req.query.search) {
         isSearched = true;
         query['$or'] = [
           {
             'teaser.title': {
-              $regex: `${req.query.search.value}`,
+              $regex: `${req.query.search}`,
               $options: 'i',
             },
           },
           {
             'channelId.name': {
-              $regex: `${req.query.search.value}`,
+              $regex: `${req.query.search}`,
               $options: 'i',
             },
           },
@@ -1031,29 +1031,8 @@ class post {
       }
 
       let sort = {};
-      if (req.query.order) {
-        let orderData = req.query.order;
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
-            case '0':
-              sort[`teaser.title`] = getSort(orderData[i].dir);
-              break;
-            case '1':
-              sort[`channelId.name`] = getSort(orderData[i].dir);
-              break;
-            case '2':
-              sort[`reportList.reportedAt`] = getSort(orderData[i].dir);
-              break;
-            default:
-              sort[`status`] = getSort(orderData[i].dir);
-              break;
-          }
-        }
-      }
-
-      function getSort(val) {
-        if (val === 'asc') return 1;
-        else return -1;
+      if (req.query.sortWith) {
+        sort[req.query.sortWith] = req.query.sortBy === 'desc' ? -1 : 1;
       }
 
       let postList = await Post.aggregate([
