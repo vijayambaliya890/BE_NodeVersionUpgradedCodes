@@ -1431,28 +1431,41 @@ class reports {
               element.adjustedBy && element.adjustedBy.length > 0
                 ? 'Adjust Shift'
                 : 'Plan Shift';
-            element.cancelledBy.map((eachCancel) => {
-              // Check Below the Given Hours
-              if (eachCancel.minutesToShiftStartTime <= cancelMinutes) {
+            if (req.body.cancelHours) {
+              element.cancelledBy.map(eachCancel => {
+              // Check Below the Given Hours 
+                if (eachCancel.minutesToShiftStartTime <= cancelMinutes) {
+                  json['cancellationDateTime'] = moment
+                    .utc(eachCancel.createdAt)
+                    .utcOffset(`${timeZone}`)
+                    .format('DD-MM-YYYY HH:mm');
+                  json['bookingMadeByStaffId'] = eachCancel.cancelledUserId 
+                    ? eachCancel.cancelledUserId.staffId
+                    : '';
+                  json['bookingMadeByName'] = eachCancel.cancelledUserId
+                    ? eachCancel.cancelledUserId.name
+                    : '';
+                  json['durationToShiftStartTime'] = eachCancel.minutesToShiftStartTime;
+                  jsonArray.push(_.cloneDeep(json));
+                }
+              });
+            } else {
+              element.cancelledBy.map(eachCancel => {
+              // Check Below the Given Hours 
                 json['cancellationDateTime'] = moment
                   .utc(eachCancel.createdAt)
                   .utcOffset(`${timeZone}`)
                   .format('DD-MM-YYYY HH:mm');
-                json['bookingMadeByStaffId'] = eachCancel.cancelledUserId
+                json['bookingMadeByStaffId'] = eachCancel.cancelledUserId 
                   ? eachCancel.cancelledUserId.staffId
                   : '';
                 json['bookingMadeByName'] = eachCancel.cancelledUserId
                   ? eachCancel.cancelledUserId.name
                   : '';
-                json['reasonForCancellation'] =
-                  eachCancel.isMedicalReason == 1
-                    ? 'Medical Reason'
-                    : eachCancel.otherReason;
-                json['durationToShiftStartTime'] =
-                  eachCancel.minutesToShiftStartTime;
+                json['durationToShiftStartTime'] = eachCancel.minutesToShiftStartTime;
                 jsonArray.push(_.cloneDeep(json));
-              }
-            });
+              });
+            }
           }
         });
         let fieldsArray = [
@@ -2043,10 +2056,7 @@ class reports {
     try {
       var csvLink = '';
       if (jsonArray.length !== 0) {
-        var csv = json2csv({
-          data: jsonArray,
-          fields: fieldsArray,
-        });
+        var csv = json2csv(jsonArray, fieldsArray);
         let fileName = `${csvType}_${Math.random().toString(36).substr(2, 10)}`;
         fs.writeFile(
           `./public/uploads/reportsDownloads/${fileName}.csv`,
