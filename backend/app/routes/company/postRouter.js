@@ -140,4 +140,8 @@ postRouter.post('/exportPost/', (req, res) => {
 postRouter.post('/exportWall', (req, res) => {
   postController.exportWallData(req, res);
 });
+
+postRouter.get('/:postId', (req, res) => {
+  postController.readOnePost(req, res);
+});
 module.exports = postRouter;
