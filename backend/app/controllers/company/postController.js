@@ -1154,11 +1154,11 @@ class post {
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      let pageNum = req.query.start ? parseInt(req.query.start) : 0;
-      let limit = req.query.length ? parseInt(req.query.length) : 10;
+      let pageNum = req.query.page ? parseInt(req.query.page) : 0;
+      let limit = req.query.limit ? parseInt(req.query.limit) : 10;
       let skip = req.query.skip
         ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
+        : (pageNum - 1) * limit;
       // User as admin in wall
       let searchQuery = {
         companyId: req.user.companyId,
@@ -1184,150 +1184,48 @@ class post {
       postIds = postIds.map((v) => {
         return mongoose.Types.ObjectId(v._id);
       });
-      let query = {
-        // reportList: {
-        //     $ne: []
-        // },
-        'postId._id': {
-          $in: postIds,
-        },
-        status: {
-          $in: [1, 2],
-        },
-      };
-      var isSearched = false;
-      if (req.query.search.value) {
-        isSearched = true;
-        query['$or'] = [
-          {
-            comment: {
-              $regex: `${req.query.search.value}`,
-              $options: 'i',
-            },
-          },
-          {
-            'postId.title': {
-              $regex: `${req.query.search.value}`,
-              $options: 'i',
-            },
-          },
-          {
-            'wallId.wallName': {
-              $regex: `${req.query.search.value}`,
-              $options: 'i',
-            },
-          },
-        ];
-      }
-      let sort = {};
-      if (req.query.order) {
-        let orderData = req.query.order;
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
-            case '0':
-              sort[`comment`] = getSort(orderData[i].dir);
-              break;
-            case '1':
-              sort[`postId.title`] = getSort(orderData[i].dir);
-              break;
-            case '2':
-              sort[`channelId.name`] = getSort(orderData[i].dir);
-              break;
-            case '3':
-              sort[`reportList.reportedAt`] = getSort(orderData[i].dir);
-              break;
-            default:
-              sort[`status`] = getSort(orderData[i].dir);
-              break;
-          }
-        }
-      }
+      // let query = {
+      //   // reportList: {
+      //   //     $ne: []
+      //   // },
+      //   'postId._id': {
+      //     $in: postIds,
+      //   },
+      //   status: {
+      //     $in: [1, 2],
+      //   },
+      // };
+      // var isSearched = false;
+      // if (req.query.search) {
+      //   isSearched = true;
+      //   query['$or'] = [
+      //     {
+      //       comment: {
+      //         $regex: `${req.query.search}`,
+      //         $options: 'i',
+      //       },
+      //     },
+      //     {
+      //       'postId.title': {
+      //         $regex: `${req.query.search}`,
+      //         $options: 'i',
+      //       },
+      //     },
+      //     {
+      //       'wallId.wallName': {
+      //         $regex: `${req.query.search}`,
+      //         $options: 'i',
+      //       },
+      //     },
+      //   ];
+      // }
+      // let sort = {};
+      // if (req.query.sortWith) {
+      //   sort[req.query.sortWith] = req.query.sortBy === 'desc' ? -1 : 1;
+      // }
 
-      function getSort(val) {
-        if (val === 'asc') return 1;
-        else return -1;
-      }
-
-      let commentList = await PostComment.aggregate([
-        {
-          $lookup: {
-            from: 'posts',
-            localField: 'postId',
-            foreignField: '_id',
-            as: 'postId',
-          },
-        },
-        {
-          $unwind: '$postId',
-        },
-        {
-          $lookup: {
-            from: 'channels',
-            localField: 'postId.channelId',
-            foreignField: '_id',
-            as: 'postId.channelId',
-          },
-        },
-        {
-          $unwind: '$postId.channelId',
-        },
-        {
-          $unwind: '$reportList',
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'reportList.reportedBy',
-            foreignField: '_id',
-            as: 'reportList.reportedBy',
-          },
-        },
-        {
-          $group: {
-            _id: '$_id',
-            comment: {
-              $first: '$comment',
-            },
-            postId: {
-              $first: '$postId',
-            },
-            reportList: {
-              $push: '$reportList',
-            },
-            status: {
-              $first: '$status',
-            },
-          },
-        },
-        {
-          $match: query,
-        },
-        {
-          $sort: sort,
-        },
-        {
-          $skip: skip,
-        },
-        {
-          $limit: limit,
-        },
-      ]);
-      // Get all post ids
-      // let commentIds = commentList.map(v => v._id)
-      // const reportUsers = await ReportCommentModel.find({
-      //     commentId: {
-      //         $in: commentIds
-      //     }
-      // }).populate({
-      //     path: "userId",
-      //     select: "name userName profilePicture"
-      // }).lean();
-      // commentList = commentList.map(p => {
-      //     p['userList'] = reportUsers.filter(v => p._id.toString() == v.commentId.toString());
-      //     return p;
-      // });
-
-      commentList = commentList.map((v) => {
+      let resultComment = await this.getComments(postIds, req.query);
+      const commentList = resultComment.data.map((v) => {
         let data = {
           _id: v._id,
           comment: v.comment,
@@ -1346,55 +1244,10 @@ class post {
         return data;
       });
 
-      let totalCount;
-      let totalUserCount = await PostComment.count({
-        reportCount: {
-          $nin: [0],
-        },
-        channelId: {
-          $in: channelIds,
-        },
-        status: {
-          $in: [1, 2],
-        },
-      }).lean();
-      if (isSearched) {
-        totalCount = await PostComment.aggregate([
-          {
-            $lookup: {
-              from: 'channels',
-              localField: 'channelId',
-              foreignField: '_id',
-              as: 'channelId',
-            },
-          },
-          {
-            $unwind: '$channelId',
-          },
-          {
-            $lookup: {
-              from: 'posts',
-              localField: 'postId',
-              foreignField: '_id',
-              as: 'postId',
-            },
-          },
-          {
-            $unwind: '$postId',
-          },
-          {
-            $match: query,
-          },
-        ]);
-        totalCount = totalCount.length;
-      } else {
-        totalCount = totalUserCount;
-      }
-
       let result = {
         draw: req.query.draw || 0,
-        recordsTotal: totalUserCount || 0,
-        recordsFiltered: totalCount || 0,
+        recordsTotal: resultComment.count || 0,
+        recordsFiltered: resultComment.count || 0,
         data: commentList,
       };
       return res.status(201).json(result);
@@ -1402,6 +1255,119 @@ class post {
       __.log(err);
       return __.out(res, 500);
     }
+  }
+
+  async getComments(
+    postIds,
+    { page, limit, search, sortBy, sortWith, filter },
+  ) {
+    const searchCondition = search
+      ? [
+          {
+            $match: {
+              $or: [
+                {
+                  comment: { $regex: search, $options: 'i' },
+                },
+                {
+                  'postId.title': { $regex: search, $options: 'i' },
+                },
+                {
+                  'wallId.wallName': { $regex: search, $options: 'i' },
+                },
+              ],
+            },
+          },
+        ]
+      : [];
+
+    const [{ metadata, data }] = await PostComment.aggregate([
+      {
+        $lookup: {
+          from: 'posts',
+          localField: 'postId',
+          foreignField: '_id',
+          as: 'postId',
+        },
+      },
+      {
+        $unwind: '$postId',
+      },
+      {
+        $lookup: {
+          from: 'channels',
+          localField: 'postId.channelId',
+          foreignField: '_id',
+          as: 'postId.channelId',
+        },
+      },
+      {
+        $unwind: '$postId.channelId',
+      },
+      {
+        $unwind: '$reportList',
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'reportList.reportedBy',
+          foreignField: '_id',
+          as: 'reportList.reportedBy',
+        },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          comment: {
+            $first: '$comment',
+          },
+          postId: {
+            $first: '$postId',
+          },
+          reportList: {
+            $push: '$reportList',
+          },
+          status: {
+            $first: '$status',
+          },
+        },
+      },
+      ...searchCondition,
+      {
+        $match: {
+          'postId._id': {
+            $in: postIds,
+          },
+          status: {
+            $in: [1, 2],
+          },
+        },
+      },
+      {
+        $sort: {
+          [sortWith]: sortBy === 'desc' ? -1 : 1,
+        },
+      },
+      {
+        $facet: {
+          metadata: [{ $count: 'total' }],
+          data: [
+            {
+              $skip: parseInt(page) - 1,
+            },
+            {
+              $limit: parseInt(limit),
+            },
+          ],
+        },
+      },
+    ]);
+
+    if (data.length) {
+      const [{ total: count }] = metadata;
+      return { count, data };
+    }
+    return { count: 0, data: [] };
   }
 
   // Get all Update Posts - News and Events

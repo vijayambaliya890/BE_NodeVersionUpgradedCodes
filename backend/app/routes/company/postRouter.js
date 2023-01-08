@@ -117,9 +117,9 @@ postRouter.post('/uploadContentFiles', upload.single('file'), (req, res) => {
   postController.uploadContentFiles(req, res);
 });
 
-postRouter.get('/reportedPosts/:postType', (req, res) => {
-  postController.reportedPosts(req, res);
-});
+// postRouter.get('/reportedPosts/:postType', (req, res) => {
+//   postController.reportedPosts(req, res);
+// });
 
 postRouter.get('/reportedComments/:postType', (req, res) => {
   postController.reportedComments(req, res);
