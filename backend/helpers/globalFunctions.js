@@ -1,52 +1,52 @@
-const _ = require("lodash"),
-  moment = require("moment"),
-  os = require("os"),
-  fs = require("fs"),
-  dotenv = require("dotenv").config(),
-  mongoose = require("mongoose"),
-  htmlparser = require("htmlparser"),
-  pdf = require("html-pdf"),
-  ejs = require("ejs"),
-  path = require("path"),
-  concat = require("concat-stream"),
-  NodeClam = require("clamscan"),
-  XRegExp = require("xregexp"),
+const _ = require('lodash'),
+  moment = require('moment'),
+  os = require('os'),
+  fs = require('fs'),
+  dotenv = require('dotenv').config(),
+  mongoose = require('mongoose'),
+  htmlparser = require('htmlparser'),
+  pdf = require('html-pdf'),
+  ejs = require('ejs'),
+  path = require('path'),
+  concat = require('concat-stream'),
+  NodeClam = require('clamscan'),
+  XRegExp = require('xregexp'),
   file_path = process.env.FILE_PATH;
 
 // DB Modals
-const Section = require("../app/models/section"),
-  User = require("../app/models/user"),
-  Department = require("../app/models/department"),
-  SubSection = require("../app/models/subSection"),
+const Section = require('../app/models/section'),
+  User = require('../app/models/user'),
+  Department = require('../app/models/department'),
+  SubSection = require('../app/models/subSection'),
   // Shift = require("../app/models/shift"),
-  Notification = require("../app/models/notification"),
-  Wall = require("../app/models/wall"),
-  Channel = require("../app/models/channel"),
-  ChannelPost = require("../app/models/post"),
-  WallPost = require("../app/models/wallPost"),
-  WallModel = require("../app/models/wall"),
-  PageSetting = require("../app/models/pageSetting"),
-  Company = require("../app/models/company"),
-  CustomForm = require("../app/models/customForms"),
-  BuilderModule = require("../app/models/builderModule"),
-  Shift = require("../app/models/shift");
+  Notification = require('../app/models/notification'),
+  Wall = require('../app/models/wall'),
+  Channel = require('../app/models/channel'),
+  ChannelPost = require('../app/models/post'),
+  WallPost = require('../app/models/wallPost'),
+  WallModel = require('../app/models/wall'),
+  PageSetting = require('../app/models/pageSetting'),
+  Company = require('../app/models/company'),
+  CustomForm = require('../app/models/customForms'),
+  BuilderModule = require('../app/models/builderModule'),
+  Shift = require('../app/models/shift');
 
 class globalFunctions {
   async writePdfToCustomForm(payload) {
     const options = {
-      format: "Letter", // allowed units: A3, A4, A5, Legal, Letter, Tabloid
-      orientation: "portrait", // portrait or landscape
+      format: 'Letter', // allowed units: A3, A4, A5, Legal, Letter, Tabloid
+      orientation: 'portrait', // portrait or landscape
       //"border": "0",             // default is 0, units: mm, cm, in, px
       border: {
-        top: "5mm", // default is 0, units: mm, cm, in, px
-        right: "5mm",
-        bottom: "5mm",
-        left: "6mm",
+        top: '5mm', // default is 0, units: mm, cm, in, px
+        right: '5mm',
+        bottom: '5mm',
+        left: '6mm',
       },
-      type: "pdf",
+      type: 'pdf',
     };
-    payload.welComeAttachement = payload.url + "/" + payload.welComeAttachement;
-    const htmlFilePath = path.join(__dirname, "customFormQuestions.ejs");
+    payload.welComeAttachement = payload.url + '/' + payload.welComeAttachement;
+    const htmlFilePath = path.join(__dirname, 'customFormQuestions.ejs');
     let html = await ejs.renderFile(htmlFilePath, { payload: payload });
     return await new Promise((resolve, reject) => {
       pdf.create(html, options).toStream(async function (err, stream) {
@@ -54,7 +54,11 @@ class globalFunctions {
           reject(err);
           return false;
         }
-        stream.pipe(fs.createWriteStream(`./public/uploads/customFormExport/${payload.manageForm}.pdf`));
+        stream.pipe(
+          fs.createWriteStream(
+            `./public/uploads/customFormExport/${payload.manageForm}.pdf`,
+          ),
+        );
         resolve(true);
       });
     }).then((success) => {
@@ -62,66 +66,101 @@ class globalFunctions {
     });
   }
   async checkRequiredFields(req, requiredFields, source = false) {
-    if (source == "shift" && req.body.shifts && req.body.shifts.length === 0) {
+    if (source == 'shift' && req.body.shifts && req.body.shifts.length === 0) {
       delete req.body.shifts;
     }
-    if (source == "updateLocation") {
-      if ((req.body.locations && req.body.locations.length == 0) || req.body.locations == "") {
+    if (source == 'updateLocation') {
+      if (
+        (req.body.locations && req.body.locations.length == 0) ||
+        req.body.locations == ''
+      ) {
         delete req.body.locations;
       }
     }
-    if (source == "updateSkillSet") {
-      if ((req.body.subSkillSets && req.body.subSkillSets.length == 0) || req.body.subSkillSets == "") {
+    if (source == 'updateSkillSet') {
+      if (
+        (req.body.subSkillSets && req.body.subSkillSets.length == 0) ||
+        req.body.subSkillSets == ''
+      ) {
         delete req.body.subSkillSets;
       }
     }
-    if (source == "updateSkillSetAndLocation") {
-      if ((req.body.subSkillSets && req.body.subSkillSets.length == 0) || req.body.subSkillSets == "") {
+    if (source == 'updateSkillSetAndLocation') {
+      if (
+        (req.body.subSkillSets && req.body.subSkillSets.length == 0) ||
+        req.body.subSkillSets == ''
+      ) {
         delete req.body.subSkillSets;
       }
-      if ((req.body.subCategories && req.body.subCategories.length == 0) || req.body.subCategories == "") {
+      if (
+        (req.body.subCategories && req.body.subCategories.length == 0) ||
+        req.body.subCategories == ''
+      ) {
         delete req.body.subCategories;
       }
-      if ((req.body.locations && req.body.locations.length == 0) || req.body.locations == "") {
+      if (
+        (req.body.locations && req.body.locations.length == 0) ||
+        req.body.locations == ''
+      ) {
         delete req.body.locations;
       }
     }
-    if (source == "subSection") {
+    if (source == 'subSection') {
       if (req.body.name) {
-        requiredFields.push("sectionId");
+        requiredFields.push('sectionId');
       }
     }
-    if (source == "post") {
-      if (req.body.postType && req.body.postType == "events") {
-        requiredFields.push("eventDetails");
+    if (source == 'post') {
+      if (req.body.postType && req.body.postType == 'events') {
+        requiredFields.push('eventDetails');
       }
     }
 
-    if (source == "user") {
+    if (source == 'user') {
       if (req.body.isFlexiStaff == 0) {
-        requiredFields.push("parentBussinessUnitId", "planBussinessUnitId", "viewBussinessUnitId");
+        requiredFields.push(
+          'parentBussinessUnitId',
+          'planBussinessUnitId',
+          'viewBussinessUnitId',
+        );
         /* Validate creation based on Plan business unit of the planner */
 
         if (req.body.parentBussinessUnitId) {
-          let diffArray = await _.differenceWith([mongoose.Types.ObjectId(req.body.parentBussinessUnitId)], req.user.planBussinessUnitId, _.isEqual);
+          let diffArray = await _.differenceWith(
+            [mongoose.Types.ObjectId(req.body.parentBussinessUnitId)],
+            req.user.planBussinessUnitId,
+            _.isEqual,
+          );
           if (diffArray.length) {
-            requiredFields.push("Invalid parentBussinessUnitId");
+            requiredFields.push('Invalid parentBussinessUnitId');
           }
         }
 
         if (req.body.planBussinessUnitId) {
-          let objectIDs = eval(req.body.planBussinessUnitId).map((x) => mongoose.Types.ObjectId(x));
-          let diffArray = await _.differenceWith(objectIDs, req.user.planBussinessUnitId, _.isEqual);
+          let objectIDs = eval(req.body.planBussinessUnitId).map((x) =>
+            mongoose.Types.ObjectId(x),
+          );
+          let diffArray = await _.differenceWith(
+            objectIDs,
+            req.user.planBussinessUnitId,
+            _.isEqual,
+          );
           if (diffArray.length) {
-            requiredFields.push("Invalid planBussinessUnitId");
+            requiredFields.push('Invalid planBussinessUnitId');
           }
         }
 
         if (req.body.viewBussinessUnitId) {
-          let objectIDs = eval(req.body.viewBussinessUnitId).map((x) => mongoose.Types.ObjectId(x));
-          let diffArray = await _.differenceWith(objectIDs, req.user.planBussinessUnitId, _.isEqual);
+          let objectIDs = eval(req.body.viewBussinessUnitId).map((x) =>
+            mongoose.Types.ObjectId(x),
+          );
+          let diffArray = await _.differenceWith(
+            objectIDs,
+            req.user.planBussinessUnitId,
+            _.isEqual,
+          );
           if (diffArray.length) {
-            requiredFields.push("Invalid viewBussinessUnitId");
+            requiredFields.push('Invalid viewBussinessUnitId');
           }
         }
 
@@ -129,16 +168,21 @@ class globalFunctions {
 
         delete req.body.subSkillSet;
       } else {
-        requiredFields.push("parentBussinessUnitId");
+        requiredFields.push('parentBussinessUnitId');
 
         if (req.body.parentBussinessUnitId) {
-          let diffArray = await _.differenceWith([mongoose.Types.ObjectId(req.body.parentBussinessUnitId)], req.user.planBussinessUnitId, _.isEqual);
+          let diffArray = await _.differenceWith(
+            [mongoose.Types.ObjectId(req.body.parentBussinessUnitId)],
+            req.user.planBussinessUnitId,
+            _.isEqual,
+          );
           if (diffArray.length) {
-            requiredFields.push("Invalid parentBussinessUnitId");
+            requiredFields.push('Invalid parentBussinessUnitId');
           }
         }
 
-        if (req.body.subSkillSets && req.body.subSkillSets.length == 0) delete req.body.subSkillSets;
+        if (req.body.subSkillSets && req.body.subSkillSets.length == 0)
+          delete req.body.subSkillSets;
         else {
           //this.log(req.body.subSkillSets);
           // this.log(eval(req.body.subSkillSets));
@@ -149,10 +193,10 @@ class globalFunctions {
         delete req.body.viewBussinessUnitId;
       }
     }
-    if (source == "weeklyStaff") {
+    if (source == 'weeklyStaff') {
       if (!req.file || (req.file && req.file.length == 0)) {
         delete req.body.weeklyStaffCsvData;
-        requiredFields.push("weeklyStaffCsvData");
+        requiredFields.push('weeklyStaffCsvData');
       }
     }
     // if (source == 'notification') {
@@ -162,33 +206,53 @@ class globalFunctions {
     //     }
     // }
 
-    if (source == "userUpdate") {
+    if (source == 'userUpdate') {
       if (req.body.parentBussinessUnitId) {
-        let diffArray = await _.differenceWith([mongoose.Types.ObjectId(req.body.parentBussinessUnitId)], req.user.planBussinessUnitId, _.isEqual);
+        let diffArray = await _.differenceWith(
+          [mongoose.Types.ObjectId(req.body.parentBussinessUnitId)],
+          req.user.planBussinessUnitId,
+          _.isEqual,
+        );
         if (diffArray.length) {
-          requiredFields.push("Invalid parentBussinessUnitId");
+          requiredFields.push('Invalid parentBussinessUnitId');
         }
       }
 
       if (req.body.planBussinessUnitId && req.body.isFlexiStaff == 0) {
-        let objectIDs = eval(req.body.planBussinessUnitId).map((x) => mongoose.Types.ObjectId(x));
-        let diffArray = await _.differenceWith(objectIDs, req.user.planBussinessUnitId, _.isEqual);
+        let objectIDs = eval(req.body.planBussinessUnitId).map((x) =>
+          mongoose.Types.ObjectId(x),
+        );
+        let diffArray = await _.differenceWith(
+          objectIDs,
+          req.user.planBussinessUnitId,
+          _.isEqual,
+        );
         if (diffArray.length) {
-          requiredFields.push("Invalid planBussinessUnitId");
+          requiredFields.push('Invalid planBussinessUnitId');
         }
       }
 
       if (req.body.viewBussinessUnitId && req.body.isFlexiStaff == 0) {
-        let objectIDs = eval(req.body.viewBussinessUnitId).map((x) => mongoose.Types.ObjectId(x));
-        let diffArray = await _.differenceWith(objectIDs, req.user.planBussinessUnitId, _.isEqual);
+        let objectIDs = eval(req.body.viewBussinessUnitId).map((x) =>
+          mongoose.Types.ObjectId(x),
+        );
+        let diffArray = await _.differenceWith(
+          objectIDs,
+          req.user.planBussinessUnitId,
+          _.isEqual,
+        );
         if (diffArray.length) {
-          requiredFields.push("Invalid viewBussinessUnitId");
+          requiredFields.push('Invalid viewBussinessUnitId');
         }
       }
     }
 
     //req.body = _.pickBy(req.body, _.identity); //remove empty string("") , null, undefined properties
-    let noMissingFields = _.reduce(requiredFields, (result, item) => result && item in req.body, true);
+    let noMissingFields = _.reduce(
+      requiredFields,
+      (result, item) => result && item in req.body,
+      true,
+    );
     if (!noMissingFields) {
       let missingFields = this.getMissingFields(req.body, requiredFields);
 
@@ -210,15 +274,22 @@ class globalFunctions {
 
     var missingFields = [];
     await req.forEach((element) => {
-      if (source == "shiftDetails") {
+      if (source == 'shiftDetails') {
         if (element.subSkillSets && element.subSkillSets.length == 0) {
           delete element.subSkillSets;
         }
       }
-      let noMissingFields = _.reduce(requiredFields, (result, item) => result && item in element, true);
+      let noMissingFields = _.reduce(
+        requiredFields,
+        (result, item) => result && item in element,
+        true,
+      );
 
       if (!noMissingFields) {
-        missingFields.push.apply(missingFields, this.getMissingFields(element, requiredFields));
+        missingFields.push.apply(
+          missingFields,
+          this.getMissingFields(element, requiredFields),
+        );
       }
     });
 
@@ -235,7 +306,7 @@ class globalFunctions {
   }
 
   log() {
-    if (os.hostname().indexOf("doodlews-67") > -1) {
+    if (os.hostname().indexOf('doodlews-67') > -1) {
       /*localhost*/ for (let i in arguments) {
         console.log(arguments[i]);
       }
@@ -246,9 +317,9 @@ class globalFunctions {
     }
   }
   makePwd(length) {
-    let string = "qwertyupasdfghjkzxcvbnm23456789QWERTYUPASDFGHJKZXCVBNM";
+    let string = 'qwertyupasdfghjkzxcvbnm23456789QWERTYUPASDFGHJKZXCVBNM';
     var index = (Math.random() * (string.length - 1)).toFixed(0);
-    return length > 0 ? string[index] + this.makePwd(length - 1) : "";
+    return length > 0 ? string[index] + this.makePwd(length - 1) : '';
     //return randomstring.generate(length);
     //return 'password';
   }
@@ -267,15 +338,15 @@ class globalFunctions {
   out(res, statusCode, resultData = null) {
     if (statusCode === 401) {
       res.status(statusCode).json({
-        error: "Unauthorized user",
+        error: 'Unauthorized user',
       });
     } else if (statusCode === 500) {
       res.status(statusCode).json({
-        error: "Internal server error Or Invalid data",
+        error: 'Internal server error Or Invalid data',
       });
     } else if (statusCode === 400) {
       res.status(statusCode).json({
-        error: "Required fields missing",
+        error: 'Required fields missing',
         fields: resultData,
       });
     } else if (statusCode === 201) {
@@ -289,25 +360,33 @@ class globalFunctions {
     } else {
       /*200*/
       res.status(statusCode).json({
-        message: resultData != null ? resultData : "success",
+        message: resultData != null ? resultData : 'success',
       });
     }
   }
-  getDateStringFormat(fullDate = "", timeZone) {
-    return moment.utc(fullDate).utcOffset(`${timeZone}`).format("DD-MM-YYYY");
+  getDateStringFormat(fullDate = '', timeZone) {
+    return moment.utc(fullDate).utcOffset(`${timeZone}`).format('DD-MM-YYYY');
     // var d = new Date(fullDateTrimmed);
     // var date = ("0" + d.getDate()).slice(-2), //to make double digit
     //     month = ("0" + (d.getMonth() + 1)).slice(-2), //to make double digit
     //     year = (d.getYear() + 1900); // getYear () + 1900 = current year (i.e:2017)
     // return date + '-' + month + '-' + year;
   }
-  getDayStringFormat(fullDate = "", timeZone) {
-    return moment.utc(fullDate).utcOffset(`${timeZone}`).format("dddd").toLowerCase();
+  getDayStringFormat(fullDate = '', timeZone) {
+    return moment
+      .utc(fullDate)
+      .utcOffset(`${timeZone}`)
+      .format('dddd')
+      .toLowerCase();
   }
-  getDayStringFormatFromUnix(unix = "", timeZone) {
-    return moment.unix(unix).utcOffset(`${timeZone}`).format("dddd").toLowerCase();
+  getDayStringFormatFromUnix(unix = '', timeZone) {
+    return moment
+      .unix(unix)
+      .utcOffset(`${timeZone}`)
+      .format('dddd')
+      .toLowerCase();
   }
-  getDay(date = "") {
+  getDay(date = '') {
     // var d = new Date(date),
     //     weekday = new Array(7);
     // weekday[0] = "Sunday";
@@ -318,7 +397,7 @@ class globalFunctions {
     // weekday[5] = "Friday";
     // weekday[6] = "Saturday";
 
-    return moment(date, "MM-DD-YYYY HH:mm:ss Z").utc().format("dddd");
+    return moment(date, 'MM-DD-YYYY HH:mm:ss Z').utc().format('dddd');
   }
   getDurationInHours(startDateTime, endDateTime) {
     var start = moment(startDateTime).utc().unix() * 1000,
@@ -328,27 +407,33 @@ class globalFunctions {
   }
   weekNoStartWithMonday(dt) {
     dt = new Date(dt);
-    return Math.ceil((dt - new Date(dt.getFullYear(), 0, 1)) / (3600000 * 24 * 7));
+    return Math.ceil(
+      (dt - new Date(dt.getFullYear(), 0, 1)) / (3600000 * 24 * 7),
+    );
   }
   serverBaseUrl() {
     this.log(process.env.LOCAL_SERVER_BASEURL, process.env.LIVE_SERVER_BASEURL);
     if (
-      os.hostname().indexOf("doodlews-67") > -1 ||
-      os.hostname().indexOf("doodlews-39") > -1 ||
-      os.hostname().indexOf("doodlews-70") > -1 ||
-      os.hostname().indexOf("doodlews116") > -1
+      os.hostname().indexOf('doodlews-67') > -1 ||
+      os.hostname().indexOf('doodlews-39') > -1 ||
+      os.hostname().indexOf('doodlews-70') > -1 ||
+      os.hostname().indexOf('doodlews116') > -1
     ) {
       /*localhost*/ return process.env.LOCAL_SERVER_BASEURL;
-    } else if (os.hostname().indexOf("doodledev") == 0) {
+    } else if (os.hostname().indexOf('doodledev') == 0) {
       /*staging*/ return process.env.STAGING_SERVER_BASEURL;
     } /*live*/ else {
       return process.env.LIVE_SERVER_BASEURL;
     }
   }
   clientBaseUrl() {
-    if (os.hostname().indexOf("doodlews-67") > -1 || os.hostname().indexOf("doodlews-39") > -1 || os.hostname().indexOf("doodlews-70") > -1) {
+    if (
+      os.hostname().indexOf('doodlews-67') > -1 ||
+      os.hostname().indexOf('doodlews-39') > -1 ||
+      os.hostname().indexOf('doodlews-70') > -1
+    ) {
       /*localhost*/ return process.env.LOCAL_CLIENT_BASEURL;
-    } else if (os.hostname().indexOf("doodledev") == 0) {
+    } else if (os.hostname().indexOf('doodledev') == 0) {
       /*staging*/ return process.env.STAGING_CLIENT_BASEURL;
     } /*live*/ else {
       return process.env.LIVE_CLIENT_BASEURL;
@@ -414,7 +499,10 @@ class globalFunctions {
     } else {
       for (let eachPrivilege of privileges) {
         if (eachPrivilege.privilegeCategoryId) {
-          await Object.assign(preDefinedPrivileges, _.pickBy(eachPrivilege.flags, _.identity)); /*pickby return only privileges that set to true  */
+          await Object.assign(
+            preDefinedPrivileges,
+            _.pickBy(eachPrivilege.flags, _.identity),
+          ); /*pickby return only privileges that set to true  */
         }
       }
       return preDefinedPrivileges;
@@ -429,7 +517,7 @@ class globalFunctions {
   }
 
   camelToSpace(str) {
-    return str.replace(/([A-Z])/g, " $1").toLowerCase();
+    return str.replace(/([A-Z])/g, ' $1').toLowerCase();
   }
 
   compareArray(a, b) {
@@ -461,7 +549,7 @@ class globalFunctions {
     return newArrData;
   }
 
-  getHTMLValues(htmlString = "", tagName = "video", attriName = "src") {
+  getHTMLValues(htmlString = '', tagName = 'video', attriName = 'src') {
     let reqValues = [];
     // HTML Parser
     let rawHtml = htmlString;
@@ -481,7 +569,7 @@ class globalFunctions {
             let atag = {
               url: elem.attribs[attribute],
             };
-            if (tag == "a") {
+            if (tag == 'a') {
               atag.name = data.raw;
             }
             reqValues.push(atag);
@@ -511,14 +599,14 @@ class globalFunctions {
         let users = await User.findOne(whereClause)
           .populate([
             {
-              path: "role",
-              select: "name description isFlexiStaff privileges",
+              path: 'role',
+              select: 'name description isFlexiStaff privileges',
               populate: {
-                path: "privileges",
-                select: "name description flags privilegeCategoryId",
+                path: 'privileges',
+                select: 'name description flags privilegeCategoryId',
                 populate: {
-                  path: "privilegeCategoryId",
-                  select: "name",
+                  path: 'privilegeCategoryId',
+                  select: 'name',
                 },
               },
             },
@@ -530,7 +618,7 @@ class globalFunctions {
       validate: async (req, res, next) => {
         let flag = await methods.getPrivilege(req.user._id, role);
         if (!flag) {
-          return __.out(res, 300, "This account is not permitted to access");
+          return __.out(res, 300, 'This account is not permitted to access');
         }
         next();
       },
@@ -541,7 +629,7 @@ class globalFunctions {
     try {
       const fileName = uploadedFile.toLowerCase(),
         formatError = fileName.match(
-          /\.(tiff|tif|svg|PNG|png|JPEG|jpeg|jpg|gif|txt|pdf|odt|doc|docx|wmv|mpg|mpeg|mp4|avi|3gp|3g2|xlsx|xls|xlx|xlr|pptx|ppt|odp|key|csv)$/
+          /\.(tiff|tif|svg|PNG|png|JPEG|jpeg|jpg|gif|txt|pdf|odt|doc|docx|wmv|mpg|mpeg|mp4|avi|3gp|3g2|xlsx|xls|xlx|xlr|pptx|ppt|odp|key|csv)$/,
         );
       if (!formatError) {
         return `Please upload this type extension tiff,tif,svg,png,jpeg,jpg,gif,txt,pdf,odt,doc,docx,wmv,mpg,mpeg,mp4,avi,3gp,3g2,xlsx,xls,xlx,xlr,pptx,ppt,odp,key|csv`;
@@ -549,15 +637,17 @@ class globalFunctions {
       // if(!/\.(png|jpeg|jpg|gif)/.test(`${fileName}`)){
       const options = {
         remove_infected: true, // Removes files if they are infected
-        scan_log: "../public/filelogs/error.log", // You're a detail-oriented security professional.
+        scan_log: '../public/filelogs/error.log', // You're a detail-oriented security professional.
         debug_mode: false, // This will put some debug info in your js console
         scan_recursively: true, // Choosing false here will save some CPU cycles
-        preference: "clamscan", // If clamscan is found and active, it will be used by default
+        preference: 'clamscan', // If clamscan is found and active, it will be used by default
       };
       const clamscan = await new NodeClam().init(options);
-      const { fileSelected, is_infected, viruses } = await clamscan.is_infected(localPath);
+      const { fileSelected, is_infected, viruses } = await clamscan.is_infected(
+        localPath,
+      );
       if (is_infected) {
-        return `${fileSelected} is infected with ${viruses.join(", ")}.`;
+        return `${fileSelected} is infected with ${viruses.join(', ')}.`;
       }
       // }
     } catch (error) {
@@ -568,7 +658,7 @@ class globalFunctions {
 
   /* Functions with db */
   // Get user's BU, Department, Sub section
-  async getCompanyBU(companyId, type = "subsection", status = [1, 2]) {
+  async getCompanyBU(companyId, type = 'subsection', status = [1, 2]) {
     let returnIds = [];
     // Department
     let departmentIds = await Department.find({
@@ -577,13 +667,13 @@ class globalFunctions {
         $in: status,
       },
     })
-      .select("_id")
+      .select('_id')
       .lean();
 
     departmentIds.forEach((val, i) => {
       returnIds.push(val._id);
     });
-    if (type == "department") {
+    if (type == 'department') {
       return returnIds;
     }
 
@@ -595,7 +685,7 @@ class globalFunctions {
         $in: status,
       },
     })
-      .select("_id")
+      .select('_id')
       .lean();
 
     returnIds = [];
@@ -603,7 +693,7 @@ class globalFunctions {
     sectionIds.forEach((val, i) => {
       returnIds.push(val._id);
     });
-    if (type == "section") {
+    if (type == 'section') {
       return returnIds;
     }
     // Sub Section
@@ -615,7 +705,7 @@ class globalFunctions {
         $in: status,
       },
     })
-      .select("_id")
+      .select('_id')
       .lean();
 
     returnIds = [];
@@ -693,20 +783,20 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition1.assignUsers["$elemMatch"]["$or"].push({
+      condition1.assignUsers['$elemMatch']['$or'].push({
         subSkillSets: {
           $in: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition1.assignUsers["$elemMatch"]["$or"].push({
+      condition1.assignUsers['$elemMatch']['$or'].push({
         customField: {
           $in: customFields,
         },
       });
     }
-    searchQuery["$or"].push(condition1);
+    searchQuery['$or'].push(condition1);
     // 2 -> Include only Selected Users from Business Unit
     let condition2 = {
       assignUsers: {
@@ -737,20 +827,20 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition2.assignUsers["$elemMatch"]["$or"].push({
+      condition2.assignUsers['$elemMatch']['$or'].push({
         subSkillSets: {
           $in: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition2.assignUsers["$elemMatch"]["$or"].push({
+      condition2.assignUsers['$elemMatch']['$or'].push({
         customField: {
           $in: customFields,
         },
       });
     }
-    searchQuery["$or"].push(condition2);
+    searchQuery['$or'].push(condition2);
     // 3 -> Exclude selected Users from Business Unit
     let condition3 = {
       assignUsers: {
@@ -785,21 +875,21 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition3.assignUsers["$elemMatch"]["$or"][1]["$and"].push({
+      condition3.assignUsers['$elemMatch']['$or'][1]['$and'].push({
         subSkillSets: {
           $nin: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition3.assignUsers["$elemMatch"]["$or"][1]["$and"].push({
+      condition3.assignUsers['$elemMatch']['$or'][1]['$and'].push({
         customField: {
           $nin: customFields,
         },
       });
     }
 
-    searchQuery["$or"].push(condition3);
+    searchQuery['$or'].push(condition3);
 
     // __.log(JSON.stringify(searchQuery));
     let wallList = await Wall.find(searchQuery);
@@ -816,8 +906,14 @@ class globalFunctions {
       let excludeOnly = { $or: [] };
       for (let singleCustom of customFields) {
         singleCustom.value = singleCustom.value || null;
-        excludeOnly["$or"].push({ "userDetails.customField.fieldId": singleCustom.fieldId, "userDetails.customField.value": { $ne: singleCustom.value } });
-        includeOnly.push({ "userDetails.customField.fieldId": singleCustom.fieldId, "userDetails.customField.value": { $eq: singleCustom.value } });
+        excludeOnly['$or'].push({
+          'userDetails.customField.fieldId': singleCustom.fieldId,
+          'userDetails.customField.value': { $ne: singleCustom.value },
+        });
+        includeOnly.push({
+          'userDetails.customField.fieldId': singleCustom.fieldId,
+          'userDetails.customField.value': { $eq: singleCustom.value },
+        });
       }
       /*if (!excludeOnly['$or'].length) {
                 excludeOnly = {};
@@ -827,28 +923,28 @@ class globalFunctions {
         status: {
           $in: reqStatus,
         },
-        "userDetails.businessUnits": {
+        'userDetails.businessUnits': {
           $in: [mongoose.Types.ObjectId(userData.parentBussinessUnitId)],
         },
         $or: [
           {
-            "userDetails.buFilterType": 1,
+            'userDetails.buFilterType': 1,
           },
           {
-            "userDetails.buFilterType": 2,
+            'userDetails.buFilterType': 2,
             $or: [
               {
-                "userDetails.appointments": {
+                'userDetails.appointments': {
                   $in: [mongoose.Types.ObjectId(userData.appointmentId)],
                 },
               },
               {
-                "userDetails.subSkillSets": {
+                'userDetails.subSkillSets': {
                   $in: subSkillSets.map((v) => mongoose.Types.ObjectId(v)),
                 },
               },
               {
-                "userDetails.authors": {
+                'userDetails.authors': {
                   $in: [mongoose.Types.ObjectId(userData._id)],
                 },
               },
@@ -856,20 +952,20 @@ class globalFunctions {
             ],
           },
           {
-            "userDetails.buFilterType": 3,
+            'userDetails.buFilterType': 3,
             $and: [
               {
-                "userDetails.appointments": {
+                'userDetails.appointments': {
                   $nin: [mongoose.Types.ObjectId(userData.appointmentId)],
                 },
               },
               {
-                "userDetails.subSkillSets": {
+                'userDetails.subSkillSets': {
                   $nin: subSkillSets.map((v) => mongoose.Types.ObjectId(v)),
                 },
               },
               {
-                "userDetails.authors": {
+                'userDetails.authors': {
                   $nin: [mongoose.Types.ObjectId(userData._id)],
                 },
               },
@@ -891,7 +987,11 @@ class globalFunctions {
           if (channelUserDetails.buFilterType === 3) {
             let customFieldsInChannel = channelUserDetails.customField || [];
             for (const cus of customFieldsInChannel) {
-              const matched = customFields.filter((cusf) => cusf.fieldId.toString() === cus.fieldId.toString() && cusf.value === cus.value);
+              const matched = customFields.filter(
+                (cusf) =>
+                  cusf.fieldId.toString() === cus.fieldId.toString() &&
+                  cusf.value === cus.value,
+              );
               if (matched.length) {
                 temp.push(channel._id);
               }
@@ -970,20 +1070,20 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition1.userDetails["$elemMatch"]["$or"].push({
+      condition1.userDetails['$elemMatch']['$or'].push({
         subSkillSets: {
           $in: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition1.userDetails["$elemMatch"]["$or"].push({
+      condition1.userDetails['$elemMatch']['$or'].push({
         customField: {
           $in: customFields,
         },
       });
     }
-    searchQuery["$or"].push(condition1);
+    searchQuery['$or'].push(condition1);
     // 2 -> Include only Selected Users from Business Unit
     let condition2 = {
       userDetails: {
@@ -1014,20 +1114,20 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition2.userDetails["$elemMatch"]["$or"].push({
+      condition2.userDetails['$elemMatch']['$or'].push({
         subSkillSets: {
           $in: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition2.userDetails["$elemMatch"]["$or"].push({
+      condition2.userDetails['$elemMatch']['$or'].push({
         customField: {
           $in: customFields,
         },
       });
     }
-    searchQuery["$or"].push(condition2);
+    searchQuery['$or'].push(condition2);
     // 3 -> Exclude selected Users from Business Unit
     let condition3 = {
       userDetails: {
@@ -1062,21 +1162,21 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition3.userDetails["$elemMatch"]["$or"][1]["$and"].push({
+      condition3.userDetails['$elemMatch']['$or'][1]['$and'].push({
         subSkillSets: {
           $nin: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition3.userDetails["$elemMatch"]["$or"][1]["$and"].push({
+      condition3.userDetails['$elemMatch']['$or'][1]['$and'].push({
         customField: {
           $nin: customFields,
         },
       });
     }
 
-    searchQuery["$or"].push(condition3);
+    searchQuery['$or'].push(condition3);
 
     // console.log(searchQuery, 'channel query')
 
@@ -1138,20 +1238,20 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition1.assignUsers["$elemMatch"]["$or"].push({
+      condition1.assignUsers['$elemMatch']['$or'].push({
         subSkillSets: {
           $in: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition1.assignUsers["$elemMatch"]["$or"].push({
+      condition1.assignUsers['$elemMatch']['$or'].push({
         customField: {
           $in: customFields,
         },
       });
     }
-    searchQuery["$or"].push(condition1);
+    searchQuery['$or'].push(condition1);
     // 2 -> Include only Selected Users from Business Unit
     let condition2 = {
       assignUsers: {
@@ -1177,20 +1277,20 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition2.assignUsers["$elemMatch"]["$or"].push({
+      condition2.assignUsers['$elemMatch']['$or'].push({
         subSkillSets: {
           $in: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition2.assignUsers["$elemMatch"]["$or"].push({
+      condition2.assignUsers['$elemMatch']['$or'].push({
         customField: {
           $in: customFields,
         },
       });
     }
-    searchQuery["$or"].push(condition2);
+    searchQuery['$or'].push(condition2);
     // 3 -> Exclude selected Users from Business Unit
     let condition3 = {
       assignUsers: {
@@ -1220,21 +1320,21 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition3.assignUsers["$elemMatch"]["$or"][1]["$and"].push({
+      condition3.assignUsers['$elemMatch']['$or'][1]['$and'].push({
         subSkillSets: {
           $nin: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition3.assignUsers["$elemMatch"]["$or"][1]["$and"].push({
+      condition3.assignUsers['$elemMatch']['$or'][1]['$and'].push({
         customField: {
           $nin: customFields,
         },
       });
     }
 
-    searchQuery["$or"].push(condition3);
+    searchQuery['$or'].push(condition3);
 
     let notificationList = await Notification.find(searchQuery);
     notificationList = notificationList.map((v) => {
@@ -1252,13 +1352,13 @@ class globalFunctions {
         status: 1,
       };
       // Condition Exclude -> and, nin, Other-> or, in
-      let condition = elem.buFilterType == 3 ? "$nin" : "$in";
-      let mainCondition = elem.buFilterType == 3 ? "$and" : "$or";
+      let condition = elem.buFilterType == 3 ? '$nin' : '$in';
+      let mainCondition = elem.buFilterType == 3 ? '$and' : '$or';
       searchQuery[mainCondition] = [];
 
       if (elem.businessUnits.length > 0) {
         searchQuery.parentBussinessUnitId = {};
-        searchQuery.parentBussinessUnitId["$in"] = elem.businessUnits;
+        searchQuery.parentBussinessUnitId['$in'] = elem.businessUnits;
       }
       if (elem.appointments.length > 0) {
         let appointmentId = {};
@@ -1301,7 +1401,9 @@ class globalFunctions {
         delete searchQuery[mainCondition];
       }
 
-      let users = await User.find(searchQuery).select("name staffId deviceToken otherFields").lean();
+      let users = await User.find(searchQuery)
+        .select('name staffId deviceToken otherFields')
+        .lean();
 
       users = users.map((v) => {
         return v._id;
@@ -1320,10 +1422,13 @@ class globalFunctions {
       let excludeOnly = [];
       if (curr.customField.length) {
         for (const customField of curr.customField) {
-          includeOnly.push({ "otherFields.fieldId": customField.fieldId, "otherFields.value": customField.value });
+          includeOnly.push({
+            'otherFields.fieldId': customField.fieldId,
+            'otherFields.value': customField.value,
+          });
           excludeOnly.push({
-            "otherFields.fieldId": customField.fieldId,
-            "otherFields.value": {
+            'otherFields.fieldId': customField.fieldId,
+            'otherFields.value': {
               $ne: customField.value,
             },
           });
@@ -1333,19 +1438,23 @@ class globalFunctions {
       let condition = {};
       if (1 === curr.buFilterType) {
         if (curr.allBuToken) {
-          const userBus = await User.findById(wallData.createdBy).select("planBussinessUnitId").lean();
+          const userBus = await User.findById(wallData.createdBy)
+            .select('planBussinessUnitId')
+            .lean();
           if (userBus) {
-            businessUnits = userBus.planBussinessUnitId.map((v) => mongoose.Types.ObjectId(v));
+            businessUnits = userBus.planBussinessUnitId.map((v) =>
+              mongoose.Types.ObjectId(v),
+            );
           }
         }
-        condition["parentBussinessUnitId"] = {
+        condition['parentBussinessUnitId'] = {
           $in: businessUnits.map((v) => mongoose.Types.ObjectId(v)),
         };
       } else if (2 === curr.buFilterType) {
-        condition["parentBussinessUnitId"] = {
+        condition['parentBussinessUnitId'] = {
           $in: businessUnits.map((v) => mongoose.Types.ObjectId(v)),
         };
-        condition["$or"] = [
+        condition['$or'] = [
           {
             appointmentId: {
               $in: curr.appointments.map((v) => mongoose.Types.ObjectId(v)),
@@ -1364,10 +1473,10 @@ class globalFunctions {
           ...includeOnly,
         ];
       } else if (3 === curr.buFilterType) {
-        condition["parentBussinessUnitId"] = {
+        condition['parentBussinessUnitId'] = {
           $in: businessUnits.map((v) => mongoose.Types.ObjectId(v)),
         };
-        condition["$and"] = [
+        condition['$and'] = [
           {
             appointmentId: {
               $nin: curr.appointments.map((v) => mongoose.Types.ObjectId(v)),
@@ -1421,20 +1530,22 @@ class globalFunctions {
 
   async getCeraToken(companyId) {
     try {
-      const companyData = await Company.findById(companyId).select("ceraToken").lean();
+      const companyData = await Company.findById(companyId)
+        .select('ceraToken')
+        .lean();
       if (!!companyData && companyData.ceraToken) {
         return {
           Authorization: `Token ${companyData.ceraToken}`,
-          "Content-Type": "application/json",
-          "User-Agent": process.env.USER_AGENT,
+          'Content-Type': 'application/json',
+          'User-Agent': process.env.USER_AGENT,
         };
       } else {
         let token = await this.regenerateCeraToken();
         console.log(token);
         return {
           Authorization: `Token ${companyData.ceraToken}`,
-          "Content-Type": "application/json",
-          "User-Agent": process.env.USER_AGENT,
+          'Content-Type': 'application/json',
+          'User-Agent': process.env.USER_AGENT,
         };
       }
     } catch (error) {
@@ -1446,7 +1557,7 @@ class globalFunctions {
   async regenerateCeraToken(companyId) {
     try {
       let url = `https://cerrapoints.com/profiles/api/token-auth/`;
-      const request = require("request");
+      const request = require('request');
       await new Promise((resolve, reject) => {
         request(
           {
@@ -1455,15 +1566,15 @@ class globalFunctions {
               username: process.env.REWARDUSERNAME,
               password: process.env.REWARDPASSWORD,
             },
-            method: "POST",
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
-              "User-Agent": process.env.USER_AGENT,
+              'Content-Type': 'application/json',
+              'User-Agent': process.env.USER_AGENT,
             },
           },
           function (error, response, body) {
             if (error) {
-              reject("Invalid login!");
+              reject('Invalid login!');
             }
             try {
               body = JSON.parse(body);
@@ -1471,7 +1582,7 @@ class globalFunctions {
             } catch (error) {
               reject(body);
             }
-          }
+          },
         );
       })
         .then(async (success) => {
@@ -1481,13 +1592,13 @@ class globalFunctions {
             },
             {
               ceraToken: success.token,
-            }
+            },
           );
           return success.token;
         })
         .catch((error) => {
           __.log(error);
-          return "Somthing went wrong try later";
+          return 'Somthing went wrong try later';
         });
     } catch (err) {
       __.log(err);
@@ -1498,19 +1609,19 @@ class globalFunctions {
   buQuery(sectionId) {
     return {
       path: sectionId,
-      select: "name",
+      select: 'name',
       match: {
         status: 1,
       },
       populate: {
-        path: "departmentId",
-        select: "name",
+        path: 'departmentId',
+        select: 'name',
         match: {
           status: 1,
         },
         populate: {
-          path: "companyId",
-          select: "name",
+          path: 'companyId',
+          select: 'name',
           match: {
             status: 1,
           },
@@ -1521,44 +1632,56 @@ class globalFunctions {
 
   async isModuleIncluded(_id, notIn) {
     try {
-      let moduleId = await BuilderModule.findById(_id).select("_id").lean();
+      let moduleId = await BuilderModule.findById(_id).select('_id').lean();
       let query = {
         status: 1,
         moduleId: moduleId._id,
       };
       if (!!notIn) {
-        query["_id"] = {
+        query['_id'] = {
           $nin: notIn || [],
         };
       }
       if (!!moduleId) {
         const notificationCount = await Notification.count(query).lean();
         if (notificationCount) {
-          return { status: false, message: "Module already linked in notification" };
+          return {
+            status: false,
+            message: 'Module already linked in notification',
+          };
         }
         const wallPostCount = await WallPost.count(query).lean();
         if (wallPostCount) {
-          return { status: false, message: "Module already linked in WallPost" };
+          return {
+            status: false,
+            message: 'Module already linked in WallPost',
+          };
         }
         const postCount = await ChannelPost.count(query).lean();
         if (postCount) {
-          return { status: false, message: "Module already linked in Channel Posts" };
+          return {
+            status: false,
+            message: 'Module already linked in Channel Posts',
+          };
         }
         const customFromCount = await CustomForm.count(query).lean();
         if (customFromCount) {
-          return { status: false, message: "Module already linked in Customform" };
+          return {
+            status: false,
+            message: 'Module already linked in Customform',
+          };
         }
-        return { status: true, message: "Module not linked anywere" };
+        return { status: true, message: 'Module not linked anywere' };
       } else {
-        return { status: false, message: "Module Not found" };
+        return { status: false, message: 'Module Not found' };
       }
     } catch (error) {
-      __.log(error, "isModuleIncluded");
-      return { status: false, message: "Something went wrong" };
+      __.log(error, 'isModuleIncluded');
+      return { status: false, message: 'Something went wrong' };
     }
   }
 
-  async channelUsersList(channel, responseType = "id") {
+  async channelUsersList(channel, responseType = 'id') {
     const userDetails = channel.userDetails || [];
     try {
       let userList = [];
@@ -1567,19 +1690,23 @@ class globalFunctions {
         let condition = {};
         if (1 === curr.buFilterType) {
           if (curr.allBuToken) {
-            const userBus = await User.findById(channel.createdBy).select("planBussinessUnitId").lean();
+            const userBus = await User.findById(channel.createdBy)
+              .select('planBussinessUnitId')
+              .lean();
             if (userBus) {
-              businessUnits = userBus.planBussinessUnitId.map((v) => mongoose.Types.ObjectId(v));
+              businessUnits = userBus.planBussinessUnitId.map((v) =>
+                mongoose.Types.ObjectId(v),
+              );
             }
           }
-          condition["parentBussinessUnitId"] = {
+          condition['parentBussinessUnitId'] = {
             $in: businessUnits.map((v) => mongoose.Types.ObjectId(v)),
           };
         } else if (2 === curr.buFilterType) {
-          condition["parentBussinessUnitId"] = {
+          condition['parentBussinessUnitId'] = {
             $in: businessUnits.map((v) => mongoose.Types.ObjectId(v)),
           };
-          condition["$or"] = [
+          condition['$or'] = [
             {
               appointmentId: {
                 $in: curr.appointments.map((v) => mongoose.Types.ObjectId(v)),
@@ -1597,9 +1724,9 @@ class globalFunctions {
             },
           ];
           if (curr.customField.length) {
-            condition["$or"] = condition["$or"] || [];
+            condition['$or'] = condition['$or'] || [];
             for (let singleCustom of curr.customField) {
-              condition["$or"].push({
+              condition['$or'].push({
                 otherFields: {
                   $elemMatch: {
                     fieldId: singleCustom.fieldId,
@@ -1612,10 +1739,10 @@ class globalFunctions {
             }
           }
         } else if (3 === curr.buFilterType) {
-          condition["parentBussinessUnitId"] = {
+          condition['parentBussinessUnitId'] = {
             $in: businessUnits.map((v) => mongoose.Types.ObjectId(v)),
           };
-          condition["$and"] = [
+          condition['$and'] = [
             {
               appointmentId: {
                 $nin: curr.appointments.map((v) => mongoose.Types.ObjectId(v)),
@@ -1633,9 +1760,12 @@ class globalFunctions {
             },
           ];
           if (curr.customField.length) {
-            condition["$and"] = condition["$and"] || [];
+            condition['$and'] = condition['$and'] || [];
             for (let singleCustom of curr.customField) {
-              condition["$and"].push({ "otherFields.fieldId": singleCustom.fieldId, "otherFields.value": { $ne: singleCustom.value } });
+              condition['$and'].push({
+                'otherFields.fieldId': singleCustom.fieldId,
+                'otherFields.value': { $ne: singleCustom.value },
+              });
             }
           }
         }
@@ -1650,7 +1780,7 @@ class globalFunctions {
 
         userList = [...userList, ...users];
       }
-      if (responseType == "id") {
+      if (responseType == 'id') {
         return userList.map((v) => v._id);
       }
       return userList;
@@ -1663,7 +1793,7 @@ class globalFunctions {
   htmlTagValidate(data) {
     let values = Object.values(data);
     return /<((?=!\-\-)!\-\-[\s\S]*\-\-|((?=\?)\?[\s\S]*\?|((?=\/)\/[^.\-\d][^\/\]'"[!#$%&()*+,;<=>?@^`{|}~ ]*|[^.\-\d][^\/\]'"[!#$%&()*+,;<=>?@^`{|}~ ]*(?:\s[^.\-\d][^\/\]'"[!#$%&()*+,;<=>?@^`{|}~ ]*(?:=(?:"[^"]*"|'[^']*'|[^'"<\s]*))?)*)\s?\/?))>/gi.test(
-      values
+      values,
     );
   }
 
@@ -1791,7 +1921,9 @@ class globalFunctions {
     // Start Validation as per keys
     // Char Length
     if (password.length < pwdSettings.charLength) {
-      returnData.message.push(`Atleast ${pwdSettings.charLength} characters required`);
+      returnData.message.push(
+        `Atleast ${pwdSettings.charLength} characters required`,
+      );
       returnData.status = false;
     }
     // Lowercase
@@ -1810,7 +1942,10 @@ class globalFunctions {
       returnData.status = false;
     }
     // Special Character
-    if (pwdSettings.charTypes.specialChar && !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password)) {
+    if (
+      pwdSettings.charTypes.specialChar &&
+      !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password)
+    ) {
       returnData.message.push(`Atleast one special character is required`);
       returnData.status = false;
     }
@@ -1876,20 +2011,20 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition1.assignUsers["$elemMatch"]["$or"].push({
+      condition1.assignUsers['$elemMatch']['$or'].push({
         subSkillSets: {
           $in: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition1.assignUsers["$elemMatch"]["$or"].push({
+      condition1.assignUsers['$elemMatch']['$or'].push({
         customField: {
           $in: customFields,
         },
       });
     }
-    searchQuery["$or"].push(condition1);
+    searchQuery['$or'].push(condition1);
     // 2 -> Include only Selected Users from Business Unit
     let condition2 = {
       assignUsers: {
@@ -1920,20 +2055,20 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition2.assignUsers["$elemMatch"]["$or"].push({
+      condition2.assignUsers['$elemMatch']['$or'].push({
         subSkillSets: {
           $in: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition2.assignUsers["$elemMatch"]["$or"].push({
+      condition2.assignUsers['$elemMatch']['$or'].push({
         customField: {
           $in: customFields,
         },
       });
     }
-    searchQuery["$or"].push(condition2);
+    searchQuery['$or'].push(condition2);
     // 3 -> Exclude selected Users from Business Unit
     let condition3 = {
       assignUsers: {
@@ -1968,21 +2103,21 @@ class globalFunctions {
       },
     };
     if (subSkillSets.length > 0) {
-      condition3.assignUsers["$elemMatch"]["$or"][1]["$and"].push({
+      condition3.assignUsers['$elemMatch']['$or'][1]['$and'].push({
         subSkillSets: {
           $nin: subSkillSets,
         },
       });
     }
     if (customFields.length > 0) {
-      condition3.assignUsers["$elemMatch"]["$or"][1]["$and"].push({
+      condition3.assignUsers['$elemMatch']['$or'][1]['$and'].push({
         customField: {
           $nin: customFields,
         },
       });
     }
 
-    searchQuery["$or"].push(condition3);
+    searchQuery['$or'].push(condition3);
     searchQuery.isDeployed = 1;
     searchQuery.status = {
       $in: [1],
@@ -2005,186 +2140,209 @@ class globalFunctions {
     let customFields = userData.otherFields || [];
     customFields = customFields.map((v) => {
       return {
-        "fieldId": v.fieldId,
-        "value": v.value
-      }
+        fieldId: v.fieldId,
+        value: v.value,
+      };
     });
 
     let searchQuery = {
       companyId: companyId,
       status: {
-        $in: [1]
+        $in: [1],
       },
-      "$or": []
+      $or: [],
     };
 
-    let keyFalseCondition = { // if no fitler is given
+    let keyFalseCondition = {
+      // if no fitler is given
       appointments: [],
       subSkillSets: [],
       customField: [],
-      user: []
+      user: [],
     };
 
     // Create 3 or condition based on 3 filter types
     // 1-> All Users in Selected Business Unit
     let condition1 = {
       assignUsers: {
-        "$elemMatch": {
-          "buFilterType": 1,
-          "businessUnits": {
-            $in: [businessUnit]
+        $elemMatch: {
+          buFilterType: 1,
+          businessUnits: {
+            $in: [businessUnit],
           },
-          "$or": [keyFalseCondition, {
-            appointments: {
-              $in: [appointment]
-            }
-          }, {
-              "admin": {
-                $in: [userData._id]
-              }
-            }]
-        }
-      }
+          $or: [
+            keyFalseCondition,
+            {
+              appointments: {
+                $in: [appointment],
+              },
+            },
+            {
+              admin: {
+                $in: [userData._id],
+              },
+            },
+          ],
+        },
+      },
     };
     if (subSkillSets.length > 0) {
       condition1.assignUsers['$elemMatch']['$or'].push({
         subSkillSets: {
-          $in: subSkillSets
-        }
+          $in: subSkillSets,
+        },
       });
     }
     if (customFields.length > 0) {
       condition1.assignUsers['$elemMatch']['$or'].push({
         customField: {
-          $in: customFields
-        }
+          $in: customFields,
+        },
       });
     }
-    searchQuery["$or"].push(condition1);
+    searchQuery['$or'].push(condition1);
     // 2 -> Include only Selected Users from Business Unit
     let condition2 = {
       assignUsers: {
-        "$elemMatch": {
-          "buFilterType": 2,
-          "businessUnits": {
-            $in: [businessUnit]
+        $elemMatch: {
+          buFilterType: 2,
+          businessUnits: {
+            $in: [businessUnit],
           },
-          "$or": [keyFalseCondition, {
-            "appointments": {
-              $in: [appointment]
-            }
-          }, {
-              "user": {
-                $in: [userData._id]
-              }
-            }, {
-              "admin": {
-                $in: [userData._id]
-              }
-            }]
-        }
-      }
+          $or: [
+            keyFalseCondition,
+            {
+              appointments: {
+                $in: [appointment],
+              },
+            },
+            {
+              user: {
+                $in: [userData._id],
+              },
+            },
+            {
+              admin: {
+                $in: [userData._id],
+              },
+            },
+          ],
+        },
+      },
     };
     if (subSkillSets.length > 0) {
       condition2.assignUsers['$elemMatch']['$or'].push({
         subSkillSets: {
-          $in: subSkillSets
-        }
+          $in: subSkillSets,
+        },
       });
     }
     if (customFields.length > 0) {
       condition2.assignUsers['$elemMatch']['$or'].push({
         customField: {
-          $in: customFields
-        }
+          $in: customFields,
+        },
       });
     }
-    searchQuery["$or"].push(condition2);
+    searchQuery['$or'].push(condition2);
     // 3 -> Exclude selected Users from Business Unit
     let condition3 = {
       assignUsers: {
-        "$elemMatch": {
-          "buFilterType": 3,
-          "businessUnits": {
-            $in: [businessUnit]
+        $elemMatch: {
+          buFilterType: 3,
+          businessUnits: {
+            $in: [businessUnit],
           },
-          "$or": [keyFalseCondition, {
-            "$and": [{
-              "appointments": {
-                $nin: [appointment]
-              }
-            }, {
-              "user": {
-                $nin: [userData._id]
-              }
-            }]
-          }, {
-              "admin": {
-                $in: [userData._id]
-              }
-            }]
-        }
-      }
+          $or: [
+            keyFalseCondition,
+            {
+              $and: [
+                {
+                  appointments: {
+                    $nin: [appointment],
+                  },
+                },
+                {
+                  user: {
+                    $nin: [userData._id],
+                  },
+                },
+              ],
+            },
+            {
+              admin: {
+                $in: [userData._id],
+              },
+            },
+          ],
+        },
+      },
     };
     if (subSkillSets.length > 0) {
       condition3.assignUsers['$elemMatch']['$or'][1]['$and'].push({
         subSkillSets: {
-          $nin: subSkillSets
-        }
+          $nin: subSkillSets,
+        },
       });
     }
     if (customFields.length > 0) {
       condition3.assignUsers['$elemMatch']['$or'][1]['$and'].push({
         customField: {
-          $nin: customFields
-        }
+          $nin: customFields,
+        },
       });
     }
 
-    searchQuery["$or"].push(condition3);
-    searchQuery["$or"].push({
+    searchQuery['$or'].push(condition3);
+    searchQuery['$or'].push({
       workflow: { $exists: true },
       status: {
-        $nin: [0, 3]
+        $nin: [0, 3],
       },
       workflow: {
         $elemMatch: {
           admin: {
-            $in: [userData._id]
-          }
-        }
-      }
+            $in: [userData._id],
+          },
+        },
+      },
     });
-    return await CustomForm.find(searchQuery).populate([{
-      path: 'moduleId',
-      select: 'questions',
-      populate: {
-        path: 'questions',
-        select: 'question _id imageSrc ppimageuploadfrom options type'
-      }
-    }, {
-      path: 'workflow.additionalModuleId',
-      populate: {
-        path: 'questions',
-        select: 'question _id imageSrc ppimageuploadfrom options type'
-      }
-    }]).lean();
+    return await CustomForm.find(searchQuery)
+      .populate([
+        {
+          path: 'moduleId',
+          select: 'questions',
+          populate: {
+            path: 'questions',
+            select: 'question _id imageSrc ppimageuploadfrom options type',
+          },
+        },
+        {
+          path: 'workflow.additionalModuleId',
+          populate: {
+            path: 'questions',
+            select: 'question _id imageSrc ppimageuploadfrom options type',
+          },
+        },
+      ])
+      .lean();
   }
 
   // at manual BU update
   // at user plan BU update
   async updateAllBuToUser(userData, isIndividual) {
-    let userId = userData._id, condition = {
-      createdBy: userId,
-      "assignUsers.allBuToken": true
-    };
+    let userId = userData._id,
+      condition = {
+        createdBy: userId,
+        'assignUsers.allBuToken': true,
+      };
     let channelFinder = {
       createdBy: userId,
-      "userDetails.allBuToken": true
-    }
+      'userDetails.allBuToken': true,
+    };
     if (isIndividual) {
-      condition["assignUsers.allBuTokenStaffId"] = userData.staffId;
-      channelFinder["userDetails.allBuTokenStaffId"] = userData.staffId;
+      condition['assignUsers.allBuTokenStaffId'] = userData.staffId;
+      channelFinder['userDetails.allBuTokenStaffId'] = userData.staffId;
     }
     let channels = await Channel.find(channelFinder);
     const boards = await Wall.find(condition);
@@ -2193,66 +2351,81 @@ class globalFunctions {
     if (channels) {
       for (const channel of channels) {
         // channel.userDetails[0].businessUnits = userData.planBussinessUnitId;
-        channel.userDetails.forEach(detail => {
+        channel.userDetails.forEach((detail) => {
           if (detail.allBuToken) {
             detail.businessUnits = userData.planBussinessUnitId;
           }
-        })
-        await Channel.findOneAndUpdate({ _id: channel._id }, {
-          userDetails: channel.userDetails
         });
+        await Channel.findOneAndUpdate(
+          { _id: channel._id },
+          {
+            userDetails: channel.userDetails,
+          },
+        );
       }
     }
     if (boards) {
       for (const board of boards) {
         // board.assignUsers[0].businessUnits = userData.planBussinessUnitId
-        board.assignUsers.forEach(user => {
+        board.assignUsers.forEach((user) => {
           if (user.allBuToken) {
             user.businessUnits = userData.planBussinessUnitId;
           }
-        })
-        await Wall.findOneAndUpdate({ _id: board._id }, {
-          assignUsers: board.assignUsers
         });
+        await Wall.findOneAndUpdate(
+          { _id: board._id },
+          {
+            assignUsers: board.assignUsers,
+          },
+        );
       }
     }
     if (notifications) {
       for (const notification of notifications) {
         // notification.assignUsers[0].businessUnits = userData.planBussinessUnitId
-        notification.assignUsers.forEach(user => {
+        notification.assignUsers.forEach((user) => {
           if (user.allBuToken) {
             user.businessUnits = userData.planBussinessUnitId;
           }
-        })
-        await Notification.findOneAndUpdate({ _id: notification._id }, {
-          assignUsers: notification.assignUsers
         });
+        await Notification.findOneAndUpdate(
+          { _id: notification._id },
+          {
+            assignUsers: notification.assignUsers,
+          },
+        );
       }
     }
     if (forms) {
       for (const form of forms) {
         // form.assignUsers[0].businessUnits = userData.planBussinessUnitId
-        form.assignUsers.forEach(user => {
+        form.assignUsers.forEach((user) => {
           if (user.allBuToken) {
             user.businessUnits = userData.planBussinessUnitId;
           }
-        })
-        await CustomForm.findOneAndUpdate({ _id: form._id }, {
-          assignUsers: form.assignUsers
         });
+        await CustomForm.findOneAndUpdate(
+          { _id: form._id },
+          {
+            assignUsers: form.assignUsers,
+          },
+        );
       }
     }
   }
 
   // at manual BU update
   async updateAllBuToAccessUsers(companyId) {
-    const systemAdminRoles = await Role.find({ companyId: companyId, name: "System Admin" }).select('_id').lean(),
-      systemAdminRolesIds = systemAdminRoles.map(v => v._id);
+    const systemAdminRoles = await Role.find({
+        companyId: companyId,
+        name: 'System Admin',
+      })
+        .select('_id')
+        .lean(),
+      systemAdminRolesIds = systemAdminRoles.map((v) => v._id);
     const planBUUpdatedUsers = await User.find({
-      $or: [
-        { role: { $in: systemAdminRolesIds } },
-        { allBUAccess: 1 }
-      ], companyId: companyId
+      $or: [{ role: { $in: systemAdminRolesIds } }, { allBUAccess: 1 }],
+      companyId: companyId,
     }).lean();
     // admins and allBUaccess users created forms, boards,... update
     for (let userData of planBUUpdatedUsers) {
@@ -2268,14 +2441,14 @@ class globalFunctions {
     let users = await User.findOne(whereClause)
       .populate([
         {
-          path: "role",
-          select: "name description isFlexiStaff privileges",
+          path: 'role',
+          select: 'name description isFlexiStaff privileges',
           populate: {
-            path: "privileges",
-            select: "name description flags privilegeCategoryId",
+            path: 'privileges',
+            select: 'name description flags privilegeCategoryId',
             populate: {
-              path: "privilegeCategoryId",
-              select: "name",
+              path: 'privilegeCategoryId',
+              select: 'name',
             },
           },
         },
@@ -2295,13 +2468,23 @@ class globalFunctions {
 
   async sendSMS(input) {
     try {
-      const xForce = "xForce+";
+      const xForce = 'xForce+';
       const { body, to, isSats, sendFromNumber } = input;
-      const from = isSats ? (sendFromNumber ? process.env.TWILIO_FROM_XFORCE : process.env.TWILIO_FROM) : xForce;
-      const twilio = require("twilio");
-      let client = new twilio(process.env.TWILIO_ACCOUNTSID_XFORCE, process.env.TWILIO_AUTHTOKEN_XFORCE);
+      const from = isSats
+        ? sendFromNumber
+          ? process.env.TWILIO_FROM_XFORCE
+          : process.env.TWILIO_FROM
+        : xForce;
+      const twilio = require('twilio');
+      let client = new twilio(
+        process.env.TWILIO_ACCOUNTSID_XFORCE,
+        process.env.TWILIO_AUTHTOKEN_XFORCE,
+      );
       if (isSats && !sendFromNumber) {
-        client = new twilio(process.env.TWILIO_ACCOUNTSID, process.env.TWILIO_AUTHTOKEN);
+        client = new twilio(
+          process.env.TWILIO_ACCOUNTSID,
+          process.env.TWILIO_AUTHTOKEN,
+        );
       }
       await client.messages
         .create({
@@ -2311,7 +2494,7 @@ class globalFunctions {
         })
         .then(
           (data) => {
-            __.log("Message sent");
+            __.log('Message sent');
           },
           (error) => {
             __.log(error);
@@ -2320,7 +2503,7 @@ class globalFunctions {
               input.sendFromNumber = true;
               this.sendSMS(input);
             }
-          }
+          },
         );
     } catch (error) {
       console.log(error);
@@ -2329,22 +2512,22 @@ class globalFunctions {
 
   stripeHtml(html) {
     return html
-      .replace(/\<(?!img|br).*?\>/g, "")
-      .replace(/\<br\s*[\/]?>/gi, "")
-      .replace(/(\r\n|\n|\r)/gm, "")
-      .replace(/&nbsp;/g, "");
+      .replace(/\<(?!img|br).*?\>/g, '')
+      .replace(/\<br\s*[\/]?>/gi, '')
+      .replace(/(\r\n|\n|\r)/gm, '')
+      .replace(/&nbsp;/g, '');
   }
   checkHtmlContent(body) {
     const checkIfHtml = (input) =>
       /<((?=!\-\-)!\-\-[\s\S]*\-\-|((?=\?)\?[\s\S]*\?|((?=\/)\/[^.\-\d][^\/\]'"[!#$%&()*+,;<=>?@^`{|}~ ]*|[^.\-\d][^\/\]'"[!#$%&()*+,;<=>?@^`{|}~ ]*(?:\s[^.\-\d][^\/\]'"[!#$%&()*+,;<=>?@^`{|}~ ]*(?:=(?:"[^"]*"|'[^']*'|[^'"<\s]*))?)*)\s?\/?))>/.test(
-        input
+        input,
       );
     const checkInData = (input) => {
       if (Array.isArray(input)) {
         return input.every((v) => checkInData(v));
       } else if (input instanceof Object) {
         return Object.values(input).every((v) => checkInData(v));
-      } else if (typeof input === "string") {
+      } else if (typeof input === 'string') {
         return !checkIfHtml(input);
       }
       return true;
@@ -2352,52 +2535,58 @@ class globalFunctions {
     return checkInData(JSON.parse(JSON.stringify(body)));
   }
   checkSpecialCharacters(body, action) {
-    let regExChars = "";
+    let regExChars = '';
     // const checkSC = input => new RegExp(`^[a-zA-Z0-9 @,.${regExChars}-]*$`).test(input);
-    const rx = new XRegExp("^[-\\w\\p{Hiragana}\\p{Katakana}\\p{Han}0-9 @,.()_/]+$");
+    const rx = new XRegExp(
+      '^[-\\w\\p{Hiragana}\\p{Katakana}\\p{Han}0-9 @,.()_/]+$',
+    );
     const checkSC = (input) => XRegExp.test(input, rx);
     const checkIsParsed = (input) => {
       try {
-        if (action === "profile update") {
+        if (action === 'profile update') {
           // input.otherFields = JSON.parse(input.otherFields);
           delete input.otherFields;
           delete input.password;
         }
-        if (action === "page settings") {
+        if (action === 'page settings') {
           // regExChars = "/:_?=%-";
           delete input.bannerImages;
-          input.pwdSettings ? delete input.pwdSettings.defaultPassword : "";
+          input.pwdSettings ? delete input.pwdSettings.defaultPassword : '';
           // input.externalLinks.forEach(link => {
           //     delete link.link;
           //     delete link.icon;
           // });
           delete input.externalLinks;
         }
-        if (action === "wall") {
+        if (action === 'wall') {
           delete input.bannerImage;
           delete input.assignUsers;
         }
-        if (action === "manageNews") {
+        if (action === 'manageNews') {
           delete input.teaser;
           delete input.content;
           delete input.teaserImage;
           delete input.publishing;
-          input.eventDetails = JSON.parse(input.eventDetails);
-          input.userOptions = JSON.parse(input.userOptions);
+          if (typeof input.eventDetails === 'string') {
+            input.eventDetails = JSON.parse(input.eventDetails);
+            input.userOptions = JSON.parse(input.userOptions);
+          }
           delete input.eventDetails.startDate;
           delete input.eventDetails.endDate;
         }
-        if (action === "manageEvent") {
+        if (action === 'manageEvent') {
           delete input.teaser;
           delete input.content;
           delete input.publishing;
-          input.eventDetails = JSON.parse(input.eventDetails);
-          input.wallTitle = JSON.parse(input.wallTitle);
-          input.userOptions = JSON.parse(input.userOptions);
+          if (typeof input.eventDetails === 'string') {
+            input.eventDetails = JSON.parse(input.eventDetails);
+            input.wallTitle = JSON.parse(input.wallTitle);
+            input.userOptions = JSON.parse(input.userOptions);
+          }
           delete input.eventDetails.startDate;
           delete input.eventDetails.endDate;
         }
-        if (action === "notification") {
+        if (action === 'notification') {
           // regExChars = ":+";
           delete input.notificationAttachment;
           delete input.effectiveFrom;
@@ -2407,7 +2596,7 @@ class globalFunctions {
           delete input.userAcknowledgedAt;
           delete input.lastNotified;
         }
-        if (action === "modules") {
+        if (action === 'modules') {
           delete input.updatedAt;
           delete input.createdAt;
           delete input.question;
@@ -2423,11 +2612,11 @@ class globalFunctions {
           }
           delete input.explanation;
         }
-        if (action === "customforms") {
+        if (action === 'customforms') {
           delete input.assignUsers;
           delete input.formLogo;
         }
-        if (action === "challenges") {
+        if (action === 'challenges') {
           delete input.challenge.icon;
           delete input.challenge.publishStart;
           delete input.challenge.publishEnd;
@@ -2436,7 +2625,7 @@ class globalFunctions {
         }
         return input;
       } catch (err) {
-        console.log("\n\n>>>> Error in global functions :", err);
+        console.log('\n\n>>>> Error in global functions :', err);
         return input;
       }
     };
@@ -2445,10 +2634,10 @@ class globalFunctions {
         return input.every((v) => checkInData(v));
       } else if (input instanceof Object) {
         return Object.values(input).every((v) => checkInData(v));
-      } else if (typeof input === "string") {
-        input = input.split("\n").join("");
-        console.log(">>> input :", input);
-        input = input == "" ? " " : input;
+      } else if (typeof input === 'string') {
+        input = input.split('\n').join('');
+        console.log('>>> input :', input);
+        input = input == '' ? ' ' : input;
         return checkSC(input);
       }
       return true;
@@ -2460,12 +2649,14 @@ class globalFunctions {
 
   /* init point system for a company */
   async initPointSystem(companyId, justReturn = false) {
-    const data = [{
-      icon: `0`,
-      title: `Reward points`,
-      description: `This is default point system. all other are non rewarded point system.`,
-      isEnabled: true
-    }];
+    const data = [
+      {
+        icon: `0`,
+        title: `Reward points`,
+        description: `This is default point system. all other are non rewarded point system.`,
+        isEnabled: true,
+      },
+    ];
     if (justReturn) return data;
     let pageSetting = await PageSetting.findOne({ companyId });
     pageSetting.pointSystems = data;

@@ -1953,6 +1953,128 @@ class post {
 
     return { count, data };
   }
+
+  async readOnePost(req, res) {
+    try {
+      const postId = req.params.postId;
+      let postData = await this.readPost({
+        _id: postId,
+        status: {
+          $nin: [2],
+        },
+      });
+
+      if (!postData) return res.badRequest('News/Event Not Found');
+
+      let adminIds;
+
+      if (postData[0].postType == 'event') {
+        adminIds = postData[0].sessions[0]
+          ? postData[0].sessions[0].adminIds
+          : [];
+      }
+
+      // let moduleData
+      // if(postData[0].moduleId){
+      //     moduleData = postData[0].moduleId
+      // }
+
+      let wallData = {};
+
+      console.log(postData[0].wallId);
+
+      if (postData[0].wallId) {
+        (wallData.endDate = postData[0].wallId.eventWallEndDate),
+          (wallData.eventWallLogoImage = postData[0].wallId.bannerImage),
+          (wallData.startDate = postData[0].wallId.eventWallStartDate),
+          (wallData.wallName = postData[0].wallName);
+      }
+
+      const data = {
+        _id: postData[0]._id,
+        postType: postData[0].postType,
+        content: {
+          address: postData[0].eventDetails.address,
+          content: postData[0].content.content,
+          endDate: postData[0].eventDetails.endDate,
+          eventType: postData[0].eventDetails.eventType,
+          image: postData[0].content.image,
+          isTeaserImage: postData[0].content.isTeaserImage,
+          organizerName: postData[0].eventDetails.organizerName,
+          startDate: postData[0].eventDetails.startDate,
+          title: postData[0].content.title,
+        },
+        teaser: postData[0].teaser,
+        eventBoard: wallData,
+        publish: {
+          categoryId: postData[0].categoryId,
+          channelId: postData[0].channelId,
+          moduleId: postData[0].moduleId,
+          endDate: postData[0].publishing.endDate,
+          isRSVPRequired: postData[0].eventDetails.isRSVPRequired,
+          startDate: postData[0].publishing.startDate,
+        },
+        session: {
+          isLimitRequired: postData[0].eventDetails.isLimitRequired,
+          isAttendanceRequired: postData[0].eventDetails.isAttendanceRequired,
+          totalAttendanceTaking: postData[0].eventDetails.totalAttendanceTaking,
+          Rows: postData[0].sessions,
+          maxNoRSVP: postData[0].eventDetails.maxNoRSVP,
+          isLimitRSVP: postData[0].eventDetails.isLimitRSVP,
+        },
+        admin: adminIds,
+        status: postData[0].status,
+        authorId: postData[0].authorId,
+      };
+
+      return res.success(data);
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+
+  async readPost(condition) {
+    return await Post.find({
+      ...condition,
+    })
+      .populate({
+        path: 'authorId',
+        select: 'name profilePicture parentBussinessUnitId',
+        populate: {
+          path: 'parentBussinessUnitId',
+          select: 'orgName',
+        },
+      })
+      .populate({
+        path: 'channelId',
+        select: 'name',
+      })
+      .populate({
+        path: 'categoryId',
+        select: '_id name',
+      })
+      .populate({
+        path: 'moduleId',
+        select: '_id moduleName',
+      })
+      .populate({
+        path: 'wallId',
+        populate: {
+          path: 'category',
+          select: 'categoryName',
+        },
+      })
+      .populate({
+        path: 'sessions',
+        select:
+          'startDate startTime endDate endTime attendaceRequiredCount totalParticipantPerSession location status adminIds',
+        populate: {
+          path: 'adminIds',
+          select: 'name',
+        },
+      })
+      .lean();
+  }
 }
 post = new post();
 module.exports = post;
