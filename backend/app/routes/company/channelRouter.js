@@ -34,6 +34,10 @@ channelRouter.put(
 channelRouter.get('/', (req, res) => {
   channelController.read(req, res);
 });
+
+channelRouter.get('/getChannelsForAdmin', (req, res) => {
+  channelController.getChannelsForAdmin(req, res);
+});
 // API transform
 channelRouter.get('/:channelId', (req, res) => {
   channelController.readOne(req, res);
@@ -48,9 +52,6 @@ channelRouter.get('/remove/:channelId', (req, res) => {
 });
 channelRouter.post('/getChannelUsers', (req, res) => {
   channelController.getChannelUsers(req, res);
-});
-channelRouter.get('/getChannelsForAdmin', (req, res) => {
-  channelController.getChannelsForAdmin(req, res);
 });
 
 // channelRouter.post('/readOneChannel', (req, res) => {
