@@ -13,6 +13,7 @@ const os = require('os'),
   __ = require('./helpers/globalFunctions'),
   rateLimit = require('express-rate-limit');
 const { logInfo } = require('./helpers/logger.helper.js');
+const ResponseHelper = require('./helpers/response.helper');
 let db_host;
 let environment = 'live';
 let port;
@@ -61,6 +62,7 @@ mongoose.connection.on('error', (err) => {
 });
 logInfo('DATABASE CONNECTED IS: ', db_host);
 /*Express configuration*/
+new ResponseHelper().init(app);
 app.set('port', port);
 app.use(helmet());
 app.use(cors());

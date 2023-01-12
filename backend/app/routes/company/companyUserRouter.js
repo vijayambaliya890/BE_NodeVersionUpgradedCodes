@@ -85,6 +85,10 @@ companyUserRouter.post('/read', (req, res) => {
   companyUserController.read(req, res);
 });
 
+companyUserRouter.get('/read', (req, res) => {
+  companyUserController.getOneUser(req, res);
+});
+
 companyUserRouter.get('/', (req, res) => {
   companyUserController.readUser(req, res);
 });

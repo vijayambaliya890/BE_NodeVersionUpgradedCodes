@@ -1284,7 +1284,7 @@ class EventSessionController {
             populate: [
               {
                 path: 'parentBussinessUnitId',
-                select: 'sectionId name',
+                select: 'sectionId name orgName',
                 populate: {
                   path: 'sectionId',
                   select: 'departmentId name',
@@ -1566,7 +1566,7 @@ class EventSessionController {
       } else {
         console.log('I am', event_id);
         let eventInfoTemp = await this.getAttendanceCount(res, event_id);
-        console.log('eventInfoTemp', JSON.stringify(eventInfoTemp));
+        // console.log('eventInfoTemp', JSON.stringify(eventInfoTemp));
         let eventInfo;
         let attendanceCount = 0;
         if (eventInfoTemp) {
@@ -1575,7 +1575,7 @@ class EventSessionController {
             name: eventInfoTemp.teaser.title,
             sessionInfo: eventInfoTemp.sessions,
           };
-          console.log('hey', JSON.stringify(eventInfo));
+          // console.log('hey', JSON.stringify(eventInfo));
           if (eventInfoTemp.eventDetails) {
             attendanceCount = eventInfoTemp.eventDetails.totalAttendanceTaking;
           }
@@ -1769,20 +1769,15 @@ class EventSessionController {
               }
               jsonArray.push(json);
             });
+            console.log('HIIiiiiiiii********');
             //res.json({fieldsArray,jsonArray});
-            json2csv(
-              { data: jsonArray, fields: fieldsArray },
-              function (err, csv) {
-                if (err) console.log(err);
-                console.log('ashish file');
-                res.setHeader(
-                  'Content-disposition',
-                  'attachment; filename=testing.csv',
-                );
-                res.set('Content-Type', 'application/csv');
-                res.status(200).json({ csv, noData: true });
-              },
+            const csv = json2csv({ data: jsonArray, fields: fieldsArray });
+            res.setHeader(
+              'Content-disposition',
+              'attachment; filename=testing.csv',
             );
+            res.set('Content-Type', 'application/csv');
+            return res.status(200).json({ csv, noData: true });
           })
           .catch((err1) => {
             console.log('err1', err1);
