@@ -59,6 +59,10 @@ notificationRouter.get('/mynotifications', (req, res) => {
     notificationController.myNotifications(req, res);
 });
 
+notificationRouter.get('/unReadNotifications', (req, res) => {
+    notificationController.unReadNotifications(req, res);
+});
+
 notificationRouter.post('/acknowledge', (req, res) => {
     notificationController.acknowledge(req, res);
 });

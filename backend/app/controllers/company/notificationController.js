@@ -331,6 +331,122 @@ class notification {
       __.out(res, 500);
     }
   }
+
+  async unReadNotifications(req, res) {
+    try {
+      var data = {
+        userId: req.user._id,
+      };
+      var results = await this.myNotificationsRead(
+        data,
+        new Date(),
+        req.query,
+      );
+
+      // Add Mimetype for attached files
+      for (let index in results.data) {
+        if (results.data[index].notificationAttachment) {
+          let attachMimeType = await mime.contentType(
+            path.extname(results.data[index].notificationAttachment),
+          );
+          results.data[index].mimeType = attachMimeType;
+        }
+      }
+
+      return res.success(results);
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+  async myNotificationsRead(
+    condition,
+    date,
+    { page, limit, search, sortBy, sortWith },
+  ) {
+    const searchCondition = !!search
+      ? { title: { $regex: search, $options: 'i' } }
+      : {};
+    const [{ metadata, data }] = await Notification.aggregate([
+      {
+        $match: {
+          status: 1,
+          notifyOverAllUsers: mongoose.Types.ObjectId(condition.userId),
+          activeFrom: {
+            $lte: new Date(),
+          },
+          activeTo: {
+            $gte: new Date(),
+          },
+          ...searchCondition,
+        },
+      },
+      {
+        $lookup: {
+          from: 'subcategories',
+          localField: 'subCategoryId',
+          foreignField: '_id',
+          as: 'subCategory',
+        },
+      },
+      {
+        $unwind: '$subCategory',
+      },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'subCategory.categoryId',
+          foreignField: '_id',
+          as: 'subCategory.categoryId',
+        },
+      },
+      {
+        $unwind: '$subCategory.categoryId',
+      },
+      {
+        $project: {
+          effectiveFrom: 1,
+          effectiveTo: 1,
+          activeFrom: 1,
+          activeTo: 1,
+          title: 1,
+          subTitle: 1,
+          description: 1,
+          notificationAttachment: 1,
+          subCategory: 1,
+          isAcknowledged: {
+            $setIsSubset: [
+              [mongoose.Types.ObjectId(condition.userId)],
+              '$notifyAcknowledgedUsers',
+            ],
+          },
+          moduleIncluded: 1,
+          moduleId: 1,
+          viewOnly: 1,
+        },
+      },
+      {
+        $sort: { [sortWith]: sortBy === 'desc' ? -1 : 1 },
+      },
+      {
+        $facet: {
+          metadata: [{ $count: 'total' }],
+          data: [
+            {
+              $skip: (Number(page) - 1) * Number(limit),
+            },
+            {
+              $limit: Number(limit),
+            },
+          ],
+        },
+      },
+    ]);
+    if (data.length) {
+      const [{ total: count }] = metadata;
+      return { count, data };
+    }
+    return { count: 0, data: [] };
+  }
   async userNotifications(data, res) {
     __.log(new Date(), new Date().toGMTString());
     var results = await Notification.aggregate([
