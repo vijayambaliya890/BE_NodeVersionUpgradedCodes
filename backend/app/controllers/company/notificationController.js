@@ -355,7 +355,6 @@ class notification {
     }
   }
 
-  
   async myNotificationsRead(
     condition,
     date,
@@ -648,6 +647,108 @@ class notification {
     }
     return results;
   }
+
+  async viewAllNotification(req, res) {
+    try {
+      var condition = { businessUnitId: req.params.businessUnitId };
+      var notificationDetails = await this.getAllNotifications(
+        condition,
+        req.query,
+      );
+      return res.success(notificationDetails);
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+  async getAllNotifications(
+    condition,
+    { page, limit, sortBy, sortWith, search },
+  ) {
+    let searchCondition = {};
+    if (search) {
+      searchCondition['title'] = new RegExp(search, 'i');
+    }
+
+    const count = await Notification.countDocuments({
+      ...condition,
+      ...searchCondition,
+    });
+
+    const data = await Notification.find({
+      ...condition,
+      ...searchCondition,
+    })
+      .populate([
+        {
+          path: 'subCategoryId',
+          select: 'name categoryId',
+          populate: {
+            path: 'categoryId',
+            select: 'name',
+          },
+        },
+        {
+          path: 'businessUnitId',
+          select: 'name status',
+          match: {
+            status: 1,
+          },
+          populate: {
+            path: 'sectionId',
+            select: 'name status',
+            match: {
+              status: 1,
+            },
+            populate: {
+              path: 'departmentId',
+              select: 'name status companyName',
+              match: {
+                status: 1,
+              },
+            },
+          },
+        },
+        {
+          path: 'notifyOverAllUsers',
+          select: 'name staffId',
+        },
+        {
+          path: 'notifyAcknowledgedUsers',
+          select: 'name staffId',
+        },
+        {
+          path: 'notifyUnreadUsers',
+          select: 'name staffId',
+        },
+        {
+          path: 'assignUsers.businessUnits',
+          select: 'name status sectionId',
+          populate: {
+            path: 'sectionId',
+            select: 'name status departmentId',
+            populate: {
+              path: 'departmentId',
+              select: 'name status companyName',
+            },
+          },
+        },
+        {
+          path: 'assignUsers.appointments',
+          select: 'name',
+        },
+        {
+          path: 'assignUsers.user',
+          select: 'name staffId',
+        },
+      ])
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ [sortWith]: sortBy === 'desc' ? -1 : 1 })
+      .lean();
+
+    return { count, data };
+  }
+
   async getNotificationDetails(whereData, res) {
     var findOrFindOne;
     if (whereData.notificationId)
