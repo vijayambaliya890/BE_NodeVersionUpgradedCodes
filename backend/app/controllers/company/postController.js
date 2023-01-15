@@ -40,7 +40,7 @@ class post {
       }
       let requiredFields = ['channelId', 'categoryId', 'postType'];
 
-      if (req.body.status != 2) {
+      if (req.body.status !== 2) {
         requiredFields = [
           'channelId',
           'categoryId',
