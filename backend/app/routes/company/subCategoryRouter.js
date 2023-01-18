@@ -27,6 +27,9 @@ subCategoryRouter.post('/read', (req, res) => {
     subCategoryController.read(req, res)
 });
 
+subCategoryRouter.get('/:categoryId', (req, res) => {
+    subCategoryController.getSubCategories(req, res)
+});
 
 subCategoryRouter.post('/update', (req, res) => {
     subCategoryController.update(req, res)
