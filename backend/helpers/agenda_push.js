@@ -2,8 +2,8 @@
 // import NotificationCronRepo from '../database/repositories/notificationCron.repository';
 // import ManageNotificationRepo from '../database/repositories/manageNotification.repository';
 
-const NotificationCronRepo = require('./notificationCron.repository')
-const ManageNotificationRepo = require('./manageNotification.repository')
+const NotificationCronRepo = require('./notificationCron.helper')
+const ManageNotificationRepo = require('./manageNotification.helper')
 const schedule =require('node-schedule');
 class AgendaPush {
     constructor() {

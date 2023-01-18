@@ -145,6 +145,7 @@ const loginRoute = require('./app/routes/loginRouter'),
   subCategoryRoute = require('./app/routes/company/subCategoryRouter'),
   appointmentRoute = require('./app/routes/company/appointmentRouter'),
   notificationRoute = require('./app/routes/company/notificationRouter'),
+  manageNotificationRoute = require('./app/routes/company/manageNotification.routes'),
   settingRoute = require('./app/routes/company/settingRouter'),
   reportsRoute = require('./app/routes/company/reportsRouter'),
   shiftLogRouter = require('./app/routes/company/shiftLogRouter'),
@@ -279,6 +280,7 @@ app.use('/category', categoryRoute);
 app.use('/subcategory', subCategoryRoute);
 app.use('/appointment', appointmentRoute);
 app.use('/notification', notificationRoute);
+app.use('/manage-notification', manageNotificationRoute);
 app.use('/setting', settingRoute);
 app.use('/reports', reportsRoute);
 app.use('/shiftLog', shiftLogRouter);

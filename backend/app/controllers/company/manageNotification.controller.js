@@ -1,5 +1,5 @@
-const ManageNotificationRepo = require('../../../helpers/manageNotification.repository'); 
-const NotificationCronRepo = require('../../../helpers/notificationCron.repository'); 
+const ManageNotificationRepo = require('../../../helpers/manageNotification.helper'); 
+const NotificationCronRepo = require('../../../helpers/notificationCron.helper'); 
 const Agenda = require('../../../helpers/agenda'); 
 const AgendaPush = require('../../../helpers/agenda_push'); // don't remove this line importing file for to invoke function 
 const moment = require('moment');
