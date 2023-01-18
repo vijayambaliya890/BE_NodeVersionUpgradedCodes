@@ -1,6 +1,6 @@
 /* eslint-disable new-cap */
 
-const manageNotificationController = require('../../controllers/company/manageNotification.controller');
+const manageNotificationController = require('../../controllers/company/manageNotificationController');
 const express = require('express'),
   router = express.Router();
 
