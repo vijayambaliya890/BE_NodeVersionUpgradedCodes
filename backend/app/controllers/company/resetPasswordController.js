@@ -4,6 +4,7 @@ const mongoose = require('mongoose'),
     ResetPasswordLog = require('../../models/resetPasswordLog'),
     bcrypt = require("bcrypt-nodejs"),
     __ = require('../../../helpers/globalFunctions');
+   const moment = require("moment");
 
 class resetPassword {
 
@@ -50,6 +51,7 @@ class resetPassword {
     }
 
     async UpdatePassword(req, res) {
+        console.log("update.....",req)
         try {
             if (!__.checkHtmlContent(req.body)) {
                 return __.out(res, 300, `You've entered malicious input`);
