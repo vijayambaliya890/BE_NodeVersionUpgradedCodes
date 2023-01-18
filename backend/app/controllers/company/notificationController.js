@@ -120,6 +120,7 @@ class notification {
           insert.moduleId = req.body.moduleId;
         } else {
           insert.moduleIncluded = false;
+          delete insert.moduleId;
           unSetKeys.push('moduleId');
         }
         // Update draft
@@ -689,7 +690,7 @@ class notification {
         },
         {
           path: 'businessUnitId',
-          select: 'name status',
+          select: 'name status orgName',
           match: {
             status: 1,
           },
@@ -722,7 +723,7 @@ class notification {
         },
         {
           path: 'assignUsers.businessUnits',
-          select: 'name status sectionId',
+          select: 'name status sectionId orgName',
           populate: {
             path: 'sectionId',
             select: 'name status departmentId',
