@@ -9954,14 +9954,13 @@ setInterval(async () => {
   if (ballotList.length > 0) {
     // //console.logs('found', JSON.stringify(ballotList));
     for (let i = 0; i < ballotList.length; i++) {
-      console.log("Ashish Found");
       //console.logs('ballotList[i]._id', ballotList[i]._id);
       await conductBallot(ballotList[i]._id);
     }
   } else {
     //console.logs('ndsssddost found')
   }
-}, 6000);
+}, 600000);
 // sss
 new CronJob({
   cronTime: "00 00 10 * * * ",

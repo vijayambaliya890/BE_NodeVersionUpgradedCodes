@@ -29,8 +29,9 @@ const Section = require('../app/models/section'),
   Company = require('../app/models/company'),
   CustomForm = require('../app/models/customForms'),
   BuilderModule = require('../app/models/builderModule'),
-  Shift = require('../app/models/shift');
-
+  Shift = require('../app/models/shift'),
+  request = require("request");
+  
 class globalFunctions {
   async writePdfToCustomForm(payload) {
     const options = {
@@ -2662,6 +2663,31 @@ class globalFunctions {
     pageSetting.pointSystems = data;
     await pageSetting.save();
     return data;
+  }
+
+  async getUserToken() {
+    return await new Promise((resolve, reject) => {
+      request(
+        {
+          url: 'https://api.demo.uniqrewards.com/v2/connect/token',
+          form: {
+            client_id:'274c01e82c2b4e55b14058520ba64a6e',
+            client_secret:'heex5j4-etPZYq6ROf0tJuRjWJzS1RYQC2pOMDsU',
+            grant_type:'client_credentials',
+            scope:'edg-apac-xp-voucher-mgt-api',
+          },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }, (error, response, body) => {
+          try {
+            body = JSON.parse(body);
+            return resolve(body);
+          } catch (error) {
+            return reject(body);
+          }
+        }
+      )
+    })
   }
 }
 globalFunctions = new globalFunctions();

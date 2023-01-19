@@ -127,4 +127,16 @@ rewardsRouter.get("/rewardsHistoryExport", async (req, res) => {
   }
 });
 
+rewardsRouter.get('/vouchersRequest/:productCode', async (req, res) => {
+  rewardsController.redemptionVouchersRequest(req, res);
+});
+
+rewardsRouter.post("/saveVoucherDetail", async (req, res) => {
+  rewardsController.saveVoucherDetail(req, res);
+});
+
+rewardsRouter.get("/getVoucherList", async (req, res) => {
+  rewardsController.getVoucherList(req, res);
+});
+
 module.exports = rewardsRouter;
