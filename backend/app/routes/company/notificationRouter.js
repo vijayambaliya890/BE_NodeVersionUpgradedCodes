@@ -6,6 +6,7 @@ let express = require('express'),
     multer = require('multer'),
     uuid = require('node-uuid'),
     path = require('path'),
+    __ = require('../../../helpers/globalFunctions'),
     storage = multer.diskStorage({
         destination: 'public/uploads/notificationAttachment',
         filename: function (req, file, cb) {
@@ -55,8 +56,25 @@ notificationRouter.post('/read', async (req, res) => {
     }
 });
 
+notificationRouter.get('/viewAllNotification/:businessUnitId', async (req, res) => {
+    const routeprivilege = await __.getPrivilegeData(req.user._id);
+    if (routeprivilege.viewNotification) {
+        notificationController.viewAllNotification(req, res);
+    } else {
+        return __.out(res, 300, 'This account is not permitted to access');
+    }
+});
+
 notificationRouter.get('/mynotifications', (req, res) => {
     notificationController.myNotifications(req, res);
+});
+
+notificationRouter.get('/unReadNotifications', (req, res) => {
+    notificationController.unReadNotifications(req, res);
+});
+
+notificationRouter.get('/acknowledgedNotifications/', (req, res) => {
+    notificationController.acknowledgedNotifications(req, res);
 });
 
 notificationRouter.post('/acknowledge', (req, res) => {

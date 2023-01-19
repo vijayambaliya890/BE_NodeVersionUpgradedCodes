@@ -2,6 +2,7 @@
 const mongoose = require('mongoose'),
   Category = require('../../models/category'),
   __ = require('../../../helpers/globalFunctions');
+const PostCategory = require('../../models/postCategory');
 
 class category {
   async create(req, res) {
@@ -270,6 +271,26 @@ class category {
       __.log(err);
       __.out(res, 500);
     }
+  }
+
+  async readOne(req, res) {
+    try {
+      const { channelId } = req.params;
+      const data = await this.getPostCategories({
+        channelId: channelId,
+        status: 1,
+      });
+
+      return res.success(data);
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+
+  async getPostCategories(condition) {
+    return await PostCategory.find({
+      ...condition,
+    });
   }
 }
 category = new category();

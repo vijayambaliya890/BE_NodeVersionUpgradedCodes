@@ -120,6 +120,7 @@ class notification {
           insert.moduleId = req.body.moduleId;
         } else {
           insert.moduleIncluded = false;
+          delete insert.moduleId;
           unSetKeys.push('moduleId');
         }
         // Update draft
@@ -331,6 +332,241 @@ class notification {
       __.out(res, 500);
     }
   }
+
+  async unReadNotifications(req, res) {
+    try {
+      var data = {
+        userId: req.user._id,
+      };
+      var results = await this.myNotificationsRead(data, new Date(), req.query);
+
+      // Add Mimetype for attached files
+      for (let index in results.data) {
+        if (results.data[index].notificationAttachment) {
+          let attachMimeType = await mime.contentType(
+            path.extname(results.data[index].notificationAttachment),
+          );
+          results.data[index].mimeType = attachMimeType;
+        }
+      }
+
+      return res.success(results);
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+
+  async myNotificationsRead(
+    condition,
+    date,
+    { page, limit, search, sortBy, sortWith },
+  ) {
+    const searchCondition = !!search
+      ? { title: { $regex: search, $options: 'i' } }
+      : {};
+    const [{ metadata, data }] = await Notification.aggregate([
+      {
+        $match: {
+          status: 1,
+          notifyOverAllUsers: mongoose.Types.ObjectId(condition.userId),
+          activeFrom: {
+            $lte: new Date(),
+          },
+          activeTo: {
+            $gte: new Date(),
+          },
+          ...searchCondition,
+        },
+      },
+      {
+        $lookup: {
+          from: 'subcategories',
+          localField: 'subCategoryId',
+          foreignField: '_id',
+          as: 'subCategory',
+        },
+      },
+      {
+        $unwind: '$subCategory',
+      },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'subCategory.categoryId',
+          foreignField: '_id',
+          as: 'subCategory.categoryId',
+        },
+      },
+      {
+        $unwind: '$subCategory.categoryId',
+      },
+      {
+        $project: {
+          effectiveFrom: 1,
+          effectiveTo: 1,
+          activeFrom: 1,
+          activeTo: 1,
+          title: 1,
+          subTitle: 1,
+          description: 1,
+          notificationAttachment: 1,
+          subCategory: 1,
+          isAcknowledged: {
+            $setIsSubset: [
+              [mongoose.Types.ObjectId(condition.userId)],
+              '$notifyAcknowledgedUsers',
+            ],
+          },
+          moduleIncluded: 1,
+          moduleId: 1,
+          viewOnly: 1,
+        },
+      },
+      {
+        $sort: { [sortWith]: sortBy === 'desc' ? -1 : 1 },
+      },
+      {
+        $facet: {
+          metadata: [{ $count: 'total' }],
+          data: [
+            {
+              $skip: (Number(page) - 1) * Number(limit),
+            },
+            {
+              $limit: Number(limit),
+            },
+          ],
+        },
+      },
+    ]);
+    if (data.length) {
+      const [{ total: count }] = metadata;
+      return { count, data };
+    }
+    return { count: 0, data: [] };
+  }
+
+  async acknowledgedNotifications(req, res) {
+    try {
+      var data = {
+        userId: req.user._id,
+      };
+      var results = await this.acknowledgedNotificationsRead(
+        data,
+        new Date(),
+        req.query,
+      );
+
+      // Add Mimetype for attached files
+      for (let index in results) {
+        if (results[index].notificationAttachment) {
+          let attachMimeType = await mime.contentType(
+            path.extname(results[index].notificationAttachment),
+          );
+          results[index].mimeType = attachMimeType;
+        }
+      }
+
+      return res.success(results);
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+
+  async acknowledgedNotificationsRead(
+    condition,
+    date,
+    { page, limit, search, sortBy, sortWith },
+  ) {
+    const searchCondition = !!search
+      ? { title: { $regex: search, $options: 'i' } }
+      : {};
+
+    const [{ metadata, data }] = await Notification.aggregate([
+      {
+        $match: {
+          status: 1,
+          notifyOverAllUsers: mongoose.Types.ObjectId(condition.userId),
+          activeFrom: {
+            $lte: date,
+          },
+          activeTo: {
+            $gte: date,
+          },
+          notifyAcknowledgedUsers: {
+            $in: [condition.userId],
+          },
+          ...searchCondition,
+        },
+      },
+      {
+        $lookup: {
+          from: 'subcategories',
+          localField: 'subCategoryId',
+          foreignField: '_id',
+          as: 'subCategory',
+        },
+      },
+      {
+        $unwind: '$subCategory',
+      },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'subCategory.categoryId',
+          foreignField: '_id',
+          as: 'subCategory.categoryId',
+        },
+      },
+      {
+        $unwind: '$subCategory.categoryId',
+      },
+      {
+        $project: {
+          effectiveFrom: 1,
+          effectiveTo: 1,
+          activeFrom: 1,
+          activeTo: 1,
+          title: 1,
+          subTitle: 1,
+          description: 1,
+          notificationAttachment: 1,
+          subCategory: 1,
+          isAcknowledged: {
+            $setIsSubset: [
+              [mongoose.Types.ObjectId(condition.userId)],
+              '$notifyAcknowledgedUsers',
+            ],
+          },
+          moduleIncluded: 1,
+          moduleId: 1,
+          viewOnly: 1,
+        },
+      },
+      {
+        $sort: { [sortWith]: sortBy === 'desc' ? -1 : 1 },
+      },
+      {
+        $facet: {
+          metadata: [{ $count: 'total' }],
+          data: [
+            {
+              $skip: (Number(page) - 1) * 10,
+            },
+            {
+              $limit: Number(limit),
+            },
+          ],
+        },
+      },
+    ]);
+    if (data.length) {
+      const [{ total: count }] = metadata;
+      return { count, data };
+    }
+    return { count: 0, data: [] };
+  }
+
   async userNotifications(data, res) {
     __.log(new Date(), new Date().toGMTString());
     var results = await Notification.aggregate([
@@ -412,6 +648,108 @@ class notification {
     }
     return results;
   }
+
+  async viewAllNotification(req, res) {
+    try {
+      var condition = { businessUnitId: req.params.businessUnitId };
+      var notificationDetails = await this.getAllNotifications(
+        condition,
+        req.query,
+      );
+      return res.success(notificationDetails);
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+  async getAllNotifications(
+    condition,
+    { page, limit, sortBy, sortWith, search },
+  ) {
+    let searchCondition = {};
+    if (search) {
+      searchCondition['title'] = new RegExp(search, 'i');
+    }
+
+    const count = await Notification.countDocuments({
+      ...condition,
+      ...searchCondition,
+    });
+
+    const data = await Notification.find({
+      ...condition,
+      ...searchCondition,
+    })
+      .populate([
+        {
+          path: 'subCategoryId',
+          select: 'name categoryId',
+          populate: {
+            path: 'categoryId',
+            select: 'name',
+          },
+        },
+        {
+          path: 'businessUnitId',
+          select: 'name status orgName',
+          match: {
+            status: 1,
+          },
+          populate: {
+            path: 'sectionId',
+            select: 'name status',
+            match: {
+              status: 1,
+            },
+            populate: {
+              path: 'departmentId',
+              select: 'name status companyName',
+              match: {
+                status: 1,
+              },
+            },
+          },
+        },
+        {
+          path: 'notifyOverAllUsers',
+          select: 'name staffId',
+        },
+        {
+          path: 'notifyAcknowledgedUsers',
+          select: 'name staffId',
+        },
+        {
+          path: 'notifyUnreadUsers',
+          select: 'name staffId',
+        },
+        {
+          path: 'assignUsers.businessUnits',
+          select: 'name status sectionId orgName',
+          populate: {
+            path: 'sectionId',
+            select: 'name status departmentId',
+            populate: {
+              path: 'departmentId',
+              select: 'name status companyName',
+            },
+          },
+        },
+        {
+          path: 'assignUsers.appointments',
+          select: 'name',
+        },
+        {
+          path: 'assignUsers.user',
+          select: 'name staffId',
+        },
+      ])
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ [sortWith]: sortBy === 'desc' ? -1 : 1 })
+      .lean();
+
+    return { count, data };
+  }
+
   async getNotificationDetails(whereData, res) {
     var findOrFindOne;
     if (whereData.notificationId)

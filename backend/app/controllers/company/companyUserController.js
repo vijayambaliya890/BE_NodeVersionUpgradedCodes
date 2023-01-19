@@ -1186,6 +1186,111 @@ class user {
       __.out(res, 500, err);
     }
   }
+
+  async getOneUser(req, res) {
+    try {
+      let userId;
+
+      if (!!req.query.userId) {
+        userId = req.query.userId;
+      } else {
+        userId = req.user._id;
+      }
+      const user = await User.findOne(
+        {
+          _id: userId,
+          status: {
+            $in: [1, 2],
+          },
+        },
+        {
+          _id: 1,
+          leaveGroupId: 1,
+          name: 1,
+          staffId: 1,
+          rewardPoints: 1,
+          email: 1,
+          profilePicture: 1,
+          appointmentId: 1,
+          doj: 1,
+          contactNumber: 1,
+          countryCode: 1,
+          primaryMobileNumber: 1,
+          allBUAccess: 1,
+          role: 1,
+          parentBussinessUnitId: 1,
+          planBussinessUnitId: 1,
+          viewBussinessUnitId: 1,
+          status: 1,
+          otherFields: 1,
+          subSkillSets: 1,
+          mainSkillSets: 1,
+          schemeId: 1,
+        },
+      );
+
+      // console.log("=======  USER DATA =========")
+      // console.log(user)
+
+      let userFields = await UserField.find({
+        status: 1,
+      }).lean();
+
+      const getOtherFields = (otherFields) => {
+        return userFields.reduce((final, curr) => {
+          curr.value = curr.value || '';
+          const bool = otherFields.find(
+            (field) => field.fieldId.toString() === curr._id.toString(),
+          );
+          if (!!bool) {
+            curr.value = bool.value || '';
+          }
+          return final.concat(curr);
+        }, []);
+      };
+      let customFields = getOtherFields(
+        user.otherFields.filter((oF) => !!oF.fieldId),
+      );
+
+      const opsData = await OpsGroup.findOne(
+        { userId: { $in: [userId] }, isDelete: false },
+        { opsGroupName: 1 },
+      );
+
+      let data = {
+        name: user.name,
+        staffId: user.staffId,
+        rewardPoints: user.rewardPoints,
+        email: user.email,
+        profilePicture: user.profilePicture,
+        contactNumber: user.contactNumber,
+        countryCode: user.countryCode,
+        primaryMobileNumber: user.primaryMobileNumber,
+        allBUAccess: user.allBUAccess,
+        status: user.status,
+        _id: user._id,
+        appointmentId: user.appointmentId,
+        role: user.role,
+        parentBussinessUnitId: user.parentBussinessUnitId,
+        planBussinessUnitId: user.planBussinessUnitId,
+        viewBussinessUnitId: user.viewBussinessUnitId,
+        subSkillSets: user.subSkillSets,
+        mainSkillSets: user.mainSkillSets,
+        schemeId: user.schemeId,
+        leaveGroupId: user.leaveGroupId,
+        otherFields: customFields,
+        opsGroupName:
+          opsData && Object.keys(opsData).length
+            ? opsData['opsGroupName']
+            : '-',
+      };
+
+      return res.success(data);
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+
   async readSingle(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
@@ -1946,17 +2051,17 @@ class user {
         [v]: reg,
       }));
     }
-    console.log(
-      JSON.stringify({
-        ...businessUnitCondtion,
-        ...appointmentIdCondition,
-        ...searchCondition,
-        ...staffIdCondtion,
-        status: {
-          $in: statusCondtion,
-        },
-      }),
-    );
+    // console.log(
+    //   JSON.stringify({
+    //     ...businessUnitCondtion,
+    //     ...appointmentIdCondition,
+    //     ...searchCondition,
+    //     ...staffIdCondtion,
+    //     status: {
+    //       $in: statusCondtion,
+    //     },
+    //   }),
+    // );
     const count = await User.countDocuments({
       ...businessUnitCondtion,
       ...appointmentIdCondition,

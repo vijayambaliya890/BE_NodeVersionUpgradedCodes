@@ -28,6 +28,11 @@ categoryRouter.get('/', (req, res) => {
   categoryController.read(req, res);
 });
 
+// API transform
+categoryRouter.get('/getChannelCategories/:channelId', (req, res) => {
+  categoryController.readOne(req, res);
+});
+
 categoryRouter.post('/update', (req, res) => {
   categoryController.update(req, res);
 });

@@ -21,6 +21,14 @@ const mongoose = require('mongoose'),
   __ = require('../../../helpers/globalFunctions');
 
 class post {
+  async uploadFile(req, res) {
+    try {
+      return res.success({ path: `${req.file.path.split('public')[1]}` });
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+
   async create(req, res) {
     try {
       let bodyContent = JSON.parse(JSON.stringify(req.body));
@@ -32,7 +40,7 @@ class post {
       }
       let requiredFields = ['channelId', 'categoryId', 'postType'];
 
-      if (req.body.status != 2) {
+      if (req.body.status !== 2) {
         requiredFields = [
           'channelId',
           'categoryId',
@@ -65,13 +73,15 @@ class post {
         );
       }
       /** Parsing Data  */
-      req.body.teaser = JSON.parse(req.body.teaser);
-      req.body.content = JSON.parse(req.body.content);
-      req.body.eventDetails = JSON.parse(req.body.eventDetails);
-      req.body.publishing = JSON.parse(req.body.publishing);
-      req.body.userOptions = JSON.parse(req.body.userOptions);
-      if (req.body.postType !== 'news') {
-        req.body.wallTitle = JSON.parse(req.body.wallTitle);
+      if (typeof req.body.teaser === 'string') {
+        req.body.teaser = JSON.parse(req.body.teaser);
+        req.body.content = JSON.parse(req.body.content);
+        req.body.eventDetails = JSON.parse(req.body.eventDetails);
+        req.body.publishing = JSON.parse(req.body.publishing);
+        req.body.userOptions = JSON.parse(req.body.userOptions);
+        if (req.body.postType !== 'news') {
+          req.body.wallTitle = JSON.parse(req.body.wallTitle);
+        }
       }
 
       /* Date Conversion */
@@ -371,13 +381,15 @@ class post {
       __.log(req.body);
 
       /** Parsing Data  */
-      req.body.teaser = JSON.parse(req.body.teaser);
-      req.body.content = JSON.parse(req.body.content);
-      req.body.eventDetails = JSON.parse(req.body.eventDetails);
-      req.body.publishing = JSON.parse(req.body.publishing);
-      req.body.userOptions = JSON.parse(req.body.userOptions);
-      if (req.body.postType !== 'news') {
-        req.body.wallTitle = JSON.parse(req.body.wallTitle);
+      if (typeof req.body.teaser === 'string') {
+        req.body.teaser = JSON.parse(req.body.teaser);
+        req.body.content = JSON.parse(req.body.content);
+        req.body.eventDetails = JSON.parse(req.body.eventDetails);
+        req.body.publishing = JSON.parse(req.body.publishing);
+        req.body.userOptions = JSON.parse(req.body.userOptions);
+        if (req.body.postType !== 'news') {
+          req.body.wallTitle = JSON.parse(req.body.wallTitle);
+        }
       }
       /* Date Conversion */
       __.log(req.body.eventDetails, 'date format');
@@ -964,11 +976,11 @@ class post {
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      let pageNum = req.query.start ? parseInt(req.query.start) : 0;
-      let limit = req.query.length ? parseInt(req.query.length) : 10;
+      let pageNum = req.query.page ? parseInt(req.query.page) : 0;
+      let limit = req.query.limit ? parseInt(req.query.limit) : 10;
       let skip = req.query.skip
         ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
+        : (pageNum - 1) * limit;
       // User as admin in chennel
       let searchQuery = {
         companyId: req.user.companyId,
@@ -1000,18 +1012,18 @@ class post {
       };
 
       var isSearched = false;
-      if (req.query.search.value) {
+      if (req.query.search) {
         isSearched = true;
         query['$or'] = [
           {
             'teaser.title': {
-              $regex: `${req.query.search.value}`,
+              $regex: `${req.query.search}`,
               $options: 'i',
             },
           },
           {
             'channelId.name': {
-              $regex: `${req.query.search.value}`,
+              $regex: `${req.query.search}`,
               $options: 'i',
             },
           },
@@ -1019,29 +1031,8 @@ class post {
       }
 
       let sort = {};
-      if (req.query.order) {
-        let orderData = req.query.order;
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
-            case '0':
-              sort[`teaser.title`] = getSort(orderData[i].dir);
-              break;
-            case '1':
-              sort[`channelId.name`] = getSort(orderData[i].dir);
-              break;
-            case '2':
-              sort[`reportList.reportedAt`] = getSort(orderData[i].dir);
-              break;
-            default:
-              sort[`status`] = getSort(orderData[i].dir);
-              break;
-          }
-        }
-      }
-
-      function getSort(val) {
-        if (val === 'asc') return 1;
-        else return -1;
+      if (req.query.sortWith) {
+        sort[req.query.sortWith] = req.query.sortBy === 'desc' ? -1 : 1;
       }
 
       let postList = await Post.aggregate([
@@ -1163,11 +1154,11 @@ class post {
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      let pageNum = req.query.start ? parseInt(req.query.start) : 0;
-      let limit = req.query.length ? parseInt(req.query.length) : 10;
+      let pageNum = req.query.page ? parseInt(req.query.page) : 0;
+      let limit = req.query.limit ? parseInt(req.query.limit) : 10;
       let skip = req.query.skip
         ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
+        : (pageNum - 1) * limit;
       // User as admin in wall
       let searchQuery = {
         companyId: req.user.companyId,
@@ -1193,150 +1184,48 @@ class post {
       postIds = postIds.map((v) => {
         return mongoose.Types.ObjectId(v._id);
       });
-      let query = {
-        // reportList: {
-        //     $ne: []
-        // },
-        'postId._id': {
-          $in: postIds,
-        },
-        status: {
-          $in: [1, 2],
-        },
-      };
-      var isSearched = false;
-      if (req.query.search.value) {
-        isSearched = true;
-        query['$or'] = [
-          {
-            comment: {
-              $regex: `${req.query.search.value}`,
-              $options: 'i',
-            },
-          },
-          {
-            'postId.title': {
-              $regex: `${req.query.search.value}`,
-              $options: 'i',
-            },
-          },
-          {
-            'wallId.wallName': {
-              $regex: `${req.query.search.value}`,
-              $options: 'i',
-            },
-          },
-        ];
-      }
-      let sort = {};
-      if (req.query.order) {
-        let orderData = req.query.order;
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
-            case '0':
-              sort[`comment`] = getSort(orderData[i].dir);
-              break;
-            case '1':
-              sort[`postId.title`] = getSort(orderData[i].dir);
-              break;
-            case '2':
-              sort[`channelId.name`] = getSort(orderData[i].dir);
-              break;
-            case '3':
-              sort[`reportList.reportedAt`] = getSort(orderData[i].dir);
-              break;
-            default:
-              sort[`status`] = getSort(orderData[i].dir);
-              break;
-          }
-        }
-      }
+      // let query = {
+      //   // reportList: {
+      //   //     $ne: []
+      //   // },
+      //   'postId._id': {
+      //     $in: postIds,
+      //   },
+      //   status: {
+      //     $in: [1, 2],
+      //   },
+      // };
+      // var isSearched = false;
+      // if (req.query.search) {
+      //   isSearched = true;
+      //   query['$or'] = [
+      //     {
+      //       comment: {
+      //         $regex: `${req.query.search}`,
+      //         $options: 'i',
+      //       },
+      //     },
+      //     {
+      //       'postId.title': {
+      //         $regex: `${req.query.search}`,
+      //         $options: 'i',
+      //       },
+      //     },
+      //     {
+      //       'wallId.wallName': {
+      //         $regex: `${req.query.search}`,
+      //         $options: 'i',
+      //       },
+      //     },
+      //   ];
+      // }
+      // let sort = {};
+      // if (req.query.sortWith) {
+      //   sort[req.query.sortWith] = req.query.sortBy === 'desc' ? -1 : 1;
+      // }
 
-      function getSort(val) {
-        if (val === 'asc') return 1;
-        else return -1;
-      }
-
-      let commentList = await PostComment.aggregate([
-        {
-          $lookup: {
-            from: 'posts',
-            localField: 'postId',
-            foreignField: '_id',
-            as: 'postId',
-          },
-        },
-        {
-          $unwind: '$postId',
-        },
-        {
-          $lookup: {
-            from: 'channels',
-            localField: 'postId.channelId',
-            foreignField: '_id',
-            as: 'postId.channelId',
-          },
-        },
-        {
-          $unwind: '$postId.channelId',
-        },
-        {
-          $unwind: '$reportList',
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'reportList.reportedBy',
-            foreignField: '_id',
-            as: 'reportList.reportedBy',
-          },
-        },
-        {
-          $group: {
-            _id: '$_id',
-            comment: {
-              $first: '$comment',
-            },
-            postId: {
-              $first: '$postId',
-            },
-            reportList: {
-              $push: '$reportList',
-            },
-            status: {
-              $first: '$status',
-            },
-          },
-        },
-        {
-          $match: query,
-        },
-        {
-          $sort: sort,
-        },
-        {
-          $skip: skip,
-        },
-        {
-          $limit: limit,
-        },
-      ]);
-      // Get all post ids
-      // let commentIds = commentList.map(v => v._id)
-      // const reportUsers = await ReportCommentModel.find({
-      //     commentId: {
-      //         $in: commentIds
-      //     }
-      // }).populate({
-      //     path: "userId",
-      //     select: "name userName profilePicture"
-      // }).lean();
-      // commentList = commentList.map(p => {
-      //     p['userList'] = reportUsers.filter(v => p._id.toString() == v.commentId.toString());
-      //     return p;
-      // });
-
-      commentList = commentList.map((v) => {
+      let resultComment = await this.getComments(postIds, req.query);
+      const commentList = resultComment.data.map((v) => {
         let data = {
           _id: v._id,
           comment: v.comment,
@@ -1355,55 +1244,10 @@ class post {
         return data;
       });
 
-      let totalCount;
-      let totalUserCount = await PostComment.count({
-        reportCount: {
-          $nin: [0],
-        },
-        channelId: {
-          $in: channelIds,
-        },
-        status: {
-          $in: [1, 2],
-        },
-      }).lean();
-      if (isSearched) {
-        totalCount = await PostComment.aggregate([
-          {
-            $lookup: {
-              from: 'channels',
-              localField: 'channelId',
-              foreignField: '_id',
-              as: 'channelId',
-            },
-          },
-          {
-            $unwind: '$channelId',
-          },
-          {
-            $lookup: {
-              from: 'posts',
-              localField: 'postId',
-              foreignField: '_id',
-              as: 'postId',
-            },
-          },
-          {
-            $unwind: '$postId',
-          },
-          {
-            $match: query,
-          },
-        ]);
-        totalCount = totalCount.length;
-      } else {
-        totalCount = totalUserCount;
-      }
-
       let result = {
         draw: req.query.draw || 0,
-        recordsTotal: totalUserCount || 0,
-        recordsFiltered: totalCount || 0,
+        recordsTotal: resultComment.count || 0,
+        recordsFiltered: resultComment.count || 0,
         data: commentList,
       };
       return res.status(201).json(result);
@@ -1411,6 +1255,119 @@ class post {
       __.log(err);
       return __.out(res, 500);
     }
+  }
+
+  async getComments(
+    postIds,
+    { page, limit, search, sortBy, sortWith, filter },
+  ) {
+    const searchCondition = search
+      ? [
+          {
+            $match: {
+              $or: [
+                {
+                  comment: { $regex: search, $options: 'i' },
+                },
+                {
+                  'postId.title': { $regex: search, $options: 'i' },
+                },
+                {
+                  'wallId.wallName': { $regex: search, $options: 'i' },
+                },
+              ],
+            },
+          },
+        ]
+      : [];
+
+    const [{ metadata, data }] = await PostComment.aggregate([
+      {
+        $lookup: {
+          from: 'posts',
+          localField: 'postId',
+          foreignField: '_id',
+          as: 'postId',
+        },
+      },
+      {
+        $unwind: '$postId',
+      },
+      {
+        $lookup: {
+          from: 'channels',
+          localField: 'postId.channelId',
+          foreignField: '_id',
+          as: 'postId.channelId',
+        },
+      },
+      {
+        $unwind: '$postId.channelId',
+      },
+      {
+        $unwind: '$reportList',
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'reportList.reportedBy',
+          foreignField: '_id',
+          as: 'reportList.reportedBy',
+        },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          comment: {
+            $first: '$comment',
+          },
+          postId: {
+            $first: '$postId',
+          },
+          reportList: {
+            $push: '$reportList',
+          },
+          status: {
+            $first: '$status',
+          },
+        },
+      },
+      ...searchCondition,
+      {
+        $match: {
+          'postId._id': {
+            $in: postIds,
+          },
+          status: {
+            $in: [1, 2],
+          },
+        },
+      },
+      {
+        $sort: {
+          [sortWith]: sortBy === 'desc' ? -1 : 1,
+        },
+      },
+      {
+        $facet: {
+          metadata: [{ $count: 'total' }],
+          data: [
+            {
+              $skip: parseInt(page) - 1,
+            },
+            {
+              $limit: parseInt(limit),
+            },
+          ],
+        },
+      },
+    ]);
+
+    if (data.length) {
+      const [{ total: count }] = metadata;
+      return { count, data };
+    }
+    return { count: 0, data: [] };
   }
 
   // Get all Update Posts - News and Events
@@ -1886,6 +1843,237 @@ class post {
       __.log(e);
       __.out(res, 500);
     }
+  }
+
+  async getAllNews(req, res) {
+    try {
+      let channels = await Channel.find(
+        {
+          assignUsers: {
+            $elemMatch: {
+              admin: {
+                $in: [req.user._id],
+              },
+            },
+          },
+          status: 1,
+        },
+        {
+          _id: 1,
+        },
+      );
+
+      let channelIds = channels.map((c) => c._id);
+
+      let where = {
+        status: {
+          $nin: [2],
+        },
+      };
+      if (!!channelIds && channelIds.length) {
+        where.channelId = {
+          $in: channelIds,
+        };
+      } else {
+        return res.success({ postList: [] });
+      }
+
+      if (req.query.postType) {
+        where.postType = req.query.postType;
+      }
+      if (req.query.channelId) {
+        where.channelId = req.query.channelId;
+      }
+      if (req.query.categoryId) {
+        where.categoryId = req.query.categoryId;
+      }
+
+      let postList = await this.getPostList(where, req.query);
+
+      return res.success(postList);
+    } catch (e) {
+      return res.error();
+    }
+  }
+  async getPostList(condition, { page, limit, sortBy, sortWith, search }) {
+    if (search) {
+      condition['$or'] = [
+        {
+          'teaser.title': {
+            $regex: `${search}`,
+            $options: 'i',
+          },
+        },
+        {
+          'channelId.name': {
+            $regex: `${search}`,
+            $options: 'i',
+          },
+        },
+      ];
+    }
+    const count = await Post.countDocuments(condition);
+    const data = await Post.find(condition)
+      .populate({
+        path: 'authorId',
+        select: 'name orgName parentBussinessUnitId profilePicture',
+        populate: {
+          path: 'parentBussinessUnitId',
+          select: 'orgName name status sectionId',
+          populate: {
+            path: 'sectionId',
+            select: 'name status departmentId',
+            populate: {
+              path: 'departmentId',
+              select: 'name status companyName',
+            },
+          },
+        },
+      })
+      .populate({
+        path: 'channelId',
+        select: 'name logo',
+      })
+      .populate({
+        path: 'categoryId',
+        select: 'name',
+      })
+      .populate({
+        path: 'wallId',
+      })
+      .sort({
+        createdAt: -1,
+      })
+      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(parseInt(limit))
+      .sort({
+        [sortWith]: sortBy === 'desc' ? -1 : 1,
+      })
+      .lean();
+
+    return { count, data };
+  }
+
+  async readOnePost(req, res) {
+    try {
+      const postId = req.params.postId;
+      let postData = await this.readPost({
+        _id: postId,
+        status: {
+          $nin: [2],
+        },
+      });
+
+      if (!postData) return res.badRequest('News/Event Not Found');
+
+      let adminIds;
+
+      if (postData[0].postType == 'event') {
+        adminIds = postData[0].sessions[0]
+          ? postData[0].sessions[0].adminIds
+          : [];
+      }
+
+      // let moduleData
+      // if(postData[0].moduleId){
+      //     moduleData = postData[0].moduleId
+      // }
+
+      let wallData = {};
+
+      console.log(postData[0].wallId);
+
+      if (postData[0].wallId) {
+        (wallData.endDate = postData[0].wallId.eventWallEndDate),
+          (wallData.eventWallLogoImage = postData[0].wallId.bannerImage),
+          (wallData.startDate = postData[0].wallId.eventWallStartDate),
+          (wallData.wallName = postData[0].wallName);
+      }
+
+      const data = {
+        _id: postData[0]._id,
+        postType: postData[0].postType,
+        content: {
+          address: postData[0].eventDetails.address,
+          content: postData[0].content.content,
+          endDate: postData[0].eventDetails.endDate,
+          eventType: postData[0].eventDetails.eventType,
+          image: postData[0].content.image,
+          isTeaserImage: postData[0].content.isTeaserImage,
+          organizerName: postData[0].eventDetails.organizerName,
+          startDate: postData[0].eventDetails.startDate,
+          title: postData[0].content.title,
+        },
+        teaser: postData[0].teaser,
+        eventBoard: wallData,
+        publish: {
+          categoryId: postData[0].categoryId,
+          channelId: postData[0].channelId,
+          moduleId: postData[0].moduleId,
+          endDate: postData[0].publishing.endDate,
+          isRSVPRequired: postData[0].eventDetails.isRSVPRequired,
+          startDate: postData[0].publishing.startDate,
+        },
+        session: {
+          isLimitRequired: postData[0].eventDetails.isLimitRequired,
+          isAttendanceRequired: postData[0].eventDetails.isAttendanceRequired,
+          totalAttendanceTaking: postData[0].eventDetails.totalAttendanceTaking,
+          Rows: postData[0].sessions,
+          maxNoRSVP: postData[0].eventDetails.maxNoRSVP,
+          isLimitRSVP: postData[0].eventDetails.isLimitRSVP,
+        },
+        admin: adminIds,
+        status: postData[0].status,
+        authorId: postData[0].authorId,
+      };
+
+      return res.success(data);
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+
+  async readPost(condition) {
+    return await Post.find({
+      ...condition,
+    })
+      .populate({
+        path: 'authorId',
+        select: 'name profilePicture parentBussinessUnitId',
+        populate: {
+          path: 'parentBussinessUnitId',
+          select: 'orgName',
+        },
+      })
+      .populate({
+        path: 'channelId',
+        select: 'name',
+      })
+      .populate({
+        path: 'categoryId',
+        select: '_id name',
+      })
+      .populate({
+        path: 'moduleId',
+        select: '_id moduleName',
+      })
+      .populate({
+        path: 'wallId',
+        populate: {
+          path: 'category',
+          select: 'categoryName',
+        },
+      })
+      .populate({
+        path: 'sessions',
+        select:
+          'startDate startTime endDate endTime attendaceRequiredCount totalParticipantPerSession location status adminIds',
+        populate: {
+          path: 'adminIds',
+          select: 'name',
+        },
+      })
+      .lean();
   }
 }
 post = new post();
