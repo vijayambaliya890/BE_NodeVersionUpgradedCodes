@@ -1,5 +1,5 @@
 const mongoDsn = `${process.env.LIVE_DB_HOST}`;
-const Agenda = require('Agenda');
+const Agenda = require('agenda');
 
 class CreateAgenda {
     constructor() {
