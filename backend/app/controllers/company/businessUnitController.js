@@ -12,6 +12,8 @@ const mongoose = require('mongoose'),
   pageSetting = require('../../models/pageSetting'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
+
 class businessUnit {
   async updateLocation(req, res) {
     try {
@@ -1222,70 +1224,44 @@ class businessUnit {
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      const pageNum = !!req.query.page ? parseInt(req.query.page) : 0;
-      const limit = !!req.query.limit ? parseInt(req.query.limit) : 10;
-      const skip = !!req.query.skip
-        ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
-      const draw = req.query.draw || 0;
-      let allBus = new Set([
+      logInfo('readWithPnV2 has been called', req.user._id);
+      let {sortBy,sortWith,page, limit, search, filter} = req.query;
+      const pageNum = !!page ? parseInt(page) : 0;
+       limit = !!limit ? parseInt(limit) : 10;
+      const skip =(pageNum - 1) / limit;
+      const allBus = new Set([
         ...req.user.planBussinessUnitId,
-        ...req.user.viewBussinessUnitId,
-        req.user.parentBussinessUnitId,
       ]);
       let where = {
-        status: {
-          $in: [1],
-        },
+        status: 1,
         _id: {
           $in: [...allBus],
         },
-        sectionId: {
-          $exists: true,
-        },
-        status: 1,
       };
-      // const recordsTotal = await SubSection.count(where).lean();
-      // let recordsFiltered = recordsTotal;
+      if(search){
+        where.orgName= {
+          $regex: search,
+          $options: 'ixs',
+        }
+      }
+      // name status cancelShiftPermission standByShiftPermission shiftCancelHours techEmail
+      // adminEmail notificRemindHours notificRemindDays appointments sectionId noOfWeek breakInMinutes shiftTimeInMinutes
+      // isBreakTime shiftBreak mainSkillSets skillSetTierType plannedHours
       let businessUnitList = await SubSection.find(where)
         .skip(skip)
         .limit(limit)
         .select(
-          'orgName _id name status cancelShiftPermission standByShiftPermission shiftCancelHours techEmail adminEmail notificRemindHours notificRemindDays appointments sectionId noOfWeek breakInMinutes shiftTimeInMinutes isBreakTime shiftBreak mainSkillSets skillSetTierType plannedHours',
+          'orgName _id',
         )
-        .populate([
-          {
-            path: 'sectionId',
-            select: 'name departmentId status',
-            populate: {
-              path: 'departmentId',
-              select: 'name status companyId',
-              populate: {
-                path: 'companyId',
-                select: 'name',
-              },
-            },
-          },
-        ])
         .lean();
-      businessUnitList = businessUnitList.filter(
-        (bu) =>
-          !!bu.sectionId &&
-          !!bu.sectionId.departmentId &&
-          !!bu.sectionId.departmentId.companyId &&
-          bu.sectionId.departmentId.companyId._id.toString() ==
-            req.user.companyId,
-      );
 
       return res.status(200).json({
-        // draw,
-        // recordsTotal,
-        // recordsFiltered,
         businessUnitList: businessUnitList != null ? businessUnitList : [],
       });
     } catch (err) {
-      __.log(err);
-      __.out(res, 300, 'Something went wrong try later');
+      logError('readWithPnV2 has error', err);
+      logError('readWithPnV2 has error.stack', err.stack);
+     return __.out(res, 300, 'Something went wrong try later');
     }
   }
   async getName(data, res) {

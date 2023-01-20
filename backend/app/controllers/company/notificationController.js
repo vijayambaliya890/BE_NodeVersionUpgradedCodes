@@ -15,6 +15,7 @@ const mongoose = require('mongoose'),
   fs = require('fs-extra'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class notification {
   async create(req, res) {
@@ -169,24 +170,26 @@ class notification {
   }
   async read(req, res) {
     try {
+      logInfo('read notification called');
       let requiredResult1 = await __.checkRequiredFields(req, [
         'businessUnitId',
       ]);
       if (requiredResult1.status === false) {
-        __.out(res, 400, requiredResult1.missingFields);
-      } else {
-        var whereData = {
-          businessUnitId: req.body.businessUnitId,
-        };
-        var notificationDetails = await this.getNotificationDetails(
-          whereData,
-          res,
-        );
-        return __.out(res, 201, notificationDetails);
+        return __.out(res, 400, requiredResult1.missingFields);
       }
+      var whereData = {
+        businessUnitId: req.body.businessUnitId,
+      };
+      logInfo('read notification called', whereData);
+      var notificationDetails = await this.getNotificationDetails(
+        whereData,
+        req.query,
+      );
+      return __.out(res, 201, notificationDetails);
     } catch (err) {
-      __.log(err);
-      __.out(res, 500);
+      logError('read notification has error', err);
+      logError('read notification has error.stack', err.stack);
+      return __.out(res, 500);
     }
   }
   async update(req, res) {
@@ -322,13 +325,14 @@ class notification {
 
   async myNotifications(req, res) {
     try {
+      logInfo('myNotifications has called', req.user._id);
       var data = {
         userId: req.user._id,
       };
       var myNotifications = await this.userNotifications(data, res);
       __.out(res, 201, myNotifications);
     } catch (err) {
-      __.log(err);
+      logError('myNotifications has error', err);
       __.out(res, 500);
     }
   }
@@ -460,7 +464,7 @@ class notification {
       // Add Mimetype for attached files
       for (let index in results) {
         if (results[index].notificationAttachment) {
-          let attachMimeType = await mime.contentType(
+          let attachMimeType = mime.contentType(
             path.extname(results[index].notificationAttachment),
           );
           results[index].mimeType = attachMimeType;
@@ -568,85 +572,94 @@ class notification {
   }
 
   async userNotifications(data, res) {
-    __.log(new Date(), new Date().toGMTString());
-    var results = await Notification.aggregate([
-      {
-        $match: {
-          status: 1,
-          notifyOverAllUsers: mongoose.Types.ObjectId(data.userId),
-          activeFrom: {
-            $lte: new Date(),
+    try {
+      logInfo('userNotifications has called', data);
+      var results = await Notification.aggregate([
+        {
+          $match: {
+            status: 1,
+            notifyOverAllUsers: mongoose.Types.ObjectId(data.userId),
+            activeFrom: {
+              $lte: new Date(),
+            },
+            activeTo: {
+              $gte: new Date(),
+            },
           },
-          activeTo: {
-            $gte: new Date(),
+        },
+        {
+          $lookup: {
+            from: 'subcategories',
+            localField: 'subCategoryId',
+            foreignField: '_id',
+            as: 'subCategory',
           },
         },
-      },
-      {
-        $lookup: {
-          from: 'subcategories',
-          localField: 'subCategoryId',
-          foreignField: '_id',
-          as: 'subCategory',
+        {
+          $unwind: '$subCategory',
         },
-      },
-      {
-        $unwind: '$subCategory',
-      },
-      {
-        $lookup: {
-          from: 'categories',
-          localField: 'subCategory.categoryId',
-          foreignField: '_id',
-          as: 'subCategory.categoryId',
-        },
-      },
-      {
-        $unwind: '$subCategory.categoryId',
-      },
-      {
-        $project: {
-          _id: 1,
-          effectiveFrom: 1,
-          effectiveTo: 1,
-          activeFrom: 1,
-          activeTo: 1,
-          title: 1,
-          subTitle: 1,
-          description: 1,
-          notificationAttachment: 1,
-          subCategory: 1,
-          isAcknowledged: {
-            $setIsSubset: [
-              [mongoose.Types.ObjectId(data.userId)],
-              '$notifyAcknowledgedUsers',
-            ],
+        {
+          $lookup: {
+            from: 'categories',
+            localField: 'subCategory.categoryId',
+            foreignField: '_id',
+            as: 'subCategory.categoryId',
           },
-          moduleIncluded: 1,
-          moduleId: 1,
-          viewOnly: 1,
         },
-      },
-    ]);
+        {
+          $unwind: '$subCategory.categoryId',
+        },
+        {
+          $project: {
+            _id: 1,
+            effectiveFrom: 1,
+            effectiveTo: 1,
+            activeFrom: 1,
+            activeTo: 1,
+            title: 1,
+            subTitle: 1,
+            description: 1,
+            notificationAttachment: 1,
+            subCategory: 1,
+            isAcknowledged: {
+              $setIsSubset: [
+                [mongoose.Types.ObjectId(data.userId)],
+                '$notifyAcknowledgedUsers',
+              ],
+            },
+            moduleIncluded: 1,
+            moduleId: 1,
+            viewOnly: 1,
+          },
+        },
+      ]);
 
-    // Add Mimetype for attached files
-    for (let index in results) {
-      if (results[index].notificationAttachment) {
-        let attachMimeType = await mime.contentType(
-          path.extname(results[index].notificationAttachment),
-        );
-        results[index].mimeType = attachMimeType;
+      // Add Mimetype for attached files
+      for (let index in results) {
+        if (results[index].notificationAttachment) {
+          let attachMimeType = mime.contentType(
+            path.extname(results[index].notificationAttachment),
+          );
+          results[index].mimeType = attachMimeType;
+        }
+        if (!results[index].moduleIncluded) {
+          results[index].questionsCompleted = true;
+        } else if (results[index].moduleIncluded && !!results[index].moduleId) {
+          results[index].questionsCompleted = await this.allTrackedAnswered(
+            res,
+            {
+              userId: data.userId,
+              notificationId: results[index]._id,
+            },
+          );
+        }
       }
-      if (!results[index].moduleIncluded) {
-        results[index].questionsCompleted = true;
-      } else if (results[index].moduleIncluded && !!results[index].moduleId) {
-        results[index].questionsCompleted = await this.allTrackedAnswered(res, {
-          userId: data.userId,
-          notificationId: results[index]._id,
-        });
-      }
+      return results;
+    } catch (e) {
+      logError('userNotifications has error', e);
+      logError('userNotifications has error', e.stack);
+      return [];
     }
-    return results;
   }
 
   async viewAllNotification(req, res) {
@@ -750,159 +763,181 @@ class notification {
     return { count, data };
   }
 
-  async getNotificationDetails(whereData, res) {
-    var findOrFindOne;
-    if (whereData.notificationId)
-      findOrFindOne = Notification.findById(whereData.notificationId);
-    else findOrFindOne = Notification.find(whereData);
-
-    return await findOrFindOne
-      .populate([
-        {
-          path: 'subCategoryId',
-          select: 'name categoryId',
-          populate: {
-            path: 'categoryId',
-            select: 'name',
-          },
-        },
-        {
-          path: 'businessUnitId',
-          select: 'name status',
-          match: {
-            status: 1,
-          },
-          populate: {
-            path: 'sectionId',
-            select: 'name status',
-            match: {
-              status: 1,
+  async getNotificationDetails(whereData, query) {
+    try {
+      logInfo('read getNotificationDetails called', whereData);
+      let { sortBy, sortWith, page, limit, search } = query;
+      const pageNum = !!page ? parseInt(page) : 0;
+      limit = !!limit ? parseInt(limit) : 10;
+      const skip = (pageNum - 1) / limit;
+      if (search) {
+        whereData.title = {
+          $regex: search,
+          $options: 'ixs',
+        };
+      }
+      const [data, count] = await Promise.all([
+        Notification.find(whereData)
+          .sort({ [sortWith]: sortBy === 'desc' ? -1 : 1 })
+          .skip(skip)
+          .limit(limit)
+          .populate([
+            {
+              path: 'subCategoryId',
+              select: 'name categoryId',
+              populate: {
+                path: 'categoryId',
+                select: 'name',
+              },
             },
-            populate: {
-              path: 'departmentId',
+            {
+              path: 'businessUnitId',
+              select: 'name status orgName',
+              match: {
+                status: 1,
+              },
+              // populate: {
+              //   path: 'sectionId',
+              //   select: 'name status',
+              //   match: {
+              //     status: 1,
+              //   },
+              //   populate: {
+              //     path: 'departmentId',
+              //     select: 'name status',
+              //     match: {
+              //       status: 1,
+              //     },
+              //     populate: {
+              //       path: 'companyId',
+              //       select: 'name status',
+              //       match: {
+              //         status: 1,
+              //       },
+              //     },
+              //   },
+              // },
+            },
+            {
+              path: 'notifyByBusinessUnits',
+              strictPopulate: false,
               select: 'name status',
               match: {
                 status: 1,
               },
               populate: {
-                path: 'companyId',
+                path: 'sectionId',
+                select: 'name status',
+                match: {
+                  status: 1,
+                },
+                populate: {
+                  path: 'departmentId',
+                  select: 'name status',
+                  match: {
+                    status: 1,
+                  },
+                  populate: {
+                    path: 'companyId',
+                    select: 'name status',
+                    match: {
+                      status: 1,
+                    },
+                  },
+                },
+              },
+            },
+            {
+              path: 'notifyBySubSkillSets',
+              select: 'name status',
+              strictPopulate: false,
+              match: {
+                status: 1,
+              },
+              populate: {
+                path: 'skillSetId',
                 select: 'name status',
                 match: {
                   status: 1,
                 },
               },
             },
-          },
-        },
-        {
-          path: 'notifyByBusinessUnits',
-          strictPopulate: false,
-          select: 'name status',
-          match: {
-            status: 1,
-          },
-          populate: {
-            path: 'sectionId',
-            select: 'name status',
-            match: {
-              status: 1,
+            {
+              path: 'notifyByAppointments',
+              select: 'name status',
+              strictPopulate: false,
+              match: {
+                status: 1,
+              },
             },
-            populate: {
-              path: 'departmentId',
+            {
+              path: 'notifyByUsers',
+              strictPopulate: false,
+              select: 'name staffId',
+            },
+            {
+              path: 'notifyOverAllUsers',
+              select: 'name staffId',
+              match: { status: 1 },
+            },
+            {
+              path: 'notifyAcknowledgedUsers',
+              select: 'name staffId',
+              match: { status: 1 },
+            },
+            {
+              path: 'notifyUnreadUsers',
+              select: 'name staffId',
+              match: { status: 1 },
+            },
+            {
+              path: 'assignUsers.businessUnits',
+              select: 'name status sectionId orgName',
+              populate: {
+                path: 'sectionId',
+                select: 'name status departmentId',
+                populate: {
+                  path: 'departmentId',
+                  select: 'name status companyId',
+                  populate: {
+                    path: 'companyId',
+                    select: 'name status',
+                  },
+                },
+              },
+            },
+            {
+              path: 'assignUsers.appointments',
+              select: 'name',
+            },
+            {
+              path: 'assignUsers.subSkillSets',
               select: 'name status',
               match: {
                 status: 1,
               },
               populate: {
-                path: 'companyId',
+                path: 'skillSetId',
                 select: 'name status',
                 match: {
                   status: 1,
                 },
               },
             },
-          },
-        },
-        {
-          path: 'notifyBySubSkillSets',
-          select: 'name status',
-          match: {
-            status: 1,
-          },
-          populate: {
-            path: 'skillSetId',
-            select: 'name status',
-            match: {
-              status: 1,
+            {
+              path: 'assignUsers.user',
+              select: 'name staffId',
             },
-          },
-        },
-        {
-          path: 'notifyByAppointments',
-          select: 'name status',
-          match: {
-            status: 1,
-          },
-        },
-        {
-          path: 'notifyByUsers',
-          select: 'name staffId',
-        },
-        {
-          path: 'notifyOverAllUsers',
-          select: 'name staffId',
-          match: { status: 1 },
-        },
-        {
-          path: 'notifyAcknowledgedUsers',
-          select: 'name staffId',
-          match: { status: 1 },
-        },
-        {
-          path: 'notifyUnreadUsers',
-          select: 'name staffId',
-          match: { status: 1 },
-        },
-        {
-          path: 'assignUsers.businessUnits',
-          select: 'name status sectionId',
-          populate: {
-            path: 'sectionId',
-            select: 'name status departmentId',
-            populate: {
-              path: 'departmentId',
-              select: 'name status companyId',
-              populate: {
-                path: 'companyId',
-                select: 'name status',
-              },
-            },
-          },
-        },
-        {
-          path: 'assignUsers.appointments',
-          select: 'name',
-        },
-        {
-          path: 'assignUsers.subSkillSets',
-          select: 'name status',
-          match: {
-            status: 1,
-          },
-          populate: {
-            path: 'skillSetId',
-            select: 'name status',
-            match: {
-              status: 1,
-            },
-          },
-        },
-        {
-          path: 'assignUsers.user',
-          select: 'name staffId',
-        },
-      ])
-      .lean();
+          ])
+          .lean(),
+        Notification.countDocuments(whereData),
+      ]);
+      return { data, count };
+    } catch (e) {
+      logError('getNotificationDetails has error', e);
+      logError('getNotificationDetails has error.stack', e.stack);
+      return [];
+    }
   }
   async addUserToDynamicNotifications(data, res) {
     let notificationIds = await __.getUserNotification(data.userData);
@@ -957,76 +992,84 @@ class notification {
   }
   async acknowledge(req, res) {
     try {
+      logInfo('acknowledge API has called');
       let requiredResult = await __.checkRequiredFields(req, [
         'notificationId',
       ]);
 
       if (requiredResult.status === false) {
-        __.out(res, 400, requiredResult.missingFields);
-      } else {
-        var data = {
-          userId: req.user._id,
-          notificationId: req.body.notificationId,
-        };
-        if (req.body.qnsresponses) {
-          data.user = req.user;
-          data.qnsresponses = req.qnsresponses;
-        }
-        this.userAcknowledge(data, res);
+        return __.out(res, 400, requiredResult.missingFields);
       }
+      var data = {
+        userId: req.user._id,
+        notificationId: req.body.notificationId,
+      };
+      logInfo('acknowledge API has called by', data);
+      if (req.body.qnsresponses) {
+        data.user = req.user;
+        data.qnsresponses = req.qnsresponses;
+      }
+      this.userAcknowledge(data, res);
     } catch (err) {
-      __.log(err);
-      __.out(res, 500);
+      logError('acknowledge API has error', err);
+      logError('acknowledge API has error.stack', err.stack);
+      return __.out(res, 500);
     }
   }
   async userAcknowledge(data, res) {
     try {
+      logInfo('userAcknowledge has called', data);
       var notificationDetails = await Notification.findOne({
         _id: data.notificationId,
         status: 1,
       });
-      if (notificationDetails) {
-        var isValidUser = await notificationDetails.notifyOverAllUsers.some(
-          (x) => {
-            let y = _.isEqual(x, data.userId);
-            return y;
-          },
-        );
-        var isAcknowledged =
-          await notificationDetails.notifyAcknowledgedUsers.some((x) => {
-            let y = _.isEqual(x, data.userId);
-            return y;
-          });
-
-        if (!isValidUser) {
-          __.out(res, 300, 'Invalid user');
-        } else if (isAcknowledged) {
-          __.out(res, 300, 'Already acknowledged to this notification');
-        } else {
-          await Notification.update(
-            {
-              _id: data.notificationId,
-            },
-            {
-              $addToSet: {
-                notifyAcknowledgedUsers: data.userId,
-              },
-              $push: {
-                userAcknowledgedAt: moment().utc().format(),
-              },
-              $pull: {
-                notifyUnreadUsers: data.userId,
-              },
-            },
-          );
-          __.out(res, 201, 'Notification has been successfully acknowledged');
-        }
-      } else {
-        __.out(res, 300, 'Invalid notification');
+      if (!notificationDetails) {
+        return __.out(res, 300, 'Invalid notification');
       }
+      var isValidUser = await notificationDetails.notifyOverAllUsers.some(
+        (x) => {
+          let y = _.isEqual(x, data.userId);
+          return y;
+        },
+      );
+      if (!isValidUser) {
+        return __.out(res, 300, 'Invalid user');
+      }
+      var isAcknowledged =
+        await notificationDetails.notifyAcknowledgedUsers.some((x) => {
+          let y = _.isEqual(x, data.userId);
+          return y;
+        });
+
+      if (isAcknowledged) {
+        return __.out(res, 300, 'Already acknowledged to this notification');
+      }
+
+      await Notification.updateOne(
+        {
+          _id: data.notificationId,
+        },
+        {
+          $addToSet: {
+            notifyAcknowledgedUsers: data.userId,
+          },
+          $push: {
+            userAcknowledgedAt: moment().utc().format(),
+          },
+          $pull: {
+            notifyUnreadUsers: data.userId,
+          },
+        },
+      );
+      return __.out(
+        res,
+        201,
+        'Notification has been successfully acknowledged',
+      );
     } catch (err) {
-      __.log(err);
-      __.out(res, 500);
+      logError('userAcknowledge has error', err);
+      logError('userAcknowledge has error.stack', err.stack);
+      return __.out(res, 500);
     }
   }
   async download(req, res) {
@@ -1344,13 +1387,16 @@ class notification {
         userId: input.userId,
         notificationId: input.notificationId,
       };
+      logInfo('allTrackedAnswered has called', condition);
+      const [trackedQuestions, questionResponses] = await Promise.all([
+        TrackedQuestion.findOne(condition)
+          .select({ questions: 1, questionAnswered: 1, _id: 0 })
+          .lean(),
+        QuestionResponse.find(condition)
+          .select({ questionId: 1, option: 1, answer: 1, _id: 0 })
+          .lean(),
+      ]);
 
-      const trackedQuestions = await TrackedQuestion.findOne(condition)
-        .select({ questions: 1, questionAnswered: 1, _id: 0 })
-        .lean();
-      const questionResponses = await QuestionResponse.find(condition)
-        .select({ questionId: 1, option: 1, answer: 1, _id: 0 })
-        .lean();
       if (!trackedQuestions || !questionResponses[0]) {
         return false;
       }
@@ -1365,7 +1411,6 @@ class notification {
       const questions = await Question.find({
         _id: { $in: trackedQuestions.questions },
       }).lean();
-
       const nonConditionalQuestions = questions.filter(
         (q) => !q.conditionalQuestions.length,
       );
@@ -1383,7 +1428,8 @@ class notification {
       }
       return false;
     } catch (err) {
-      __.log(err);
+      logError('allTrackedAnswered has error', err);
+      logError('allTrackedAnswered has error', err.stack);
       return __.out(res, 500, err);
     }
   }

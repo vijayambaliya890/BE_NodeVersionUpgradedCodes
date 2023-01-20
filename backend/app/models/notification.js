@@ -137,6 +137,9 @@ const NotificationSchema = new Schema({
         default: 0
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    autoIndex: true
 });
+NotificationSchema.index({businessUnitId:1});
+
 module.exports = mongoose.model('Notification', NotificationSchema);

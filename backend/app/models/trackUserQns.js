@@ -1,41 +1,47 @@
 const mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+  Schema = mongoose.Schema;
 
-const trackUserQnsSchema = new Schema({
+const trackUserQnsSchema = new Schema(
+  {
     userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
     moduleId: {
-        type: Schema.Types.ObjectId,
-        ref: 'BuilderModule'
+      type: Schema.Types.ObjectId,
+      ref: 'BuilderModule',
     },
-    questions: [{
+    questions: [
+      {
         type: Schema.Types.ObjectId,
-        ref: 'Question'
-    }],
+        ref: 'Question',
+      },
+    ],
     notificationId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Notification'
+      type: Schema.Types.ObjectId,
+      ref: 'Notification',
     },
     wallPostId: {
-        type: Schema.Types.ObjectId,
-        ref: 'WallPost'
+      type: Schema.Types.ObjectId,
+      ref: 'WallPost',
     },
     postId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Post'
+      type: Schema.Types.ObjectId,
+      ref: 'Post',
     },
     status: {
-        type: Number,
-        default: 1
+      type: Number,
+      default: 1,
     },
     questionAnswered: {
-        type: Boolean,
-        default: false
-    }
-}, {
-    timestamps: true
-});
-
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    timestamps: true,
+    autoIndex: true,
+  },
+);
+trackUserQnsSchema.index({ notificationId: 1, userId: 1 });
 module.exports = mongoose.model('trackUserQns', trackUserQnsSchema);
