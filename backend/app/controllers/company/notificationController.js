@@ -170,24 +170,26 @@ class notification {
   }
   async read(req, res) {
     try {
+      logInfo('read notification called');
       let requiredResult1 = await __.checkRequiredFields(req, [
         'businessUnitId',
       ]);
       if (requiredResult1.status === false) {
-        __.out(res, 400, requiredResult1.missingFields);
-      } else {
-        var whereData = {
-          businessUnitId: req.body.businessUnitId,
-        };
-        var notificationDetails = await this.getNotificationDetails(
-          whereData,
-          res,
-        );
-        return __.out(res, 201, notificationDetails);
+        return __.out(res, 400, requiredResult1.missingFields);
       }
+      var whereData = {
+        businessUnitId: req.body.businessUnitId,
+      };
+      logInfo('read notification called', whereData);
+      var notificationDetails = await this.getNotificationDetails(
+        whereData,
+        req.query,
+      );
+      return __.out(res, 201, notificationDetails);
     } catch (err) {
-      __.log(err);
-      __.out(res, 500);
+      logError('read notification has error', err);
+      logError('read notification has error.stack', err.stack);
+      return __.out(res, 500);
     }
   }
   async update(req, res) {
@@ -761,159 +763,181 @@ class notification {
     return { count, data };
   }
 
-  async getNotificationDetails(whereData, res) {
-    var findOrFindOne;
-    if (whereData.notificationId)
-      findOrFindOne = Notification.findById(whereData.notificationId);
-    else findOrFindOne = Notification.find(whereData);
-
-    return await findOrFindOne
-      .populate([
-        {
-          path: 'subCategoryId',
-          select: 'name categoryId',
-          populate: {
-            path: 'categoryId',
-            select: 'name',
-          },
-        },
-        {
-          path: 'businessUnitId',
-          select: 'name status',
-          match: {
-            status: 1,
-          },
-          populate: {
-            path: 'sectionId',
-            select: 'name status',
-            match: {
-              status: 1,
+  async getNotificationDetails(whereData, query) {
+    try {
+      logInfo('read getNotificationDetails called', whereData);
+      let { sortBy, sortWith, page, limit, search } = query;
+      const pageNum = !!page ? parseInt(page) : 0;
+      limit = !!limit ? parseInt(limit) : 10;
+      const skip = (pageNum - 1) / limit;
+      if (search) {
+        whereData.title = {
+          $regex: search,
+          $options: 'ixs',
+        };
+      }
+      const [data, count] = await Promise.all([
+        Notification.find(whereData)
+          .sort({ [sortWith]: sortBy === 'desc' ? -1 : 1 })
+          .skip(skip)
+          .limit(limit)
+          .populate([
+            {
+              path: 'subCategoryId',
+              select: 'name categoryId',
+              populate: {
+                path: 'categoryId',
+                select: 'name',
+              },
             },
-            populate: {
-              path: 'departmentId',
+            {
+              path: 'businessUnitId',
+              select: 'name status orgName',
+              match: {
+                status: 1,
+              },
+              // populate: {
+              //   path: 'sectionId',
+              //   select: 'name status',
+              //   match: {
+              //     status: 1,
+              //   },
+              //   populate: {
+              //     path: 'departmentId',
+              //     select: 'name status',
+              //     match: {
+              //       status: 1,
+              //     },
+              //     populate: {
+              //       path: 'companyId',
+              //       select: 'name status',
+              //       match: {
+              //         status: 1,
+              //       },
+              //     },
+              //   },
+              // },
+            },
+            {
+              path: 'notifyByBusinessUnits',
+              strictPopulate: false,
               select: 'name status',
               match: {
                 status: 1,
               },
               populate: {
-                path: 'companyId',
+                path: 'sectionId',
+                select: 'name status',
+                match: {
+                  status: 1,
+                },
+                populate: {
+                  path: 'departmentId',
+                  select: 'name status',
+                  match: {
+                    status: 1,
+                  },
+                  populate: {
+                    path: 'companyId',
+                    select: 'name status',
+                    match: {
+                      status: 1,
+                    },
+                  },
+                },
+              },
+            },
+            {
+              path: 'notifyBySubSkillSets',
+              select: 'name status',
+              strictPopulate: false,
+              match: {
+                status: 1,
+              },
+              populate: {
+                path: 'skillSetId',
                 select: 'name status',
                 match: {
                   status: 1,
                 },
               },
             },
-          },
-        },
-        {
-          path: 'notifyByBusinessUnits',
-          strictPopulate: false,
-          select: 'name status',
-          match: {
-            status: 1,
-          },
-          populate: {
-            path: 'sectionId',
-            select: 'name status',
-            match: {
-              status: 1,
+            {
+              path: 'notifyByAppointments',
+              select: 'name status',
+              strictPopulate: false,
+              match: {
+                status: 1,
+              },
             },
-            populate: {
-              path: 'departmentId',
+            {
+              path: 'notifyByUsers',
+              strictPopulate: false,
+              select: 'name staffId',
+            },
+            {
+              path: 'notifyOverAllUsers',
+              select: 'name staffId',
+              match: { status: 1 },
+            },
+            {
+              path: 'notifyAcknowledgedUsers',
+              select: 'name staffId',
+              match: { status: 1 },
+            },
+            {
+              path: 'notifyUnreadUsers',
+              select: 'name staffId',
+              match: { status: 1 },
+            },
+            {
+              path: 'assignUsers.businessUnits',
+              select: 'name status sectionId orgName',
+              populate: {
+                path: 'sectionId',
+                select: 'name status departmentId',
+                populate: {
+                  path: 'departmentId',
+                  select: 'name status companyId',
+                  populate: {
+                    path: 'companyId',
+                    select: 'name status',
+                  },
+                },
+              },
+            },
+            {
+              path: 'assignUsers.appointments',
+              select: 'name',
+            },
+            {
+              path: 'assignUsers.subSkillSets',
               select: 'name status',
               match: {
                 status: 1,
               },
               populate: {
-                path: 'companyId',
+                path: 'skillSetId',
                 select: 'name status',
                 match: {
                   status: 1,
                 },
               },
             },
-          },
-        },
-        {
-          path: 'notifyBySubSkillSets',
-          select: 'name status',
-          match: {
-            status: 1,
-          },
-          populate: {
-            path: 'skillSetId',
-            select: 'name status',
-            match: {
-              status: 1,
+            {
+              path: 'assignUsers.user',
+              select: 'name staffId',
             },
-          },
-        },
-        {
-          path: 'notifyByAppointments',
-          select: 'name status',
-          match: {
-            status: 1,
-          },
-        },
-        {
-          path: 'notifyByUsers',
-          select: 'name staffId',
-        },
-        {
-          path: 'notifyOverAllUsers',
-          select: 'name staffId',
-          match: { status: 1 },
-        },
-        {
-          path: 'notifyAcknowledgedUsers',
-          select: 'name staffId',
-          match: { status: 1 },
-        },
-        {
-          path: 'notifyUnreadUsers',
-          select: 'name staffId',
-          match: { status: 1 },
-        },
-        {
-          path: 'assignUsers.businessUnits',
-          select: 'name status sectionId',
-          populate: {
-            path: 'sectionId',
-            select: 'name status departmentId',
-            populate: {
-              path: 'departmentId',
-              select: 'name status companyId',
-              populate: {
-                path: 'companyId',
-                select: 'name status',
-              },
-            },
-          },
-        },
-        {
-          path: 'assignUsers.appointments',
-          select: 'name',
-        },
-        {
-          path: 'assignUsers.subSkillSets',
-          select: 'name status',
-          match: {
-            status: 1,
-          },
-          populate: {
-            path: 'skillSetId',
-            select: 'name status',
-            match: {
-              status: 1,
-            },
-          },
-        },
-        {
-          path: 'assignUsers.user',
-          select: 'name staffId',
-        },
-      ])
-      .lean();
+          ])
+          .lean(),
+        Notification.countDocuments(whereData),
+      ]);
+      return { data, count };
+    } catch (e) {
+      logError('getNotificationDetails has error', e);
+      logError('getNotificationDetails has error.stack', e.stack);
+      return [];
+    }
   }
   async addUserToDynamicNotifications(data, res) {
     let notificationIds = await __.getUserNotification(data.userData);
@@ -1045,7 +1069,7 @@ class notification {
     } catch (err) {
       logError('userAcknowledge has error', err);
       logError('userAcknowledge has error.stack', err.stack);
-     return __.out(res, 500);
+      return __.out(res, 500);
     }
   }
   async download(req, res) {
