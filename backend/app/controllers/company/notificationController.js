@@ -968,76 +968,84 @@ class notification {
   }
   async acknowledge(req, res) {
     try {
+      logInfo('acknowledge API has called');
       let requiredResult = await __.checkRequiredFields(req, [
         'notificationId',
       ]);
 
       if (requiredResult.status === false) {
-        __.out(res, 400, requiredResult.missingFields);
-      } else {
-        var data = {
-          userId: req.user._id,
-          notificationId: req.body.notificationId,
-        };
-        if (req.body.qnsresponses) {
-          data.user = req.user;
-          data.qnsresponses = req.qnsresponses;
-        }
-        this.userAcknowledge(data, res);
+        return __.out(res, 400, requiredResult.missingFields);
       }
+      var data = {
+        userId: req.user._id,
+        notificationId: req.body.notificationId,
+      };
+      logInfo('acknowledge API has called by', data);
+      if (req.body.qnsresponses) {
+        data.user = req.user;
+        data.qnsresponses = req.qnsresponses;
+      }
+      this.userAcknowledge(data, res);
     } catch (err) {
-      __.log(err);
-      __.out(res, 500);
+      logError('acknowledge API has error', err);
+      logError('acknowledge API has error.stack', err.stack);
+      return __.out(res, 500);
     }
   }
   async userAcknowledge(data, res) {
     try {
+      logInfo('userAcknowledge has called', data);
       var notificationDetails = await Notification.findOne({
         _id: data.notificationId,
         status: 1,
       });
-      if (notificationDetails) {
-        var isValidUser = await notificationDetails.notifyOverAllUsers.some(
-          (x) => {
-            let y = _.isEqual(x, data.userId);
-            return y;
-          },
-        );
-        var isAcknowledged =
-          await notificationDetails.notifyAcknowledgedUsers.some((x) => {
-            let y = _.isEqual(x, data.userId);
-            return y;
-          });
-
-        if (!isValidUser) {
-          __.out(res, 300, 'Invalid user');
-        } else if (isAcknowledged) {
-          __.out(res, 300, 'Already acknowledged to this notification');
-        } else {
-          await Notification.update(
-            {
-              _id: data.notificationId,
-            },
-            {
-              $addToSet: {
-                notifyAcknowledgedUsers: data.userId,
-              },
-              $push: {
-                userAcknowledgedAt: moment().utc().format(),
-              },
-              $pull: {
-                notifyUnreadUsers: data.userId,
-              },
-            },
-          );
-          __.out(res, 201, 'Notification has been successfully acknowledged');
-        }
-      } else {
-        __.out(res, 300, 'Invalid notification');
+      if (!notificationDetails) {
+        return __.out(res, 300, 'Invalid notification');
       }
+      var isValidUser = await notificationDetails.notifyOverAllUsers.some(
+        (x) => {
+          let y = _.isEqual(x, data.userId);
+          return y;
+        },
+      );
+      if (!isValidUser) {
+        return __.out(res, 300, 'Invalid user');
+      }
+      var isAcknowledged =
+        await notificationDetails.notifyAcknowledgedUsers.some((x) => {
+          let y = _.isEqual(x, data.userId);
+          return y;
+        });
+
+      if (isAcknowledged) {
+        return __.out(res, 300, 'Already acknowledged to this notification');
+      }
+
+      await Notification.updateOne(
+        {
+          _id: data.notificationId,
+        },
+        {
+          $addToSet: {
+            notifyAcknowledgedUsers: data.userId,
+          },
+          $push: {
+            userAcknowledgedAt: moment().utc().format(),
+          },
+          $pull: {
+            notifyUnreadUsers: data.userId,
+          },
+        },
+      );
+      return __.out(
+        res,
+        201,
+        'Notification has been successfully acknowledged',
+      );
     } catch (err) {
-      __.log(err);
-      __.out(res, 500);
+      logError('userAcknowledge has error', err);
+      logError('userAcknowledge has error.stack', err.stack);
+     return __.out(res, 500);
     }
   }
   async download(req, res) {
