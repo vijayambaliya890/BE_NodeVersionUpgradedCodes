@@ -15,6 +15,7 @@ const mongoose = require('mongoose'),
   fs = require('fs-extra'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class notification {
   async create(req, res) {
@@ -322,13 +323,14 @@ class notification {
 
   async myNotifications(req, res) {
     try {
+      logInfo('myNotifications has called', req.user._id);
       var data = {
         userId: req.user._id,
       };
       var myNotifications = await this.userNotifications(data, res);
       __.out(res, 201, myNotifications);
     } catch (err) {
-      __.log(err);
+      logError('myNotifications has error', err);
       __.out(res, 500);
     }
   }
@@ -460,7 +462,7 @@ class notification {
       // Add Mimetype for attached files
       for (let index in results) {
         if (results[index].notificationAttachment) {
-          let attachMimeType = await mime.contentType(
+          let attachMimeType = mime.contentType(
             path.extname(results[index].notificationAttachment),
           );
           results[index].mimeType = attachMimeType;
@@ -568,85 +570,94 @@ class notification {
   }
 
   async userNotifications(data, res) {
-    __.log(new Date(), new Date().toGMTString());
-    var results = await Notification.aggregate([
-      {
-        $match: {
-          status: 1,
-          notifyOverAllUsers: mongoose.Types.ObjectId(data.userId),
-          activeFrom: {
-            $lte: new Date(),
+    try {
+      logInfo('userNotifications has called', data);
+      var results = await Notification.aggregate([
+        {
+          $match: {
+            status: 1,
+            notifyOverAllUsers: mongoose.Types.ObjectId(data.userId),
+            activeFrom: {
+              $lte: new Date(),
+            },
+            activeTo: {
+              $gte: new Date(),
+            },
           },
-          activeTo: {
-            $gte: new Date(),
+        },
+        {
+          $lookup: {
+            from: 'subcategories',
+            localField: 'subCategoryId',
+            foreignField: '_id',
+            as: 'subCategory',
           },
         },
-      },
-      {
-        $lookup: {
-          from: 'subcategories',
-          localField: 'subCategoryId',
-          foreignField: '_id',
-          as: 'subCategory',
+        {
+          $unwind: '$subCategory',
         },
-      },
-      {
-        $unwind: '$subCategory',
-      },
-      {
-        $lookup: {
-          from: 'categories',
-          localField: 'subCategory.categoryId',
-          foreignField: '_id',
-          as: 'subCategory.categoryId',
-        },
-      },
-      {
-        $unwind: '$subCategory.categoryId',
-      },
-      {
-        $project: {
-          _id: 1,
-          effectiveFrom: 1,
-          effectiveTo: 1,
-          activeFrom: 1,
-          activeTo: 1,
-          title: 1,
-          subTitle: 1,
-          description: 1,
-          notificationAttachment: 1,
-          subCategory: 1,
-          isAcknowledged: {
-            $setIsSubset: [
-              [mongoose.Types.ObjectId(data.userId)],
-              '$notifyAcknowledgedUsers',
-            ],
+        {
+          $lookup: {
+            from: 'categories',
+            localField: 'subCategory.categoryId',
+            foreignField: '_id',
+            as: 'subCategory.categoryId',
           },
-          moduleIncluded: 1,
-          moduleId: 1,
-          viewOnly: 1,
         },
-      },
-    ]);
+        {
+          $unwind: '$subCategory.categoryId',
+        },
+        {
+          $project: {
+            _id: 1,
+            effectiveFrom: 1,
+            effectiveTo: 1,
+            activeFrom: 1,
+            activeTo: 1,
+            title: 1,
+            subTitle: 1,
+            description: 1,
+            notificationAttachment: 1,
+            subCategory: 1,
+            isAcknowledged: {
+              $setIsSubset: [
+                [mongoose.Types.ObjectId(data.userId)],
+                '$notifyAcknowledgedUsers',
+              ],
+            },
+            moduleIncluded: 1,
+            moduleId: 1,
+            viewOnly: 1,
+          },
+        },
+      ]);
 
-    // Add Mimetype for attached files
-    for (let index in results) {
-      if (results[index].notificationAttachment) {
-        let attachMimeType = await mime.contentType(
-          path.extname(results[index].notificationAttachment),
-        );
-        results[index].mimeType = attachMimeType;
+      // Add Mimetype for attached files
+      for (let index in results) {
+        if (results[index].notificationAttachment) {
+          let attachMimeType = mime.contentType(
+            path.extname(results[index].notificationAttachment),
+          );
+          results[index].mimeType = attachMimeType;
+        }
+        if (!results[index].moduleIncluded) {
+          results[index].questionsCompleted = true;
+        } else if (results[index].moduleIncluded && !!results[index].moduleId) {
+          results[index].questionsCompleted = await this.allTrackedAnswered(
+            res,
+            {
+              userId: data.userId,
+              notificationId: results[index]._id,
+            },
+          );
+        }
       }
-      if (!results[index].moduleIncluded) {
-        results[index].questionsCompleted = true;
-      } else if (results[index].moduleIncluded && !!results[index].moduleId) {
-        results[index].questionsCompleted = await this.allTrackedAnswered(res, {
-          userId: data.userId,
-          notificationId: results[index]._id,
-        });
-      }
+      return results;
+    } catch (e) {
+      logError('userNotifications has error', e);
+      logError('userNotifications has error', e.stack);
+      return [];
     }
-    return results;
   }
 
   async viewAllNotification(req, res) {
@@ -1344,13 +1355,16 @@ class notification {
         userId: input.userId,
         notificationId: input.notificationId,
       };
+      logInfo('allTrackedAnswered has called', condition);
+      const [trackedQuestions, questionResponses] = await Promise.all([
+        TrackedQuestion.findOne(condition)
+          .select({ questions: 1, questionAnswered: 1, _id: 0 })
+          .lean(),
+        QuestionResponse.find(condition)
+          .select({ questionId: 1, option: 1, answer: 1, _id: 0 })
+          .lean(),
+      ]);
 
-      const trackedQuestions = await TrackedQuestion.findOne(condition)
-        .select({ questions: 1, questionAnswered: 1, _id: 0 })
-        .lean();
-      const questionResponses = await QuestionResponse.find(condition)
-        .select({ questionId: 1, option: 1, answer: 1, _id: 0 })
-        .lean();
       if (!trackedQuestions || !questionResponses[0]) {
         return false;
       }
@@ -1365,7 +1379,6 @@ class notification {
       const questions = await Question.find({
         _id: { $in: trackedQuestions.questions },
       }).lean();
-
       const nonConditionalQuestions = questions.filter(
         (q) => !q.conditionalQuestions.length,
       );
@@ -1383,7 +1396,8 @@ class notification {
       }
       return false;
     } catch (err) {
-      __.log(err);
+      logError('allTrackedAnswered has error', err);
+      logError('allTrackedAnswered has error', err.stack);
       return __.out(res, 500, err);
     }
   }
