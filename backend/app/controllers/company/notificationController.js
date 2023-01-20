@@ -10,7 +10,7 @@ const mongoose = require('mongoose'),
   TrackedQuestion = require('../../models/trackUserQns'),
   User = require('../../models/user'),
   FCM = require('../../../helpers/fcm'),
-  json2csv = require('json2csv').parse,
+  { parse } = require('json2csv'),
   mime = require('mime-types'),
   fs = require('fs-extra'),
   _ = require('lodash'),
@@ -1074,285 +1074,255 @@ class notification {
   }
   async download(req, res) {
     try {
+      logInfo('notificationController: download', req.body);
       let requiredResult = await __.checkRequiredFields(req, [
         'notificationId',
         'date',
       ]);
       if (requiredResult.status === false) {
-        __.out(res, 400, requiredResult.missingFields);
-      } else {
-        var notificationDetails = await Notification.findById(
-          req.body.notificationId,
+        return __.out(res, 400, requiredResult.missingFields);
+      }
+      var notificationDetails = await Notification.findById(
+        req.body.notificationId,
+      ).populate([
+          {
+            path: 'notifyAcknowledgedUsers',
+            select: 'name staffId  appointmentId status parentBussinessUnitId',
+            match: { status: 1 },
+            populate: {
+              path: 'appointmentId',
+              select: 'name',
+            },
+            populate: {
+              path: 'parentBussinessUnitId sectionId',
+              select: 'name orgName',
+            },
+          },
+          {
+            path: 'notifyUnreadUsers',
+            select: 'name staffId appointmentId status parentBussinessUnitId',
+            match: { status: 1 },
+            populate: {
+              path: 'appointmentId',
+              select: 'name',
+            },
+            populate: {
+              path: 'parentBussinessUnitId',
+              select: 'name orgName',
+            },
+          },
+        ])
+        .select(
+          'title subTitle description notifyUnreadUsers notifyAcknowledgedUsers userAcknowledgedAt moduleId moduleIncluded',
         )
-          .populate([
-            {
-              path: 'notifyAcknowledgedUsers',
-              select:
-                'name staffId  appointmentId status parentBussinessUnitId',
-              match: { status: 1 },
-              populate: {
-                path: 'appointmentId',
-                select: 'name',
-              },
-              populate: {
-                path: 'parentBussinessUnitId sectionId',
-                select: 'name',
-                populate: {
-                  path: 'sectionId departmentId',
-                  select: 'name',
-                  populate: {
-                    path: 'departmentId companyId',
-                    select: 'name',
-                    populate: {
-                      path: 'companyId',
-                      select: 'name',
-                    },
-                  },
-                },
-              },
-            },
-            {
-              path: 'notifyUnreadUsers',
-              select: 'name staffId appointmentId status parentBussinessUnitId',
-              match: { status: 1 },
-              populate: {
-                path: 'appointmentId',
-                select: 'name',
-              },
-              populate: {
-                path: 'parentBussinessUnitId sectionId',
-                select: 'name',
-                populate: {
-                  path: 'sectionId departmentId',
-                  select: 'name',
-                  populate: {
-                    path: 'departmentId companyId',
-                    select: 'name',
-                    populate: {
-                      path: 'companyId',
-                      select: 'name',
-                    },
-                  },
-                },
-              },
-            },
-          ])
-          .select(
-            'title subTitle description notifyUnreadUsers notifyAcknowledgedUsers userAcknowledgedAt moduleId moduleIncluded',
-          )
-          .lean();
-        if (!!notificationDetails) {
-          var jsonArray = [],
-            title = notificationDetails.title,
-            subTitle = notificationDetails.subTitle,
-            description = notificationDetails.description,
-            unread = notificationDetails.notifyUnreadUsers,
-            unreadCount = notificationDetails.notifyUnreadUsers.length,
-            acknowledged = notificationDetails.notifyAcknowledgedUsers,
-            timeZone = moment
-              .parseZone(req.body.date, 'MM-DD-YYYY HH:mm:ss Z')
-              .format('Z'),
-            questionTitles = [];
+        .lean();
 
-          async function processAcknowledgedArray() {
-            // getting all notification answers
-            let notificationAnswers = await QuestionResponse.find({
-              notificationId: notificationDetails._id,
-            }).lean();
-            notificationAnswers = JSON.parse(
-              JSON.stringify(notificationAnswers),
-            );
 
-            // Question Options
-            const questions = !!notificationDetails.moduleId
-              ? await Question.find({
-                  moduleId: notificationDetails.moduleId,
-                  status: 1,
-                })
-                  .select('options type')
-                  .sort({
-                    indexNum: 1,
-                  })
-                  .lean()
-              : [];
-            questionTitles = questions.map((v, i) => `Q${i + 1}`);
 
-            acknowledged.forEach((ackUser, i) => {
-              var json = {};
-              json.title = title;
-              json.subTitle = subTitle;
-              json.description = description;
-              json.StaffName = ackUser.name ? ackUser.name : '';
-              json.StaffID = (
-                ackUser.staffId ? ackUser.staffId : ''
-              ).toString();
-              json.StaffAppointment = ackUser.appointmentId
-                ? ackUser.appointmentId.name
-                : '';
-              json.NotificationStatus = 'Acknowledged';
-              json.DateOfAcknowledgement = notificationDetails
-                .userAcknowledgedAt[i]
-                ? moment
-                    .utc(notificationDetails.userAcknowledgedAt[i])
-                    .utcOffset(`${timeZone}`)
-                    .format('DD-MM-YYYY HH:mm:ss')
-                : '';
-              json[
-                'Staff Parent Business Unit'
-              ] = `${ackUser.parentBussinessUnitId.sectionId.departmentId.companyId.name} > ${ackUser.parentBussinessUnitId.sectionId.departmentId.name} > ${ackUser.parentBussinessUnitId.sectionId.name} > ${ackUser.parentBussinessUnitId.name}`;
+      if (!notificationDetails) {
+        return __.out(res, 300, 'Invalid notification');
+      }
+      var jsonArray = [],
+        title = notificationDetails.title,
+        subTitle = notificationDetails.subTitle,
+        description = notificationDetails.description,
+        unread = notificationDetails.notifyUnreadUsers,
+        unreadCount = notificationDetails.notifyUnreadUsers.length,
+        acknowledged = notificationDetails.notifyAcknowledgedUsers,
+        timeZone = moment
+          .parseZone(req.body.date, 'MM-DD-YYYY HH:mm:ss Z')
+          .format('Z'),
+        questionTitles = [];
+      // getting all notification answers
+      let [notificationAnswers, questions] = await Promise.all([
+        QuestionResponse.find({
+          notificationId: notificationDetails._id,
+        }).lean(),
+        !!notificationDetails.moduleId
+          ? await Question.find({
+              moduleId: notificationDetails.moduleId,
+              status: 1,
+            })
+              .select('options type')
+              .sort({
+                indexNum: 1,
+              })
+              .lean()
+          : [],
+      ]);
 
-              if (!!questions && !!notificationAnswers.length) {
-                const isObject = (obj) =>
-                  (typeof obj === 'object' && obj !== null) ||
-                  typeof obj === 'function';
-                const formatTime = (time) => {
-                  if (`${time}`.includes('-')) {
-                    return time;
-                  } else if (time) {
-                    return moment(time, 'HH:mm:ss').format('hh-mm-A');
-                  }
-                };
-                const manageQuesitons = notificationAnswers.filter(
-                  (answer) =>
-                    answer.userId.toString() === ackUser._id.toString(),
-                );
-                questions.forEach((question, i) => {
-                  const manageQuesiton = manageQuesitons.find(
-                    (v) => v.questionId.toString() === question._id.toString(),
-                  );
-                  let answer = null;
-                  if (!!manageQuesiton) {
-                    switch (question.type) {
-                      case 1:
-                      case 8:
-                      case 9:
-                      case 11:
-                      case 13:
-                        answer = manageQuesiton.answer || '--';
-                        break;
-                      case 2:
-                      case 3:
-                      case 4:
-                        answer = Array.isArray(manageQuesiton.answer)
-                          ? manageQuesiton.answer[0].value || '--'
-                          : manageQuesiton.answer.value || '--';
-                        break;
-                      case 11:
-                        answer = isObject(manageQuesiton.answer)
-                          ? manageQuesiton.answer.value
-                          : manageQuesiton.answer;
-                        break;
-                      case 5:
-                      case 15:
-                        answer =
-                          manageQuesiton.answer
-                            .map((a) => a.value)
-                            .join(', ') || '--';
-                        break;
-                      case 10:
-                        answer =
-                          (manageQuesiton.answer.date || '') +
-                          ' ' +
-                          (formatTime(manageQuesiton.answer.time) || '');
-                        break;
-                      case 12:
-                        answer = manageQuesiton.answer.name || '--';
-                        break;
-                      case 14:
-                        answer =
-                          manageQuesiton && manageQuesiton.answer.length
-                            ? manageQuesiton.answer
-                                .map((v) => (!!v.text ? v.text : v.name))
-                                .join(', ')
-                            : '--';
-                        break;
-                      case 16:
-                        answer =
-                          manageQuesiton && manageQuesiton.answer.length
-                            ? manageQuesiton.answer
-                                .map((v) => v.value)
-                                .join(', ')
-                            : '--';
-                        break;
-                      default:
-                        answer = '--';
-                        break;
-                    }
-                  }
-                  json[`Q${i + 1}`] = !manageQuesiton ? '--' : answer;
-                });
+      // Question Options
+
+      questionTitles = questions.map((v, i) => `Q${i + 1}`);
+      async function processAcknowledgedArray() {
+        acknowledged.forEach((ackUser, i) => {
+          var json = {};
+          json.title = title;
+          json.subTitle = subTitle;
+          json.description = description;
+          json.StaffName = ackUser.name ? ackUser.name : '';
+          json.StaffID = (ackUser.staffId ? ackUser.staffId : '').toString();
+          json.StaffAppointment = ackUser.appointmentId
+            ? ackUser.appointmentId.name
+            : '';
+          json.NotificationStatus = 'Acknowledged';
+          json.DateOfAcknowledgement = notificationDetails.userAcknowledgedAt[i]
+            ? moment
+                .utc(notificationDetails.userAcknowledgedAt[i])
+                .utcOffset(`${timeZone}`)
+                .format('DD-MM-YYYY HH:mm:ss')
+            : '';
+          json[
+            'Staff Parent Business Unit'
+          ] = `${ackUser.parentBussinessUnitId?.orgName}`;
+
+          if (!!questions && !!notificationAnswers.length) {
+            const isObject = (obj) =>
+              (typeof obj === 'object' && obj !== null) ||
+              typeof obj === 'function';
+            const formatTime = (time) => {
+              if (`${time}`.includes('-')) {
+                return time;
+              } else if (time) {
+                return moment(time, 'HH:mm:ss').format('hh-mm-A');
               }
-              jsonArray.push(json);
-            });
-          }
-          async function processUnreadArray() {
-            for (var j = 0; j < unreadCount; j++) {
-              var json1 = {};
-              json1.title = title;
-              json1.subTitle = subTitle;
-              json1.description = description;
-              json1.StaffName = unread[j].name ? unread[j].name : '';
-              json1.StaffID = (
-                unread[j].staffId ? unread[j].staffId : ''
-              ).toString();
-              json1.StaffAppointment = unread[j].appointmentId
-                ? unread[j].appointmentId.name
-                : '';
-              json1.NotificationStatus = 'Unread';
-              json1.DateOfAcknowledgement = ' ';
-              json1[
-                'Staff Parent Business Unit'
-              ] = `${unread[j].parentBussinessUnitId.sectionId.departmentId.companyId.name} > ${unread[j].parentBussinessUnitId.sectionId.departmentId.name} > ${unread[j].parentBussinessUnitId.sectionId.name} > ${unread[j].parentBussinessUnitId.name}`;
-              await jsonArray.push(json1);
-            }
-          }
-          await processAcknowledgedArray();
-          await processUnreadArray();
-          var csvLink = '',
-            fieldsArray = [
-              'title',
-              'subTitle',
-              'description',
-              'StaffName',
-              'StaffID',
-              'StaffAppointment',
-              'NotificationStatus',
-              'DateOfAcknowledgement',
-              'Staff Parent Business Unit',
-            ];
-          fieldsArray = [...fieldsArray, ...questionTitles];
-          if (jsonArray.length !== 0) {
-            var csv = json2csv({
-              data: jsonArray,
-              fields: fieldsArray,
-            });
-            let fileName = Math.random().toString(36).substr(2, 10);
-            fs.writeFile(
-              `./public/uploads/notificationExports/${fileName}.csv`,
-              csv,
-              (err) => {
-                if (err) {
-                  __.log('json2csv err' + err);
-                  __.out(res, 500);
-                } else {
-                  csvLink = `uploads/notificationExports/${fileName}.csv`;
-
-                  __.out(res, 201, {
-                    csvLink: csvLink,
-                  });
-                }
-              },
+            };
+            const manageQuesitons = notificationAnswers.filter(
+              (answer) => answer.userId.toString() === ackUser._id.toString(),
             );
-          } else {
-            __.out(res, 201, {
-              csvLink: csvLink,
+            questions.forEach((question, i) => {
+              const manageQuesiton = manageQuesitons.find(
+                (v) => v.questionId.toString() === question._id.toString(),
+              );
+              let answer = null;
+              if (!!manageQuesiton) {
+                switch (question.type) {
+                  case 1:
+                  case 8:
+                  case 9:
+                  case 11:
+                  case 13:
+                    answer = manageQuesiton.answer || '--';
+                    break;
+                  case 2:
+                  case 3:
+                  case 4:
+                    answer = Array.isArray(manageQuesiton.answer)
+                      ? manageQuesiton.answer[0].value || '--'
+                      : manageQuesiton.answer.value || '--';
+                    break;
+                  case 11:
+                    answer = isObject(manageQuesiton.answer)
+                      ? manageQuesiton.answer.value
+                      : manageQuesiton.answer;
+                    break;
+                  case 5:
+                  case 15:
+                    answer =
+                      manageQuesiton.answer.map((a) => a.value).join(', ') ||
+                      '--';
+                    break;
+                  case 10:
+                    answer =
+                      (manageQuesiton.answer.date || '') +
+                      ' ' +
+                      (formatTime(manageQuesiton.answer.time) || '');
+                    break;
+                  case 12:
+                    answer = manageQuesiton.answer.name || '--';
+                    break;
+                  case 14:
+                    answer =
+                      manageQuesiton && manageQuesiton.answer.length
+                        ? manageQuesiton.answer
+                            .map((v) => (!!v.text ? v.text : v.name))
+                            .join(', ')
+                        : '--';
+                    break;
+                  case 16:
+                    answer =
+                      manageQuesiton && manageQuesiton.answer.length
+                        ? manageQuesiton.answer.map((v) => v.value).join(', ')
+                        : '--';
+                    break;
+                  default:
+                    answer = '--';
+                    break;
+                }
+              }
+              json[`Q${i + 1}`] = !manageQuesiton ? '--' : answer;
             });
           }
-        } else __.out(res, 300, 'Invalid notification');
+          jsonArray.push(json);
+        });
+      }
+      async function processUnreadArray() {
+        for (var j = 0; j < unreadCount; j++) {
+          var json1 = {};
+          json1.title = title;
+          json1.subTitle = subTitle;
+          json1.description = description;
+          json1.StaffName = unread[j].name ? unread[j].name : '';
+          json1.StaffID = (
+            unread[j].staffId ? unread[j].staffId : ''
+          ).toString();
+          json1.StaffAppointment = unread[j].appointmentId
+            ? unread[j].appointmentId.name
+            : '';
+          json1.NotificationStatus = 'Unread';
+          json1.DateOfAcknowledgement = ' ';
+          json1[
+            'Staff Parent Business Unit'
+          ] = `${unread[j].parentBussinessUnitId.orgName}`;
+          jsonArray.push(json1);
+        }
+      }
+      await processAcknowledgedArray();
+      await processUnreadArray();
+      var csvLink = '',
+        fieldsArray = [
+          'title',
+          'subTitle',
+          'description',
+          'StaffName',
+          'StaffID',
+          'StaffAppointment',
+          'NotificationStatus',
+          'DateOfAcknowledgement',
+          'Staff Parent Business Unit',
+        ];
+      fieldsArray = [...fieldsArray, ...questionTitles];
+      // return res.json({fieldsArray,jsonArray })
+      if (jsonArray.length !== 0) {
+        const fields = fieldsArray;
+        const opts = { fields };
+        var csv = parse(jsonArray, opts);
+        let fileName = Math.random().toString(36).substr(2, 10);
+        fs.writeFile(
+          `./public/uploads/notificationExports/${fileName}.csv`,
+          csv,
+          (err) => {
+            if (err) {
+            logError('notificationController: download', err);
+            return  __.out(res, 500);
+            } 
+              csvLink = `uploads/notificationExports/${fileName}.csv`;
+
+              return __.out(res, 201, {
+                csvLink: csvLink,
+              });
+            
+          },
+        );
+      } else {
+       return __.out(res, 201, {
+          csvLink: csvLink,
+        });
       }
     } catch (err) {
-      __.log(err);
-      __.out(res, 500);
+      logError('notificationController: download', err);
+      logError('notificationController: download stack', err.stack);
+     return __.out(res, 500);
     }
   }
 
