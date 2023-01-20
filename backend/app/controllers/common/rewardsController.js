@@ -5,7 +5,10 @@ const mongoose = require("mongoose"),
   moment = require('moment'),
   Wishlist = require("../../models/redeemedWishlist"),
   __ = require("../../../helpers/globalFunctions"),
-  rewardURL = "https://cerrapoints.com";
+  rewardURL = "https://cerrapoints.com",
+  rewardsVouchersList = require('../../models/rewardsVouchersList'),
+  NewReward = require('../../models/rewards')
+
 const isJSON = str => {
   try {
     return (JSON.parse(str) && !!str);
@@ -840,6 +843,122 @@ class redeemedRewards {
       __.out(res, 500);
     }
   }
+
+  async voucherActionRequest(credential, urlParams) {
+    return await new Promise((resolve, reject) => {
+      const body = { manual_quantity: 1, distribution_mode: 'manual' };
+      request(
+        {
+          url: `https://api.demo.uniqrewards.com/v2/catalogs/${urlParams.product_class}/product_assets/${urlParams.order_number}/products/${urlParams.product_code}/vouchers/actions/request`,
+          body: JSON.stringify(body),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Client-Id":"86338c16bd6e4cc5bf7ba6d8c34cf0ea",
+            "X-Client-Secret":"a30fB1bD25864059Bf664561A873CBCa",
+            "Authorization":`Bearer ${credential.access_token}`,
+            "token": credential.access_token
+          },
+        },
+        function (error, response, body) {
+          if (error) {
+            reject("Invalid login!");
+          }
+          try {
+            return resolve(body);
+          } catch (error) {
+            reject(body);
+          }
+        }
+      )
+    })
+  }
+
+  async redemptionVouchersRequest(req, res) {
+    try {
+      if (!req.params.productCode) {
+        return __.out(res, 400, 'Product code is missing from url!');
+      }
+
+      const isProductCodeExist = await rewardsVouchersList.findOne({productCode: req.params.productCode});
+      
+      if (!isProductCodeExist) {
+        return __.out(res, 404, 'Product code does not exist!');
+      }
+
+      const rewardHeaders = await __.getUserToken();
+      const requestBody = { 
+        product_class: 'ETX_001',
+        order_number: isProductCodeExist.orderNumber,
+        product_code: isProductCodeExist.productCode 
+      };
+      let voucherResponse = await await this.voucherActionRequest(rewardHeaders, requestBody)
+      voucherResponse = JSON.parse(voucherResponse);
+      const responseBody = {
+        ...voucherResponse.data[0],
+        productCode: isProductCodeExist.productCode,
+        orderNumber: isProductCodeExist.orderNumber,
+        productName: isProductCodeExist.productName,
+        description: isProductCodeExist.description
+      }
+      this.saveRewardDetail(responseBody)
+      __.out(res, 201, responseBody);
+    } catch (err) {
+      __.log(err);
+      return __.out(res, 300, 'something went wrong try later');
+    }
+  }
+
+  async saveRewardDetail(requestBody) {
+    try {
+      await new NewReward(requestBody).save();
+    } catch (error) {
+      __.log(error);
+    }
+  }
+
+  async saveVoucherDetail(req, res) {
+    try {
+      let voucherList = req.body;
+      if (!voucherList || voucherList.length === 0) {
+        return __.out(res, 201, 'There is no product!');
+      }
+
+      const productPayload = [];
+      for (const product of voucherList) {
+        if (product.orderNumber && product.productCode && product.productName && product.description) {
+          productPayload.push({
+              orderNumber: product.orderNumber,
+              productCode: product.productCode,
+              productName: product.productName,
+              description: product.description
+          })
+        }
+      }
+      await rewardsVouchersList.insertMany(productPayload);
+      return __.out(res, 201, 'Product saved!');
+    } catch (error) {
+      __.log(error);
+      return res.status(300).json({
+        redeemSuccess: false,
+        message: "Something went wrong try later"
+      });
+    }
+  }
+
+  async getVoucherList(req, res) {
+    try {
+        const voucherlist = await rewardsVouchersList.find().select('productCode productName description orderNumber');
+        return __.out(res, 201, voucherlist);
+    } catch (error) {
+      __.log(error);
+      return res.status(300).json({
+        redeemSuccess: false,
+        message: "Something went wrong try later"
+      });
+    }
+  }
+
 }
 
 redeemedRewards = new redeemedRewards();
