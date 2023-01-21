@@ -132,7 +132,7 @@ class ManageNotification {
           let updateField = {
             actualStart, actualEnd
           }
-          let notificationUpdate = await manageNotificationRepo.updateField(notifcationIdUpdate, updateField);
+          let notificationUpdate = await ManageNotificationRepo.updateField(notifcationIdUpdate, updateField);
         }
         return res.status(201).json({ success: true, msg: "Daily notification is created successfully", data: notification })
       } else {
@@ -189,7 +189,7 @@ class ManageNotification {
         let updateField = {
           actualStart, actualEnd
         }
-        let notificationUpdate = await manageNotificationRepo.updateField(notifcationIdUpdate, updateField);
+        let notificationUpdate = await ManageNotificationRepo.updateField(notifcationIdUpdate, updateField);
       }
       return res.status(201).json({ success: true, msg: "Weekly notification created successfully", data: notification })
     } catch (e) {
@@ -248,7 +248,7 @@ class ManageNotification {
         let updateField = {
           actualStart, actualEnd
         }
-        let notificationUpdateData = await manageNotificationRepo.updateField(notifcationIdUpdate, updateField);
+        let notificationUpdateData = await ManageNotificationRepo.updateField(notifcationIdUpdate, updateField);
       }
       return res.status(201).json({ success: true, msg: "Monthly notification is created successfully", data: notification })
     } catch (e) {
@@ -575,7 +575,7 @@ class ManageNotification {
         } else {
           const notiLog = await this.updateadhocSchedule(noti._id, req)
         }
-        await manageNotificationRepo.cancelled(noti._id, notificationStatus)
+        await ManageNotificationRepo.cancelled(noti._id, notificationStatus)
         return res.json({ success: true, msg: "Cancelled Successfully" });
       } else {
         return res.json({ success: false, msg: "Not found" });
@@ -671,7 +671,7 @@ class ManageNotification {
       }
       const updateId = body._id;
       delete body._id;
-      let notification = await manageNotificationRepo.updateOne(updateId, body);
+      let notification = await ManageNotificationRepo.updateOne(updateId, body);
       // const notification = await Notification.findOneAndUpdate({ _id: updateId }, body, { new: true })
       if (notification) {
         const deleted = await this.deleteNextSchedule(updateId, req, 'adhoc');
@@ -715,7 +715,7 @@ class ManageNotification {
       let date = new Date(body.effectiveFrom);
       const updateId = body._id;
       delete body._id;
-      let notification = await manageNotificationRepo.updateOne(updateId, body);
+      let notification = await ManageNotificationRepo.updateOne(updateId, body);
       // const notification = await Notification.findOneAndUpdate({ _id: updateId }, body, { new: true })
       if (!body.isPublish) {
         return res.status(201).json({ success: true, msg: "Daily notification updated successfully as draft", data: notification })
@@ -748,10 +748,10 @@ class ManageNotification {
           let updateField = {
             actualStart, actualEnd
           }
-          let notificationUpdate = await manageNotificationRepo.updateField(updateId, updateField);
+          let notificationUpdate = await ManageNotificationRepo.updateField(updateId, updateField);
         }
         if (body.isSend) {
-          const sendNotificationD = await manageNotificationRepo.sendImmidateNotification(updateId, true)
+          const sendNotificationD = await ManageNotificationRepo.sendImmidateNotification(updateId, true)
         }
         return res.status(201).json({ success: true, msg: "Daily notification is updated successfully", data: notification })
       } else {
@@ -790,7 +790,7 @@ class ManageNotification {
       }
       const updateId = body._id;
       delete body._id;
-      let notification = await manageNotificationRepo.updateOne(updateId, body);
+      let notification = await ManageNotificationRepo.updateOne(updateId, body);
       // const notification = await Notification.findOneAndUpdate({ _id: updateId }, body, { new: true })
       if (!notification.isPublish) {
         return res.status(201).json({ success: true, msg: "Weekly notification is updated successfully as a draft", data: notification })
@@ -824,10 +824,10 @@ class ManageNotification {
           let updateField = {
             actualStart, actualEnd
           }
-          let notificationUpdate = await manageNotificationRepo.updateField(updateId, updateField);
+          let notificationUpdate = await ManageNotificationRepo.updateField(updateId, updateField);
         }
         if (body.isSend) {
-          const sendNotificationD = await manageNotificationRepo.sendImmidateNotification(updateId, true)
+          const sendNotificationD = await ManageNotificationRepo.sendImmidateNotification(updateId, true)
         }
         return res.status(201).json({ success: true, msg: "Weekly notification is updated successfully", data: notification })
       } else {
@@ -866,7 +866,7 @@ class ManageNotification {
       }
       const updateId = body._id;
       delete body._id;
-      let notification = await manageNotificationRepo.updateOne(updateId, body);
+      let notification = await ManageNotificationRepo.updateOne(updateId, body);
       // const notification = await Notification.findOneAndUpdate({ _id: updateId }, body, { new: true });
       if (!notification.isPublish) {
         return res.status(201).json({ success: true, msg: "Monthly notification is updated successfully as a draft", data: notification })
@@ -903,10 +903,10 @@ class ManageNotification {
           let updateField = {
             actualStart, actualEnd
           }
-          let notificationUpdate = await manageNotificationRepo.updateField(updateId, updateField);
+          let notificationUpdate = await ManageNotificationRepo.updateField(updateId, updateField);
         }
         if (body.isSend) {
-          const sendNotificationD = await manageNotificationRepo.sendImmidateNotification(updateId, true)
+          const sendNotificationD = await ManageNotificationRepo.sendImmidateNotification(updateId, true)
         }
         return res.status(201).json({ success: true, msg: "Monthly notification is updated successfully", data: notification })
       } else {
