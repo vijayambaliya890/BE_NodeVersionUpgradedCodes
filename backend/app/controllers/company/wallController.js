@@ -840,11 +840,9 @@ class SocialWall {
   // Get all Posts - wall base
   async reportedPosts(req, res) {
     try {
-      let pageNum = req.query.start ? parseInt(req.query.start) : 0;
-      let limit = req.query.length ? parseInt(req.query.length) : 10;
-      let skip = req.query.skip
-        ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
+      let pageNum = req.query.page ? parseInt(req.query.page) : 0;
+      let limit = req.query.limit ? parseInt(req.query.limit) : 10;
+      let skip = (pageNum-1)*limit;
       // User as admin in wall
       let searchQuery = {
         companyId: req.user.companyId,
@@ -874,18 +872,18 @@ class SocialWall {
       };
 
       var isSearched = false;
-      if (req.query.search.value) {
+      if (req.query.search) {
         isSearched = true;
         query['$or'] = [
           {
             title: {
-              $regex: `${req.query.search.value}`,
+              $regex: `${req.query.search}`,
               $options: 'i',
             },
           },
           {
             'wallId.wallName': {
-              $regex: `${req.query.search.value}`,
+              $regex: `${req.query.search}`,
               $options: 'i',
             },
           },
@@ -893,29 +891,25 @@ class SocialWall {
       }
 
       let sort = {};
-      if (req.query.order) {
-        let orderData = req.query.order;
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
-            case '0':
-              sort[`title`] = getSort(orderData[i].dir);
-              break;
-            case '1':
-              sort[`wallId.wallName`] = getSort(orderData[i].dir);
-              break;
-            case '2':
-              sort[`createdAt`] = getSort(orderData[i].dir);
-              break;
-            default:
-              sort[`status`] = getSort(orderData[i].dir);
-              break;
-          }
-        }
-      }
-
-      function getSort(val) {
-        if (val === 'asc') return 1;
-        else return -1;
+      if (req.query.sortWith) {
+        // let orderData = req.query.order;
+        sort[sortWith] = req.query.sortBy === 'desc'?-1:1;
+        // for (let i = 0; i < orderData.length; i++) {
+        //   switch (orderData[i].column) {
+        //     case '0':
+        //       sort[`title`] = getSort(orderData[i].dir);
+        //       break;
+        //     case '1':
+        //       sort[`wallId.wallName`] = getSort(orderData[i].dir);
+        //       break;
+        //     case '2':
+        //       sort[`createdAt`] = getSort(orderData[i].dir);
+        //       break;
+        //     default:
+        //       sort[`status`] = getSort(orderData[i].dir);
+        //       break;
+        //   }
+        // }
       }
 
       let postList = await WallPost.aggregate([
@@ -1031,15 +1025,13 @@ class SocialWall {
       return __.out(res, 500);
     }
   }
-
+//sortBy=desc&sortWith=createdBy&page=1&limit=10
   // Get all Posts - wall base
   async reportedComments(req, res) {
     try {
-      let pageNum = req.query.start ? parseInt(req.query.start) : 0;
-      let limit = req.query.length ? parseInt(req.query.length) : 10;
-      let skip = req.query.skip
-        ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
+      let pageNum = req.query.page ? parseInt(req.query.page) : 0;
+      let limit = req.query.limit ? parseInt(req.query.limit) : 10;
+      let skip = (pageNum-1)*limit;
       // User as admin in wall
       let searchQuery = {
         companyId: req.user.companyId,
@@ -1070,24 +1062,24 @@ class SocialWall {
       };
 
       var isSearched = false;
-      if (req.query.search.value) {
+      if (req.query.search) {
         isSearched = true;
         query['$or'] = [
           {
             comment: {
-              $regex: `${req.query.search.value}`,
+              $regex: `${req.query.search}`,
               $options: 'i',
             },
           },
           {
             'postId.title': {
-              $regex: `${req.query.search.value}`,
+              $regex: `${req.query.search}`,
               $options: 'i',
             },
           },
           {
             'wallId.wallName': {
-              $regex: `${req.query.search.value}`,
+              $regex: `${req.query.search}`,
               $options: 'i',
             },
           },
@@ -1095,33 +1087,11 @@ class SocialWall {
       }
 
       let sort = {};
-      if (req.query.order) {
-        let orderData = req.query.order;
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
-            case '0':
-              sort[`comment`] = getSort(orderData[i].dir);
-              break;
-            case '1':
-              sort[`postId.title`] = getSort(orderData[i].dir);
-              break;
-            case '2':
-              sort[`wallId.wallName`] = getSort(orderData[i].dir);
-              break;
-            case '3':
-              sort[`createdAt`] = getSort(orderData[i].dir);
-              break;
-            default:
-              sort[`status`] = getSort(orderData[i].dir);
-              break;
-          }
-        }
+      if (req.query.sortWith) {
+        sort[sortWith] = req.query.sortBy === 'desc'?-1:1;
       }
 
-      function getSort(val) {
-        if (val === 'asc') return 1;
-        else return -1;
-      }
+     
 
       let commentList = await WallComment.aggregate([
         {
@@ -1668,11 +1638,9 @@ class SocialWall {
   // Get all Posts - wall base
   async getWallPostsList(req, res) {
     try {
-      let pageNum = req.query.start ? parseInt(req.query.start) : 0;
-      let limit = req.query.length ? parseInt(req.query.length) : 10;
-      let skip = req.query.skip
-        ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
+      let pageNum = req.query.page ? parseInt(req.query.page) : 0;
+      let limit = req.query.limit ? parseInt(req.query.limit) : 10;
+      let skip = (pageNum-1)*limit;
       // User as admin in wall
       let searchQuery = {
         companyId: req.user.companyId,
@@ -1701,18 +1669,18 @@ class SocialWall {
       };
 
       var isSearched = false;
-      if (req.query.search.value) {
+      if (req.query.search) {
         isSearched = true;
         query['$or'] = [
           {
             title: {
-              $regex: `${req.query.search.value}`,
+              $regex: `${req.query.search}`,
               $options: 'i',
             },
           },
           {
             'wallId.wallName': {
-              $regex: `${req.query.search.value}`,
+              $regex: `${req.query.search}`,
               $options: 'i',
             },
           },
@@ -1720,29 +1688,8 @@ class SocialWall {
       }
 
       let sort = {};
-      if (req.query.order) {
-        let orderData = req.query.order;
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
-            case '0':
-              sort[`title`] = getSort(orderData[i].dir);
-              break;
-            case '1':
-              sort[`wallId.wallName`] = getSort(orderData[i].dir);
-              break;
-            case '2':
-              sort[`createdAt`] = getSort(orderData[i].dir);
-              break;
-            default:
-              sort[`status`] = getSort(orderData[i].dir);
-              break;
-          }
-        }
-      }
-
-      function getSort(val) {
-        if (val === 'asc') return 1;
-        else return -1;
+      if (req.query.sortWith) {
+        sort[sortWith] = req.query.sortBy === 'desc'?-1:1;
       }
 
       let postList = await WallPost.aggregate([
