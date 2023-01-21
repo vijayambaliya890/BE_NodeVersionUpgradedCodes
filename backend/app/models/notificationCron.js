@@ -94,8 +94,9 @@ const notificationCronSchema = new Schema({
         type: Date
     }
 },{
-    timestamps: true
+    timestamps: true,
+    autoIndex: true
 });
-notificationCronSchema.index({ 'data.notificationType': 1, 'data.businessUnitId': 1, lastFinishedAt: 1 });
+notificationCronSchema.index({ 'data.businessUnitId': 1, 'data.notificationType': 1,  lastFinishedAt: 1 });
 notificationCronSchema.index({ nextRunAt: 1 });
 module.exports = mongoose.model('notificationCron', notificationCronSchema);
