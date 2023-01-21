@@ -893,7 +893,7 @@ class SocialWall {
       let sort = {};
       if (req.query.sortWith) {
         // let orderData = req.query.order;
-        sort[sortWith] = req.query.sortBy === 'desc'?-1:1;
+        sort[req.query.sortWith] = req.query.sortBy === 'desc'?-1:1;
         // for (let i = 0; i < orderData.length; i++) {
         //   switch (orderData[i].column) {
         //     case '0':
@@ -1088,7 +1088,7 @@ class SocialWall {
 
       let sort = {};
       if (req.query.sortWith) {
-        sort[sortWith] = req.query.sortBy === 'desc'?-1:1;
+        sort[req.query.sortWith] = req.query.sortBy === 'desc'?-1:1;
       }
 
      
@@ -1689,7 +1689,7 @@ class SocialWall {
 
       let sort = {};
       if (req.query.sortWith) {
-        sort[sortWith] = req.query.sortBy === 'desc'?-1:1;
+        sort[req.query.sortWith] = req.query.sortBy === 'desc'?-1:1;
       }
 
       let postList = await WallPost.aggregate([
