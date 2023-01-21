@@ -102,16 +102,6 @@ class PageSetting {
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      let requiredResult = await __.checkRequiredFields(req, [
-        'pageId',
-        'bannerImages',
-        'quickLinks',
-        'externalLinks',
-        'opsGroup',
-      ]);
-      if (requiredResult.status == false) {
-        return __.out(res, 400, requiredResult.missingFields);
-      }
       if (!__.checkSpecialCharacters(req.body, 'page settings')) {
         return __.out(
           res,
@@ -126,31 +116,8 @@ class PageSetting {
       };
       var pageSettingData = await PageSettingModel.findOneAndUpdate(
         where,
-        {
-          $set: {
-            bannerImages: req.body.bannerImages,
-            quickLinks: req.body.quickLinks,
-            externalLinks: req.body.externalLinks,
-            updatedBy: req.user._id,
-            buTemplateId: req.body.buTemplateId,
-            opsGroup: req.body.opsGroup,
-            isTaskViewIncluded: req.body.isTaskViewIncluded,
-            isChallengeIncluded: req.body.isChallengeIncluded,
-            isFormsIncluded: req.body.isFormsIncluded,
-            isBoardsIncluded: req.body.isBoardsIncluded,
-            loginFields: req.body.loginFields,
-            notificRemindHours: req.body.notificRemindHours,
-            notificRemindDays: req.body.notificRemindDays,
-            adminEmail: req.body.adminEmail,
-            techEmail: req.body.techEmail,
-            compliments: req.body.compliments,
-            suggestions: req.body.suggestions,
-            pointSystems: req.body.pointSystems,
-          },
-        },
-        {
-          new: true,
-        },
+        { $set: { ...req.body } },
+        { new: true },
       ).lean();
       opsleave.myMethod.autoTerminateSwapRequest();
       if (!pageSettingData) return __.out(res, 300, 'Page not found');
