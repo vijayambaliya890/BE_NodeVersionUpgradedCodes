@@ -259,24 +259,18 @@ class ManageNotification {
     try {
       const body = req.body;
       // const pageNumber = body.draw ? body.pageNo - 1 : 0;
-      const limit = body.length ? body.length : 10;
-      const skip = body.start;
-      const col = ["title", "notificationSchedule", "activeFrom", "activeTo", "createdBy", "notificationStatus"]
+      let { sortBy, sortWith, page, limit, search } = query;
+      const pageNum = !!page ? parseInt(page) : 0;
+      limit = !!limit ? parseInt(limit) : 10;
+      const skip = (pageNum - 1) / limit;
       let sortObj = {
-
+        [sortWith]: sortBy === 'desc' ? -1 : 1
       }
       let where = { notificationType: 2 };
       // -1 means dec
-      if (body.order && body.order.length > 0) {
-        for (let i = 0; i < body.order.length; i++) {
-          const obj = body.order[i];
-          sortObj[col[obj.column]] = obj.dir === 'asc' ? 1 : -1
-        }
-      } else {
-        sortObj = { createdAt: -1 }
-      }
-      if (body.search && body.search.value) {
-        where.title = { $regex: body.search.value, $options: 'i' }
+      
+      if (search) {
+        where.title = { $regex: search, $options: 'i' }
       }
       where.businessUnitId = body.buId;
       const allData = await Promise.all([this.getAllScheduleData(where, req), this.getScheduleData(skip, limit, sortObj, where, req)]);
@@ -352,28 +346,20 @@ class ManageNotification {
     // find, sort, limit and skip
     try {
       const body = req.body;
-      const limit = body.length ? body.length : 10;
-      const skip = body.start;
-      const col = ["title", "notificationType", "pushedDate", "pushTime", "notificationCount", "createdBy", "notificationStatus"]
+      let { sortBy, sortWith, page, limit, search } = query;
+      const pageNum = !!page ? parseInt(page) : 0;
+      limit = !!limit ? parseInt(limit) : 10;
+      const skip = (pageNum - 1) / limit;
       let sortObj = {
+        [sortWith]: sortBy === 'desc' ? -1 : 1
       }
       let where = {
         $or: [
           { 'data.notificationType': 1 }, { lastFinishedAt: { $ne: null } }
         ]
       }
-      // -1 means dec
-      if (body.order && body.order.length > 0) {
-        for (let i = 0; i < body.order.length; i++) {
-          const obj = body.order[i];
-          console.log("col[obj.column]", col[obj.column], sortObj)
-          sortObj['data.' + [col[obj.column]]] = obj.dir === 'asc' ? 1 : -1
-        }
-      } else {
-        sortObj = { 'data.createdAt': -1, lastFinishedAt: -1 }
-      }
-      if (body.search && body.search.value) {
-        where['data.title'] = { $regex: body.search.value, $options: 'i' }
+      if (search) {
+        where['data.title'] = { $regex: search, $options: 'i' }
       }
       where['data.businessUnitId'] = body.buId;
       const data = await Promise.all([this.getAllPushData(where, req), this.getPushData(skip, limit, sortObj, where, req)]);

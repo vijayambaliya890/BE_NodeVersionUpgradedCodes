@@ -329,7 +329,7 @@ class notification {
       var data = {
         userId: req.user._id,
       };
-      var myNotifications = await this.userNotifications(data, res);
+      var myNotifications = await this.userNotifications(data, req, res);
       __.out(res, 201, myNotifications);
     } catch (err) {
       logError('myNotifications has error', err);
@@ -571,69 +571,87 @@ class notification {
     return { count: 0, data: [] };
   }
 
-  async userNotifications(data, res) {
+  async userNotifications(data, req, res) {
     try {
+      const {
+        page = 1,
+        limit = 10,
+        sortBy,
+        sortWith = 'title',
+        search,
+      } = req.query;
+      let searchCondition = {};
+      if (search) {
+        searchCondition['title'] = new RegExp(search, 'i');
+      }
+      const condition = {
+        status: 1,
+        notifyOverAllUsers: mongoose.Types.ObjectId(data.userId),
+        activeFrom: {
+          $lte: new Date(),
+        },
+        activeTo: {
+          $gte: new Date(),
+        },
+      };
       logInfo('userNotifications has called', data);
-      var results = await Notification.aggregate([
-        {
-          $match: {
-            status: 1,
-            notifyOverAllUsers: mongoose.Types.ObjectId(data.userId),
-            activeFrom: {
-              $lte: new Date(),
+      const [results] = await Promise.all([
+        // Notification.countDocuments(
+        //   { ...condition, ...searchCondition }),
+          Notification.aggregate([
+            {
+              $match: { ...condition, ...searchCondition },
             },
-            activeTo: {
-              $gte: new Date(),
+            { $sort: { [sortWith]: sortBy === 'desc' ? -1 : 1 } },
+            // { $skip: (page - 1) * parseInt(limit) },
+            // { $limit: parseInt(limit) },
+            {
+              $lookup: {
+                from: 'subcategories',
+                localField: 'subCategoryId',
+                foreignField: '_id',
+                as: 'subCategory',
+              },
             },
-          },
-        },
-        {
-          $lookup: {
-            from: 'subcategories',
-            localField: 'subCategoryId',
-            foreignField: '_id',
-            as: 'subCategory',
-          },
-        },
-        {
-          $unwind: '$subCategory',
-        },
-        {
-          $lookup: {
-            from: 'categories',
-            localField: 'subCategory.categoryId',
-            foreignField: '_id',
-            as: 'subCategory.categoryId',
-          },
-        },
-        {
-          $unwind: '$subCategory.categoryId',
-        },
-        {
-          $project: {
-            _id: 1,
-            effectiveFrom: 1,
-            effectiveTo: 1,
-            activeFrom: 1,
-            activeTo: 1,
-            title: 1,
-            subTitle: 1,
-            description: 1,
-            notificationAttachment: 1,
-            subCategory: 1,
-            isAcknowledged: {
-              $setIsSubset: [
-                [mongoose.Types.ObjectId(data.userId)],
-                '$notifyAcknowledgedUsers',
-              ],
+            {
+              $unwind: '$subCategory',
             },
-            moduleIncluded: 1,
-            moduleId: 1,
-            viewOnly: 1,
-          },
-        },
+            {
+              $lookup: {
+                from: 'categories',
+                localField: 'subCategory.categoryId',
+                foreignField: '_id',
+                as: 'subCategory.categoryId',
+              },
+            },
+            {
+              $unwind: '$subCategory.categoryId',
+            },
+            {
+              $project: {
+                _id: 1,
+                effectiveFrom: 1,
+                effectiveTo: 1,
+                activeFrom: 1,
+                activeTo: 1,
+                title: 1,
+                subTitle: 1,
+                description: 1,
+                notificationAttachment: 1,
+                subCategory: 1,
+                isAcknowledged: {
+                  $setIsSubset: [
+                    [mongoose.Types.ObjectId(data.userId)],
+                    '$notifyAcknowledgedUsers',
+                  ],
+                },
+                moduleIncluded: 1,
+                moduleId: 1,
+                viewOnly: 1,
+              },
+            },
+          ]),
       ]);
-
       // Add Mimetype for attached files
       for (let index in results) {
         if (results[index].notificationAttachment) {
@@ -1084,7 +1102,8 @@ class notification {
       }
       var notificationDetails = await Notification.findById(
         req.body.notificationId,
-      ).populate([
+      )
+        .populate([
           {
             path: 'notifyAcknowledgedUsers',
             select: 'name staffId  appointmentId status parentBussinessUnitId',
@@ -1303,26 +1322,25 @@ class notification {
           csv,
           (err) => {
             if (err) {
-            logError('notificationController: download', err);
-            return  __.out(res, 500);
-            } 
-              csvLink = `uploads/notificationExports/${fileName}.csv`;
+              logError('notificationController: download', err);
+              return __.out(res, 500);
+            }
+            csvLink = `uploads/notificationExports/${fileName}.csv`;
 
-              return __.out(res, 201, {
-                csvLink: csvLink,
-              });
-            
+            return __.out(res, 201, {
+              csvLink: csvLink,
+            });
           },
         );
       } else {
-       return __.out(res, 201, {
+        return __.out(res, 201, {
           csvLink: csvLink,
         });
       }
     } catch (err) {
       logError('notificationController: download', err);
       logError('notificationController: download stack', err.stack);
-     return __.out(res, 500);
+      return __.out(res, 500);
     }
   }
 

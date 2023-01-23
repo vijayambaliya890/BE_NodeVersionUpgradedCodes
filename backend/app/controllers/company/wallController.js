@@ -19,7 +19,7 @@ const mongoose = require('mongoose'),
   spawn = require('child_process').spawn,
   SubSection = require('../../models/subSection'),
   moment = require('moment'),
-  json2csv = require('json2csv').parse;
+  { parse } = require('json2csv');
 
 class SocialWall {
   async buToolQueryChecking(req, res) {
@@ -1608,10 +1608,9 @@ class SocialWall {
         }
       }
       if (rows.length) {
-        let csv = json2csv({
-          data: rows,
-          fields: headers,
-        });
+        const fields = headers;
+        const opts = { fields };
+        var csv = parse(rows, opts);
         fs.writeFile(
           `./public/uploads/Postexport/${wallPostDetails._id}.csv`,
           csv,
