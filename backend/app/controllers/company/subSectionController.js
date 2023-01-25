@@ -42,7 +42,7 @@ class subSection {
                             select: 'name'
                         }
                     })
-                .lean();
+                    .lean();
                 const orgName = `${subSection.departmentId.companyId.name} > ${subSection.departmentId.name} > ${subSection.name} > ${req.body.name}`;
                 if (duplicate !== 0) {
                     __.out(res, 300, 'Subsection name already exists');
@@ -57,6 +57,9 @@ class subSection {
                 //create new model
                 let insertedSubSection = await new SubSection(insert).save();
                 //save model to MongoDB
+                if (insertedSubSection && insertedSubSection._id) {
+                    this.updatePlanBussinessUnitId(req, insertedSubSection._id)
+                }
                 req.body.subSectionId = insertedSubSection._id;
                 let params = {
                     "subSectionId": insertedSubSection._id,
@@ -65,7 +68,7 @@ class subSection {
                 sectionController.push(params, res); /* push generated city id in state table (field name : subSectionIds)*/
                 let buIds = await User.find({ businessUnitId: insertedSubSection._id });
                 if (!buIds.length) {
-                    let findChannelIds = await Channel.find({ });
+                    let findChannelIds = await Channel.find({});
                     findChannelIds = findChannelIds.filter(channel => {
                         return channel.userDetails.some(a => a.allBuToken);
                     });
@@ -73,21 +76,21 @@ class subSection {
                     findChannelIds = findChannelIds.map(v => {
                         return mongoose.Types.ObjectId(v._id)
                     });
-                    
+
                     for (let channelIds of findChannelIds) {
                         let findChannelBu = await Channel.update({
                             _id: channelIds,
                             "userDetails.allBuToken": true
                         }, {
-                                $addToSet: {
-                                    "userDetails.$.businessUnits": insertedSubSection._id
-                                }
-                            },
+                            $addToSet: {
+                                "userDetails.$.businessUnits": insertedSubSection._id
+                            }
+                        },
                             {
                                 new: true
                             });
                     }
-                 // wall buIds inserted....
+                    // wall buIds inserted....
                     let findWallIds = await Wall.find({});
                     findWallIds = findWallIds.filter(wall => {
                         return wall.assignUsers.some(a => a.allBuToken);
@@ -101,10 +104,10 @@ class subSection {
                             _id: wallsIds,
                             "assignUsers.allBuToken": true
                         }, {
-                                $addToSet: {
-                                    "assignUsers.$.businessUnits": insertedSubSection._id
-                                }
-                            },
+                            $addToSet: {
+                                "assignUsers.$.businessUnits": insertedSubSection._id
+                            }
+                        },
                             {
                                 new: true
                             });
@@ -116,6 +119,16 @@ class subSection {
         } catch (err) {
             __.log(err);
             __.out(res, 500);
+        }
+    }
+
+    async updatePlanBussinessUnitId(req, planBussinessUnitId) {
+        const userDetails = await User.findOne({ companyId: req.user.companyId, _id: req.user._id })
+            .select('planBussinessUnitId');
+
+        if(userDetails){
+            userDetails.planBussinessUnitId.push(planBussinessUnitId);
+            await User.update({ companyId: req.user.companyId, _id: req.user._id }, { planBussinessUnitId: userDetails.planBussinessUnitId } )
         }
     }
 
@@ -286,8 +299,8 @@ class subSection {
             let result = await SubSection.findOneAndUpdate({
                 _id: params.subSectionId
             }, {
-                    $addToSet: pushJson
-                });
+                $addToSet: pushJson
+            });
             __.log(result);
         } catch (err) {
             __.log(err);
@@ -306,8 +319,8 @@ class subSection {
             let result = await SubSection.findOneAndUpdate({
                 _id: params.subSectionId
             }, {
-                    $pull: pullJson
-                });
+                $pull: pullJson
+            });
             __.log(result);
         } catch (err) {
             __.log(err);
