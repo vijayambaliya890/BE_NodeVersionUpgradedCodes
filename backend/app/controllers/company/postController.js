@@ -235,6 +235,7 @@ class post {
         status: req.body.status,
         authorId: req.user._id,
         logstatus: 1, //created,
+        id: newPost._id,
       };
 
       if (req.body.postType == 'event' && req.body.eventCreation == 1) {
@@ -544,6 +545,7 @@ class post {
         status: req.body.status,
         authorId: req.user._id,
         logstatus: 2, //updated
+        id:postData._id,
       };
       if (req.body.postType == 'event') {
         logPost = {

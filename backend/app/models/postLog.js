@@ -129,6 +129,9 @@ const postSchema = new Schema({
     logDescription: {
         type: String,
         default: ''
+    },
+    id: {  
+        type: Schema.Types.ObjectId,
     }
 }, {
         timestamps: true
