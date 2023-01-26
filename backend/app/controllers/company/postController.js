@@ -13,7 +13,7 @@ const mongoose = require('mongoose'),
   Question = require('../../models/question'),
   QuestionResponse = require('../../models/questionResponse'),
   socialWallPosts = require('../../models/wallPost.js'),
-  json2csv = require('json2csv').parse,
+  { parse } = require('json2csv'),
   fs = require('fs-extra'),
   Post = require('../../models/post'),
   moment = require('moment'),
@@ -1700,16 +1700,15 @@ class post {
         }
       }
       if (rows.length) {
-        let csv = json2csv({
-          data: rows,
-          fields: questions,
-        });
+        const fields = questions;
+        const opts = { fields };
+        var csv = parse(rows, opts);
         fs.writeFile(
           `./public/uploads/Postexport/${postId}.csv`,
           csv,
           (err) => {
             if (err) {
-              __.log('json2csv err', err);
+              __.log('json 2 csv err', err);
               return __.out(res, 300, 'Something went wrong try later');
             } else {
               return __.out(res, 201, {
@@ -1810,16 +1809,15 @@ class post {
         // fieldsArray = [...fieldsArray, ...wallsdata];
         console.log('FILD:', fieldsArray);
         if (jsonArray.length !== 0) {
-          var csv = json2csv({
-            data: jsonArray,
-            fields: fieldsArray,
-          });
+          const fields = fieldsArray;
+          const opts = { fields };
+          var csv = parse(jsonArray, opts);
           let fileName = wallDetails.wallName;
           console.log('FILENAME IS: ', fileName);
           fileName = fileName.split(' ').join('_');
           fs.writeFile(`./public/uploads/wall/${fileName}.csv`, csv, (err) => {
             if (err) {
-              __.log('json2csv err' + err);
+              __.log('json 2 csv err' + err);
               __.out(res, 500);
             } else {
               csvLink = `uploads/wall/${fileName}.csv`;

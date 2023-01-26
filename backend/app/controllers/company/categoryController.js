@@ -224,6 +224,41 @@ class category {
     }
   }
 
+  async deleteId(req, res) {
+    try {
+      if (!__.checkHtmlContent(req.body)) {
+        return __.out(res, 300, `You've entered malicious input`);
+      }
+      // let requiredResult = await __.checkRequiredFields(req, ['categoryId']);
+      // if (requiredResult.status === false) {
+      //   return __.out(res, 400, requiredResult.missingFields);
+      // }
+
+      let skillSetResult = await Category.findOne({
+        _id: req.params.categoryId,
+        companyId: req.user.companyId,
+        status: {
+          $ne: 3,
+        },
+      });
+
+      if (skillSetResult === null) {
+        __.out(res, 300, 'Invalid categoryId');
+      } else {
+        skillSetResult.status = 3;
+        let result = await skillSetResult.save();
+        if (result === null) {
+          __.out(res, 300, 'Something went wrong');
+        } else {
+          __.out(res, 200);
+        }
+      }
+    } catch (err) {
+      __.log(err);
+      __.out(res, 500);
+    }
+  }
+
   async push(params, res) {
     try {
       let pushJson = {},
