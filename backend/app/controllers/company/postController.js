@@ -339,7 +339,6 @@ class post {
   async update(req, res) {
     try {
       let bodyContent = JSON.parse(JSON.stringify(req.body));
-      console.log('Notifi', bodyContent.isNotifi);
       delete bodyContent.teaser;
       delete bodyContent.content;
       delete bodyContent.wallTitle;
@@ -379,7 +378,6 @@ class post {
           `You've entered some excluded special characters`,
         );
       }
-      __.log(req.body);
 
       /** Parsing Data  */
       if (typeof req.body.teaser === 'string') {
@@ -418,7 +416,24 @@ class post {
       }
 
       // Get User's assigned channels
-      let userChannelIds = await __.getUserChannel(req.user);
+      // let userChannelIds = await __.getUserChannel(req.user);
+      let channels = await Channel.find(
+        {
+          assignUsers: {
+            $elemMatch: {
+              admin: {
+                $in: [req.user._id],
+              },
+            },
+          },
+          status: 1,
+        },
+        {
+          _id: 1,
+        },
+      );
+
+      let userChannelIds = channels.map((c) => c._id);
       let postType = __.toTitleCase(req.body.postType);
       let postData = await Post.findOne({
         _id: req.body.postId,
@@ -429,6 +444,7 @@ class post {
           $nin: [3],
         },
       });
+
       if (!postData) {
         return __.out(res, 300, `${postType} Not Found`);
       }
