@@ -179,7 +179,7 @@ class post {
       let skip = req.body.skip
         ? parseInt(req.body.skip)
         : (pageNum - 1) * limit;
-
+      const search = req.body.search;
       // Get Assigned Channel Ids
       req.body.internalApi = true;
       let channelList = await this.getUserChannels(req, res);
@@ -219,6 +219,13 @@ class post {
       }
       if (req.body.categoryId) {
         where.categoryId = req.body.categoryId;
+      }
+
+      if(search){
+        where['teaser.title'] = {
+          $regex: search,
+          $options: 'i',
+        }
       }
       //__.log(where, "where")
       // Get Posts Lists

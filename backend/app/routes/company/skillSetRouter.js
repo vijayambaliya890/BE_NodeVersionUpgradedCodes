@@ -22,6 +22,10 @@ skillSetRouter.post('/read', (req, res) => {
     skillSetController.read(req, res);
 });
 
+skillSetRouter.get('/', (req, res) => {
+    skillSetController.readSkillSet(req, res);
+});
+
 skillSetRouter.post('/create', __.checkRole('skillSetSetup').validate, (req, res)=>{
     skillSetController.create(req, res);
 });

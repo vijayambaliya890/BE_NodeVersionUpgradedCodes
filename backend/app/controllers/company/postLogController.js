@@ -1,5 +1,7 @@
 const PostLog = require('../../models/postLog'),
   __ = require('../../../helpers/globalFunctions');
+  const { logInfo, logError } = require('../../../helpers/logger.helper');
+
 
 class postLog {
   async create(data, res) {
@@ -17,6 +19,7 @@ class postLog {
         authorId: data.authorId,
         wallId: data.wallId,
         wallName: data.wallName,
+        id: data.id,
       };
       if (data.logstatus === 1) {
         insert.logDescription = `Creating new post`;
@@ -37,14 +40,17 @@ class postLog {
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
+      logInfo('postLogController::read');
       let pageNum = req.query.page ? parseInt(req.query.page) : 0;
       let limit = req.query.limit ? parseInt(req.query.limit) : 10;
       let skip = req.query.skip
         ? parseInt(req.query.skip)
         : (pageNum - 1) * limit;
-
+      const id = req.query.postId;
       let where = {};
-
+      if(id){
+        where.id = id;
+      }
       var totalUserCount = await PostLog.count(where).lean();
       var isSearched = false;
       var sort = { createdAt: -1 };

@@ -13,12 +13,13 @@ const mongoose = require('mongoose'),
   Question = require('../../models/question'),
   QuestionResponse = require('../../models/questionResponse'),
   socialWallPosts = require('../../models/wallPost.js'),
-  json2csv = require('json2csv').parse,
+  { parse } = require('json2csv'),
   fs = require('fs-extra'),
   Post = require('../../models/post'),
   moment = require('moment'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
+  const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class post {
   async uploadFile(req, res) {
@@ -235,6 +236,7 @@ class post {
         status: req.body.status,
         authorId: req.user._id,
         logstatus: 1, //created,
+        id: newPost._id,
       };
 
       if (req.body.postType == 'event' && req.body.eventCreation == 1) {
@@ -338,7 +340,6 @@ class post {
   async update(req, res) {
     try {
       let bodyContent = JSON.parse(JSON.stringify(req.body));
-      console.log('Notifi', bodyContent.isNotifi);
       delete bodyContent.teaser;
       delete bodyContent.content;
       delete bodyContent.wallTitle;
@@ -378,7 +379,6 @@ class post {
           `You've entered some excluded special characters`,
         );
       }
-      __.log(req.body);
 
       /** Parsing Data  */
       if (typeof req.body.teaser === 'string') {
@@ -417,7 +417,24 @@ class post {
       }
 
       // Get User's assigned channels
-      let userChannelIds = await __.getUserChannel(req.user);
+      // let userChannelIds = await __.getUserChannel(req.user);
+      let channels = await Channel.find(
+        {
+          assignUsers: {
+            $elemMatch: {
+              admin: {
+                $in: [req.user._id],
+              },
+            },
+          },
+          status: 1,
+        },
+        {
+          _id: 1,
+        },
+      );
+
+      let userChannelIds = channels.map((c) => c._id);
       let postType = __.toTitleCase(req.body.postType);
       let postData = await Post.findOne({
         _id: req.body.postId,
@@ -428,6 +445,7 @@ class post {
           $nin: [3],
         },
       });
+
       if (!postData) {
         return __.out(res, 300, `${postType} Not Found`);
       }
@@ -544,6 +562,7 @@ class post {
         status: req.body.status,
         authorId: req.user._id,
         logstatus: 2, //updated
+        id:postData._id,
       };
       if (req.body.postType == 'event') {
         logPost = {
@@ -812,6 +831,7 @@ class post {
   }
   async read(req, res) {
     try {
+      logInfo('postController::read');
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -1700,16 +1720,15 @@ class post {
         }
       }
       if (rows.length) {
-        let csv = json2csv({
-          data: rows,
-          fields: questions,
-        });
+        const fields = questions;
+        const opts = { fields };
+        var csv = parse(rows, opts);
         fs.writeFile(
           `./public/uploads/Postexport/${postId}.csv`,
           csv,
           (err) => {
             if (err) {
-              __.log('json2csv err', err);
+              __.log('json 2 csv err', err);
               return __.out(res, 300, 'Something went wrong try later');
             } else {
               return __.out(res, 201, {
@@ -1810,16 +1829,15 @@ class post {
         // fieldsArray = [...fieldsArray, ...wallsdata];
         console.log('FILD:', fieldsArray);
         if (jsonArray.length !== 0) {
-          var csv = json2csv({
-            data: jsonArray,
-            fields: fieldsArray,
-          });
+          const fields = fieldsArray;
+          const opts = { fields };
+          var csv = parse(jsonArray, opts);
           let fileName = wallDetails.wallName;
           console.log('FILENAME IS: ', fileName);
           fileName = fileName.split(' ').join('_');
           fs.writeFile(`./public/uploads/wall/${fileName}.csv`, csv, (err) => {
             if (err) {
-              __.log('json2csv err' + err);
+              __.log('json 2 csv err' + err);
               __.out(res, 500);
             } else {
               csvLink = `uploads/wall/${fileName}.csv`;
