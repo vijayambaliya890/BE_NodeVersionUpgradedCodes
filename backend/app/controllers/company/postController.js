@@ -19,6 +19,7 @@ const mongoose = require('mongoose'),
   moment = require('moment'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
+  const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class post {
   async uploadFile(req, res) {
@@ -830,6 +831,7 @@ class post {
   }
   async read(req, res) {
     try {
+      logInfo('postController::read');
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
