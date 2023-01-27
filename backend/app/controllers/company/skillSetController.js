@@ -68,6 +68,53 @@ class skillSet {
         }
     }
 
+    async readSkillSet(req, res) {
+        try {
+            if (!__.checkHtmlContent(req.body)) {
+                return __.out(res, 300, `You've entered malicious input`);
+            }
+            let where = {
+                    'companyId': req.user.companyId,
+                    'status': {
+                        $ne: 3 /* $ne => not equal*/
+                    }
+                },
+                findOrFindOne;
+        const  { page, limit, sortBy, sortWith, search } = req.query;
+        let searchCondition = {};
+        if (search) {
+          searchCondition['name'] = new RegExp(search, 'i');
+        }
+            /*if ID given then it acts as findOne which gives object else find which gives array of object*/
+            if (req.body.skillSetId) {
+                where._id = req.body.skillSetId;
+                findOrFindOne = SkillSet.findOne({...where,...searchCondition});
+            } else
+                findOrFindOne = SkillSet.find({...where,...searchCondition});
+
+                console.log(where)
+            let skillsets = await findOrFindOne.populate({
+                path: 'subSkillSets',
+                select: '_id name',
+                match: {
+                    status: {
+                        $ne: 3
+                    }
+                }
+            })
+            .sort({ [sortWith]: sortBy === 'desc' ? -1 : 1 })
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .lean();
+            __.out(res, 201, {
+                data: skillsets
+            });
+        } catch (err) {
+            __.log(err);
+            __.out(res, 500);
+        }
+    }
+
     async update(req, res) {
         try {
             if (!__.checkHtmlContent(req.body)) {

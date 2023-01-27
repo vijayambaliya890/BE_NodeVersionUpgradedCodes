@@ -3,6 +3,7 @@ const NotificationCronRepo = require('../../../helpers/notificationCron');
 const Agenda = require('../../../helpers/agenda'); 
 const AgendaPush = require('../../../helpers/agenda_push'); // don't remove this line importing file for to invoke function 
 const moment = require('moment');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 
 const dayArr = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -259,7 +260,7 @@ class ManageNotification {
     try {
       const body = req.body;
       // const pageNumber = body.draw ? body.pageNo - 1 : 0;
-      let { sortBy, sortWith, page, limit, search } = query;
+      let { sortBy, sortWith, page, limit, search } = req.query;
       const pageNum = !!page ? parseInt(page) : 0;
       limit = !!limit ? parseInt(limit) : 10;
       const skip = (pageNum - 1) / limit;
@@ -346,7 +347,7 @@ class ManageNotification {
     // find, sort, limit and skip
     try {
       const body = req.body;
-      let { sortBy, sortWith, page, limit, search } = query;
+      let { sortBy, sortWith, page, limit, search } = req.query;
       const pageNum = !!page ? parseInt(page) : 0;
       limit = !!limit ? parseInt(limit) : 10;
       const skip = (pageNum - 1) / limit;
@@ -415,6 +416,8 @@ class ManageNotification {
         return res.json({ success: false, msg: "No data present", totalRecords: 0, data: [] })
       }
     } catch (e) {
+      logError('manageNotificationController::getPushNotification', e);
+      logError('manageNotificationController::getPushNotification e', e.stack);
       return res.json({ success: false, msg: "Something went wrong", totalRecords: 0, data: [] })
     }
   }

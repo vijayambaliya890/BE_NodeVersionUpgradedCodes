@@ -580,6 +580,15 @@ class channel {
           select: 'name status',
         })
         .populate({
+          path: 'userDetails.subSkillSets',
+          strictPopulate: false,
+          select: 'name status',
+          populate: { //this populate has been requested from frontEnd team , so did so
+            path: 'skillSetId',
+            select: '_id name',
+        }
+        })
+        .populate({
           path: 'userDetails.authors',
           strictPopulate: false,
           select: 'name staffId',

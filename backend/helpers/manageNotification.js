@@ -56,7 +56,15 @@ class ManageNotification {
             path: 'assignUsers.admin', // this is missing in notification
             strictPopulate: false,
             select: 'name staffId'
-        });
+        }).populate({
+            path: 'assignUsers.subSkillSets',
+            strictPopulate: false,
+            select: 'name status',
+            populate: { //this populate has been requested from frontEnd team , so did so
+              path: 'skillSetId',
+              select: '_id name',
+          }
+          });
         return notificationData;
     }
     async cancelled(id, notificationStatus) {
