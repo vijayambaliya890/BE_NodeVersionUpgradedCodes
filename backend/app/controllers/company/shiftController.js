@@ -23,6 +23,8 @@ const ObjectId = require('mongoose').Types.ObjectId;
 const redisClient = require('../../../helpers/redis.js');
 const redisData = require('../../../helpers/redisDataGenerator');
 const ShiftHelper = require('../../../helpers/shiftHelper');
+const AgendaCron = require('../../../helpers/agendaEventHandler');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 class shift {
   async updateRedis(businessUnitId) {
     console.log('before seting redis');
@@ -686,6 +688,14 @@ class shift {
               insertedShiftDetailsIdArray.push(
                 mongoose.Types.ObjectId(insertedShiftDetailsId),
               );
+              AgendaCron.addEvent(shiftObj.startTime, {
+                shiftDetailId: insertedShiftDetailsId,
+                type: 'BackupStaffRemoval',
+              }, true).then((jobResult)=>{
+                logInfo('Job added', jobResult)
+              }).catch((jobError)=>{
+                logError('Job add error', jobError)
+              });
             }
             await Shift.findOneAndUpdate(
               {
@@ -7715,56 +7725,56 @@ class shift {
     }
   }
 }
-setInterval(async () => {
-  try {
-    console.log('caled');
-    // const shiftDetailsData = await ShiftDetails.find({ $where: 'this.backUpStaffs.length > 0', startTime: { $lte: new Date().toISOString() } });
-    let lastTime = new Date();
-    lastTime.setHours(lastTime.getHours() - 1);
-    lastTime = new Date(lastTime);
-    const shiftDetailsData = await ShiftDetails.find({
-      $where: 'this.backUpStaffs.length > 0',
+// setInterval(async () => {
+//   try {
+//     console.log('caled');
+//     // const shiftDetailsData = await ShiftDetails.find({ $where: 'this.backUpStaffs.length > 0', startTime: { $lte: new Date().toISOString() } });
+//     let lastTime = new Date();
+//     lastTime.setHours(lastTime.getHours() - 1);
+//     lastTime = new Date(lastTime);
+//     const shiftDetailsData = await ShiftDetails.find({
+//       $where: 'this.backUpStaffs.length > 0',
 
-      $and: [
-        { startTime: { $lte: new Date().toISOString() } },
-        { startTime: { $gt: new Date(lastTime).toISOString() } },
-      ],
-    });
-    console.log('shiftDetailsData', shiftDetailsData.length);
-    for (let i = 0; i < shiftDetailsData.length; i++) {
-      console.log('_iddd', shiftDetailsData[i]._id);
-      if (shiftDetailsData[i].backUpStaffs.length > 0) {
-        const update = await ShiftDetails.findOneAndUpdate(
-          {
-            _id: shiftDetailsData[i]._id,
-            $where: 'this.backUpStaffs.length > 0',
-          },
-          {
-            $set: {
-              backUpStaffs: [],
-              backUpStaffsLog: shiftDetailsData[i].backUpStaffs,
-              backUpStaffNeedCountLog: shiftDetailsData[i].backUpStaffNeedCount,
-              backUpStaffNeedCount: 0,
-            },
-          },
-        );
-        const backupStaff = shiftDetailsData[i].backUpStaffs;
-        const shiftDetailIdId = shiftDetailsData[i]._id;
-        for (let j = 0; j < backupStaff.length; j++) {
-          const userId = backupStaff[j];
-          const appliedUpdate = await AppliedStaffs.findOneAndUpdate(
-            { flexiStaff: userId, shiftDetailsId: shiftDetailIdId },
-            { status: 0 },
-          );
-        }
-        console.log('update', update._id);
-      }
-    }
-  } catch (err) {
-    __.log(err);
-    __.out(res, 500, err);
-  }
-  // console.log('called after 1 min', shiftDetailsData.length)
-}, 60000);
+//       $and: [
+//         { startTime: { $lte: new Date().toISOString() } },
+//         { startTime: { $gt: new Date(lastTime).toISOString() } },
+//       ],
+//     });
+//     console.log('shiftDetailsData', shiftDetailsData.length);
+//     for (let i = 0; i < shiftDetailsData.length; i++) {
+//       console.log('_iddd', shiftDetailsData[i]._id);
+//       if (shiftDetailsData[i].backUpStaffs.length > 0) {
+//         const update = await ShiftDetails.findOneAndUpdate(
+//           {
+//             _id: shiftDetailsData[i]._id,
+//             $where: 'this.backUpStaffs.length > 0',
+//           },
+//           {
+//             $set: {
+//               backUpStaffs: [],
+//               backUpStaffsLog: shiftDetailsData[i].backUpStaffs,
+//               backUpStaffNeedCountLog: shiftDetailsData[i].backUpStaffNeedCount,
+//               backUpStaffNeedCount: 0,
+//             },
+//           },
+//         );
+//         const backupStaff = shiftDetailsData[i].backUpStaffs;
+//         const shiftDetailIdId = shiftDetailsData[i]._id;
+//         for (let j = 0; j < backupStaff.length; j++) {
+//           const userId = backupStaff[j];
+//           const appliedUpdate = await AppliedStaffs.findOneAndUpdate(
+//             { flexiStaff: userId, shiftDetailsId: shiftDetailIdId },
+//             { status: 0 },
+//           );
+//         }
+//         console.log('update', update._id);
+//       }
+//     }
+//   } catch (err) {
+//     __.log(err);
+//     __.out(res, 500, err);
+//   }
+//   // console.log('called after 1 min', shiftDetailsData.length)
+// }, 60000);
 
 module.exports = new shift();

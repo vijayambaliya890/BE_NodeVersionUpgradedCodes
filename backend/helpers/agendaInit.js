@@ -8,8 +8,9 @@ const agendaNotification = new Agenda({
   
   (async function () {
     // IIFE to give access to async/await
-    logInfo('called');
+    logInfo('agendaNotification called');
     await agendaNotification.start();
+    logInfo('agendaNotification started');
   })();
 
 
@@ -19,8 +20,9 @@ const agendaNotification = new Agenda({
   
   (async function () {
     // IIFE to give access to async/await
-    logInfo('called');
+    logInfo('agendaNormal called');
     await agendaNormal.start();
+    logInfo('agendaNormal started');
   })();
 
   module.exports = {
