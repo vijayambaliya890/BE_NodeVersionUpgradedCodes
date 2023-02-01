@@ -1,7 +1,6 @@
 const ManageNotificationRepo = require('../../../helpers/manageNotification'); 
 const NotificationCronRepo = require('../../../helpers/notificationCron'); 
 const Agenda = require('../../../helpers/agenda'); 
-const AgendaPush = require('../../../helpers/agenda_push'); // don't remove this line importing file for to invoke function 
 const moment = require('moment');
 const { logInfo, logError } = require('../../../helpers/logger.helper');
 
@@ -740,7 +739,7 @@ class ManageNotification {
           let notificationUpdate = await ManageNotificationRepo.updateField(updateId, updateField);
         }
         if (body.isSend) {
-          const sendNotificationD = await ManageNotificationRepo.sendImmidateNotification(updateId, true)
+          const sendNotificationD = await ManageNotificationRepo.sendImmediateNotification(updateId, true)
         }
         return res.status(201).json({ success: true, msg: "Daily notification is updated successfully", data: notification })
       } else {
@@ -816,7 +815,7 @@ class ManageNotification {
           let notificationUpdate = await ManageNotificationRepo.updateField(updateId, updateField);
         }
         if (body.isSend) {
-          const sendNotificationD = await ManageNotificationRepo.sendImmidateNotification(updateId, true)
+          const sendNotificationD = await ManageNotificationRepo.sendImmediateNotification(updateId, true)
         }
         return res.status(201).json({ success: true, msg: "Weekly notification is updated successfully", data: notification })
       } else {
@@ -895,7 +894,7 @@ class ManageNotification {
           let notificationUpdate = await ManageNotificationRepo.updateField(updateId, updateField);
         }
         if (body.isSend) {
-          const sendNotificationD = await ManageNotificationRepo.sendImmidateNotification(updateId, true)
+          const sendNotificationD = await ManageNotificationRepo.sendImmediateNotification(updateId, true)
         }
         return res.status(201).json({ success: true, msg: "Monthly notification is updated successfully", data: notification })
       } else {
