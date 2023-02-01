@@ -1,6 +1,7 @@
 const { agendaNormal } = require('./agendaInit');
 const AppliedStaffs = require('../app/models/appliedStaff'),
-  ShiftDetails = require('../app/models/shiftDetails');
+  ShiftDetails = require('../app/models/shiftDetails'),
+  AgendaJobs= require('../app/models/agenda');
 
 const { logInfo, logError } = require('./logger.helper');
 
@@ -10,6 +11,14 @@ class AgendaCron {
       const job = await agendaNormal.schedule(dateTime, 'eventHandler', data);
       return job;
     }
+  }
+
+  async removeEvent(where) {
+    logInfo('remove event called', where)
+    new AgendaJobs({nextRunAt: new Date(), name:'aa'}).save();
+    const job = await AgendaJobs.findOneAndUpdate(where, {$set:{nextRunAt: null, 'data.isRemoved': true}}).lean();
+    console.log('dddddd', jobs.length)
+    return job;
   }
 }
 
