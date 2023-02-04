@@ -27,35 +27,35 @@ const csv = require('csvtojson');
 const { isNull } = require('lodash');
 const pageSetting = require('../../models/pageSetting');
 let uploadFilePath = '';
-const redisClient = require('../../../helpers/redis.js');
-const redisData = require('../../../helpers/redisDataGenerator');
+// const redisClient = require('../../../helpers/redis.js');
+// const redisData = require('../../../helpers/redisDataGenerator');
 class assignShift {
-  async updateRedis(
-    businessUnitId,
-    from = false,
-    date = null,
-    redisTimeZone = 'GMT+0800',
-  ) {
-    console.log('before update assign shift', date);
-    await redisData.readAssignShiftNext(
-      businessUnitId,
-      from,
-      date,
-      redisTimeZone,
-    );
-    console.log('after redis update in assingshift');
-    // redisData.readNewNext(businessUnitId);
-    return true;
-  }
-  setRedisData(key, data) {
-    redisClient.set(key, JSON.stringify(data), 'EX', 10 * 60, (err) => {
-      //cache for 10mins
-      if (err) {
-      }
-      //other operations will go here
-      //probably respond back to the request
-    });
-  }
+  // async updateRedis(
+  //   businessUnitId,
+  //   from = false,
+  //   date = null,
+  //   redisTimeZone = 'GMT+0800',
+  // ) {
+  //   console.log('before update assign shift', date);
+  //   await redisData.readAssignShiftNext(
+  //     businessUnitId,
+  //     from,
+  //     date,
+  //     redisTimeZone,
+  //   );
+  //   console.log('after redis update in assingshift');
+  //   // redisData.readNewNext(businessUnitId);
+  //   return true;
+  // }
+  // setRedisData(key, data) {
+  //   redisClient.set(key, JSON.stringify(data), 'EX', 10 * 60, (err) => {
+  //     //cache for 10mins
+  //     if (err) {
+  //     }
+  //     //other operations will go here
+  //     //probably respond back to the request
+  //   });
+  // }
   getDayName(dateString) {
     var days = [
       'Sunday',
@@ -158,12 +158,12 @@ class assignShift {
           dayWiseData.push(obj);
         }
       }
-      const updateResult = await this.updateRedis(
-        redisBuId,
-        true,
-        mondayDate,
-        redisTimeZone,
-      );
+      // const updateResult = await this.updateRedis(
+      //   redisBuId,
+      //   true,
+      //   mondayDate,
+      //   redisTimeZone,
+      // );
       return res.status(200).json({
         success: true,
         msg: 'shift list created successfully',
@@ -356,12 +356,12 @@ class assignShift {
         }
         console.log('redisObj', redisObj);
         if (valid.length > 0) {
-          const updateResult = await this.updateRedis(
-            redisObj.redisBuId,
-            true,
-            redisObj.mondayDate,
-            redisObj.redisTimeZone,
-          );
+          // const updateResult = await this.updateRedis(
+          //   redisObj.redisBuId,
+          //   true,
+          //   redisObj.mondayDate,
+          //   redisObj.redisTimeZone,
+          // );
           this.failedShiftInsert(res, fail, req, valid, 0);
           return res.json({
             status: true,
@@ -1915,12 +1915,12 @@ class assignShift {
                           if (isMobile) {
                             this.publishAllFromMobile(res, assignShiftIdArr);
                           }
-                          const updateResult = await this.updateRedis(
-                            redisBuId,
-                            true,
-                            mondayDate,
-                            redisTimeZone,
-                          );
+                          // const updateResult = await this.updateRedis(
+                          //   redisBuId,
+                          //   true,
+                          //   mondayDate,
+                          //   redisTimeZone,
+                          // );
                           res.json({
                             isAlert,
                             isLimitExceed,
@@ -1939,12 +1939,12 @@ class assignShift {
                       item.status = 0;
                       failedShift.push(item);
                       if (i === totalShift) {
-                        const updateResult = await this.updateRedis(
-                          redisBuId,
-                          true,
-                          mondayDate,
-                          redisTimeZone,
-                        );
+                        // const updateResult = await this.updateRedis(
+                        //   redisBuId,
+                        //   true,
+                        //   mondayDate,
+                        //   redisTimeZone,
+                        // );
                         this.failedShiftInsert(
                           res,
                           failedShift,
@@ -1971,12 +1971,12 @@ class assignShift {
                     }
                   } else {
                     if (i === totalShift) {
-                      const updateResult = await this.updateRedis(
-                        redisBuId,
-                        true,
-                        mondayDate,
-                        redisTimeZone,
-                      );
+                      // const updateResult = await this.updateRedis(
+                      //   redisBuId,
+                      //   true,
+                      //   mondayDate,
+                      //   redisTimeZone,
+                      // );
                       console.log('hereeeee', validShift.length);
                       this.failedShiftInsert(
                         res,
@@ -2052,12 +2052,12 @@ class assignShift {
                       console.log('bbbbbbb', i, totalShift);
                       validShift.push(item);
                       if (i === totalShift) {
-                        const updateResult = await this.updateRedis(
-                          redisBuId,
-                          true,
-                          mondayDate,
-                          redisTimeZone,
-                        );
+                        // const updateResult = await this.updateRedis(
+                        //   redisBuId,
+                        //   true,
+                        //   mondayDate,
+                        //   redisTimeZone,
+                        // );
                         this.failedShiftInsert(
                           res,
                           failedShift,
@@ -2092,12 +2092,12 @@ class assignShift {
                     item.status = 0;
                     failedShift.push(item);
                     if (i === totalShift) {
-                      const updateResult = await this.updateRedis(
-                        redisBuId,
-                        true,
-                        mondayDate,
-                        redisTimeZone,
-                      );
+                      // const updateResult = await this.updateRedis(
+                      //   redisBuId,
+                      //   true,
+                      //   mondayDate,
+                      //   redisTimeZone,
+                      // );
                       this.failedShiftInsert(
                         res,
                         failedShift,
@@ -2127,12 +2127,12 @@ class assignShift {
               .catch(async (err) => {
                 console.log(err);
                 if (i === totalShift) {
-                  const updateResult = await this.updateRedis(
-                    redisBuId,
-                    true,
-                    mondayDate,
-                    redisTimeZone,
-                  );
+                  // const updateResult = await this.updateRedis(
+                  //   redisBuId,
+                  //   true,
+                  //   mondayDate,
+                  //   redisTimeZone,
+                  // );
                   this.failedShiftInsert(res, failedShift, req, validShift, 0);
                   if (failedShift.length > 0 && !from) {
                     isFailed = true;
@@ -2157,12 +2157,12 @@ class assignShift {
             item.status = 0;
             failedShift.push(item);
             if (i === totalShift) {
-              const updateResult = await this.updateRedis(
-                redisBuId,
-                true,
-                mondayDate,
-                redisTimeZone,
-              );
+              // const updateResult = await this.updateRedis(
+              //   redisBuId,
+              //   true,
+              //   mondayDate,
+              //   redisTimeZone,
+              // );
               if (failedShift.length > 0 && !from) {
                 isFailed = true;
               }
@@ -2185,12 +2185,12 @@ class assignShift {
           }
         } else {
           if (i === totalShift) {
-            const updateResult = await this.updateRedis(
-              redisBuId,
-              true,
-              mondayDate,
-              redisTimeZone,
-            );
+            // const updateResult = await this.updateRedis(
+            //   redisBuId,
+            //   true,
+            //   mondayDate,
+            //   redisTimeZone,
+            // );
             this.failedShiftInsert(res, failedShift, req, validShift, 0);
             if (failedShift.length > 0 && !from) {
               isFailed = true;
@@ -2851,12 +2851,12 @@ class assignShift {
         let redisBuId = data.businessUnitId;
         let mondayDate = this.getMondayDate(data.weekRangeStartsAt);
         let redisTimeZone = data.timeZone ? data.timeZone : 'GMT+0800';
-        const updateResult = await this.updateRedis(
-          redisBuId,
-          true,
-          mondayDate,
-          redisTimeZone,
-        );
+        // const updateResult = await this.updateRedis(
+        //   redisBuId,
+        //   true,
+        //   mondayDate,
+        //   redisTimeZone,
+        // );
         const weekStart = moment(data.weekRangeStartsAt, 'DD MMM')
           .utc(data.timeZone)
           .format('DD MMMM');
@@ -2912,12 +2912,12 @@ class assignShift {
         if (obj.success) {
           return res.json({ success: false, message: 'Shift is Overlapping' });
         }
-        const updateResult = await this.updateRedis(
-          obj.redisBuId,
-          true,
-          obj.mondayDate,
-          obj.redisTimeZone,
-        );
+        // const updateResult = await this.updateRedis(
+        //   obj.redisBuId,
+        //   true,
+        //   obj.mondayDate,
+        //   obj.redisTimeZone,
+        // );
         // if (publishArr.length > 0) {
         //     console.log('hereree in publish')
         //     await this.publishAllFromMobile(publishArr);
@@ -3239,12 +3239,12 @@ class assignShift {
           redisBuId = data.businessUnitId;
           mondayDate = this.getMondayDate(data.weekRangeStartsAt);
           redisTimeZone = data.timeZone ? data.timeZone : 'GMT+0800';
-          const updateResult = await this.updateRedis(
-            redisBuId,
-            true,
-            mondayDate,
-            redisTimeZone,
-          );
+          // const updateResult = await this.updateRedis(
+          //   redisBuId,
+          //   true,
+          //   mondayDate,
+          //   redisTimeZone,
+          // );
           if (data.shiftDetailId) {
             const updateShift = await ShiftDetails.findOneAndUpdate(
               { _id: data.shiftDetailId },
@@ -3292,12 +3292,12 @@ class assignShift {
         { _id: 1 },
       );
       const currentDateR = req.body.weekRangeStartsAt.split(' ')[0];
-      const redisKey = `assingShiftR${req.body.businessUnitId}${currentDateR}`;
-      const redisData = await redisClient.get(`${redisKey}`);
-      if (redisData) {
-        console.log('DATATATATATA Present');
-        return res.json(JSON.parse(redisData));
-      }
+      // const redisKey = `assingShiftR${req.body.businessUnitId}${currentDateR}`;
+      // const redisData = await redisClient.get(`${redisKey}`);
+      // if (redisData) {
+      //   console.log('DATATATATATA Present');
+      //   return res.json(JSON.parse(redisData));
+      // }
       console.log(
         'bsadh',
         moment(req.body.weekRangeStartsAt, 'MM-DD-YYYY HH:mm:ss Z')
@@ -3487,18 +3487,18 @@ class assignShift {
           Sunday: shifts.Sunday,
         };
         // console.log('shifts', JSON.stringify(shifts))
-        this.setRedisData(redisKey, {
-          status: true,
-          shifts: newShifts,
-          message: 'Week Data',
-        });
+        // this.setRedisData(redisKey, {
+        //   status: true,
+        //   shifts: newShifts,
+        //   message: 'Week Data',
+        // });
         res.json({ status: true, shifts: newShifts, message: 'Week Data' });
       } else {
-        this.setRedisData(redisKey, {
-          status: false,
-          shifts: [],
-          message: 'No Week Data Found',
-        });
+        // this.setRedisData(redisKey, {
+        //   status: false,
+        //   shifts: [],
+        //   message: 'No Week Data Found',
+        // });
         res.json({ status: false, shifts: [], message: 'No Week Data Found' });
       }
     } catch (error) {
@@ -3534,12 +3534,12 @@ class assignShift {
       // await this.updateRedis(redisBuId)
       let mondayDate = this.getMondayDate(result.weekRangeStartsAt);
       let redisTimeZone = result.timeZone ? result.timeZone : 'GMT+0800';
-      const updateResult = await this.updateRedis(
-        redisBuId,
-        true,
-        mondayDate,
-        redisTimeZone,
-      );
+      // const updateResult = await this.updateRedis(
+      //   redisBuId,
+      //   true,
+      //   mondayDate,
+      //   redisTimeZone,
+      // );
       res.json({ status: true, message: 'Requested Successfully' });
     } catch (error) {
       __.log(error);
@@ -3560,7 +3560,7 @@ class assignShift {
         ).then((result) => {
           if (result) {
             const redisBuId = result.businessUnitId;
-            this.updateRedis(redisBuId);
+            // this.updateRedis(redisBuId);
             //const shiftDetailId = result.
             res.json(result);
           } else {
@@ -3708,12 +3708,12 @@ class assignShift {
         const redisBuId = aa.businessUnitId;
         let mondayDate = this.getMondayDate(new Date(aa.weekRangeStartsAt));
         let redisTimeZone = aa.timeZone;
-        const updateResult = await this.updateRedis(
-          redisBuId,
-          true,
-          mondayDate,
-          redisTimeZone,
-        );
+        // const updateResult = await this.updateRedis(
+        //   redisBuId,
+        //   true,
+        //   mondayDate,
+        //   redisTimeZone,
+        // );
         // this.updateRedis(redisBuId)
         return res.json({
           status: true,
@@ -3732,12 +3732,12 @@ class assignShift {
         const redisBuId = aa.businessUnitId;
         let mondayDate = this.getMondayDate(new Date(aa.weekRangeStartsAt));
         let redisTimeZone = aa.timeZone;
-        const updateResult = await this.updateRedis(
-          redisBuId,
-          true,
-          mondayDate,
-          redisTimeZone,
-        );
+        // const updateResult = await this.updateRedis(
+        //   redisBuId,
+        //   true,
+        //   mondayDate,
+        //   redisTimeZone,
+        // );
         return res.json({
           status: true,
           message: 'You have selected not to proceed',
@@ -3833,7 +3833,7 @@ class assignShift {
           { new: true },
         ).then(async (resultNew) => {
           if (!result.draftStatus) {
-            this.updateRedis(redisBuId);
+            // this.updateRedis(redisBuId);
             return res.json({
               status: true,
               message: 'Assign Shift updated.',
@@ -3850,7 +3850,7 @@ class assignShift {
                 endTime: req.body.endDateTime,
               },
             );
-            this.updateRedis(redisBuId);
+            // this.updateRedis(redisBuId);
             return res.json({
               status: true,
               message: 'Assign Shift updated.',
@@ -4011,12 +4011,12 @@ class assignShift {
           }
         }
         console.log('4');
-        const updateResult = await this.updateRedis(
-          redisBuId,
-          true,
-          mondayDate,
-          redisTimeZone,
-        );
+        // const updateResult = await this.updateRedis(
+        //   redisBuId,
+        //   true,
+        //   mondayDate,
+        //   redisTimeZone,
+        // );
         console.log('updateResultYYYYYYYYYYYYYYYYYYYYYY', updateResult);
         this.failedShiftInsert(res, failPublish, req, insertedShift, 1);
         console.log('userIdForNotification', userIdForNotification);
@@ -4708,12 +4708,12 @@ class assignShift {
           );
         }
         const deleteResult = await Promise.all(deleleResultArr);
-        const updateResult = await this.updateRedis(
-          deleteResult[0].redisBuId,
-          true,
-          deleteResult[0].mondayDate,
-          deleteResult[0].redisTimeZone,
-        );
+        // const updateResult = await this.updateRedis(
+        //   deleteResult[0].redisBuId,
+        //   true,
+        //   deleteResult[0].mondayDate,
+        //   deleteResult[0].redisTimeZone,
+        // );
         console.log('waited', deleteResult[0]);
         return res
           .status(200)
@@ -4838,12 +4838,12 @@ class assignShift {
         }
       }
       //}
-      const updateResult = await this.updateRedis(
-        redisBuId,
-        true,
-        mondayDate,
-        redisTimeZone,
-      );
+      // const updateResult = await this.updateRedis(
+      //   redisBuId,
+      //   true,
+      //   mondayDate,
+      //   redisTimeZone,
+      // );
       return res
         .status(200)
         .json({ success: true, msg: 'Deleted Single Shift Successfully' });

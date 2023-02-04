@@ -17,16 +17,16 @@ const mongoose = require('mongoose'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
 const company = require('../../models/company');
-const redisClient = require('../../../helpers/redis.js');
-const redisData = require('../../../helpers/redisDataGenerator');
+// const redisClient = require('../../../helpers/redis.js');
+// const redisData = require('../../../helpers/redisDataGenerator');
 const ShiftHelper = require('../../../helpers/shiftHelper');
 const SubSection = require('../../models/subSection');
 let shiftCheckId = [];
 
 class staffShift {
-  async updateRedis(businessUnitId) {
-    await redisData.readNewNext(businessUnitId);
-  }
+  // async updateRedis(businessUnitId) {
+  //   await redisData.readNewNext(businessUnitId);
+  // }
   async recalledShiftConfirmation(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
