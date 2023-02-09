@@ -17,15 +17,16 @@ const mongoose = require('mongoose'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
 const company = require('../../models/company');
-const redisClient = require('../../../helpers/redis.js');
-const redisData = require('../../../helpers/redisDataGenerator');
+// const redisClient = require('../../../helpers/redis.js');
+// const redisData = require('../../../helpers/redisDataGenerator');
 const ShiftHelper = require('../../../helpers/shiftHelper');
+const SubSection = require('../../models/subSection');
 let shiftCheckId = [];
 
 class staffShift {
-  async updateRedis(businessUnitId) {
-    await redisData.readNewNext(businessUnitId);
-  }
+  // async updateRedis(businessUnitId) {
+  //   await redisData.readNewNext(businessUnitId);
+  // }
   async recalledShiftConfirmation(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
@@ -54,7 +55,7 @@ class staffShift {
               isRecallAccepted: req.body.isRecallAccepted,
             },
           );
-          await this.updateRedis(assingShiftData.businessUnitId);
+          // await this.updateRedis(assingShiftData.businessUnitId);
           Shift.findById(data.shiftId).then((shiftInfo) => {
             console.log('shiftInfo', shiftInfo);
             let statusLogData = {
@@ -1130,13 +1131,13 @@ class staffShift {
                   300,
                   'Your booking is unsuccessful as the confirm slot has been assigned.Please try for standby slot.',
                 );
-                this.updateRedis(redisBuId)
-                  .then((uRedisResult) => {
-                    console.log('updateRedis', uRedisResult);
-                  })
-                  .catch((eRedisResult) => {
-                    console.log('updateRedis error', eRedisResult);
-                  });
+                // this.updateRedis(redisBuId)
+                //   .then((uRedisResult) => {
+                //     console.log('updateRedis', uRedisResult);
+                //   })
+                //   .catch((eRedisResult) => {
+                //     console.log('updateRedis error', eRedisResult);
+                //   });
                 return;
               } else {
                 /* tried for standby but standby slot filled */
@@ -1155,13 +1156,13 @@ class staffShift {
                   300,
                   'Your booking is unsuccessful as the standby slot has been assigned.',
                 );
-                this.updateRedis(redisBuId)
-                  .then((uRedisResult) => {
-                    console.log('updateRedis', uRedisResult);
-                  })
-                  .catch((eRedisResult) => {
-                    console.log('updateRedis error', eRedisResult);
-                  });
+                // this.updateRedis(redisBuId)
+                //   .then((uRedisResult) => {
+                //     console.log('updateRedis', uRedisResult);
+                //   })
+                //   .catch((eRedisResult) => {
+                //     console.log('updateRedis error', eRedisResult);
+                //   });
                 return;
               }
 
@@ -1223,13 +1224,13 @@ class staffShift {
                   );
                 }
 
-                this.updateRedis(redisBuId)
-                  .then((uRedisResult) => {
-                    console.log('updateRedis', uRedisResult);
-                  })
-                  .catch((eRedisResult) => {
-                    console.log('updateRedis error', eRedisResult);
-                  });
+                // this.updateRedis(redisBuId)
+                //   .then((uRedisResult) => {
+                //     console.log('updateRedis', uRedisResult);
+                //   })
+                //   .catch((eRedisResult) => {
+                //     console.log('updateRedis error', eRedisResult);
+                //   });
                 __.out(res, 201, statusString); //+' \n'+limitData.message
               } else {
                 if (req.body.isConfirmed) {
@@ -1255,13 +1256,13 @@ class staffShift {
                     );
                   }
                 }
-                this.updateRedis(redisBuId)
-                  .then((uRedisResult) => {
-                    console.log('updateRedis', uRedisResult);
-                  })
-                  .catch((eRedisResult) => {
-                    console.log('updateRedis error', eRedisResult);
-                  });
+                // this.updateRedis(redisBuId)
+                //   .then((uRedisResult) => {
+                //     console.log('updateRedis', uRedisResult);
+                //   })
+                //   .catch((eRedisResult) => {
+                //     console.log('updateRedis error', eRedisResult);
+                //   });
                 __.out(res, 300, limitData.message);
               }
             } else {
@@ -1290,13 +1291,13 @@ class staffShift {
                   );
                 }
               }
-              this.updateRedis(redisBuId)
-                .then((uRedisResult) => {
-                  console.log('updateRedis', uRedisResult);
-                })
-                .catch((eRedisResult) => {
-                  console.log('updateRedis error', eRedisResult);
-                });
+              // this.updateRedis(redisBuId)
+              //   .then((uRedisResult) => {
+              //     console.log('updateRedis', uRedisResult);
+              //   })
+              //   .catch((eRedisResult) => {
+              //     console.log('updateRedis error', eRedisResult);
+              //   });
               __.out(res, 300, 'You have another shift at the same time.');
             }
           } else {
@@ -1332,13 +1333,13 @@ class staffShift {
               statusString =
                 'Your booking is unsuccessful as the slot has been assigned.Please view other available shifts.'; //'Standby slots are fully booked.Currently no slots available to book.';
             }
-            this.updateRedis(redisBuId)
-              .then((uRedisResult) => {
-                console.log('updateRedis', uRedisResult);
-              })
-              .catch((eRedisResult) => {
-                console.log('updateRedis error', eRedisResult);
-              });
+            // this.updateRedis(redisBuId)
+            //   .then((uRedisResult) => {
+            //     console.log('updateRedis', uRedisResult);
+            //   })
+            //   .catch((eRedisResult) => {
+            //     console.log('updateRedis error', eRedisResult);
+            //   });
             __.out(res, 300, statusString);
           }
         }
@@ -1625,13 +1626,13 @@ class staffShift {
         );
       }
 
-      this.updateRedis(redisBuId)
-        .then((uRedisResult) => {
-          console.log('updateRedis', uRedisResult);
-        })
-        .catch((eRedisResult) => {
-          console.log('updateRedis error', eRedisResult);
-        });
+      // this.updateRedis(redisBuId)
+      //   .then((uRedisResult) => {
+      //     console.log('updateRedis', uRedisResult);
+      //   })
+      //   .catch((eRedisResult) => {
+      //     console.log('updateRedis error', eRedisResult);
+      //   });
       return __.out(res, 201, statusString);
     } catch (err) {
       __.log(err);
@@ -2725,7 +2726,7 @@ class staffShift {
         true,
         currentShiftDetailsSplit,
       );
-      if (limitData.isInterval) {
+      if (limitData && limitData.isInterval) {
         return __.out(
           res,
           300,
@@ -2769,6 +2770,7 @@ class staffShift {
         }
       }
     } catch (e) {
+      console.log('================================================================================================ ', e)
       __.out(res, 500, 'Something went wrong');
     }
   }
@@ -3161,13 +3163,13 @@ class staffShift {
           { _id: req.body.shiftDetailsId },
           updateJson,
         );
-        this.updateRedis(redisBuId)
-          .then((uRedisResult) => {
-            console.log('updateRedis', uRedisResult);
-          })
-          .catch((eRedisResult) => {
-            console.log('updateRedis error', eRedisResult);
-          });
+        // this.updateRedis(redisBuId)
+        //   .then((uRedisResult) => {
+        //     console.log('updateRedis', uRedisResult);
+        //   })
+        //   .catch((eRedisResult) => {
+        //     console.log('updateRedis error', eRedisResult);
+        //   });
         __.out(res, 201, 'Booking (confirmed) has been cancelled successfully');
       } else if (
         shiftDetails.backUpStaffs.some((x) => x == req.user._id.toString())
@@ -3190,13 +3192,13 @@ class staffShift {
           { _id: req.body.shiftDetailsId },
           updateJson,
         );
-        this.updateRedis(redisBuId)
-          .then((uRedisResult) => {
-            console.log('updateRedis', uRedisResult);
-          })
-          .catch((eRedisResult) => {
-            console.log('updateRedis error', eRedisResult);
-          });
+        // this.updateRedis(redisBuId)
+        //   .then((uRedisResult) => {
+        //     console.log('updateRedis', uRedisResult);
+        //   })
+        //   .catch((eRedisResult) => {
+        //     console.log('updateRedis error', eRedisResult);
+        //   });
         return __.out(
           res,
           201,
@@ -3872,15 +3874,15 @@ class staffShift {
                   },
                 );
                 __.out(res, 201, 'Booked in confirmed slot ');
-                await this.updateRedis(redisBuId); //+limitData.message
+                // await this.updateRedis(redisBuId); //+limitData.message
               } else {
                 __.out(res, 300, limitData.message);
-                await this.updateRedis(redisBuId);
+                // await this.updateRedis(redisBuId);
               }
             } else {
               this.reduceLimit(res, userId, shiftDetails);
               __.out(res, 300, 'This confirmed slot has already been filled');
-              await this.updateRedis(redisBuId);
+              // await this.updateRedis(redisBuId);
             }
           } else {
             /*push flexistaff id who rejects the request */
@@ -3895,7 +3897,7 @@ class staffShift {
               },
             );
             __.out(res, 201, 'Request has been rejected successfully');
-            await this.updateRedis(redisBuId);
+            // await this.updateRedis(redisBuId);
           }
         } else {
           // checked ******
@@ -4212,7 +4214,7 @@ class staffShift {
 
                     await shiftLogController.create(statusLogData, res);
 
-                    this.updateRedis(redisBuId);
+                    // this.updateRedis(redisBuId);
                     __.out(
                       res,
                       201,
@@ -4233,7 +4235,7 @@ class staffShift {
                   this.reduceLimit(res, userId, shiftDetails);
                 }
                 // this.reduceLimit(userId, shiftDetails);
-                this.updateRedis(redisBuId);
+                // this.updateRedis(redisBuId);
                 __.out(res, 300, 'You have another shift at the same time.');
               }
             } else {
@@ -4293,7 +4295,7 @@ class staffShift {
               };
 
               await shiftLogController.create(statusLogData, res);
-              this.updateRedis(redisBuId);
+              // this.updateRedis(redisBuId);
               __.out(res, 201, 'Request shift has been rejected successfully');
             }
           } else {
@@ -4642,7 +4644,7 @@ class staffShift {
         // Log Created
         statusLogData.status = 7;
         statusLogData.acceptedShift = requestedShiftDetails._id;
-        await this.updateRedis(redisBuId);
+        // await this.updateRedis(redisBuId);
         await shiftLogController.create(statusLogData, res);
         return __.out(
           res,
@@ -4686,7 +4688,7 @@ class staffShift {
         statusLogData.status = 8;
         statusLogData.rejectedShift = requestedShiftDetails._id;
         await shiftLogController.create(statusLogData, res);
-        await this.updateRedis(redisBuId);
+        // await this.updateRedis(redisBuId);
         return __.out(
           res,
           201,
