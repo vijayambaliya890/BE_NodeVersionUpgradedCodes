@@ -1,3 +1,4 @@
+/*
 const json2csv = require('json2csv').parse;
 const mongoose = require('mongoose'),
   Shift = require('../app/models/shift'),
@@ -1133,7 +1134,7 @@ class redisData {
                       .format('DD-MM-YYYY');
                   }
                   if (element.status == 1) {
-                    /*dashboard graph data starts*/
+                    // dashboard graph data starts
                     //console.log('element.isAssignShift', element.isAssignShift)
                     if (!element.isAssignShift) {
                       var confirmedStaffsCount = element.confirmedStaffs.length;
@@ -1182,12 +1183,12 @@ class redisData {
                       }
                     }
                   }
-                  /*dashboard graph data ends */
+                  //dashboard graph data ends 
 
                   // Remove Cancelled Shifts on Calculation
 
                   if (listData[key]) {
-                    /*if date already keyed in array */
+                    // if date already keyed in array 
                     listData[key].push(element);
                     // Add Hours in calculation only it is active shift
                     if (element.status == 1 && !element.isAssignShift) {
@@ -1252,7 +1253,7 @@ class redisData {
                       }
                     }
                   } else {
-                    /*else create a new key by date in array */
+                    // else create a new key by date in array
                     listData[key] = [];
                     listData[key].push(element);
                     graphData[key] = {};
@@ -1352,7 +1353,7 @@ class redisData {
                 }
               });
 
-              /*weeklyGraph starts */
+              // weeklyGraph starts
 
               var staffNeedWeekdaysObj = {
                   monday: {},
@@ -1403,7 +1404,7 @@ class redisData {
                     i >= element.startTimeInSeconds &&
                     i <= element.endTimeInSeconds
                   ) {
-                    /*shift matches the time then it will take the count else it will assign 0 by default */
+                    //shift matches the time then it will take the count else it will assign 0 by default 
                     if (!element.isAssignShift) {
                       //console.log('inthis')
                       staffNeedCount = element.staffNeedCount;
@@ -1427,7 +1428,7 @@ class redisData {
                     typeof staffNeedWeekdaysObj[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/
+                    //dont change to if condition bcoz it may be zero so it fails in it
 
                     staffNeedWeekdaysObj[weekDay][dateTimeUnix] +=
                       staffNeedCount;
@@ -1440,7 +1441,7 @@ class redisData {
                     typeof staffAppliedWeekdaysObj[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObj[
+                    //dont change to if condition bcoz it may be zero so it fails in it staffAppliedWeekdaysObj[
                       weekDay
                     ][dateTimeUnix] += appliedStaffCount;
                   } else {
@@ -1453,7 +1454,7 @@ class redisData {
                     typeof staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/
+                    //dont change to if condition bcoz it may be zero so it fails in it
 
                     staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] +=
                       staffNeedCountAssign;
@@ -1467,7 +1468,7 @@ class redisData {
                       dateTimeUnix
                     ] != 'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObjAssign[
+                    //dont change to if condition bcoz it may be zero so it fails in it staffAppliedWeekdaysObjAssign[
                       weekDay
                     ][dateTimeUnix] += appliedStaffCountAssing;
                   } else {
@@ -1479,7 +1480,7 @@ class redisData {
               }
 
               // deleteMany
-              /*FORMAT THE RESPONSE (for both need and applied datas) AS {'monday':[[1514223000000,2],[1514223000000,2]],'tuesday':[[1514223000000,2],[1514223000000,2]],....} */
+              //FORMAT THE RESPONSE (for both need and applied datas) AS {'monday':[[1514223000000,2],[1514223000000,2]],'tuesday':[[1514223000000,2],[1514223000000,2]],....} 
               var formattedAppliedStaffData = {},
                 formattedNeedStaffData = {};
               var formattedAppliedStaffDataAssign = {},
@@ -1568,7 +1569,7 @@ class redisData {
                     clientWeeklyStaffData.staffData;
               }
 
-              /*weeklyGraph ends */
+              //weeklyGraph ends 
 
               var updatedDashboardGraphData = {};
 
@@ -2086,7 +2087,7 @@ class redisData {
                       .format('DD-MM-YYYY');
                   }
                   if (element.status == 1) {
-                    /*dashboard graph data starts*/
+                    //dashboard graph data starts
                     //console.log('element.isAssignShift', element.isAssignShift)
                     if (!element.isAssignShift) {
                       var confirmedStaffsCount = element.confirmedStaffs.length;
@@ -2135,12 +2136,12 @@ class redisData {
                       }
                     }
                   }
-                  /*dashboard graph data ends */
+                  //dashboard graph data ends 
 
                   // Remove Cancelled Shifts on Calculation
 
                   if (listData[key]) {
-                    /*if date already keyed in array */
+                    //if date already keyed in array 
                     listData[key].push(element);
                     // Add Hours in calculation only it is active shift
                     if (element.status == 1 && !element.isAssignShift) {
@@ -2205,7 +2206,7 @@ class redisData {
                       }
                     }
                   } else {
-                    /*else create a new key by date in array */
+                    //else create a new key by date in array 
                     listData[key] = [];
                     listData[key].push(element);
                     graphData[key] = {};
@@ -2305,7 +2306,7 @@ class redisData {
                 }
               });
 
-              /*weeklyGraph starts */
+              //weeklyGraph starts 
 
               var staffNeedWeekdaysObj = {
                   monday: {},
@@ -2356,7 +2357,7 @@ class redisData {
                     i >= element.startTimeInSeconds &&
                     i <= element.endTimeInSeconds
                   ) {
-                    /*shift matches the time then it will take the count else it will assign 0 by default */
+                    //shift matches the time then it will take the count else it will assign 0 by default 
                     if (!element.isAssignShift) {
                       //console.log('inthis')
                       staffNeedCount = element.staffNeedCount;
@@ -2380,7 +2381,7 @@ class redisData {
                     typeof staffNeedWeekdaysObj[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/
+                    //dont change to if condition bcoz it may be zero so it fails in it
 
                     staffNeedWeekdaysObj[weekDay][dateTimeUnix] +=
                       staffNeedCount;
@@ -2393,7 +2394,8 @@ class redisData {
                     typeof staffAppliedWeekdaysObj[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObj[
+                    //dont change to if condition bcoz it may be zero so it fails in it
+                    staffAppliedWeekdaysObj[
                       weekDay
                     ][dateTimeUnix] += appliedStaffCount;
                   } else {
@@ -2406,7 +2408,7 @@ class redisData {
                     typeof staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/
+                    //dont change to if condition bcoz it may be zero so it fails in it
 
                     staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] +=
                       staffNeedCountAssign;
@@ -2420,7 +2422,8 @@ class redisData {
                       dateTimeUnix
                     ] != 'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObjAssign[
+                    //dont change to if condition bcoz it may be zero so it fails in it
+                    staffAppliedWeekdaysObjAssign[
                       weekDay
                     ][dateTimeUnix] += appliedStaffCountAssing;
                   } else {
@@ -2432,7 +2435,7 @@ class redisData {
               }
 
               // deleteMany
-              /*FORMAT THE RESPONSE (for both need and applied datas) AS {'monday':[[1514223000000,2],[1514223000000,2]],'tuesday':[[1514223000000,2],[1514223000000,2]],....} */
+              //FORMAT THE RESPONSE (for both need and applied datas) AS {'monday':[[1514223000000,2],[1514223000000,2]],'tuesday':[[1514223000000,2],[1514223000000,2]],....} 
               var formattedAppliedStaffData = {},
                 formattedNeedStaffData = {};
               var formattedAppliedStaffDataAssign = {},
@@ -2521,7 +2524,7 @@ class redisData {
                     clientWeeklyStaffData.staffData;
               }
 
-              /*weeklyGraph ends */
+              //weeklyGraph ends 
 
               var updatedDashboardGraphData = {};
 
@@ -3492,7 +3495,7 @@ class redisData {
                   var key = __.getDateStringFormat(element.date, tz);
                   // Remove Cancelled Shifts on Calculation
                   if (element.status == 1) {
-                    /*dashboard graph data starts*/
+                    //dashboard graph data starts
                     //console.log('element.isAssignShift', element.isAssignShift)
                     if (!element.isAssignShift) {
                       var confirmedStaffsCount = element.confirmedStaffs.length;
@@ -3537,11 +3540,11 @@ class redisData {
                       }
                     }
                   }
-                  /*dashboard graph data ends */
+                  //dashboard graph data ends 
 
                   // Remove Cancelled Shifts on Calculation
                   if (listData[key]) {
-                    /*if date already keyed in array */
+                    //if date already keyed in array 
                     listData[key].push(element);
                     // Add Hours in calculation only it is active shift
                     if (element.status == 1 && !element.isAssignShift) {
@@ -3604,7 +3607,7 @@ class redisData {
                       }
                     }
                   } else {
-                    /*else create a new key by date in array */
+                    //else create a new key by date in array 
                     listData[key] = [];
                     listData[key].push(element);
                     graphData[key] = {};
@@ -3701,7 +3704,7 @@ class redisData {
                 }
               });
 
-              /*weeklyGraph starts */
+              //weeklyGraph starts 
 
               var staffNeedWeekdaysObj = {
                   monday: {},
@@ -3740,7 +3743,7 @@ class redisData {
                     i >= element.startTimeInSeconds &&
                     i <= element.endTimeInSeconds
                   ) {
-                    /*shift matches the time then it will take the count else it will assign 0 by default */
+                    //shift matches the time then it will take the count else it will assign 0 by default 
                     if (!element.isAssignShift) {
                       //console.log('inthis')
                       staffNeedCount = element.staffNeedCount;
@@ -3764,7 +3767,7 @@ class redisData {
                     typeof staffNeedWeekdaysObj[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/
+                    //dont change to if condition bcoz it may be zero so it fails in it
 
                     staffNeedWeekdaysObj[weekDay][dateTimeUnix] +=
                       staffNeedCount;
@@ -3777,7 +3780,8 @@ class redisData {
                     typeof staffAppliedWeekdaysObj[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObj[
+                    //dont change to if condition bcoz it may be zero so it fails in it 
+                    staffAppliedWeekdaysObj[
                       weekDay
                     ][dateTimeUnix] += appliedStaffCount;
                   } else {
@@ -3790,7 +3794,7 @@ class redisData {
                     typeof staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/
+                    //dont change to if condition bcoz it may be zero so it fails in it
 
                     staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] +=
                       staffNeedCountAssign;
@@ -3804,7 +3808,8 @@ class redisData {
                       dateTimeUnix
                     ] != 'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObjAssign[
+                    //dont change to if condition bcoz it may be zero so it fails in it 
+                    staffAppliedWeekdaysObjAssign[
                       weekDay
                     ][dateTimeUnix] += appliedStaffCountAssing;
                   } else {
@@ -3816,7 +3821,7 @@ class redisData {
               }
 
               // deleteMany
-              /*FORMAT THE RESPONSE (for both need and applied datas) AS {'monday':[[1514223000000,2],[1514223000000,2]],'tuesday':[[1514223000000,2],[1514223000000,2]],....} */
+              //FORMAT THE RESPONSE (for both need and applied datas) AS {'monday':[[1514223000000,2],[1514223000000,2]],'tuesday':[[1514223000000,2],[1514223000000,2]],....} 
               var formattedAppliedStaffData = {},
                 formattedNeedStaffData = {};
               var formattedAppliedStaffDataAssign = {},
@@ -3899,7 +3904,7 @@ class redisData {
                     clientWeeklyStaffData.staffData;
               }
 
-              /*weeklyGraph ends */
+              //weeklyGraph ends 
 
               var updatedDashboardGraphData = {};
 
@@ -4389,7 +4394,7 @@ class redisData {
                   var key = __.getDateStringFormat(element.date, tz);
                   // Remove Cancelled Shifts on Calculation
                   if (element.status == 1) {
-                    /*dashboard graph data starts*/
+                    //dashboard graph data starts
                     //console.log('element.isAssignShift', element.isAssignShift)
                     if (!element.isAssignShift) {
                       var confirmedStaffsCount = element.confirmedStaffs.length;
@@ -4434,11 +4439,11 @@ class redisData {
                       }
                     }
                   }
-                  /*dashboard graph data ends */
+                  //dashboard graph data ends 
 
                   // Remove Cancelled Shifts on Calculation
                   if (listData[key]) {
-                    /*if date already keyed in array */
+                    //if date already keyed in array 
                     listData[key].push(element);
                     // Add Hours in calculation only it is active shift
                     if (element.status == 1 && !element.isAssignShift) {
@@ -4501,7 +4506,7 @@ class redisData {
                       }
                     }
                   } else {
-                    /*else create a new key by date in array */
+                    //else create a new key by date in array 
                     listData[key] = [];
                     listData[key].push(element);
                     graphData[key] = {};
@@ -4598,7 +4603,7 @@ class redisData {
                 }
               });
 
-              /*weeklyGraph starts */
+              //weeklyGraph starts 
 
               var staffNeedWeekdaysObj = {
                   monday: {},
@@ -4637,7 +4642,7 @@ class redisData {
                     i >= element.startTimeInSeconds &&
                     i <= element.endTimeInSeconds
                   ) {
-                    /*shift matches the time then it will take the count else it will assign 0 by default */
+                    //shift matches the time then it will take the count else it will assign 0 by default 
                     if (!element.isAssignShift) {
                       //console.log('inthis')
                       staffNeedCount = element.staffNeedCount;
@@ -4661,7 +4666,7 @@ class redisData {
                     typeof staffNeedWeekdaysObj[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/
+                    //dont change to if condition bcoz it may be zero so it fails in it
 
                     staffNeedWeekdaysObj[weekDay][dateTimeUnix] +=
                       staffNeedCount;
@@ -4674,7 +4679,8 @@ class redisData {
                     typeof staffAppliedWeekdaysObj[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObj[
+                    //dont change to if condition bcoz it may be zero so it fails in it 
+                    staffAppliedWeekdaysObj[
                       weekDay
                     ][dateTimeUnix] += appliedStaffCount;
                   } else {
@@ -4687,7 +4693,7 @@ class redisData {
                     typeof staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] !=
                     'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/
+                    //dont change to if condition bcoz it may be zero so it fails in it
 
                     staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] +=
                       staffNeedCountAssign;
@@ -4701,7 +4707,8 @@ class redisData {
                       dateTimeUnix
                     ] != 'undefined'
                   ) {
-                    /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObjAssign[
+                    //dont change to if condition bcoz it may be zero so it fails in it 
+                    staffAppliedWeekdaysObjAssign[
                       weekDay
                     ][dateTimeUnix] += appliedStaffCountAssing;
                   } else {
@@ -4713,7 +4720,7 @@ class redisData {
               }
 
               // deleteMany
-              /*FORMAT THE RESPONSE (for both need and applied datas) AS {'monday':[[1514223000000,2],[1514223000000,2]],'tuesday':[[1514223000000,2],[1514223000000,2]],....} */
+              //FORMAT THE RESPONSE (for both need and applied datas) AS {'monday':[[1514223000000,2],[1514223000000,2]],'tuesday':[[1514223000000,2],[1514223000000,2]],....} 
               var formattedAppliedStaffData = {},
                 formattedNeedStaffData = {};
               var formattedAppliedStaffDataAssign = {},
@@ -4796,7 +4803,7 @@ class redisData {
                     clientWeeklyStaffData.staffData;
               }
 
-              /*weeklyGraph ends */
+              //weeklyGraph ends 
 
               var updatedDashboardGraphData = {};
 
@@ -4958,7 +4965,7 @@ redisData = new redisData();
 module.exports = redisData;
 //setTimeout(() => {
 new CronJob({
-  cronTime: '*/2 * * * *',
+  cronTime: '/2 * * * *',
   onTick: async function () {
     console.log('timeshet redis cron');
     const buIdss = await SubSection.find(
@@ -4986,7 +4993,7 @@ new CronJob({
 });
 // }, 3000)
 new CronJob({
-  cronTime: '*/4 * * * *',
+  cronTime: '4 * * * *',
   onTick: async function () {
     console.log('shift redis cron');
     const buIdss = await SubSection.find(
@@ -5016,7 +5023,7 @@ new CronJob({
 });
 setTimeout(() => {
   new CronJob({
-    cronTime: '*/2 * * * *',
+    cronTime: '2 * * * *',
     onTick: async function () {
       console.log('Worksssss');
       const buIdss = await SubSection.find(
@@ -5050,3 +5057,4 @@ function getMonday(d) {
     diff = d.getDate() - day + (day == 0 ? -6 : 1); // adjust when day is sunday
   return new Date(d.setDate(diff));
 }
+*/
