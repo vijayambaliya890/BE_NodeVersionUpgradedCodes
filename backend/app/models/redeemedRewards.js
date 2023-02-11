@@ -48,9 +48,6 @@ const redeemedRewardSchema = new Schema(
     display_img_url: {
       type: String
     },
-    redemption_type: {
-      type: String
-    },
     type: {
       type: String,
       enum: ["spending", "earning"],
@@ -69,11 +66,80 @@ const redeemedRewardSchema = new Schema(
     },
     redeemable: {
       type: Boolean
-    }, 
-    totalRewardPoints:{
-      type:Number,
-      default:0
-    }
+    },
+    totalRewardPoints: {
+      type: Number,
+      default: 0
+    },
+    productCode: {
+      type: String,
+      default: ""
+    },
+    productName: {
+      type: String,
+      default: ""
+    },
+    orderNumber: {
+      type: String,
+      default: ""
+    },
+    view_code: {
+      type: String,
+      default: ""
+    },
+    voucher_name: {
+      type: String,
+      default: ""
+    },
+    voucher_ref: {
+      type: String,
+      default: ""
+    },
+    voucher_settlement_ref: {
+      type: String,
+      default: ""
+    },
+    status: {
+      type: String,
+      default: ""
+    },
+    expiration_date: {
+      type: String,
+      default: ""
+    },
+    edenred_url: {
+      type: String,
+      default: ""
+    },
+    display_codes: {
+      type: Array,
+      default: ""
+    },
+    qrCode: {
+      type: String,
+      default: ''
+    },
+    companyName: {
+      type: String,
+      default: ''
+    },
+    redemption_type: {
+      type: String,
+      default: 'e_voucher'
+    },
+    category: {
+      type: String,
+      default: ''
+    },
+    category_id: {
+      type: Number
+    },
+    uUid: {
+      type: String
+    },
+    isSuccess: {
+      type: Boolean
+    },
   },
   {
     timestamps: true

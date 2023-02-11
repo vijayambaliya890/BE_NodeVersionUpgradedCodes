@@ -4748,6 +4748,18 @@ class shift {
                   shiftDetails.totalStaffNeedCount =
                     shiftDetails.totalStaffNeedCount + staffIncreasedBy;
                   await shiftDetails.save();
+                  if (shiftDetails.isSplitShift) {
+                    const splitShift = await ShiftDetails.findOne({
+                      randomShiftId: shiftDetails.randomShiftId,
+                      _id: { $ne: shiftDetails._id },
+                    });
+                    if (splitShift) {
+                      splitShift.staffNeedCount = req.body.staffNeedCount;
+                      splitShift.totalStaffNeedCount =
+                        shiftDetails.totalStaffNeedCount;
+                      await splitShift.save();
+                    }
+                  }
                   var weeksStartsAtForPush = moment(
                     shiftDetails.startTime,
                   ).unix();
