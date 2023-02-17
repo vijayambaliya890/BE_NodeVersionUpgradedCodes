@@ -13,31 +13,31 @@ var moment = require('moment');
 let striptags = require('striptags');
 const async = require('async');
 const __ = require('../../../helpers/globalFunctions');
-const redisClient = require('../../../helpers/redis.js');
-const redisData = require('../../../helpers/redisDataGenerator');
+// const redisClient = require('../../../helpers/redis.js');
+// const redisData = require('../../../helpers/redisDataGenerator');
 
 class timeSheetController {
-  async updateRedis(businessUnitId, from) {
-    if (from !== 'add') {
-      redisData.history(businessUnitId);
-      redisData.readModifyAshish(businessUnitId);
-      redisData.timesheetData(businessUnitId);
-    }
-  }
-  async updateRedisSingle(businessUnitId, shiftDetailId) {
-    // redisData.history(businessUnitId)
-    console.log('before redis setting data');
-    const ree = await Promise.all([
-      redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId),
-      redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId),
-      redisData.historySingle(businessUnitId, shiftDetailId),
-    ]);
-    // const r = await redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId);
-    // const p = await redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId);
-    console.log('after redis setting data', ree);
-    return ree;
-    // redisData.timesheetData(businessUnitId)
-  }
+  // async updateRedis(businessUnitId, from) {
+  //   if (from !== 'add') {
+  //     redisData.history(businessUnitId);
+  //     redisData.readModifyAshish(businessUnitId);
+  //     redisData.timesheetData(businessUnitId);
+  //   }
+  // }
+  // async updateRedisSingle(businessUnitId, shiftDetailId) {
+  //   // redisData.history(businessUnitId)
+  //   console.log('before redis setting data');
+  //   const ree = await Promise.all([
+  //     redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId),
+  //     redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId),
+  //     redisData.historySingle(businessUnitId, shiftDetailId),
+  //   ]);
+  //   // const r = await redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId);
+  //   // const p = await redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId);
+  //   console.log('after redis setting data', ree);
+  //   return ree;
+  //   // redisData.timesheetData(businessUnitId)
+  // }
   async read(req, res) {
     if (!__.checkHtmlContent(req.params)) {
       return __.out(res, 300, `You've entered malicious input`);
@@ -275,18 +275,18 @@ class timeSheetController {
       }
       // redis key businessUnitId+timeDashbaord
       console.log('^^^^^^^^^^^^^^^^^^^^');
-      const redisData = await redisClient.get(
-        `${req.params.businessUnitId}timeDashboard`,
-      );
-      console.log('*************^^^^^^^^^^', redisData);
-      if (redisData) {
-        console.log('DATATATATATA Present');
-        return res.json({
-          status: 1,
-          message: 'Data Found',
-          data: JSON.parse(redisData),
-        });
-      }
+      // const redisData = await redisClient.get(
+      //   `${req.params.businessUnitId}timeDashboard`,
+      // );
+      // console.log('*************^^^^^^^^^^', redisData);
+      // if (redisData) {
+      //   console.log('DATATATATATA Present');
+      //   return res.json({
+      //     status: 1,
+      //     message: 'Data Found',
+      //     data: JSON.parse(redisData),
+      //   });
+      // }
       let date = new Date(moment.utc().format());
       let timeZone = req.body.timeZone;
       if (!timeZone) {
@@ -460,7 +460,7 @@ class timeSheetController {
               req,
             );
           } else {
-            this.setRedisData(`${req.params.businessUnitId}timeDashboard`, []);
+            // this.setRedisData(`${req.params.businessUnitId}timeDashboard`, []);
             return res.json({
               status: 2,
               message: 'No Data Found 1',
@@ -482,9 +482,9 @@ class timeSheetController {
       __.out(res, 500, err);
     }
   }
-  setRedisData(key, data) {
-    redisClient.set(key, JSON.stringify(data), 'EX', 10 * 60, (err) => {});
-  }
+  // setRedisData(key, data) {
+  //   redisClient.set(key, JSON.stringify(data), 'EX', 10 * 60, (err) => {});
+  // }
   async getAttendanceDataForReadModifyAshish(item) {
     return new Promise((resolve, reject) => {
       if (item.userInfo) {
@@ -594,10 +594,10 @@ class timeSheetController {
               b.shiftDetails.startTime.getTime()
           : null;
       });
-      this.setRedisData(`${req.params.businessUnitId}timeDashboard`, newResult);
+      // this.setRedisData(`${req.params.businessUnitId}timeDashboard`, newResult);
       return res.json({ status: 1, message: 'Data Found', data: newResult });
     } else {
-      this.setRedisData(`${req.params.businessUnitId}timeDashboard`, []);
+      // this.setRedisData(`${req.params.businessUnitId}timeDashboard`, []);
       return res.json({ status: 2, message: 'No Data Found 11', data: null });
     }
   }
@@ -1187,14 +1187,14 @@ class timeSheetController {
     // timesheet page businessUnitId+timeTimesheet
     console.log('******************');
     const redisKey = `${req.params.businessUnitId}timeTimesheet`;
-    const redisData = await redisClient.get(`${redisKey}`);
-    if (redisData) {
-      return res.json({
-        status: 1,
-        message: 'Data Found',
-        data: JSON.parse(redisData),
-      });
-    }
+    // const redisData = await redisClient.get(`${redisKey}`);
+    // if (redisData) {
+    //   return res.json({
+    //     status: 1,
+    //     message: 'Data Found',
+    //     data: JSON.parse(redisData),
+    //   });
+    // }
     console.log('******************');
     let date = new Date(moment.utc().format());
     date = new Date(date.setHours(0, 0, 0, 0));
@@ -1378,7 +1378,7 @@ class timeSheetController {
           //     });
           console.log('2');
         } else {
-          this.setRedisData(`${req.params.businessUnitId}timeTimesheet`, []);
+          // this.setRedisData(`${req.params.businessUnitId}timeTimesheet`, []);
           return res.json({ status: 2, message: 'No Data Found', data: null });
         }
       })
@@ -1539,7 +1539,7 @@ class timeSheetController {
           }
         }
       });
-      this.setRedisData(`${redisKey}`, newArrayResult);
+      // this.setRedisData(`${redisKey}`, newArrayResult);
       return res.json({
         status: 1,
         message: 'Data Found',
@@ -1984,12 +1984,12 @@ class timeSheetController {
         )
           .then(async (result) => {
             if (result) {
-              const rR = await this.updateRedisSingle(
-                result.businessUnitId,
-                result.shiftDetailId,
-              );
-              console.log('rR', rR);
-              this.updateRedis(result.businessUnitId, 'add');
+              // const rR = await this.updateRedisSingle(
+              //   result.businessUnitId,
+              //   result.shiftDetailId,
+              // );
+              // console.log('rR', rR);
+              // this.updateRedis(result.businessUnitId, 'add');
               return res.json({
                 status: 1,
                 message: 'Successfully Updated',
@@ -2058,12 +2058,12 @@ class timeSheetController {
         new Attendance(req.body)
           .save()
           .then(async (re) => {
-            const rR = await this.updateRedisSingle(
-              re.businessUnitId,
-              re.shiftDetailId,
-            );
-            console.log('rR', rR);
-            this.updateRedis(re.businessUnitId, 'add');
+            // const rR = await this.updateRedisSingle(
+            //   re.businessUnitId,
+            //   re.shiftDetailId,
+            // );
+            // console.log('rR', rR);
+            // this.updateRedis(re.businessUnitId, 'add');
             return res.json({
               status: 1,
               message: 'Successfully Added',
@@ -2099,12 +2099,12 @@ class timeSheetController {
         { new: true },
       );
       if (result) {
-        const rR = await this.updateRedisSingle(
-          result.businessUnitId,
-          result.shiftDetailId,
-        );
-        console.log('rR', rR);
-        this.updateRedis(result.businessUnitId, 'add');
+        // const rR = await this.updateRedisSingle(
+        //   result.businessUnitId,
+        //   result.shiftDetailId,
+        // );
+        // console.log('rR', rR);
+        // this.updateRedis(result.businessUnitId, 'add');
         return res.json({
           status: 1,
           message: 'Successfully Updated',
@@ -2188,15 +2188,15 @@ class timeSheetController {
         /-/g,
         '_',
       )}`;
-      const redisData = await redisClient.get(`${redisKey}`);
-      if (redisData && req.body.isDefault) {
-        console.log('DATATATATATA Present');
-        return res.json({
-          status: 1,
-          message: 'Data Found',
-          data: JSON.parse(redisData),
-        });
-      }
+      // const redisData = await redisClient.get(`${redisKey}`);
+      // if (redisData && req.body.isDefault) {
+      //   console.log('DATATATATATA Present');
+      //   return res.json({
+      //     status: 1,
+      //     message: 'Data Found',
+      //     data: JSON.parse(redisData),
+      //   });
+      // }
       let startDateTime = new Date(req.body.startDate);
       startDateTime = startDateTime.setDate(startDateTime.getDate() - 1);
       startDateTime = new Date(startDateTime);

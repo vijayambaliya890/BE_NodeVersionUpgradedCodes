@@ -20,17 +20,17 @@ const mongoose = require('mongoose'),
 const async = require('async');
 const AssignShift = require('../../models/assignShift');
 const ObjectId = require('mongoose').Types.ObjectId;
-const redisClient = require('../../../helpers/redis.js');
-const redisData = require('../../../helpers/redisDataGenerator');
+// const redisClient = require('../../../helpers/redis.js');
+// const redisData = require('../../../helpers/redisDataGenerator');
 const ShiftHelper = require('../../../helpers/shiftHelper');
 const AgendaCron = require('../../../helpers/agendaEventHandler');
 const { logInfo, logError } = require('../../../helpers/logger.helper');
 class shift {
-  async updateRedis(businessUnitId) {
-    console.log('before seting redis');
-    const r = await redisData.readNewNextPromise(businessUnitId);
-    return r;
-  }
+  // async updateRedis(businessUnitId) {
+  //   console.log('before seting redis');
+  //   const r = await redisData.readNewNextPromise(businessUnitId);
+  //   return r;
+  // }
   getTimeZone() {
     return new Date().toString().match(/([A-Z]+[\+-][0-9]+)/)[1];
   }
@@ -416,15 +416,15 @@ class shift {
                 shiftExecution = true;
               }
             } else {
-              await this.updateRedis(businessUnitId);
+              // await this.updateRedis(businessUnitId);
               return __.out(res, 300, response2.message);
             }
           } else {
-            await this.updateRedis(businessUnitId);
+            // await this.updateRedis(businessUnitId);
             return __.out(res, 300, response.message);
           }
         } catch (e) {
-          await this.updateRedis(businessUnitId);
+          // await this.updateRedis(businessUnitId);
           return __.out(res, 500, e.message);
         }
       }
@@ -740,7 +740,7 @@ class shift {
                   insertedShiftId; /*unique id for this particular shift */
               FCM.push(usersDeviceTokens, pushData, collapseKey);
             }
-            this.updateRedis(businessUnitId);
+            // this.updateRedis(businessUnitId);
             await shiftLogController.create(statusLogData, res);
             __.out(res, 201, 'Shift created sucessfully');
           }
@@ -907,7 +907,7 @@ class shift {
           );
         }
         if (data) {
-          await this.updateRedis(assignUpdate.businessUnitId);
+          // await this.updateRedis(assignUpdate.businessUnitId);
           var deviceToken = await User.findOne(
             { _id: req.body.userId },
             { _id: 0, deviceToken: 1 },
@@ -1180,7 +1180,7 @@ class shift {
             FCM.push(usersDeviceTokens, pushData, collapseKey);
           }
           shiftLogController.create(statusLogData, res);
-          await this.updateRedis(buIdRedis);
+          // await this.updateRedis(buIdRedis);
           __.out(res, 201, 'Shift created sucessfully');
         }
       }
@@ -1680,13 +1680,13 @@ class shift {
     }
   }
 
-  setRedisData(key, data) {
-    redisClient.set(key, JSON.stringify(data), 'EX', 10 * 60, (err) => {
-      //cache for 10mins
-      //other operations will go here
-      //probably respond back to the request
-    });
-  }
+  // setRedisData(key, data) {
+  //   redisClient.set(key, JSON.stringify(data), 'EX', 10 * 60, (err) => {
+  //     //cache for 10mins
+  //     //other operations will go here
+  //     //probably respond back to the request
+  //   });
+  // }
   async readNew(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
@@ -2599,7 +2599,7 @@ class shift {
             dashboardGraphData: updatedDashboardGraphData,
             weeklyStaffGraphData: weeklyStaffGraphData,
           };
-          this.setRedisData(redisKey, finalDataResult);
+          // this.setRedisData(redisKey, finalDataResult);
           __.out(res, 201, {
             list: listData,
             graph: graphData,
@@ -3116,11 +3116,11 @@ class shift {
         const currentDateR = req.body.startDate.split(' ')[0];
         const redisKey = `ViewBooking${req.body.businessUnitId}${currentDateR}`;
         console.log('read API KEY redisKey', redisKey);
-        const redisData = await redisClient.get(`${redisKey}`);
-        if (redisData) {
-          console.log('DATATATATATA Present');
-          return __.out(res, 201, JSON.parse(redisData));
-        }
+        // const redisData = await redisClient.get(`${redisKey}`);
+        // if (redisData) {
+        //   console.log('DATATATATATA Present');
+        //   return __.out(res, 201, JSON.parse(redisData));
+        // }
         var timeZone = moment
             .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
             .format('Z'),
@@ -4748,6 +4748,18 @@ class shift {
                   shiftDetails.totalStaffNeedCount =
                     shiftDetails.totalStaffNeedCount + staffIncreasedBy;
                   await shiftDetails.save();
+                  if (shiftDetails.isSplitShift) {
+                    const splitShift = await ShiftDetails.findOne({
+                      randomShiftId: shiftDetails.randomShiftId,
+                      _id: { $ne: shiftDetails._id },
+                    });
+                    if (splitShift) {
+                      splitShift.staffNeedCount = req.body.staffNeedCount;
+                      splitShift.totalStaffNeedCount =
+                        shiftDetails.totalStaffNeedCount;
+                      await splitShift.save();
+                    }
+                  }
                   var weeksStartsAtForPush = moment(
                     shiftDetails.startTime,
                   ).unix();
@@ -5297,7 +5309,7 @@ class shift {
                 newCount: newCount,
               };
               shiftLogController.create(statusLogData, res);
-              await this.updateRedis(logMetaData.businessUnitId);
+              // await this.updateRedis(logMetaData.businessUnitId);
               if (req.body.businessUnitId && req.body.startDate)
                 this.readNew(req, res); /*for web */
               /*for mobile */ else
@@ -5501,7 +5513,7 @@ class shift {
               existingShift: req.body.shiftDetailsId,
             };
             shiftLogController.create(statusLogData, res);
-            await this.updateRedis(shiftBusinessUnit);
+            // await this.updateRedis(shiftBusinessUnit);
             __.out(
               res,
               201,
@@ -5747,7 +5759,7 @@ class shift {
         existingShift: shiftDetailsData._id,
       };
       shiftLogController.create(statusLogData, res);
-      await this.updateRedis(redisBuId);
+      // await this.updateRedis(redisBuId);
       return __.out(res, 201, 'Requested Shift Changed sucessfully');
     } catch (err) {
       __.log(err);
@@ -6052,13 +6064,13 @@ class shift {
       };
       operation.push(shiftLogController.create(statusLogData, res));
       await Promise.all(operation);
-      this.updateRedis(statusLogData.businessUnitId)
-        .then((redisRes) => {
-          console.log('redis result', redisRes);
-        })
-        .catch((er) => {
-          console.log('redis error', er);
-        });
+      // this.updateRedis(statusLogData.businessUnitId)
+      //   .then((redisRes) => {
+      //     console.log('redis result', redisRes);
+      //   })
+      //   .catch((er) => {
+      //     console.log('redis error', er);
+      //   });
       return __.out(
         res,
         201,
@@ -6273,7 +6285,7 @@ class shift {
         existingShift: shiftDetailsData._id,
       };
       await shiftLogController.create(statusLogData, res);
-      await this.updateRedis(logMetaData.businessUnitId);
+      // await this.updateRedis(logMetaData.businessUnitId);
       return __.out(res, 201, 'Shift requesting is stopped');
     } catch (err) {
       __.log(err);
@@ -6829,7 +6841,7 @@ class shift {
               const obj = {
                 confirmStatus: 1,
               };
-              await this.updateRedis(shiftDetailsData.shiftId.businessUnitId);
+              // await this.updateRedis(shiftDetailsData.shiftId.businessUnitId);
               User.findById(mongoose.Types.ObjectId(req.body.userId), {
                 deviceToken: 1,
                 _id: 0,
@@ -7021,7 +7033,7 @@ class shift {
               const obj = {
                 confirmStatus: 1,
               };
-              await this.updateRedis(shiftDetailsData.shiftId.businessUnitId);
+              // await this.updateRedis(shiftDetailsData.shiftId.businessUnitId);
               User.findById(mongoose.Types.ObjectId(req.body.userId), {
                 deviceToken: 1,
                 _id: 0,
@@ -7146,9 +7158,9 @@ class shift {
         shiftDetailsData.isExtendedShift = false;
       }
       const shNew = await shiftDetailsData.save();
-      const udateRedis = await this.updateRedis(
-        shiftDetailsData.shiftId.businessUnitId,
-      );
+      // const udateRedis = await this.updateRedis(
+      //   shiftDetailsData.shiftId.businessUnitId,
+      // );
       return res.json({
         status: true,
         message: 'Shift Extension Request is successfully stopped',
@@ -7253,7 +7265,7 @@ class shift {
               console.log('shiftExtensionObj', shiftExtensionObj);
               const shiftInfo = await Shift.findById(result.shiftId);
               //console.log('shiftInfo', shiftInfo);
-              await this.updateRedis(shiftInfo.businessUnitId);
+              // await this.updateRedis(shiftInfo.businessUnitId);
               let statusLogData = {
                 userId: req.body.userId,
                 status: req.body.status == 2 ? 13 : 14,

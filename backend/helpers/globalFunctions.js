@@ -2669,21 +2669,24 @@ class globalFunctions {
     return await new Promise((resolve, reject) => {
       request(
         {
-          url: 'https://api.demo.uniqrewards.com/v2/connect/token',
+          url: `${process.env.UNIQ_REWARD_URL}/v2/connect/token`,
           form: {
-            client_id:'274c01e82c2b4e55b14058520ba64a6e',
-            client_secret:'heex5j4-etPZYq6ROf0tJuRjWJzS1RYQC2pOMDsU',
-            grant_type:'client_credentials',
-            scope:'edg-apac-xp-voucher-mgt-api',
+            client_id: process.env.UNIQ_CLIENT_ID,
+            client_secret: process.env.UNIQ_CLIENT_SECRET,
+            grant_type: 'client_credentials',
+            scope: process.env.UNIQ_SCOPE,
           },
           method: "POST",
           headers: { "Content-Type": "application/json" },
         }, (error, response, body) => {
           try {
+            if (error) {
+              return resolve(null);
+            }
             body = JSON.parse(body);
             return resolve(body);
           } catch (error) {
-            return reject(body);
+            return reject(null);
           }
         }
       )

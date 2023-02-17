@@ -2,7 +2,8 @@ let express = require('express'),
     staffShiftRouter = express.Router(),
     staffShiftController = require('../../controllers/staff/staffShiftController'),
     passport = require('passport'),
-    jwt = require('jsonwebtoken');
+    jwt = require('jsonwebtoken'),
+    __ = require('../../../helpers/globalFunctions');
 
 //RENDER
 
