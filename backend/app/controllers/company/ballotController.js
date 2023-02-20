@@ -25,77 +25,86 @@ const LeaveType = require("../../models/leaveType");
 const LeaveGroup = require("../../models/leaveGroup");
 const RATIO = 1
 const { agendaNormal } = require('../../../helpers/agendaInit');
+const AgendaJobs = require('../../models/agenda');
 class ballot {
   async ballotEvent(data, from, isUpdate = false) {
     try {
-      switch (from) {
-        case 'createBallot':
-          // notification 2 days before
-          const obj = {
-            ballotId: data._id,
-            type: 'notificationBefore2Days',
-          };
-          const applicationCloseDate = new Date(data.applicationCloseDateTime);
-          applicationCloseDate.setHours(0, 0, 0, 0);
-          const twoDayBeforeDate = moment(applicationCloseDate).add(-2, 'd').toDate();
-          const oneDayBeforeDate = moment(applicationCloseDate).add(-1, 'd').toDate();
-          // notification 1 day before
-          // notification on day
-          const job2 = await agendaNormal.schedule(
-            twoDayBeforeDate,
-            'eventHandler',
-            obj,
-          );
-          obj.type = 'notificationBefore1Day';
-
-          const job1 = await agendaNormal.schedule(
-            oneDayBeforeDate,
-            'eventHandler',
-            obj,
-          );
-          obj.type = 'notificationOnDay';
-          const job = await agendaNormal.schedule(
-            applicationCloseDate,
-            'eventHandler',
-            obj,
-          );
-
-          obj.type = 'conductBallot';
-          const conductTime = moment(applicationCloseDate).add(15, 'm').toDate();
-
-          const conduct = await agendaNormal.schedule(
-            conductTime,
-            'eventHandler',
-            obj,
-          );
-
-          applicationOpenDateTime
-
-          obj.type = 'publishBallot';
-          const publishBallot = moment(data.applicationOpenDateTime).toDate();
-
-          const publish = await agendaNormal.schedule(
-            publishBallot,
-            'eventHandler',
-            obj,
-          );
-          if(data.resultRelease === 1){
-            obj.type = 'resultRelease';
-            const resultRelease = moment(data.resultReleaseDateTime).toDate();
-            const result = await agendaNormal.schedule(
-              resultRelease,
-              'eventHandler',
-              obj,
-            );
-          }
-          break;
-
-        default:
-          break;
+      if (isUpdate) {
+        await AgendaJobs.deleteMany({ 'data.ballotId': data._id });
       }
+      // notification 2 days before
+      const obj = {
+        ballotId: data._id,
+        type: 'notificationBefore2Days',
+      };
+      const applicationCloseDate = new Date(data.applicationCloseDateTime);
+      applicationCloseDate.setHours(0, 0, 0, 0);
+      const twoDayBeforeDate = moment(applicationCloseDate).add(-2, 'd').toDate();
+      const oneDayBeforeDate = moment(applicationCloseDate).add(-1, 'd').toDate();
+      // notification 1 day before
+      // notification on day
+      const job2 = await agendaNormal.schedule(
+        twoDayBeforeDate,
+        'eventHandler',
+        obj,
+      );
+      obj.type = 'notificationBefore1Day';
+  
+      const job1 = await agendaNormal.schedule(
+        oneDayBeforeDate,
+        'eventHandler',
+        obj,
+      );
+      obj.type = 'notificationOnDay';
+      const job = await agendaNormal.schedule(
+        applicationCloseDate,
+        'eventHandler',
+        obj,
+      );
+  
+      obj.type = 'conductBallot';
+      const conductTime = moment(applicationCloseDate).add(15, 'm').toDate();
+  
+      const conduct = await agendaNormal.schedule(
+        conductTime,
+        'eventHandler',
+        obj,
+      );
+  
+      applicationOpenDateTime;
+  
+      obj.type = 'publishBallot';
+      const publishBallot = moment(data.applicationOpenDateTime).toDate();
+  
+      const publish = await agendaNormal.schedule(
+        publishBallot,
+        'eventHandler',
+        obj,
+      );
+      if (data.resultRelease === 1) {
+        obj.type = 'resultRelease';
+        const resultRelease = moment(data.resultReleaseDateTime).toDate();
+        const result = await agendaNormal.schedule(
+          resultRelease,
+          'eventHandler',
+          obj,
+        );
+      }
+      return true;
     } catch (e) {
       logError('create cron has error', e.stack);
       logError('create cron has error', e);
+      return false;
+    }
+  }
+
+  async deleteEvent(id){
+    try{
+      const job = await AgendaJobs.updateMany({ 'data.ballotId': id }, {
+        $set: { nextRunAt: null, 'data.isRemoved': true, 'data.removedAt': new Date() },
+      });
+      return true;
+    }catch(e){
       return false;
     }
   }
@@ -1271,6 +1280,7 @@ class ballot {
               //console.log('ressasss', ressss);
               // notification for publish ballot
               // this.sendNotification(ressss)
+              this.ballotEvent(ressss, 'createBallot', false)
             }
 
             if (data.parentBallot) {
@@ -1355,6 +1365,7 @@ class ballot {
                 if (data.isDraft) {
                   message = "Ballot saved as a draft";
                 } else {
+                  this.ballotEvent(ressss, 'createBallot', false)
                 }
                 if (data.parentBallot) {
                   console.log("Parent Ballot is:", data.parentBallot);
@@ -1435,6 +1446,7 @@ class ballot {
             if (data.isDraft) {
               message = "Ballot saved as a draft";
             } else {
+              this.ballotEvent(ressss, 'createBallot', false)
               //console.log('ressasss', ressss);
               // notification for publish ballot
               // this.sendNotification(ressss)
@@ -1477,6 +1489,7 @@ class ballot {
               .then((ressss) => {
                 let message = "Ballot successfully created";
                 if (data.isDraft) {
+                  this.ballotEvent(ressss, 'createBallot', false)
                   message = "Ballot saved as a draft";
                 } else {
                   //console.log('ressasss', ressss);
@@ -3662,12 +3675,18 @@ class ballot {
       //  //console.logs('daataaaa', data)
       if (req.body.isDeleted) {
         const data = await Ballot.update({ _id: req.body.id }, { companyId: req.user.companyId, isDeleted: true });
+        this.deleteEvent(req.body.id).then((re)=>{
+          console.log('deleted ballot cron')
+        })
         return res.json({
           success: true,
           message: "Ballot deleted successfully",
         });
       } else {
         const data = await Ballot.update({ _id: req.body.id }, { companyId: req.user.companyId, isCanceled: true });
+        this.deleteEvent(req.body.id).then((re)=>{
+          console.log('deleted ballot cron')
+        })
         return res.json({
           success: true,
           message: "Ballot canceled successfully",
@@ -3748,6 +3767,9 @@ class ballot {
         req.body.leaveConfiguration = 4;
       }
       const data = await Ballot.findOneAndUpdate({ _id: id }, req.body);
+      if(!data.isDraft){
+      this.ballotEvent(data, 'update', true);
+      }
       sendBallotEditNotification(data);
       return res.json({
         success: true,
@@ -3764,6 +3786,9 @@ class ballot {
       delete req.body.id;
       //console.logs('req.body.id', req.body)
       const data = await Ballot.findOneAndUpdate({ _id: id }, req.body);
+      if(!data.isDraft){
+        this.ballotEvent(data, 'update', true);
+        }
       sendBallotEditNotification(data);
       return res.json({
         success: true,
@@ -4594,6 +4619,8 @@ class ballot {
             $push: { ballotExtendLogs: oldClosingDate },
           }
         );
+        const ballotInfo = await Ballot.findOne({_id:id}).lean();
+        await this.ballotEvent(ballotInfo, 'update', true)
         ballotExtendNotifications(ballot);
         //,{$push:{ballotExtendLogs:oldClosingDate}}
         return res.status(201).json({
@@ -6590,7 +6617,13 @@ class ballot {
     }
 
     const ballotupdate = await Ballot.update({ _id: id }, { isCanceled: true });
+    this.deleteEvent(id).then((re)=>{
+      console.log('deleted ballot cron')
+    })
     for (var i = 0; i <= ballot.childBallots.length - 1; i++) {
+      this.deleteEvent(ballot.childBallots[i]).then((re)=>{
+        console.log('deleted ballot cron')
+      })
       const ballotupdate1 = await Ballot.update({ _id: ballot.childBallots[i] }, { isCanceled: true });
     }
     ballotCancelledNotifications(ballot);
@@ -7293,6 +7326,7 @@ class ballot {
           if (data.isDraft) {
             message = "Ballot saved as a draft";
           } else {
+            this.ballotEvent(ressss, 'createBallot', false)
             //console.log('ressasss', ressss);
             // notification for publish ballot
             // this.sendNotification(ressss)
