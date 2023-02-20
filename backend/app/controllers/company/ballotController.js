@@ -8,7 +8,6 @@ const User = require("../../models/user");
 const PageSettingModel = require("../../models/pageSetting");
 const _ = require("lodash");
 const __ = require("../../../helpers/globalFunctions");
-const CronJob = require("cron").CronJob;
 var multiparty = require("multiparty");
 const async = require("async");
 const moment = require("moment");
@@ -26,11 +25,14 @@ const LeaveGroup = require("../../models/leaveGroup");
 const RATIO = 1
 const { agendaNormal } = require('../../../helpers/agendaInit');
 const AgendaJobs = require('../../models/agenda');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 class ballot {
   async ballotEvent(data, from, isUpdate = false) {
     try {
+      logInfo('ballotEvent called',{data, from, isUpdate})
       if (isUpdate) {
-        await AgendaJobs.deleteMany({ 'data.ballotId': data._id });
+        const deletedJob = await AgendaJobs.deleteMany({ 'data.ballotId': data._id });
+        logInfo('ballotEvent jobs deleted',{deletedJob})
       }
       // notification 2 days before
       const obj = {
@@ -70,9 +72,7 @@ class ballot {
         'eventHandler',
         obj,
       );
-  
-      applicationOpenDateTime;
-  
+
       obj.type = 'publishBallot';
       const publishBallot = moment(data.applicationOpenDateTime).toDate();
   
@@ -100,6 +100,7 @@ class ballot {
 
   async deleteEvent(id){
     try{
+      logInfo('deleteEvent called',{id})
       const job = await AgendaJobs.updateMany({ 'data.ballotId': id }, {
         $set: { nextRunAt: null, 'data.isRemoved': true, 'data.removedAt': new Date() },
       });
@@ -8895,6 +8896,8 @@ async function sendResultReleaseNotification(item) {
 }
 // result release
 async function resultReleaseFun(ballotId) {
+  try{
+    logInfo('resultReleaseFun called', ballotId)
   const ballotList = await Ballot.findOne({
     isDeleted: false,
     isCanceled: false,
@@ -8914,11 +8917,18 @@ async function resultReleaseFun(ballotId) {
         $set: { isResultRelease: true },
       });
       console.log("AT HERE SAVED");
-    
   }
+  return true;
+}catch(e){
+  logError('resultReleaseFun ballot has error', e)
+  logError('resultReleaseFun ballot has error', e.stack)
+  return false;
+}
 }
 // publish ballot
 async function publishBallot(ballotId){
+  try{
+  logInfo('publish ballot called', ballotId)
   const item = await Ballot.findOne({
     isDeleted: false,
     isCanceled: false,
@@ -8926,9 +8936,6 @@ async function publishBallot(ballotId){
     isDraft: false,
     _id:ballotId
   });
-  // const ballotList = await Ballot.find({_id:"5d74ca847c90200d4bbd6b5a"});
-
-  ////console.logs('ballot', ballotList);
   if (item) {
       // get user
       // update ballot ispublish
@@ -8998,10 +9005,13 @@ async function publishBallot(ballotId){
         }
         const data = await Ballot.update({ _id: item._id }, { isPublish: true });
       }
-    
-  } else {
-    //console.logs('ndsssddost found')
   }
+  return true
+}catch(e){
+  logError('publish ballot has error', e)
+  logError('publish ballot has error', e.stack)
+  return false;
+}
 }
 
 async function sendBallotEditNotification(item) {
@@ -9179,7 +9189,7 @@ async function ballotExtendNotifications(item) {
 
 async function conductBallot(id) {
   try {
-    console.log("CONDUCT BALLOT HERE......");
+   logInfo('conductBallot called', id)
     const ballotId = id;
     //console.logs('ballotId', ballotId)
     let ballotResult = await Ballot.findOne({
@@ -9242,6 +9252,7 @@ async function conductBallot(id) {
         );
         insertStaffLeaveForBallot(finalWinStaff, updateWin, totalDeducated);
         unSuccessfullStaffLeaveBallotBalanaceUpdate(ballotId);
+        return true;
       } else {
         // for ops group
         ballotResult = JSON.stringify(ballotResult);
@@ -9486,12 +9497,17 @@ async function conductBallot(id) {
         );
         insertStaffLeaveForBallot(finalWinStaff, updateWin, totalDeducated);
         unSuccessfullStaffLeaveBallotBalanaceUpdate(ballotId);
+        return true;
       }
     } else {
-      console.log("not found");
+      logInfo('conductBallot not found', id)
+      return true;
     }
   } catch (e) {
     console.log("éee", e);
+    logError('conductBallot has error', e)
+    logError('conductBallot has error', e.stack)
+    return false;
   }
 }
 

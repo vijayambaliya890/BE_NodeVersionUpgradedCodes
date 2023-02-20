@@ -9,7 +9,6 @@ const mongoose = require('mongoose'),
   SubSection = require('../../models/subSection');
 var moment = require('moment');
 // const redisData = require('../../../helpers/redisDataGenerator');
-const CronJob = require('cron').CronJob;
 const __ = require('../../../helpers/globalFunctions');
 class attendanceController {
   // async updateRedis(businessUnitId, from) {
@@ -1492,17 +1491,9 @@ async function autoApproveCron() {
     return { buDataArr, attendanceData, approveAttandanceData };
   } catch (err) {
     __.log(err);
+    return false
   }
 }
-new CronJob({
-  cronTime: '0 */3 * * * * ',
-  onTick: function () {
-    console.log('attend yuup');
-    autoApproveCron();
-    //Your code that is to be executed on every midnight
-  },
-  start: true,
-  runOnInit: false,
-});
+
 attendanceController = new attendanceController();
-module.exports = attendanceController;
+module.exports = {attendanceController, autoApproveCron};
