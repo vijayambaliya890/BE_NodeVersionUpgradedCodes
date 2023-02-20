@@ -24,8 +24,82 @@ const LeaveApplied = require("../../models/leaveApplied");
 const LeaveType = require("../../models/leaveType");
 const LeaveGroup = require("../../models/leaveGroup");
 const RATIO = 1
-
+const { agendaNormal } = require('../../../helpers/agendaInit');
 class ballot {
+  async ballotEvent(data, from, isUpdate = false) {
+    try {
+      switch (from) {
+        case 'createBallot':
+          // notification 2 days before
+          const obj = {
+            ballotId: data._id,
+            type: 'notificationBefore2Days',
+          };
+          const applicationCloseDate = new Date(data.applicationCloseDateTime);
+          applicationCloseDate.setHours(0, 0, 0, 0);
+          const twoDayBeforeDate = moment(applicationCloseDate).add(-2, 'd').toDate();
+          const oneDayBeforeDate = moment(applicationCloseDate).add(-1, 'd').toDate();
+          // notification 1 day before
+          // notification on day
+          const job2 = await agendaNormal.schedule(
+            twoDayBeforeDate,
+            'eventHandler',
+            obj,
+          );
+          obj.type = 'notificationBefore1Day';
+
+          const job1 = await agendaNormal.schedule(
+            oneDayBeforeDate,
+            'eventHandler',
+            obj,
+          );
+          obj.type = 'notificationOnDay';
+          const job = await agendaNormal.schedule(
+            applicationCloseDate,
+            'eventHandler',
+            obj,
+          );
+
+          obj.type = 'conductBallot';
+          const conductTime = moment(applicationCloseDate).add(15, 'm').toDate();
+
+          const conduct = await agendaNormal.schedule(
+            conductTime,
+            'eventHandler',
+            obj,
+          );
+
+          applicationOpenDateTime
+
+          obj.type = 'publishBallot';
+          const publishBallot = moment(data.applicationOpenDateTime).toDate();
+
+          const publish = await agendaNormal.schedule(
+            publishBallot,
+            'eventHandler',
+            obj,
+          );
+          if(data.resultRelease === 1){
+            obj.type = 'resultRelease';
+            const resultRelease = moment(data.resultReleaseDateTime).toDate();
+            const result = await agendaNormal.schedule(
+              resultRelease,
+              'eventHandler',
+              obj,
+            );
+          }
+          break;
+
+        default:
+          break;
+      }
+    } catch (e) {
+      logError('create cron has error', e.stack);
+      logError('create cron has error', e);
+      return false;
+    }
+  }
+
   async conductBallot(req, res) {
     try {
       console.log("CONDUCT BALLOT HERE......");
@@ -8786,15 +8860,8 @@ async function sendResultReleaseNotification(item) {
   }
 }
 // result release
-setInterval(async () => {
-  //console.logs('after 5 sec');
-  // auto result release
-  const currentTime = new Date();
-  const beforeTime = moment(currentTime).add(-1, "m").toDate();
-  const afterTime = moment(currentTime).add(1, "m").toDate();
-  //console.logs('beforeTime', beforeTime);
-  //console.logs('afterTime', afterTime)
-  const ballotList = await Ballot.find({
+async function resultReleaseFun(ballotId) {
+  const ballotList = await Ballot.findOne({
     isDeleted: false,
     isCanceled: false,
     isPublish: true,
@@ -8802,54 +8869,35 @@ setInterval(async () => {
     isConduct: true,
     isResultRelease: false,
     resultRelease: 1,
-    resultReleaseDateTime: {
-      $gte: new Date(beforeTime).toISOString(),
-      $lte: new Date(afterTime).toISOString(),
-    },
+    _id:ballotId
   });
 
-  if (ballotList.length > 0) {
-    ////console.logs('found', JSON.stringify(ballotList));
-    for (let i = 0; i < ballotList.length; i++) {
-      ballotList[i].isResultRelease = true;
-      sendResultReleaseNotification(ballotList[i])
-      pushLeaveToLeaveApplied(ballotList[i]);
-      let ballot = await Ballot.findByIdAndUpdate(ballotList[i]._id, {
+  if (ballotList) {
+      ballotList.isResultRelease = true;
+      sendResultReleaseNotification(ballotList)
+      pushLeaveToLeaveApplied(ballotList);
+      let ballot = await Ballot.findByIdAndUpdate(ballotList._id, {
         $set: { isResultRelease: true },
       });
       console.log("AT HERE SAVED");
-    }
+    
   }
-}, 6000);
-/* */
+}
 // publish ballot
-setInterval(async () => {
-  //console.logs('after 5 sec');
-  const currentTime = new Date();
-  const beforeTime = moment(currentTime).add(-0.5, "m").toDate();
-  const afterTime = moment(currentTime).add(0.5, "m").toDate();
-  //console.logs('beforeTime', beforeTime);
-  //console.logs('afterTime', afterTime)
-  const ballotList = await Ballot.find({
+async function publishBallot(ballotId){
+  const item = await Ballot.findOne({
     isDeleted: false,
     isCanceled: false,
     isPublish: false,
     isDraft: false,
-    applicationOpenDateTime: {
-      $gte: new Date(beforeTime).toISOString(),
-      $lte: new Date(afterTime).toISOString(),
-    },
+    _id:ballotId
   });
   // const ballotList = await Ballot.find({_id:"5d74ca847c90200d4bbd6b5a"});
 
   ////console.logs('ballot', ballotList);
-  if (ballotList.length > 0) {
-    ////console.logs('found', JSON.stringify(ballotList));
-    for (let i = 0; i < ballotList.length; i++) {
-      const item = ballotList[i];
+  if (item) {
       // get user
       // update ballot ispublish
-
       if (item.userFrom === 1) {
         // user from ops group
         const userIDArr = await OpsGroup.find(
@@ -8916,21 +8964,11 @@ setInterval(async () => {
         }
         const data = await Ballot.update({ _id: item._id }, { isPublish: true });
       }
-    }
+    
   } else {
     //console.logs('ndsssddost found')
   }
-}, 60000);
-
-/*setInterval(()=>{
-    const currentTime = new Date();
-    //console.logs(currentTime)
-    currentTime.setHours(0,0,0,0);
-    const beforeTime =  moment(currentTime).add(1, 'd').toDate();
-    const afterTime = moment(currentTime).add(2, 'd').toDate();
-    //console.logs('beforeTime', beforeTime);
-    //console.logs('afterTime', afterTime);
-}, 5000)*/
+}
 
 async function sendBallotEditNotification(item) {
   const currentTime = new Date();
@@ -9102,216 +9140,6 @@ async function ballotExtendNotifications(item) {
       FCM.push(usersDeviceTokens, pushData, collapseKey);
     }
     const data = await Ballot.update({ _id: item._id }, { isNotified: 3 });
-  }
-}
-
-async function ballotNotificationBefore2Days() {
-  console.log("caleed before 2");
-  //console.logs('after 1 hr');
-  const currentTime = new Date();
-  //console.logs(currentTime)
-  currentTime.setHours(0, 0, 0, 0);
-  const beforeTime = moment(currentTime).add(2, "d").toDate();
-  const afterTime = moment(currentTime).add(4, "d").toDate();
-  const ddd = new Date("2019-10-28 12:30:00.000Z");
-  console.log("beforeTime", beforeTime, "aaaa", new Date(beforeTime).toISOString());
-  console.log("afterTime", afterTime, "bbbb", new Date(afterTime).toISOString());
-  console.log("aaaa", ddd);
-  /*, isNotified:0,
-        applicationCloseDateTime: {
-            $gte: new Date(beforeTime).toISOString(),
-            $lte: new Date(afterTime).toISOString()
-        }*/
-  const ballotList = await Ballot.find({
-    isDeleted: false,
-    isCanceled: false,
-    isDraft: false,
-    isNotified: 0,
-    applicationCloseDateTime: {
-      $gte: new Date(beforeTime).toISOString(),
-      $lte: new Date(afterTime).toISOString(),
-    },
-  });
-  // const ballotList = await Ballot.find({_id:"5d74ca847c90200d4bbd6b5a"});
-
-  console.log("ballot 2 days bofore", ballotList.length);
-  if (ballotList.length > 0) {
-    ////console.logs('found', JSON.stringify(ballotList));
-    for (let i = 0; i < ballotList.length; i++) {
-      const item = ballotList[i];
-      console.log("item ballot 2 days bofore", item.ballotName);
-      // get user
-      // update ballot ispublish
-
-      if (item.userFrom === 1) {
-        // user from ops group
-        const userIDArr = await OpsGroup.find(
-          { _id: { $in: item.opsGroupId }, isDelete: false },
-          {
-            userId: 1,
-            _id: 0,
-          }
-        );
-        let userId = [];
-        userIDArr.forEach((item) => {
-          userId = userId.concat(item.userId);
-        });
-        //console.logs('userId', userId)
-        const unAssignUser = await User.find({ _id: { $in: userId } })
-          .select("deviceToken")
-          .lean();
-        ////console.logs('user11', JSON.stringify(unAssignUser));
-        const usersDeviceTokens = [];
-        unAssignUser.forEach((token) => {
-          if (token.deviceToken) {
-            usersDeviceTokens.push(token.deviceToken);
-          }
-        });
-        //console.logs('usersDeviceTokens', usersDeviceTokens);
-        if (usersDeviceTokens.length > 0) {
-          const pushData = {
-            title: "Reminder on the Balloting Exercise",
-            body: "Just 2 days left for close of this Ballot submission. Ballot Name: " + item.ballotName + "Please Ballot in 2 days before it closes.",
-            bodyText: "Just 2 days left for close of this Ballot submission. Ballot Name: " + item.ballotName + "Please Ballot in 2 days before it closes.",
-            bodyTime: [item.applicationCloseDateTime],
-            bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
-          },
-            collapseKey = item._id; /*unique id for this particular ballot */
-          FCM.push(usersDeviceTokens, pushData, collapseKey);
-        }
-        const data = await Ballot.update({ _id: item._id }, { isNotified: 1 });
-      } else {
-        // user from bu
-        const userList = await User.find(
-          { parentBussinessUnitId: { $in: item.businessUnitId } },
-          {
-            _id: 0,
-            deviceToken: 1,
-          }
-        );
-        const usersDeviceTokens = [];
-        userList.forEach((token) => {
-          if (token.deviceToken) {
-            usersDeviceTokens.push(token.deviceToken);
-          }
-        });
-        if (usersDeviceTokens.length > 0) {
-          const pushData = {
-            title: "Reminder on the Balloting Exercise",
-            body: "Just 2 days left for close of this Ballot submission. Ballot Name: " + item.ballotName + "Please Ballot in 2 days before it closes.",
-            bodyText: "Just 2 days left for close of this Ballot submission. Ballot Name: " + item.ballotName + "Please Ballot in 2 days before it closes.",
-            bodyTime: [item.applicationCloseDateTime],
-            bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
-          },
-            collapseKey = item._id; /*unique id for this particular ballot */
-          FCM.push(usersDeviceTokens, pushData, collapseKey);
-        }
-        const data = await Ballot.update({ _id: item._id }, { isNotified: 1 });
-      }
-    }
-  } else {
-    //console.logs('ndsssddost found')
-  }
-}
-
-async function ballotNotificationBefore1Day() {
-  //console.logs('caleesdfddgfdd');
-  //console.logs('after 1 hr');
-  const currentTime = new Date();
-  //console.logs(currentTime)
-  currentTime.setHours(0, 0, 0, 0);
-  const beforeTime = moment(currentTime).add(1, "d").toDate();
-  const afterTime = moment(currentTime).add(3, "d").toDate();
-  //console.logs('beforeTime', beforeTime);
-  //console.logs('afterTime', afterTime);
-  const ballotList = await Ballot.find({
-    isDeleted: false,
-    isCanceled: false,
-    isNotified: 1,
-    isDraft: false,
-    applicationCloseDateTime: {
-      $gte: new Date(beforeTime).toISOString(),
-      $lte: new Date(afterTime).toISOString(),
-    },
-  });
-  // const ballotList = await Ballot.find({_id:"5d74ca847c90200d4bbd6b5a"});
-
-  ////console.logs('ballot', ballotList);
-  if (ballotList.length > 0) {
-    ////console.logs('found', JSON.stringify(ballotList));
-    for (let i = 0; i < ballotList.length; i++) {
-      const item = ballotList[i];
-      // get user
-      // update ballot ispublish
-
-      if (item.userFrom === 1) {
-        // user from ops group
-        const userIDArr = await OpsGroup.find(
-          { _id: { $in: item.opsGroupId }, isDelete: false },
-          {
-            userId: 1,
-            _id: 0,
-          }
-        );
-        let userId = [];
-        userIDArr.forEach((item) => {
-          userId = userId.concat(item.userId);
-        });
-        //console.logs('userId', userId)
-        const unAssignUser = await User.find({ _id: { $in: userId } })
-          .select("deviceToken")
-          .lean();
-        ////console.logs('user11', JSON.stringify(unAssignUser));
-        const usersDeviceTokens = [];
-        unAssignUser.forEach((token) => {
-          if (token.deviceToken) {
-            usersDeviceTokens.push(token.deviceToken);
-          }
-        });
-        //console.logs('usersDeviceTokens', usersDeviceTokens);
-        if (usersDeviceTokens.length > 0) {
-          const pushData = {
-            title: "Reminder on the Balloting Exercise",
-            body: "Just a day left for close of this Ballot submission. Ballot Name: " + item.ballotName + "Please ballot before it closes.",
-            bodyText: "Just a day left for close of this Ballot submission. Ballot Name: " + item.ballotName + "Please ballot before it closes.",
-            bodyTime: [item.applicationCloseDateTime],
-            bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
-          },
-            collapseKey = item._id; /*unique id for this particular ballot */
-          FCM.push(usersDeviceTokens, pushData, collapseKey);
-        }
-        const data = await Ballot.update({ _id: item._id }, { isNotified: 2 });
-      } else {
-        // user from bu
-        const userList = await User.find(
-          { parentBussinessUnitId: { $in: item.businessUnitId } },
-          {
-            _id: 0,
-            deviceToken: 1,
-          }
-        );
-        const usersDeviceTokens = [];
-        userList.forEach((token) => {
-          if (token.deviceToken) {
-            usersDeviceTokens.push(token.deviceToken);
-          }
-        });
-        if (usersDeviceTokens.length > 0) {
-          const pushData = {
-            title: "Reminder on the Balloting Exercise",
-            body: "Just a day left for close of this Ballot submission. Ballot Name: " + item.ballotName + "Please ballot before it closes.",
-            bodyText: "Just a day left for close of this Ballot submission. Ballot Name: " + item.ballotName + "Please ballot before it closes.",
-            bodyTime: [item.applicationCloseDateTime],
-            bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
-          },
-            collapseKey = item._id; /*unique id for this particular ballot */
-          FCM.push(usersDeviceTokens, pushData, collapseKey);
-        }
-        const data = await Ballot.update({ _id: item._id }, { isNotified: 2 });
-      }
-    }
-  } else {
-    //console.logs('ndsssddost found')
   }
 }
 
@@ -9824,155 +9652,5 @@ async function unSuccessfullStaffLeaveBallotBalanaceUpdate(ballotId) {
     }, {});
   }
 }
-
-async function ballotNotificationOnLastDay() {
-  //console.logs('caleesdfddgfdd');
-  //console.logs('after 1 hr');
-  const currentTime = new Date();
-  //console.logs(currentTime)
-  currentTime.setHours(0, 0, 0, 0);
-  console.log("currentTime", currentTime);
-  const beforeTime = moment(currentTime).add(1, "d").toDate();
-  const afterTime = moment(currentTime).add(2, "d").toDate();
-  //console.logs('beforeTime', beforeTime);
-  //console.logs('afterTime', afterTime);
-  const ballotList = await Ballot.find({
-    isDeleted: false,
-    isCanceled: false,
-    isNotified: 2,
-    isDraft: false,
-    applicationCloseDateTime: {
-      $lte: new Date(beforeTime).toISOString(),
-    },
-  });
-  // const ballotList = await Ballot.find({_id:"5d74ca847c90200d4bbd6b5a"});
-
-  ////console.logs('ballot', ballotList);
-  if (ballotList.length > 0) {
-    ////console.logs('found', JSON.stringify(ballotList));
-    for (let i = 0; i < ballotList.length; i++) {
-      const item = ballotList[i];
-      // get user
-      // update ballot ispublish
-
-      if (item.userFrom === 1) {
-        // user from ops group
-        const userIDArr = await OpsGroup.find(
-          { _id: { $in: item.opsGroupId }, isDelete: false },
-          {
-            userId: 1,
-            _id: 0,
-          }
-        );
-        let userId = [];
-        userIDArr.forEach((item) => {
-          userId = userId.concat(item.userId);
-        });
-        //console.logs('userId', userId)
-        const unAssignUser = await User.find({ _id: { $in: userId } })
-          .select("deviceToken")
-          .lean();
-        ////console.logs('user11', JSON.stringify(unAssignUser));
-        const usersDeviceTokens = [];
-        unAssignUser.forEach((token) => {
-          if (token.deviceToken) {
-            usersDeviceTokens.push(token.deviceToken);
-          }
-        });
-        //console.logs('usersDeviceTokens', usersDeviceTokens);
-        var appLastDate = new Date(item.applicationCloseDateTime);
-        let appLastDateHere = appLastDate.toISOString().slice(0, 10);
-        if (usersDeviceTokens.length > 0) {
-          const pushData = {
-            title: "Reminder on the Balloting Exercise",
-            body: "Today is the Ballot Exercise " + item.ballotName + " closing day " + appLastDateHere + "if not balloted yet, ballot before it closes.",
-            bodyText: "Today is the Ballot Exercise " + item.ballotName + " closing day " + appLastDateHere + "if not balloted yet, ballot before it closes.",
-            bodyTime: [item.applicationCloseDateTime, item.applicationCloseDateTime],
-            bodyTimeFormat: ["DD-MMM-YYYY", "HH:mm"],
-          },
-            collapseKey = item._id; /*unique id for this particular ballot */
-          FCM.push(usersDeviceTokens, pushData, collapseKey);
-        }
-        const data = await Ballot.update({ _id: item._id }, { isNotified: 3 });
-      } else {
-        var appLastDate = new Date(item.applicationCloseDateTime);
-        let appLastDateHere = appLastDate.toISOString().slice(0, 10);
-        // user from bu
-        const userList = await User.find(
-          { parentBussinessUnitId: { $in: item.businessUnitId } },
-          {
-            _id: 0,
-            deviceToken: 1,
-          }
-        );
-        const usersDeviceTokens = [];
-        userList.forEach((token) => {
-          if (token.deviceToken) {
-            usersDeviceTokens.push(token.deviceToken);
-          }
-        });
-        if (usersDeviceTokens.length > 0) {
-          const pushData = {
-            title: "Reminder on the Balloting Exercise",
-            body: "Today is the Ballot Exercise " + item.ballotName + " closing day " + appLastDateHere + "if not balloted yet, ballot before it closes.",
-            bodyText: "Just 1 day left for close of this Ballot submission. Ballot Name: " + item.ballotName + "ballot before it closes.",
-            bodyTime: [item.applicationCloseDateTime],
-            bodyTimeFormat: ["DD-MMM-YYYY HH:mm"],
-          },
-            collapseKey = item._id; /*unique id for this particular ballot */
-          FCM.push(usersDeviceTokens, pushData, collapseKey);
-        }
-        const data = await Ballot.update({ _id: item._id }, { isNotified: 3 });
-      }
-    }
-  } else {
-    //console.logs('ndsssddost found')
-  }
-}
-setInterval(async () => {
-  // conduct ballot
-  //console.logs('after 511 sec');
-  const currentTime = new Date();
-  //console.logs('currentTime', currentTime)
-  //1:40
-  const beforeTime = moment(currentTime).add(-15, "m").toDate();
-  const afterTime = moment(currentTime).add(16, "m").toDate();
-  //console.log('beforeTime', beforeTime);
-  //console.logs('afterTime', afterTime)
-  const ballotList = await Ballot.find({
-    isDeleted: false,
-    isCanceled: false,
-    isDraft: false,
-    isConduct: false,
-    isAutoAssign: false,
-    applicationCloseDateTime: {
-      $lte: new Date(beforeTime).toISOString(),
-    },
-  });
-  // const ballotList = await Ballot.find({_id:"5d74ca847c90200d4bbd6b5a"});
-
-  if (ballotList.length > 0) {
-    // //console.logs('found', JSON.stringify(ballotList));
-    for (let i = 0; i < ballotList.length; i++) {
-      //console.logs('ballotList[i]._id', ballotList[i]._id);
-      await conductBallot(ballotList[i]._id);
-    }
-  } else {
-    //console.logs('ndsssddost found')
-  }
-}, 600000);
-// sss
-new CronJob({
-  cronTime: "00 00 10 * * * ",
-  onTick: function () {
-    console.log("yuup");
-    ballotNotificationBefore2Days();
-    ballotNotificationBefore1Day();
-    ballotNotificationOnLastDay();
-    //Your code that is to be executed on every midnight
-  },
-  start: true,
-  runOnInit: false,
-});
 ballot = new ballot();
-module.exports = ballot;
+module.exports = {ballot, conductBallot, publishBallot, resultReleaseFun};

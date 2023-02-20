@@ -1,7 +1,14 @@
 const { agendaNormal } = require('./agendaInit');
 const AppliedStaffs = require('../app/models/appliedStaff'),
   ShiftDetails = require('../app/models/shiftDetails'),
-  AgendaJobs= require('../app/models/agenda');
+  AgendaJobs = require('../app/models/agenda');
+const Ballot = require('../app/models/ballot');
+const OpsGroup = require('../app/models/ops');
+const User = require('../app/models/user');
+const FCM = require('./fcm');
+const {
+  conductBallot, publishBallot, resultReleaseFun
+} = require('../app/controllers/company/ballotController');
 
 const { logInfo, logError } = require('./logger.helper');
 
@@ -14,10 +21,11 @@ class AgendaCron {
   }
 
   async removeEvent(where) {
-    logInfo('remove event called', where)
-    new AgendaJobs({nextRunAt: new Date(), name:'aa'}).save();
-    const job = await AgendaJobs.findOneAndUpdate(where, {$set:{nextRunAt: null, 'data.isRemoved': true}}).lean();
-    console.log('dddddd', jobs.length)
+    logInfo('remove event called', where);
+    const job = await AgendaJobs.findOneAndUpdate(where, {
+      $set: { nextRunAt: null, 'data.isRemoved': true },
+    }).lean();
+    console.log('dddddd', job);
     return job;
   }
 }
@@ -68,6 +76,87 @@ const backupStaffRemoval = async (data) => {
   }
 };
 
+const ballotNotification = async (item, type) => {
+  let isNotified = 2;
+  if (type === 2) {
+    isNotified = 0;
+  } else if (type === 1) {
+    isNotified = 1;
+  }
+  item = await Ballot.findOne({
+    isDeleted: false,
+    isCanceled: false,
+    isDraft: false,
+    isNotified: isNotified,
+    _id: item.ballotId,
+  });
+  console.log('ballot  days before' + type);
+  if (item) {
+    const usersDeviceTokens = [];
+    let userWhere = {};
+    if (item.userFrom === 1) {
+      // user from ops group
+      const userIDArr = await OpsGroup.find(
+        { _id: { $in: item.opsGroupId }, isDelete: false },
+        {
+          userId: 1,
+          _id: 0,
+        },
+      );
+      let userId = [];
+      userIDArr.forEach((item) => {
+        userId = userId.concat(item.userId);
+      });
+      userWhere = { _id: { $in: userId } };
+    } else {
+      // user from bu
+      userWhere = { parentBussinessUnitId: { $in: item.businessUnitId } };
+    }
+    const unAssignUser = await User.find(userWhere)
+      .select('deviceToken')
+      .lean();
+    unAssignUser.forEach((token) => {
+      if (token.deviceToken) {
+        usersDeviceTokens.push(token.deviceToken);
+      }
+    });
+    var appLastDate = new Date(item.applicationCloseDateTime);
+    let appLastDateHere = appLastDate.toISOString().slice(0, 10);
+    let body = `Today is the Ballot Exercise ${item.ballotName} closing day ${appLastDateHere} if not balloted yet, ballot before it closes.`;
+    let bodyText = `Today is the Ballot Exercise ${item.ballotName} closing day ${appLastDateHere} if not balloted yet, ballot before it closes.`;
+    let bodyTime = [
+      item.applicationCloseDateTime,
+      item.applicationCloseDateTime,
+    ];
+
+    if (type === 2) {
+      body = `Just 2 days left for close of this Ballot submission. Ballot Name: ${item.ballotName} Please Ballot in 2 days before it closes.`;
+      bodyText = `Just 2 days left for close of this Ballot submission. Ballot Name: ${item.ballotName} Please Ballot in 2 days before it closes.`;
+      bodyTime = [item.applicationCloseDateTime];
+    } else if (type === 1) {
+      body = `Just a day left for close of this Ballot submission. Ballot Name: ${item.ballotName} Please ballot before it closes.`;
+      bodyText = `Just a day left for close of this Ballot submission. Ballot Name: ${item.ballotName} Please ballot before it closes.`;
+      bodyTime = [item.applicationCloseDateTime];
+    }
+    if (usersDeviceTokens.length > 0) {
+      const pushData = {
+          title: 'Reminder on the Balloting Exercise',
+          body,
+          bodyText,
+          bodyTime,
+          bodyTimeFormat: ['DD-MMM-YYYY HH:mm'],
+        },
+        collapseKey = item._id; /*unique id for this particular ballot */
+      FCM.push(usersDeviceTokens, pushData, collapseKey);
+    }
+    isNotified = isNotified + 1;
+    const data = await Ballot.updateOne(
+      { _id: item._id },
+      { isNotified: isNotified },
+    );
+  }
+};
+
 agendaNormal.define('eventHandler', async (job) => {
   const data = job.attrs.data;
   logInfo('eventHandler agenda cron', data);
@@ -81,7 +170,59 @@ agendaNormal.define('eventHandler', async (job) => {
           logError('BackupStaffRemoval has error', err);
         });
       break;
-
+    case 'notificationBefore2Days':
+      ballotNotification(data, 2)
+        .then((result) => {
+          logInfo('BackupStaffRemoval done', result);
+        })
+        .catch((err) => {
+          logError('BackupStaffRemoval has error', err);
+        });
+      break;
+    case 'notificationBefore1Day':
+      ballotNotification(data, 1)
+        .then((result) => {
+          logInfo('BackupStaffRemoval done', result);
+        })
+        .catch((err) => {
+          logError('BackupStaffRemoval has error', err);
+        });
+      break;
+    case 'notificationOnDay':
+      ballotNotification(data, 0)
+        .then((result) => {
+          logInfo('BackupStaffRemoval done', result);
+        })
+        .catch((err) => {
+          logError('BackupStaffRemoval has error', err);
+        });
+    case 'conductBallot':
+      conductBallot(data.ballotId)
+        .then((result) => {
+          logInfo('BackupStaffRemoval done', result);
+        })
+        .catch((err) => {
+          logError('BackupStaffRemoval has error', err);
+        });
+      break;
+      case 'publishBallot':
+        publishBallot(data.ballotId)
+          .then((result) => {
+            logInfo('BackupStaffRemoval done', result);
+          })
+          .catch((err) => {
+            logError('BackupStaffRemoval has error', err);
+          });
+        break;
+        case 'resultRelease':
+          resultReleaseFun(data.ballotId)
+          .then((result) => {
+            logInfo('BackupStaffRemoval done', result);
+          })
+          .catch((err) => {
+            logError('BackupStaffRemoval has error', err);
+          });
+        break;
     default:
       break;
   }

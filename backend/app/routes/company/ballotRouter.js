@@ -1,6 +1,6 @@
 let express = require('express'),
   ballotRouter = express.Router(),
-  ballotController = require('../../controllers/company/ballotController'),
+  {ballot: ballotController} = require('../../controllers/company/ballotController'),
   opsLeaveController = require('../../controllers/company/opsLeaveManagementController'),
   passport = require('passport'),
   jwt = require('jsonwebtoken'),
