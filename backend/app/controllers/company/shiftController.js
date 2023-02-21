@@ -5869,6 +5869,14 @@ class shift {
       // return res.json({shiftDetailsData})
       shiftDetailsData.status = 2;
       await shiftDetailsData.save();
+
+      AgendaCron.removeEvent({ 'data.shiftDetailId': req.body.shiftDetailsId })
+        .then((removeEventResult) => {
+          logInfo('remove shift cancelled', removeEventResult);
+        })
+        .catch((removeEventResultError) => {
+          logError('remove shift cancelled', removeEventResultError);
+        });
       let usersDeviceTokens = [];
       // Loop all shiftdetails
       for (let elemConfirm of shiftDetailsData.confirmedStaffs) {

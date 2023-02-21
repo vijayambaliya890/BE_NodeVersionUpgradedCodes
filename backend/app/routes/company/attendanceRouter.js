@@ -1,6 +1,6 @@
 let express = require('express'),
     attendanceRouter = express.Router(),
-    attendanceController = require('../../controllers/company/attendanceController'),
+    {attendanceController} = require('../../controllers/company/attendanceController'),
     passport = require('passport'),
     jwt = require('jsonwebtoken');
 
