@@ -42,6 +42,12 @@ const myRewards = async (req, res) => {
       case "/deleteWishlist": rewardsController.deleteWishlist(req, res); break;
       case "/redemptionNew": rewardsController.redemptionNew(req, res); break;
       case "/redemptionPopular": rewardsController.redemptionPopular(req, res); break;
+      case "/getCategorywiseList": rewardsController.rewardCategorywiseList(req, res); break;
+      case "/redeemedVouchersDetails/:productCode": rewardsController.redeemedVouchersDetails(req, res); break;
+      case "/vouchersRequest/:productCode": rewardsController.redemptionVouchersRequest(req, res); break;
+      case "/saveVoucherDetail": rewardsController.saveVoucherDetail(req, res); break;
+      case "/getVoucherList": rewardsController.getVoucherList(req, res); break;
+      case "/redeemedRewardSaveProduct/:productCode": rewardsController.redeemedRewardSaveProductDetails(req, res); break;
       default:
         break;
     }
@@ -57,6 +63,12 @@ rewardsRouter.post("/wishlist", myRewards);
 rewardsRouter.post("/deleteWishlist", myRewards);
 rewardsRouter.get("/redemptionNew", myRewards);
 rewardsRouter.get("/redemptionPopular", myRewards);
+rewardsRouter.get("/getCategorywiseList", myRewards);
+rewardsRouter.get("/redeemedVouchersDetails/:productCode", myRewards);
+rewardsRouter.get('/vouchersRequest/:productCode', myRewards);
+rewardsRouter.post('/saveVoucherDetail', myRewards);
+rewardsRouter.get('/getVoucherList', myRewards);
+rewardsRouter.get('/redeemedRewardSaveProduct/:productCode', myRewards);
 
 rewardsRouter.get("/type/:rewardType", async (req, res) => {
   let routeprivilege = await __.getPrivilegeData(req.user._id);

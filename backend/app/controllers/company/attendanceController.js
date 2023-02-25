@@ -8,38 +8,37 @@ const mongoose = require('mongoose'),
   FacialData = require('../../models/facialData'),
   SubSection = require('../../models/subSection');
 var moment = require('moment');
-const redisData = require('../../../helpers/redisDataGenerator');
-const CronJob = require('cron').CronJob;
+// const redisData = require('../../../helpers/redisDataGenerator');
 const __ = require('../../../helpers/globalFunctions');
 class attendanceController {
-  async updateRedis(businessUnitId, from) {
-    if (from !== 'add') {
-      redisData.history(businessUnitId);
-      redisData.readModifyAshish(businessUnitId);
-      redisData.timesheetData(businessUnitId);
-    }
-  }
-  async updateRedisSingle(res, businessUnitId, shiftDetailId) {
-    try {
-      // redisData.history(businessUnitId)
-      console.log('before redis setting data');
-      const ree = await Promise.all(
-        [
-          redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId),
-          redisData.historySingle(businessUnitId, shiftDetailId),
-        ],
-        redisData.history(businessUnitId),
-      );
-      // const r = await redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId);
-      // const p = await redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId);
-      console.log('after redis setting data', ree);
-      return ree;
-      // redisData.timesheetData(businessUnitId)
-    } catch (err) {
-      __.log(err);
-      __.out(res, 500);
-    }
-  }
+  // async updateRedis(businessUnitId, from) {
+  //   if (from !== 'add') {
+  //     redisData.history(businessUnitId);
+  //     redisData.readModifyAshish(businessUnitId);
+  //     redisData.timesheetData(businessUnitId);
+  //   }
+  // }
+  // async updateRedisSingle(res, businessUnitId, shiftDetailId) {
+  //   try {
+  //     // redisData.history(businessUnitId)
+  //     console.log('before redis setting data');
+  //     const ree = await Promise.all(
+  //       [
+  //         redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId),
+  //         redisData.historySingle(businessUnitId, shiftDetailId),
+  //       ],
+  //       redisData.history(businessUnitId),
+  //     );
+  //     // const r = await redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId);
+  //     // const p = await redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId);
+  //     console.log('after redis setting data', ree);
+  //     return ree;
+  //     // redisData.timesheetData(businessUnitId)
+  //   } catch (err) {
+  //     __.log(err);
+  //     __.out(res, 500);
+  //   }
+  // }
   getDateFormat(date, timeZone) {
     if (date) {
       if (!timeZone) {
@@ -224,14 +223,14 @@ class attendanceController {
                       });
                     new Attendance(req.body).save().then(async (result) => {
                       console.log('clocking done ***************');
-                      const rR = await this.updateRedisSingle(
-                        res,
-                        shiftData.businessUnitId,
-                        req.body.shiftDetailId,
-                      );
-                      console.log('rR', rR);
-                      console.log('after redis');
-                      this.updateRedis(shiftData.businessUnitId, 'add');
+                      // const rR = await this.updateRedisSingle(
+                      //   res,
+                      //   shiftData.businessUnitId,
+                      //   req.body.shiftDetailId,
+                      // );
+                      // console.log('rR', rR);
+                      // console.log('after redis');
+                      // this.updateRedis(shiftData.businessUnitId, 'add');
                       if (req.body.status === 4) {
                         return res.json({
                           status: 4,
@@ -488,13 +487,13 @@ class attendanceController {
               let logs = JSON.parse(JSON.stringify(result));
               delete logs._id;
               console.log('##################################### beofre redis');
-              const re = await this.updateRedisSingle(
-                res,
-                result.businessUnitId,
-                result.shiftDetailId,
-              );
-              console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ after redis', re);
-              this.updateRedis(result.businessUnitId, 'add');
+              // const re = await this.updateRedisSingle(
+              //   res,
+              //   result.businessUnitId,
+              //   result.shiftDetailId,
+              // );
+              // console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ after redis', re);
+              // this.updateRedis(result.businessUnitId, 'add');
               new AttendanceLog(logs)
                 .save()
                 .then((log) => {
@@ -734,24 +733,25 @@ class attendanceController {
                 )
                   .then(async (result) => {
                     //console.log('result', result);
-                    if (result) {
-                      await updateRedisSingle(
-                        res,
-                        result.businessUnitId,
-                        result.shiftDetailId,
-                      );
-                      updateRedis(attendanceData.businessUnitId, 'add');
-                      return res.json({
-                        status: 1,
-                        data: result,
-                        message: 'Break Time Updated successfully',
-                      });
-                    } else
+                    if (!result) {
+                      // await updateRedisSingle(
+                      //   res,
+                      //   result.businessUnitId,
+                      //   result.shiftDetailId,
+                      // );
+                      // updateRedis(attendanceData.businessUnitId, 'add');
+                      // return res.json({
+                      //   status: 1,
+                      //   data: result,
+                      //   message: 'Break Time Updated successfully',
+                      // });
+                    // } else
                       return res.json({
                         status: 2,
                         data: null,
                         message: 'No Clock in attendance found',
                       });
+                    }  
                   })
                   .catch((err) => {
                     return res.json({
@@ -784,34 +784,34 @@ class attendanceController {
           });
         console.log('startTimeDate', startTimeDate, endTimeDate);
       }
-      async function updateRedis(businessUnitId, from) {
-        redisData.history(businessUnitId);
-        if (from !== 'add') {
-          redisData.readModifyAshish(businessUnitId);
-          redisData.timesheetData(businessUnitId);
-        }
-      }
-      async function updateRedisSingle(res, businessUnitId, shiftDetailId) {
-        try {
-          // redisData.history(businessUnitId)
-          console.log('before redis setting data');
-          const ree = await Promise.all([
-            redisData.readModifyAshishSingleShift(
-              businessUnitId,
-              shiftDetailId,
-            ),
-            redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId),
-          ]);
-          // const r = await redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId);
-          // const p = await redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId);
-          console.log('after redis setting data', ree);
-          return ree;
-          // redisData.timesheetData(businessUnitId)
-        } catch (err) {
-          __.log(err);
-          __.out(res, 500);
-        }
-      }
+      // async function updateRedis(businessUnitId, from) {
+      //   redisData.history(businessUnitId);
+      //   if (from !== 'add') {
+      //     redisData.readModifyAshish(businessUnitId);
+      //     redisData.timesheetData(businessUnitId);
+      //   }
+      // }
+      // async function updateRedisSingle(res, businessUnitId, shiftDetailId) {
+      //   try {
+      //     // redisData.history(businessUnitId)
+      //     console.log('before redis setting data');
+      //     const ree = await Promise.all([
+      //       redisData.readModifyAshishSingleShift(
+      //         businessUnitId,
+      //         shiftDetailId,
+      //       ),
+      //       redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId),
+      //     ]);
+      //     // const r = await redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId);
+      //     // const p = await redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId);
+      //     console.log('after redis setting data', ree);
+      //     return ree;
+      //     // redisData.timesheetData(businessUnitId)
+      //   } catch (err) {
+      //     __.log(err);
+      //     __.out(res, 500);
+      //   }
+      // }
     } catch (err) {
       __.log(err);
       __.out(res, 500);
@@ -1295,12 +1295,12 @@ class attendanceController {
           .then(async (result) => {
             console.log('result', result);
             if (result) {
-              await this.updateRedisSingle(
-                res,
-                result.businessUnitId,
-                result.shiftDetailId,
-              );
-              this.updateRedis(result.businessUnitId, 'add');
+              // await this.updateRedisSingle(
+              //   res,
+              //   result.businessUnitId,
+              //   result.shiftDetailId,
+              // );
+              // this.updateRedis(result.businessUnitId, 'add');
               return res.json({
                 status: 1,
                 data: result,
@@ -1491,17 +1491,9 @@ async function autoApproveCron() {
     return { buDataArr, attendanceData, approveAttandanceData };
   } catch (err) {
     __.log(err);
+    return false
   }
 }
-new CronJob({
-  cronTime: '0 */3 * * * * ',
-  onTick: function () {
-    console.log('attend yuup');
-    autoApproveCron();
-    //Your code that is to be executed on every midnight
-  },
-  start: true,
-  runOnInit: false,
-});
+
 attendanceController = new attendanceController();
-module.exports = attendanceController;
+module.exports = {attendanceController, autoApproveCron};

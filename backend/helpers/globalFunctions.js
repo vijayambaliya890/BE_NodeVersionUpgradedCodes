@@ -29,8 +29,9 @@ const Section = require('../app/models/section'),
   Company = require('../app/models/company'),
   CustomForm = require('../app/models/customForms'),
   BuilderModule = require('../app/models/builderModule'),
-  Shift = require('../app/models/shift');
-
+  Shift = require('../app/models/shift'),
+  request = require("request");
+  
 class globalFunctions {
   async writePdfToCustomForm(payload) {
     const options = {
@@ -651,7 +652,7 @@ class globalFunctions {
       }
       // }
     } catch (error) {
-      __.log(error);
+      this.log(error);
       return `Something went wrong try later`;
     }
   }
@@ -718,7 +719,7 @@ class globalFunctions {
   async isUserAuthorized(req, wallId) {
     try {
       if (!wallId) return false;
-      var usersWallData = await __.getUserWalls(req.user);
+      var usersWallData = await this.getUserWalls(req.user);
       if (!usersWallData) return false;
       return true;
     } catch (error) {
@@ -891,7 +892,7 @@ class globalFunctions {
 
     searchQuery['$or'].push(condition3);
 
-    // __.log(JSON.stringify(searchQuery));
+    // this.log(JSON.stringify(searchQuery));
     let wallList = await Wall.find(searchQuery);
     wallList = wallList.map((v) => {
       return v._id;
@@ -1008,7 +1009,7 @@ class globalFunctions {
       channels = channels.map((v) => v._id);
       return channels;
     } catch (error) {
-      __.log(error);
+      this.log(error);
       return [];
     }
   }
@@ -1340,7 +1341,7 @@ class globalFunctions {
     notificationList = notificationList.map((v) => {
       return v._id;
     });
-    // __.log(notificationList)
+    // this.log(notificationList)
     return notificationList;
   }
 
@@ -1367,8 +1368,8 @@ class globalFunctions {
           appointmentId: appointmentId,
         });
       }
-      if (elem.subSkillSets.length > 0) {
-        let subSkillSets = {};
+      let subSkillSets = {};
+      if (elem.subSkillSets && elem.subSkillSets.length > 0) {
         subSkillSets[condition] = elem.subSkillSets;
         searchQuery[mainCondition].push({
           subSkillSets: subSkillSets,
@@ -1410,7 +1411,7 @@ class globalFunctions {
       });
       userIds = [...userIds, ...users];
     }
-    // __.log(userIds)
+    // this.log(userIds)
     return userIds;
   }
 
@@ -1597,11 +1598,11 @@ class globalFunctions {
           return success.token;
         })
         .catch((error) => {
-          __.log(error);
+          this.log(error);
           return 'Somthing went wrong try later';
         });
     } catch (err) {
-      __.log(err);
+      this.log(err);
       return err;
     }
   }
@@ -1676,7 +1677,7 @@ class globalFunctions {
         return { status: false, message: 'Module Not found' };
       }
     } catch (error) {
-      __.log(error, 'isModuleIncluded');
+      this.log(error, 'isModuleIncluded');
       return { status: false, message: 'Something went wrong' };
     }
   }
@@ -1785,7 +1786,7 @@ class globalFunctions {
       }
       return userList;
     } catch (error) {
-      __.log(error);
+      this.log(error);
       return [];
     }
   }
@@ -1863,7 +1864,7 @@ class globalFunctions {
   //             delete searchQuery[mainCondition];
   //         }
 
-  //         __.log(searchQuery, "walluserlist")
+  //         this.log(searchQuery, "walluserlist")
 
   //         // Users List
   //         let users = await User.find(searchQuery).select('name staffId deviceToken otherFields').lean();
@@ -1886,7 +1887,7 @@ class globalFunctions {
   //         }
 
   //     }
-  //     __.log(userIds, userIds.length)
+  //     this.log(userIds, userIds.length)
   //     return userIds;
 
   // }
@@ -1917,7 +1918,7 @@ class globalFunctions {
     } else {
       return returnData;
     }
-    // __.log(pwdSettings)
+    // this.log(pwdSettings)
     // Start Validation as per keys
     // Char Length
     if (password.length < pwdSettings.charLength) {
@@ -2494,10 +2495,10 @@ class globalFunctions {
         })
         .then(
           (data) => {
-            __.log('Message sent');
+            this.log('Message sent');
           },
           (error) => {
-            __.log(error);
+            this.log(error);
             if (!isSats) {
               input.isSats = true;
               input.sendFromNumber = true;
@@ -2662,6 +2663,34 @@ class globalFunctions {
     pageSetting.pointSystems = data;
     await pageSetting.save();
     return data;
+  }
+
+  async getUserToken() {
+    return await new Promise((resolve, reject) => {
+      request(
+        {
+          url: `${process.env.UNIQ_REWARD_URL}/v2/connect/token`,
+          form: {
+            client_id: process.env.UNIQ_CLIENT_ID,
+            client_secret: process.env.UNIQ_CLIENT_SECRET,
+            grant_type: 'client_credentials',
+            scope: process.env.UNIQ_SCOPE,
+          },
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }, (error, response, body) => {
+          try {
+            if (error) {
+              return resolve(null);
+            }
+            body = JSON.parse(body);
+            return resolve(body);
+          } catch (error) {
+            return reject(null);
+          }
+        }
+      )
+    })
   }
 }
 globalFunctions = new globalFunctions();

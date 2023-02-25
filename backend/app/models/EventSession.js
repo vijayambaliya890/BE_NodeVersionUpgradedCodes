@@ -26,7 +26,8 @@ const EventSessionSchema = new Schema({
         default: 0
     },
     adminIds : [{
-        type: String
+        type: String,
+        ref: 'User'
     }],
     assignAdmin: [{
         type: Schema.Types.ObjectId,

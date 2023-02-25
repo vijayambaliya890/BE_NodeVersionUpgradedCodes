@@ -41,6 +41,10 @@ categoryRouter.post('/delete', (req, res) => {
   categoryController.delete(req, res);
 });
 
+categoryRouter.delete('/:categoryId', (req, res) => {
+  categoryController.deleteId(req, res);
+});
+
 // categoryRouter.post('/test', categoryController.test);
 
 module.exports = categoryRouter;

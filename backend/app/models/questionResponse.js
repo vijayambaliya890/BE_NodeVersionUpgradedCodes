@@ -1,46 +1,50 @@
 const mongoose = require('mongoose'),
-    Schema = mongoose.Schema;
+  Schema = mongoose.Schema;
 
-const questionResponsechema = new Schema({
+const questionResponsechema = new Schema(
+  {
     questionId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Question'
+      type: Schema.Types.ObjectId,
+      ref: 'Question',
     },
     option: {
-        type: Schema.Types.ObjectId
+      type: Schema.Types.ObjectId,
     },
     answer: {
-        type: Schema.Types.Mixed
+      type: Schema.Types.Mixed,
     },
-    
+
     // Module Data
     userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
+      type: Schema.Types.ObjectId,
+      ref: 'User',
     },
     notificationId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Notification'
+      type: Schema.Types.ObjectId,
+      ref: 'Notification',
     },
     wallPostId: {
-        type: Schema.Types.ObjectId,
-        ref: 'WallPost'
+      type: Schema.Types.ObjectId,
+      ref: 'WallPost',
     },
     postId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Post'
+      type: Schema.Types.ObjectId,
+      ref: 'Post',
     },
-    customFormId:{
-        type:Schema.Types.ObjectId,
-        ref:'Customform'
+    customFormId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Customform',
     },
     status: {
-        type: Number,
-        default: 1
+      type: Number,
+      default: 1,
     },
-    
-}, {
-    timestamps: true
-});
-
+  },
+  {
+    timestamps: true,
+    autoIndex: true,
+  },
+);
+questionResponsechema.index({ notificationId: 1 });
+questionResponsechema.index({ userId: 1 });
 module.exports = mongoose.model('QuestionResponse', questionResponsechema);

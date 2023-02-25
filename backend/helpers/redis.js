@@ -1,3 +1,4 @@
+/*
 const Redis = require('ioredis');
 const bluebird = require('bluebird');
 bluebird.promisifyAll(Redis);
@@ -28,3 +29,4 @@ client.set('users', 'Ashish', 'EX', 0.5 * 60, (err) => {
   //probably respond back to the request
 });
 module.exports = client;
+*/

@@ -12,7 +12,7 @@ const mongoose = require('mongoose'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions'),
   fs = require('fs'),
-  json2csv = require('json2csv').parse;
+  { parse } = require('json2csv');
 let striptags = require('striptags');
 const async = require('async');
 const FCM = require('../../../helpers/fcm');
@@ -1389,164 +1389,116 @@ class EventSessionController {
     ]);
     try {
       if (requiredResult.status === false) {
-        __.out(res, 400, requiredResult.missingFields);
-      } else {
-        let where = {
-          event: event_id,
-          session: session_id,
-        };
-        if (parseInt(appointmentSlotNumber) > 0) {
-          where['appointmentSlotNumber'] = appointmentSlotNumber;
-        }
-        await StaffAttendance.find(where)
-          .sort('appointmentSlotNumber')
-          .populate({
-            path: 'staff',
-            select: 'name appointmentId staffId parentBussinessUnitId',
-            populate: [
-              {
-                path: 'appointmentId',
-                select: 'name',
-              },
-              {
-                path: 'parentBussinessUnitId',
-                select: 'name',
-              },
-            ],
-          })
-          .populate({
-            path: 'session',
-            select: 'location startDate endDate',
-          })
-          .populate({
-            path: 'event',
-            select: 'teaser sessions',
-            options: { lean: true },
-          })
-          .lean()
-          .exec((err, attendances) => {
-            if (err) {
-              __.log(err);
-              return __.out(res, 500);
-            }
-            let csvLink = '';
-            let fieldsArray = [
-              'event title',
-              'session number',
-              'location',
-              'slot number',
-              'staffId',
-              'staff name',
-              'appointment name',
-              'parentBussinessUnitId',
-              'attendance Date and Time',
-              'attendance status',
-              'RSVP start Date time',
-              'RSVP end date time',
-            ];
-            let jsonArray = [];
-            if (!attendances.length)
-              return __.out(res, 201, { csvLink: csvLink, noData: false });
-
-            attendances.forEach((attendance) => {
-              let json = {};
-              json['event title'] = attendance.event
-                ? attendance.event.teaser
-                  ? attendance.event.teaser.title
-                  : null
-                : null;
-              json['event title'] = striptags(json['event title']);
-              json['session number'] =
-                attendance.event &&
-                attendance.event.sessions &&
-                typeof attendance.event.sessions == 'object' &&
-                attendance.event.sessions instanceof Array
-                  ? JSON.parse(
-                      JSON.stringify(attendance.event.sessions),
-                    ).indexOf(session_id)
-                  : null;
-
-              json['session number'] = parseInt(json['session number']) + 1;
-              json['location'] = attendance.session
-                ? attendance.session.location
-                : null;
-              json['slot number'] = attendance.appointmentSlotNumber;
-              json['staffId'] = attendance.staff
-                ? attendance.staff.staffId
-                : null;
-              json['staff name'] = attendance.staff
-                ? attendance.staff.name
-                : null;
-              json['appointment name'] =
-                attendance.staff && attendance.staff.appointmentId
-                  ? attendance.staff.appointmentId.name
-                  : null;
-              json['parentBussinessUnitId'] =
-                attendance.staff && attendance.staff.parentBussinessUnitId
-                  ? attendance.staff.parentBussinessUnitId.name
-                  : null;
-              //json['attendance Date and Time'] = moment(attendance.createdAt).format('LLL');
-              json['attendance Date and Time'] = moment(attendance.createdAt)
-                .utcOffset(req.body.timeZone)
-                .format('YYYY-MM-DD HH:mm');
-              json['attendance status'] = attendance.status;
-              json['RSVP start Date time'] = moment(
-                attendance.session.startDate,
-              )
-                .utcOffset(req.body.timeZone)
-                .format('YYYY-MM-DD HH:mm');
-              json['RSVP end date time'] = moment(attendance.session.endDate)
-                .utcOffset(req.body.timeZone)
-                .format('YYYY-MM-DD HH:mm');
-              jsonArray.push(json);
-            });
-
-            console.log('jsonArray', jsonArray);
-            console.log('fie', fieldsArray);
-            if (!jsonArray.length)
-              return __.out(res, 201, { csvLink: csvLink, noData: false });
-            // var csv = json2csv({
-            //     data: jsonArray,
-            //     fields: fieldsArray
-            // });
-            json2csv(
-              { data: jsonArray, fields: fieldsArray },
-              function (err, csv) {
-                if (err) console.log(err);
-                // console.log(csv);
-                //  res.send(csv);
-                //  fs.writeFile('file.csv', csv, function(err) {
-                //      if (err) throw err;
-                //      console.log('file saved');
-                //  });
-                console.log('ashish file');
-                res.setHeader(
-                  'Content-disposition',
-                  'attachment; filename=testing.csv',
-                );
-                res.set('Content-Type', 'application/csv');
-                res.status(200).json({ csv, noData: true });
-              },
-            );
-            // commented exsting code as remove the stroing file on server
-            /*   let dir = './public/uploads/exportAttendees';
-                           if (!fs.existsSync(dir)){
-                               fs.mkdirSync(dir);
-                           }
-                           let fileName = Math.random().toString(36).substr(2, 10);
-                           fs.writeFile(`${dir}/${fileName}.csv`, csv, (err) => {
-                               if (err) {
-                                   __.log('json2csv err' + err);
-                                   __.out(res, 500)
-                               } else {
-                                   csvLink = `${dir}/${fileName}.csv`;
-                                   __.out(res, 201, {
-                                       csvLink: csvLink
-                                   });
-                               }
-                           });*/
-          });
+        return __.out(res, 400, requiredResult.missingFields);
       }
+
+      let where = {
+        event: event_id,
+        session: session_id,
+      };
+      if (parseInt(appointmentSlotNumber) > 0) {
+        where['appointmentSlotNumber'] = appointmentSlotNumber;
+      }
+      const attendances = await StaffAttendance.find(where)
+        .sort('appointmentSlotNumber')
+        .populate({
+          path: 'staff',
+          select: 'name appointmentId staffId parentBussinessUnitId',
+          populate: [
+            {
+              path: 'appointmentId',
+              select: 'name',
+            },
+            {
+              path: 'parentBussinessUnitId',
+              select: 'name',
+            },
+          ],
+        })
+        .populate({
+          path: 'session',
+          select: 'location startDate endDate',
+        })
+        .populate({
+          path: 'event',
+          select: 'teaser sessions',
+          options: { lean: true },
+        })
+        .lean();
+      let csvLink = '';
+      let fieldsArray = [
+        'event title',
+        'session number',
+        'location',
+        'slot number',
+        'staffId',
+        'staff name',
+        'appointment name',
+        'parentBussinessUnitId',
+        'attendance Date and Time',
+        'attendance status',
+        'RSVP start Date time',
+        'RSVP end date time',
+      ];
+      let jsonArray = [];
+      if (!attendances.length)
+        return __.out(res, 201, { csvLink: csvLink, noData: false });
+
+      attendances.forEach((attendance) => {
+        let json = {};
+        json['event title'] = attendance.event
+          ? attendance.event.teaser
+            ? attendance.event.teaser.title
+            : null
+          : null;
+        json['event title'] = striptags(json['event title']);
+        json['session number'] =
+          attendance.event &&
+          attendance.event.sessions &&
+          typeof attendance.event.sessions == 'object' &&
+          attendance.event.sessions instanceof Array
+            ? JSON.parse(JSON.stringify(attendance.event.sessions)).indexOf(
+                session_id,
+              )
+            : null;
+
+        json['session number'] = parseInt(json['session number']) + 1;
+        json['location'] = attendance.session
+          ? attendance.session.location
+          : null;
+        json['slot number'] = attendance.appointmentSlotNumber;
+        json['staffId'] = attendance.staff ? attendance.staff.staffId : null;
+        json['staff name'] = attendance.staff ? attendance.staff.name : null;
+        json['appointment name'] =
+          attendance.staff && attendance.staff.appointmentId
+            ? attendance.staff.appointmentId.name
+            : null;
+        json['parentBussinessUnitId'] =
+          attendance.staff && attendance.staff.parentBussinessUnitId
+            ? attendance.staff.parentBussinessUnitId.name
+            : null;
+        //json['attendance Date and Time'] = moment(attendance.createdAt).format('LLL');
+        json['attendance Date and Time'] = moment(attendance.createdAt)
+          .utcOffset(req.body.timeZone)
+          .format('YYYY-MM-DD HH:mm');
+        json['attendance status'] = attendance.status;
+        json['RSVP start Date time'] = moment(attendance.session.startDate)
+          .utcOffset(req.body.timeZone)
+          .format('YYYY-MM-DD HH:mm');
+        json['RSVP end date time'] = moment(attendance.session.endDate)
+          .utcOffset(req.body.timeZone)
+          .format('YYYY-MM-DD HH:mm');
+        jsonArray.push(json);
+      });
+      
+      if (!jsonArray.length)
+        return __.out(res, 201, { csvLink: csvLink, noData: false });
+      const fields = fieldsArray;
+      const opts = { fields };
+      var csv = parse(jsonArray, opts);
+      res.setHeader('Content-disposition', 'attachment; filename=testing.csv');
+      res.set('Content-Type', 'application/csv');
+      res.status(200).json({ csv, noData: true });
     } catch (err) {
       __.log(err);
       return __.out(res, 500);
@@ -1771,7 +1723,9 @@ class EventSessionController {
             });
             console.log('HIIiiiiiiii********');
             //res.json({fieldsArray,jsonArray});
-            const csv = json2csv({ data: jsonArray, fields: fieldsArray });
+            const fields = fieldsArray;
+            const opts = { fields };
+            var csv = parse(jsonArray, opts);
             res.setHeader(
               'Content-disposition',
               'attachment; filename=testing.csv',

@@ -135,8 +135,45 @@ const NotificationSchema = new Schema({
     status: {
         type: Number,
         default: 0
-    }
+    },
+    notificationType: {
+        type: Number // 1 adhoc 2 schedule
+      },
+      notificationTime: {
+        type: String
+      },
+      timeZone: {
+        type: String
+      },
+      isPublish: {
+        type: Boolean,
+        default: false // false means draft true means is publish
+      },
+      notificationStatus: {
+        type: Number,
+        default: 0 // 0 draft 1 pending(publish) 2 complete 3 cancelled  4 inactive
+      },
+      notificationSchedule: {
+        type: Number,
+        default: 1 // 1 ad-hoc 2 daily 3 weekly 4 monthly
+      },
+      day: {
+        type: Number
+      },
+      isScheduleNotification: {
+        type: Boolean,
+        default: false
+      },
+      actualEnd: {
+        type: Date,
+      },
+      actualStart: {
+        type: Date,
+      }
 }, {
-    timestamps: true
+    timestamps: true,
+    autoIndex: true
 });
+NotificationSchema.index({businessUnitId:1});
+
 module.exports = mongoose.model('Notification', NotificationSchema);

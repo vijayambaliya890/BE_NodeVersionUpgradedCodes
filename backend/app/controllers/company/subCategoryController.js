@@ -178,5 +178,43 @@ class subCategory {
     }
     return categoryIds;
   }
+
+  async getSubCategories(req, res) {
+    try {
+      const result = await this.getAll(
+        {
+          categoryId: req.params.categoryId,
+        },
+        req.query,
+      );
+      return res.success(result);
+    } catch (error) {
+      return res.error(error);
+    }
+  }
+
+  async getAll(condition, { page, limit, search, sortBy, sortWith }) {
+    let searchCondition = {};
+    if (search) {
+      searchCondition['name'] = new RegExp(search, 'i');
+    }
+    const count = await SubCategory.countDocuments({
+      status: 1,
+      ...condition,
+      ...searchCondition,
+    });
+    const data = await SubCategory
+      .find(
+        {
+          status: 1,
+          ...condition,
+          ...searchCondition,
+        },
+        'name status',
+        { skip: (page - 1) * limit, limit: parseInt(limit) },
+      )
+      .sort({ [sortWith]: sortBy === 'desc' ? -1 : 1 });
+    return { count, data };
+  }
 }
 module.exports = new subCategory();

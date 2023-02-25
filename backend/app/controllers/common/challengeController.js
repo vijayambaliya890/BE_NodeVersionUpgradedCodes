@@ -840,7 +840,7 @@ class challenge {
       const recordsFiltered = await Challenge.count(query).lean();
       let sort = {};
       if (req.query.order) {
-        let orderData = req.query.order;
+        let orderData = 'desc'; //req.query.order;
         const getSort = (val) => ('asc' === val ? 1 : -1);
         for (let i = 0; i < orderData.length; i++) {
           switch (orderData[i].column) {

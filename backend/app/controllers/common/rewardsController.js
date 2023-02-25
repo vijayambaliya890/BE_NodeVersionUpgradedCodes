@@ -5,7 +5,10 @@ const mongoose = require("mongoose"),
   moment = require('moment'),
   Wishlist = require("../../models/redeemedWishlist"),
   __ = require("../../../helpers/globalFunctions"),
-  rewardURL = "https://cerrapoints.com";
+  rewardsVouchersList = require('../../models/rewardsVouchersList'),
+  rewardURL = "https://cerrapoints.com",
+  Company = require('../../models/company');
+const uuid = require("node-uuid");
 const isJSON = str => {
   try {
     return (JSON.parse(str) && !!str);
@@ -37,6 +40,7 @@ class redeemedRewards {
     });
   }
   async redemptionLogin(req, res) {
+
   }
 
   async redemptionType(req, res) {
@@ -152,10 +156,6 @@ class redeemedRewards {
         if (body.quantity === null) {
           body.quantity = 1; // client request to change quantity as 1 if it is null
         }
-        if (body.valid_until === null) {
-          body.valid_until = ""
-          //body.valid_until = "2025-08-03T00:00:00"
-        }
         return __.out(res, 201, body);
       }).catch(error => {
         __.log(error);
@@ -227,8 +227,28 @@ class redeemedRewards {
   async rewardsDbHistory(req, res) {
     try {
       // const page = (!!req.query.page) ? req.query.page * 10 : 0;
-      let rewardsData = await Rewards.find({ userId: req.user._id }).sort({ createdAt: -1 })/* .skip(page).limit(10) */.lean();
+      let rewardsData = await Rewards.find({ userId: req.user._id, isSuccess: true }).sort({ createdAt: -1 })/* .skip(page).limit(10) */.lean();
       return __.out(res, 201, rewardsData);
+    } catch (err) {
+      __.log(err);
+      return __.out(res, 300, 'Somethign went wrong try later');
+    }
+  }
+
+  async rewardCategorywiseList(req, res) {
+    try {
+      let globalSearchList = ['Global'];
+      const companyName = await Company.findOne({ _id: req.user.companyId }).select('name');
+      if (companyName) {
+        globalSearchList.push(companyName.name);
+      }
+      const voucherlist = await rewardsVouchersList.find({
+        companyName: globalSearchList, status: {
+          $ne: 'Inactive'
+        }
+      });
+
+      return __.out(res, 201, voucherlist);
     } catch (err) {
       __.log(err);
       return __.out(res, 300, 'Somethign went wrong try later');
@@ -529,7 +549,7 @@ class redeemedRewards {
           }
         }
       }, {
-        $project: { name: 1, 'user.name': 1, 'user.staffId': 1, 'code': 1, 'points': 1, 'redemption_type': 1, 'createdAt': 1, 'totalRewardPoints': 1, 'user.parentBussinessUnitId': 1 }
+        $project: { name: 1, 'user.name': 1, 'user.staffId': 1, 'code': 1, 'points': 1, 'redemption_type': 1, 'createdAt': 1, 'totalRewardPoints': 1, 'user.parentBussinessUnitId': 1, isSuccess: 1 }
       }]);
       return __.out(res, 201, rewards);
     } catch (error) {
@@ -596,7 +616,6 @@ class redeemedRewards {
       }, {
         $project: { 'user.name': 1, 'user.staffId': 1, name: 1, 'code': 1, 'points': 1, 'redemption_type': 1, 'createdAt': 1, 'totalRewardPoints': 1, 'businessUnit.name': 1, 'section.name': 1, 'department.name': 1, 'company.name': 1 }
       }]);
-      const formatDate = (dateUTC) => [moment(dateUTC).add(-req.query.timeZone, 'minutes').format('YYYY-MM-DD'), moment(dateUTC).add(-req.query.timeZone, 'minutes').format('hh:mm:A')];
       let rowResult = rewards.map(reward => {
         return {
           'User Name': reward.user.name || '--',
@@ -837,7 +856,286 @@ class redeemedRewards {
       __.out(res, 201, rewardsData);
     } catch (err) {
       __.log(err);
-      __.out(res, 500);
+      __.out(res, 500, 'We are sorry, this item failed to be redeemed. kindly try again or choose another item');
+    }
+  }
+
+  async voucherActionRequest(credential, urlParams, uId) {
+    return await new Promise((resolve, reject) => {
+      const body = { manual_quantity: 1, distribution_mode: 'manual' };
+      request(
+        {
+          url: `${process.env.UNIQ_REWARD_URL}/v2/catalogs/${urlParams.product_class}/product_assets/${urlParams.order_number}/products/${urlParams.product_code}/vouchers/actions/request`,
+          body: JSON.stringify(body),
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Client-Id": process.env.UNIQ_X_CLIENT_ID,
+            "X-Client-Secret": process.env.UNIQ_X_CLIENT_SECRET,
+            "X-Correlation-Id": uId,
+            "Authorization": `Bearer ${credential.access_token}`,
+            "token": credential.access_token
+          },
+        },
+        function (error, response, body) {
+          if (error) {
+            reject("Invalid login!");
+          }
+          try {
+            return resolve(body);
+          } catch (error) {
+            reject(body);
+          }
+        }
+      )
+    })
+  }
+
+  async redemptionVouchersRequest(req, res) {
+    if (!req.params.productCode) {
+      return __.out(res, 400, 'Product code is missing from url!');
+    }
+    const isProductCodeExist = await rewardsVouchersList.findOne({ productCode: req.params.productCode });
+
+    if (!isProductCodeExist) {
+      return __.out(res, 404, 'Product code does not exist!');
+    }
+    var uUid = uuid.v4();
+    var responseBody = {
+      productCode: isProductCodeExist.productCode,
+      orderNumber: isProductCodeExist.orderNumber,
+      productName: isProductCodeExist.productName,
+      description: isProductCodeExist.description,
+      points: isProductCodeExist.redeemPoints,
+      display_img_url: isProductCodeExist.display_img_url,
+      thumbnail_img_url: isProductCodeExist.thumbnail_img_url,
+      userId: req.user._id,
+      name: isProductCodeExist.productName,
+      uUid: uUid,
+    }
+    var isAPICalled = false;
+    var isPreviouslyFailed = null;
+    try {
+      const rewardHeaders = await __.getUserToken();
+      if (!rewardHeaders) {
+        return __.out(res, 400, 'Something went wrong');
+      }
+      var date = new Date(); // today!
+      var bufferDay = 1; // go back 1 day!
+      date = new Date(date.setDate(date.getDate() - bufferDay));
+      isPreviouslyFailed = await Rewards.findOne({
+        userId: req.user._id,
+        productCode: req.params.productCode,
+        isSuccess: false,
+        createdAt: { $gt: date }
+      });
+      if (isPreviouslyFailed) {
+        responseBody.uUid = isPreviouslyFailed.uUid;
+        uUid = isPreviouslyFailed.uUid;
+      }
+      isAPICalled = true;
+      const requestBody = {
+        product_class: 'ETX_001',
+        order_number: isProductCodeExist.orderNumber,
+        product_code: isProductCodeExist.productCode
+      };
+      let voucherResponse = await this.voucherActionRequest(rewardHeaders, requestBody, uUid)
+      voucherResponse = JSON.parse(voucherResponse);
+      if (voucherResponse && voucherResponse.meta && voucherResponse.meta.status === 'succeeded') {
+        responseBody = {
+          ...voucherResponse.data[0],
+          ...responseBody,
+          code: voucherResponse.data[0].edenred_url,
+          isSuccess: true,
+        }
+
+        this.saveRewardDetail(responseBody, isPreviouslyFailed)
+        __.out(res, 201, responseBody);
+      } else {
+        responseBody = {
+          ...responseBody,
+          isSuccess: false,
+        }
+        if (!isPreviouslyFailed) {
+          this.saveRewardDetailFail(responseBody);
+        }
+        __.out(res, 500, 'We are sorry, this item failed to be redeemed. kindly try again or choose another item');
+      }
+    } catch (err) {
+      __.log(err);
+      if (isAPICalled) {
+        responseBody = {
+          ...responseBody,
+          isSuccess: false,
+        }
+        if (!isPreviouslyFailed) {
+          this.saveRewardDetailFail(responseBody);
+        }
+      }
+      return __.out(res, 300, 'something went wrong try later');
+    }
+  }
+
+  async saveRewardDetail(requestBody, isPreviouslyFailed) {
+    try {
+      const reedemedPoint = await User.findOneAndUpdate({ _id: requestBody.userId }, { $inc: { rewardPoints: -requestBody.points } });
+      if (!isPreviouslyFailed) {
+        requestBody.totalRewardPoints = reedemedPoint.rewardPoints - requestBody.points;
+        await new Rewards(requestBody).save();
+      } else {
+        await Rewards.updateOne({ _id: isPreviouslyFailed._id }, requestBody, { upsert: true });
+      }
+    } catch (error) {
+      __.log(error);
+    }
+  }
+
+  async saveRewardDetailFail(requestBody) {
+    try {
+      await new Rewards(requestBody).save();
+    } catch (error) {
+      __.log(error);
+    }
+  }
+
+  async saveVoucherDetail(req, res) {
+    try {
+      let voucherList = req.body;
+      if (!voucherList || voucherList.length === 0) {
+        return __.out(res, 201, 'There is no product!');
+      }
+
+      const productPayload = [];
+      for (const product of voucherList) {
+        if (product.productCode && product.productName && product.description) {
+          productPayload.push({
+            orderNumber: product.orderNumber,
+            productCode: product.productCode,
+            productName: product.productName,
+            description: product.description,
+            name: product.productName,
+            code: product.edenred_url,
+            barcode: product.barcode,
+            qrCode: product.qrCode,
+            code: product.code,
+            category: product.category,
+            category_id: product.category_id,
+            redeemPoints: product.redeemPoints,
+            thumbnail_img_url: product.thumbnail_img_url,
+            companyName: product.companyName,
+            status: product.status,
+            display_img_url: product.display_img_url,
+            voucherCodesBalance: product.voucherCodesBalance,
+            voucherCodes: product.voucherCodes,
+            expiration_date: product.expiration_date
+          })
+        }
+      }
+      await rewardsVouchersList.insertMany(productPayload);
+      return __.out(res, 201, 'Product saved!');
+    } catch (error) {
+      __.log(error);
+      return res.status(300).json({
+        redeemSuccess: false,
+        message: "Something went wrong try later"
+      });
+    }
+  }
+
+  async getVoucherList(req, res) {
+    try {
+      const voucherlist = await rewardsVouchersList.find().select('productCode productName description orderNumber');
+      return __.out(res, 201, voucherlist);
+    } catch (error) {
+      __.log(error);
+      return res.status(300).json({
+        redeemSuccess: false,
+        message: "Something went wrong try later"
+      });
+    }
+  }
+
+  async redeemedVouchersDetails(req, res) {
+    try {
+      const voucherlist = await Rewards.find({
+        userId: req.user._id,
+        $or: [
+          { rewardId: req.params.productCode },
+          { productCode: req.params.productCode }
+        ]
+      })
+        .select({ createdAt: 0, updatedAt: 0, __v: 0 })
+      return __.out(res, 201, voucherlist);
+    } catch (error) {
+      __.log(error);
+      return res.status(300).json({
+        redeemSuccess: false,
+        message: "Something went wrong try later"
+      });
+    }
+  }
+
+  async redeemedRewardSaveProductDetails(req, res) {
+    let requestBody = {};
+    try {
+      if (!req.params.productCode) {
+        return __.out(res, 400, 'Product code is missing from url!');
+      }
+
+      const isProductCodeExist = await rewardsVouchersList.findOne({ productCode: req.params.productCode });
+      if (!isProductCodeExist) {
+        return __.out(res, 404, 'Product code does not exist!');
+      }
+
+      // const isUserExist = await Rewards.findOne({ productCode: req.params.productCode, userId: req.user._id });
+      // if(isUserExist) {
+      //   return __.out(res, 300, 'You have already redeemed points against this voucher. Please try another voucher.');
+      // }
+
+      if (isProductCodeExist.status === 'Out of Stock' || !isProductCodeExist.voucherCodesBalance) {
+        return __.out(res, 200, 'This Voucher is Out of Stock now, please try other vouchers');
+      }
+
+      const voucherCodeIndex = isProductCodeExist.voucherCodes.length - isProductCodeExist.voucherCodesBalance;
+
+      requestBody = {
+        productCode: isProductCodeExist.productCode,
+        orderNumber: isProductCodeExist.orderNumber,
+        productName: isProductCodeExist.productName,
+        voucher_name: isProductCodeExist.productName,
+        description: isProductCodeExist.description,
+        points: isProductCodeExist.redeemPoints,
+        display_img_url: isProductCodeExist.display_img_url,
+        thumbnail_img_url: isProductCodeExist.thumbnail_img_url,
+        code: isProductCodeExist.voucherCodes[voucherCodeIndex],
+        name: isProductCodeExist.productName,
+        category: isProductCodeExist.category,
+        qrCode: isProductCodeExist.qrCode || '',
+        barcode: isProductCodeExist.barcde || '',
+        status: isProductCodeExist.status,
+        companyName: isProductCodeExist.companyName,
+        expiration_date: isProductCodeExist.expiration_date,
+        companyId: req.user.companyId,
+        userId: req.user._id,
+        isSuccess: true
+      }
+
+      let updateBody = { $inc: { voucherCodesBalance: -1 } }
+      if (isProductCodeExist.voucherCodesBalance === 1) {
+        updateBody.status = 'Out of Stock'
+      }
+
+      await rewardsVouchersList.update({ productCode: req.params.productCode }, updateBody);
+      const reedemedPoint = await User.findOneAndUpdate({ _id: requestBody.userId }, { $inc: { rewardPoints: -requestBody.points } });
+      requestBody.totalRewardPoints = reedemedPoint.rewardPoints - requestBody.points;
+      await new Rewards(requestBody).save();
+
+      __.out(res, 201, requestBody);
+    } catch (err) {
+      requestBody.isSuccess = false;
+      await new Rewards(requestBody).save();
+      __.log(err);
+      return __.out(res, 300, 'something went wrong try later');
     }
   }
 }

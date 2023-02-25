@@ -20,15 +20,17 @@ const mongoose = require('mongoose'),
 const async = require('async');
 const AssignShift = require('../../models/assignShift');
 const ObjectId = require('mongoose').Types.ObjectId;
-const redisClient = require('../../../helpers/redis.js');
-const redisData = require('../../../helpers/redisDataGenerator');
+// const redisClient = require('../../../helpers/redis.js');
+// const redisData = require('../../../helpers/redisDataGenerator');
 const ShiftHelper = require('../../../helpers/shiftHelper');
+const AgendaCron = require('../../../helpers/agendaEventHandler');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 class shift {
-  async updateRedis(businessUnitId) {
-    console.log('before seting redis');
-    const r = await redisData.readNewNextPromise(businessUnitId);
-    return r;
-  }
+  // async updateRedis(businessUnitId) {
+  //   console.log('before seting redis');
+  //   const r = await redisData.readNewNextPromise(businessUnitId);
+  //   return r;
+  // }
   getTimeZone() {
     return new Date().toString().match(/([A-Z]+[\+-][0-9]+)/)[1];
   }
@@ -227,7 +229,7 @@ class shift {
               (new Date(item.shiftObj.weekRangeStartsAt).getTime() <=
                 new Date(item.shiftObj.date).getTime() &&
                 new Date(item.shiftObj.weekRangeEndsAt).getTime() >=
-                  new Date(item.shiftObj.date).getTime())
+                new Date(item.shiftObj.date).getTime())
             ) {
               try {
                 let shiftResult = await AssignShift.find({
@@ -241,9 +243,9 @@ class shift {
                   const shiftAlreadyPresent = shiftResult.filter((shiftAl) => {
                     return (
                       new Date(shiftAl.startTime).getTime() ===
-                        new Date(item.shiftObj.startTime).getTime() &&
+                      new Date(item.shiftObj.startTime).getTime() &&
                       new Date(shiftAl.endTime).getTime() ===
-                        new Date(item.shiftObj.endTime).getTime()
+                      new Date(item.shiftObj.endTime).getTime()
                     );
                   });
                   if (shiftAlreadyPresent && shiftAlreadyPresent.length > 0) {
@@ -256,11 +258,11 @@ class shift {
                         (new Date(shiftOverl.startTime).getTime() <=
                           new Date(item.shiftObj.startTime).getTime() &&
                           new Date(shiftOverl.endTime).getTime() >=
-                            new Date(item.shiftObj.startTime).getTime()) ||
+                          new Date(item.shiftObj.startTime).getTime()) ||
                         (new Date(shiftOverl.startTime).getTime() <=
                           new Date(item.shiftObj.endTime).getTime() &&
                           new Date(shiftOverl.endTime).getTime() >=
-                            new Date(item.shiftObj.endTime).getTime())
+                          new Date(item.shiftObj.endTime).getTime())
                       );
                     });
                     if (shiftOverlapping && shiftOverlapping.length)
@@ -414,15 +416,15 @@ class shift {
                 shiftExecution = true;
               }
             } else {
-              await this.updateRedis(businessUnitId);
+              // await this.updateRedis(businessUnitId);
               return __.out(res, 300, response2.message);
             }
           } else {
-            await this.updateRedis(businessUnitId);
+            // await this.updateRedis(businessUnitId);
             return __.out(res, 300, response.message);
           }
         } catch (e) {
-          await this.updateRedis(businessUnitId);
+          // await this.updateRedis(businessUnitId);
           return __.out(res, 500, e.message);
         }
       }
@@ -680,12 +682,20 @@ class shift {
                 req.body.shiftType === 'Assign Shift' ? staffDetail : [];
               console.log(shiftObj);
               let insertedShiftDetails = await new ShiftDetails(
-                  shiftObj,
-                ).save(),
+                shiftObj,
+              ).save(),
                 insertedShiftDetailsId = insertedShiftDetails._id;
               insertedShiftDetailsIdArray.push(
                 mongoose.Types.ObjectId(insertedShiftDetailsId),
               );
+              AgendaCron.addEvent(shiftObj.startTime, {
+                shiftDetailId: insertedShiftDetailsId,
+                type: 'BackupStaffRemoval',
+              }, true).then((jobResult)=>{
+                logInfo('Job added', jobResult)
+              }).catch((jobError)=>{
+                logError('Job add error', jobError)
+              });
             }
             await Shift.findOneAndUpdate(
               {
@@ -720,17 +730,17 @@ class shift {
             if (usersDeviceTokens.length > 0) {
               /*   usersDeviceTokens = [...new Set(usersDeviceTokens)]; //removes duplicate*/
               var pushData = {
-                  title: 'Book Now!',
-                  body: 'shifts available',
-                  bodyText: 'XXX - XXX shifts available',
-                  bodyTime: [weeksStartsAtForPush, weeksEndsAtForPush],
-                  bodyTimeFormat: ['dd MMM', 'dd MMM'],
-                },
+                title: 'Book Now!',
+                body: 'shifts available',
+                bodyText: 'XXX - XXX shifts available',
+                bodyTime: [weeksStartsAtForPush, weeksEndsAtForPush],
+                bodyTimeFormat: ['dd MMM', 'dd MMM'],
+              },
                 collapseKey =
                   insertedShiftId; /*unique id for this particular shift */
               FCM.push(usersDeviceTokens, pushData, collapseKey);
             }
-            this.updateRedis(businessUnitId);
+            // this.updateRedis(businessUnitId);
             await shiftLogController.create(statusLogData, res);
             __.out(res, 201, 'Shift created sucessfully');
           }
@@ -897,7 +907,7 @@ class shift {
           );
         }
         if (data) {
-          await this.updateRedis(assignUpdate.businessUnitId);
+          // await this.updateRedis(assignUpdate.businessUnitId);
           var deviceToken = await User.findOne(
             { _id: req.body.userId },
             { _id: 0, deviceToken: 1 },
@@ -909,12 +919,12 @@ class shift {
             text = 'Rest';
           }
           var pushData = {
-              title: 'Recall Request',
-              body: `You have been recalled on ${text} day, please check shift details`,
-              bodyText: 'XXX - XXX shifts available',
-              bodyTime: [shiftObj.startTime, shiftObj.endTime],
-              bodyTimeFormat: ['dd MMM', 'dd MMM'],
-            },
+            title: 'Recall Request',
+            body: `You have been recalled on ${text} day, please check shift details`,
+            bodyText: 'XXX - XXX shifts available',
+            bodyTime: [shiftObj.startTime, shiftObj.endTime],
+            bodyTimeFormat: ['dd MMM', 'dd MMM'],
+          },
             collapseKey =
               req.body.shiftDetailId; /*unique id for this particular shift */
           FCM.push(arrDeviceToken, pushData, collapseKey);
@@ -1159,18 +1169,18 @@ class shift {
           if (usersDeviceTokens.length > 0) {
             /*   usersDeviceTokens = [...new Set(usersDeviceTokens)]; //removes duplicate*/
             var pushData = {
-                title: 'Book Now!',
-                body: 'shifts available',
-                bodyText: 'XXX - XXX shifts available',
-                bodyTime: [weeksStartsAtForPush, weeksEndsAtForPush],
-                bodyTimeFormat: ['dd MMM', 'dd MMM'],
-              },
+              title: 'Book Now!',
+              body: 'shifts available',
+              bodyText: 'XXX - XXX shifts available',
+              bodyTime: [weeksStartsAtForPush, weeksEndsAtForPush],
+              bodyTimeFormat: ['dd MMM', 'dd MMM'],
+            },
               collapseKey =
                 insertedShiftId; /*unique id for this particular shift */
             FCM.push(usersDeviceTokens, pushData, collapseKey);
           }
           shiftLogController.create(statusLogData, res);
-          await this.updateRedis(buIdRedis);
+          // await this.updateRedis(buIdRedis);
           __.out(res, 201, 'Shift created sucessfully');
         }
       }
@@ -1193,12 +1203,12 @@ class shift {
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         var where = {
-            status: 1,
-          },
+          status: 1,
+        },
           findOrFindOne;
         var timeZone = moment
-            .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
-            .format('Z'),
+          .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
+          .format('Z'),
           startDate = moment(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
             .utc()
             .format(),
@@ -1502,14 +1512,14 @@ class shift {
           });
           /*weeklyGraph starts */
           var staffNeedWeekdaysObj = {
-              monday: {},
-              tuesday: {},
-              wednesday: {},
-              thursday: {},
-              friday: {},
-              saturday: {},
-              sunday: {},
-            },
+            monday: {},
+            tuesday: {},
+            wednesday: {},
+            thursday: {},
+            friday: {},
+            saturday: {},
+            sunday: {},
+          },
             staffAppliedWeekdaysObj = _.cloneDeep(staffNeedWeekdaysObj);
           for (var i = startUnixDateTime; i <= endUnixDateTime; i += 1800) {
             var dateTimeUnix = i * 1000;
@@ -1573,9 +1583,9 @@ class shift {
           }
 
           var data = {
-              businessUnitId: req.body.businessUnitId,
-              weekNumber: weekNumber,
-            },
+            businessUnitId: req.body.businessUnitId,
+            weekNumber: weekNumber,
+          },
             clientWeeklyStaffData = await WeeklyStaffData.weeklyStaffingData(
               data,
               res,
@@ -1638,7 +1648,7 @@ class shift {
                     if (
                       splitItem.isSplitShift &&
                       new Date(splitItem.date).getTime() ===
-                        new Date(item.date).getTime() &&
+                      new Date(item.date).getTime() &&
                       splitItem.shiftId._id === item.shiftId._id
                     ) {
                       item.splitShiftStartTime = splitItem.startTime;
@@ -1670,13 +1680,13 @@ class shift {
     }
   }
 
-  setRedisData(key, data) {
-    redisClient.set(key, JSON.stringify(data), 'EX', 10 * 60, (err) => {
-      //cache for 10mins
-      //other operations will go here
-      //probably respond back to the request
-    });
-  }
+  // setRedisData(key, data) {
+  //   redisClient.set(key, JSON.stringify(data), 'EX', 10 * 60, (err) => {
+  //     //cache for 10mins
+  //     //other operations will go here
+  //     //probably respond back to the request
+  //   });
+  // }
   async readNew(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
@@ -1691,8 +1701,8 @@ class shift {
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         var where = {
-            status: 1,
-          },
+          status: 1,
+        },
           findOrFindOne;
         console.log(req.body);
         const currentDateR = req.body.startDate.split(' ')[0];
@@ -1704,8 +1714,8 @@ class shift {
         //     return __.out(res, 201, JSON.parse(redisData));
         // }
         var timeZone = moment
-            .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
-            .format('Z'),
+          .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
+          .format('Z'),
           startDate = moment(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
             .utc()
             .format(), //.add(1,'days') remove to get monday shift
@@ -1839,13 +1849,13 @@ class shift {
               },
             },
             {
-              path: 'geoReportingLocation',
-              select: 'name status',
-              match: {
-                status: 'active',
+                path: 'geoReportingLocation',
+                select: 'name status',
+                match: {
+                  status: 'active',
+                },
               },
-            },
-            {
+              {
               path: 'subSkillSets',
               select: 'name status',
               match: {
@@ -2007,7 +2017,11 @@ class shift {
             let totalExtension = 0;
             let totalExtensionHrs = 0;
             if (
-              (element.shiftId && element.shiftId.businessUnitId) ||
+              (((element.mainSkillSets && element.mainSkillSets.length) ||
+                (element.subSkillSets && element.subSkillSets.length)) &&
+                element.reportLocationId &&
+                element.shiftId &&
+                element.shiftId.businessUnitId) ||
               element.isAssignShift
             ) {
               let tz = element.timeZone;
@@ -2058,7 +2072,7 @@ class shift {
                   var confirmedStaffsCount = element.confirmedStaffs.length;
                   dashboardGraphData.plannedFlexiHours +=
                     (element.staffNeedCount - totalExtension) *
-                      element.duration +
+                    element.duration +
                     totalExtensionHrs;
                   dashboardGraphData.plannedFlexiShifts +=
                     element.staffNeedCount;
@@ -2080,7 +2094,7 @@ class shift {
                       var hours =
                         Math.abs(
                           new Date(extendStaff.startDateTime).getTime() -
-                            new Date(extendStaff.endDateTime).getTime(),
+                          new Date(extendStaff.endDateTime).getTime(),
                         ) / 36e5;
                       dashboardGraphData.assignFlexiHours += hours;
                     } else {
@@ -2104,16 +2118,16 @@ class shift {
                   //console.log('1', key);
                   graphData[key].totalHours +=
                     element.duration *
-                      (element.staffNeedCount - totalExtension) +
+                    (element.staffNeedCount - totalExtension) +
                     totalExtensionHrs;
                   graphData[key].totalShifts += element.staffNeedCount;
                   graphDataWeb[key].totalHours.need +=
                     element.duration *
-                      (element.staffNeedCount - totalExtension) +
+                    (element.staffNeedCount - totalExtension) +
                     totalExtensionHrs;
                   graphDataWeb[key].totalHours.booked +=
                     element.duration *
-                      (element.confirmedStaffs.length - totalExtension) +
+                    (element.confirmedStaffs.length - totalExtension) +
                     totalExtensionHrs;
                   graphDataWeb[key].numberOfShifts.need +=
                     element.staffNeedCount;
@@ -2178,18 +2192,18 @@ class shift {
                 if (element.status == 1 && !element.isAssignShift) {
                   graphData[key].totalHours =
                     element.duration *
-                      (element.staffNeedCount - totalExtension) +
+                    (element.staffNeedCount - totalExtension) +
                     totalExtensionHrs;
                   graphData[key].totalShifts = element.staffNeedCount;
                   graphDataWeb[key] = {
                     totalHours: {
                       need:
                         element.duration *
-                          (element.staffNeedCount - totalExtension) +
+                        (element.staffNeedCount - totalExtension) +
                         totalExtensionHrs,
                       booked:
                         element.duration *
-                          (element.confirmedStaffs.length - totalExtension) +
+                        (element.confirmedStaffs.length - totalExtension) +
                         totalExtensionHrs,
                       needAssign: 0,
                     },
@@ -2245,24 +2259,24 @@ class shift {
           });
           /*weeklyGraph starts */
           var staffNeedWeekdaysObj = {
-              monday: {},
-              tuesday: {},
-              wednesday: {},
-              thursday: {},
-              friday: {},
-              saturday: {},
-              sunday: {},
-            },
+            monday: {},
+            tuesday: {},
+            wednesday: {},
+            thursday: {},
+            friday: {},
+            saturday: {},
+            sunday: {},
+          },
             staffAppliedWeekdaysObj = _.cloneDeep(staffNeedWeekdaysObj);
           var staffNeedWeekdaysObjAssign = {
-              monday: {},
-              tuesday: {},
-              wednesday: {},
-              thursday: {},
-              friday: {},
-              saturday: {},
-              sunday: {},
-            },
+            monday: {},
+            tuesday: {},
+            wednesday: {},
+            thursday: {},
+            friday: {},
+            saturday: {},
+            sunday: {},
+          },
             staffAppliedWeekdaysObjAssign = _.cloneDeep(
               staffNeedWeekdaysObjAssign,
             );
@@ -2414,9 +2428,9 @@ class shift {
           }
 
           var data = {
-              businessUnitId: req.body.businessUnitId,
-              weekNumber: weekNumber,
-            },
+            businessUnitId: req.body.businessUnitId,
+            weekNumber: weekNumber,
+          },
             clientWeeklyStaffData = await WeeklyStaffData.weeklyStaffingData(
               data,
               res,
@@ -2500,9 +2514,9 @@ class shift {
                       splitItem.randomShiftId &&
                       splitItem.isSplitShift &&
                       new Date(splitItem.date).getTime() ===
-                        new Date(item.date).getTime() &&
+                      new Date(item.date).getTime() &&
                       splitItem.randomShiftId.toString() ===
-                        item.randomShiftId.toString()
+                      item.randomShiftId.toString()
                     ) {
                       if (splitItem.isParent === 2) {
                         item.splitShiftStartTime = splitItem.startTime;
@@ -2562,14 +2576,8 @@ class shift {
           function sortObject(obj) {
             return Object.keys(obj)
               .sort(function (a, b) {
-                obj[a].sort(
-                  (firstItem, secondItem) =>
-                    moment(firstItem.startTime) - moment(secondItem.startTime),
-                );
-                obj[b].sort(
-                  (firstItem, secondItem) =>
-                    moment(firstItem.startTime) - moment(secondItem.startTime),
-                );
+                obj[a].sort((firstItem, secondItem) => moment(firstItem.startTime) - moment(secondItem.startTime));
+                obj[b].sort((firstItem, secondItem) => moment(firstItem.startTime) - moment(secondItem.startTime));
                 return (
                   moment(a, 'DD/MM/YYYY').toDate() -
                   moment(b, 'DD/MM/YYYY').toDate()
@@ -2589,7 +2597,7 @@ class shift {
             dashboardGraphData: updatedDashboardGraphData,
             weeklyStaffGraphData: weeklyStaffGraphData,
           };
-          this.setRedisData(redisKey, finalDataResult);
+          // this.setRedisData(redisKey, finalDataResult);
           __.out(res, 201, {
             list: listData,
             graph: graphData,
@@ -2626,11 +2634,11 @@ class shift {
         /*compose the date variables */
         const buIdRedis = req.body.businessUnitId;
         var weekRangeStartsAt = moment(
-            req.body.weekRangeStartsAt,
-            'MM-DD-YYYY HH:mm:ss Z',
-          )
-            .utc()
-            .format(),
+          req.body.weekRangeStartsAt,
+          'MM-DD-YYYY HH:mm:ss Z',
+        )
+          .utc()
+          .format(),
           weekRangeEndsAt = moment(
             req.body.weekRangeStartsAt,
             'MM-DD-YYYY HH:mm:ss Z',
@@ -2794,8 +2802,8 @@ class shift {
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         var timeZone = moment
-            .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
-            .format('Z'),
+          .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
+          .format('Z'),
           startDate = moment(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
             .utc()
             .format(),
@@ -3060,9 +3068,9 @@ class shift {
                       if (
                         splitItem.shiftDetailsId.isSplitShift &&
                         new Date(splitItem.shiftDetailsId.date).getTime() ===
-                          new Date(item.shiftDetailsId.date).getTime() &&
+                        new Date(item.shiftDetailsId.date).getTime() &&
                         splitItem.shiftDetailsId.shiftId ===
-                          item.shiftDetailsId.shiftId
+                        item.shiftDetailsId.shiftId
                       ) {
                         item.shiftDetailsId.splitShiftStartTime =
                           splitItem.shiftDetailsId.startTime;
@@ -3106,14 +3114,14 @@ class shift {
         const currentDateR = req.body.startDate.split(' ')[0];
         const redisKey = `ViewBooking${req.body.businessUnitId}${currentDateR}`;
         console.log('read API KEY redisKey', redisKey);
-        const redisData = await redisClient.get(`${redisKey}`);
-        if (redisData) {
-          console.log('DATATATATATA Present');
-          return __.out(res, 201, JSON.parse(redisData));
-        }
+        // const redisData = await redisClient.get(`${redisKey}`);
+        // if (redisData) {
+        //   console.log('DATATATATATA Present');
+        //   return __.out(res, 201, JSON.parse(redisData));
+        // }
         var timeZone = moment
-            .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
-            .format('Z'),
+          .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
+          .format('Z'),
           startDate = moment(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
             .utc()
             .format(),
@@ -3444,7 +3452,7 @@ class shift {
                         var hours =
                           Math.abs(
                             new Date(extendStaff.startDateTime).getTime() -
-                              new Date(extendStaff.endDateTime).getTime(),
+                            new Date(extendStaff.endDateTime).getTime(),
                           ) / 36e5;
                         dashboardGraphData.assignFlexiHours += hours;
                       } else {
@@ -3607,24 +3615,24 @@ class shift {
             });
             /*weeklyGraph starts */
             var staffNeedWeekdaysObj = {
-                monday: {},
-                tuesday: {},
-                wednesday: {},
-                thursday: {},
-                friday: {},
-                saturday: {},
-                sunday: {},
-              },
+              monday: {},
+              tuesday: {},
+              wednesday: {},
+              thursday: {},
+              friday: {},
+              saturday: {},
+              sunday: {},
+            },
               staffAppliedWeekdaysObj = _.cloneDeep(staffNeedWeekdaysObj);
             var staffNeedWeekdaysObjAssign = {
-                monday: {},
-                tuesday: {},
-                wednesday: {},
-                thursday: {},
-                friday: {},
-                saturday: {},
-                sunday: {},
-              },
+              monday: {},
+              tuesday: {},
+              wednesday: {},
+              thursday: {},
+              friday: {},
+              saturday: {},
+              sunday: {},
+            },
               staffAppliedWeekdaysObjAssign = _.cloneDeep(
                 staffNeedWeekdaysObjAssign,
               );
@@ -3771,9 +3779,9 @@ class shift {
             }
 
             var data = {
-                businessUnitId: req.body.businessUnitId,
-                weekNumber: weekNumber,
-              },
+              businessUnitId: req.body.businessUnitId,
+              weekNumber: weekNumber,
+            },
               clientWeeklyStaffData = await WeeklyStaffData.weeklyStaffingData(
                 data,
                 res,
@@ -3856,7 +3864,7 @@ class shift {
                       if (
                         splitItem.isSplitShift &&
                         new Date(splitItem.date).getTime() ===
-                          new Date(item.date).getTime() &&
+                        new Date(item.date).getTime() &&
                         splitItem.shiftId._id === item.shiftId._id
                       ) {
                         item.splitShiftStartTime = splitItem.startTime;
@@ -3955,8 +3963,8 @@ class shift {
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         var timeZone = moment
-            .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
-            .format('Z'),
+          .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
+          .format('Z'),
           startDate = moment(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
             .utc()
             .format(),
@@ -4200,9 +4208,9 @@ class shift {
                       if (
                         splitItem.shiftDetailsId.isSplitShift &&
                         new Date(splitItem.shiftDetailsId.date).getTime() ===
-                          new Date(item.shiftDetailsId.date).getTime() &&
+                        new Date(item.shiftDetailsId.date).getTime() &&
                         splitItem.shiftDetailsId.shiftId ===
-                          item.shiftDetailsId.shiftId
+                        item.shiftDetailsId.shiftId
                       ) {
                         item.shiftDetailsId.splitShiftStartTime =
                           splitItem.shiftDetailsId.startTime;
@@ -4243,8 +4251,8 @@ class shift {
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         var timeZone = moment
-            .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
-            .format('Z'),
+          .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
+          .format('Z'),
           startDate = moment(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
             .utc()
             .format(),
@@ -4490,9 +4498,9 @@ class shift {
                       if (
                         splitItem.shiftDetailsId.isSplitShift &&
                         new Date(splitItem.shiftDetailsId.date).getTime() ===
-                          new Date(item.shiftDetailsId.date).getTime() &&
+                        new Date(item.shiftDetailsId.date).getTime() &&
                         splitItem.shiftDetailsId.shiftId ===
-                          item.shiftDetailsId.shiftId
+                        item.shiftDetailsId.shiftId
                       ) {
                         item.shiftDetailsId.splitShiftStartTime =
                           splitItem.shiftDetailsId.startTime;
@@ -4723,9 +4731,58 @@ class shift {
                 // __.log(shiftMainDetails, "shiftDetails.shiftId")
 
                 var clonedShiftDetails = _.cloneDeep(shiftDetails);
+                let splitShift = null;
+                let currentConfirmedStaffsCount = shiftDetails.confirmedStaffs.length;
+                if (shiftDetails.isSplitShift) {
+                  splitShift = await ShiftDetails.findOne({
+                    randomShiftId: shiftDetails.randomShiftId,
+                    _id: { $ne: shiftDetails._id },
+                  }).populate([
+                    {
+                      path: 'shiftId',
+                      select:
+                        'businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
+                    },
+                    {
+                      path: 'appliedStaffs',
+                      match: {
+                        status: 2,
+                      },
+                      options: {
+                        sort: {
+                          createdAt: 1,
+                        },
+                      },
+                      populate: [
+                        {
+                          path: 'flexiStaff',
+                          select: 'deviceToken',
+                        },
+                        {
+                          path: 'shiftId',
+                          select:
+                            'businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
+                        },
+                        // ,
+                        // {
+                        //     path: 'shiftId',
+                        //     select: 'businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
+                        //     populate: {
+                        //         path: 'businessUnitId',
+                        //     }
+                        // }
+                      ],
+                    },
+                  ]);
+                  if (!splitShift) {
+                    return __.out(res, 300, 'Invalid Shift / Shift expired');
+                  }
+                  currentConfirmedStaffsCount =
+                    splitShift.confirmedStaffs.length;
+                }
                 if (
                   req.body.staffNeedCount >=
-                    shiftDetails.confirmedStaffs.length &&
+                  currentConfirmedStaffsCount &&
                   req.body.staffNeedCount != 0
                 ) {
                   var staffIncreasedBy =
@@ -4738,6 +4795,12 @@ class shift {
                   shiftDetails.totalStaffNeedCount =
                     shiftDetails.totalStaffNeedCount + staffIncreasedBy;
                   await shiftDetails.save();
+                  if (splitShift) {
+                    splitShift.staffNeedCount = req.body.staffNeedCount;
+                    splitShift.totalStaffNeedCount =
+                      shiftDetails.totalStaffNeedCount;
+                    await splitShift.save();
+                  }
                   var weeksStartsAtForPush = moment(
                     shiftDetails.startTime,
                   ).unix();
@@ -4790,6 +4853,29 @@ class shift {
                           multi: true,
                         },
                       );
+                      if (splitShift) {
+                        const appliedStaffsArraySplit = [];
+                        i = 0;
+                        for (let eachStaff of splitShift.appliedStaffs) {
+                          i++;
+                          if (i > staffIncreasedBy) {
+                            break;
+                          }
+                          appliedStaffsArraySplit.push(eachStaff._id);
+                        }
+                        await AppliedStaffs.updateMany(
+                          {
+                            _id: {
+                              $in: appliedStaffsArraySplit,
+                            },
+                          },
+                          {
+                            $set: {
+                              status: 1,
+                            },
+                          }
+                        );
+                      }
                       var pulledBackupedStaffs =
                         shiftDetails.backUpStaffs.reduce((acc, x) => {
                           var chk = flexiStaffs.findIndex((y) =>
@@ -4817,18 +4903,33 @@ class shift {
                           },
                         },
                       );
-
+                      if (splitShift) {
+                        await ShiftDetails.updateOne(
+                          {
+                            _id: splitShift._id,
+                          },
+                          {
+                            $set: {
+                              backUpStaffs: pulledBackupedStaffs,
+                              confirmedStaffs: [
+                                ...shiftDetails.confirmedStaffs,
+                                ...flexiStaffs,
+                              ], //concat two arrays
+                            },
+                          },
+                        );
+                      }
                       if (deviceTokens.length > 0) {
                         var pushData = {
-                            title: 'You are activated!',
-                            body: `Standby shift has been activated`,
-                            bodyText: `Standby shift on XXX to XXX has been activated`,
-                            bodyTime: [
-                              shiftDetails.startTimeInSeconds,
-                              shiftDetails.endTimeInSeconds,
-                            ],
-                            bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
-                          },
+                          title: 'You are activated!',
+                          body: `Standby shift has been activated`,
+                          bodyText: `Standby shift on XXX to XXX has been activated`,
+                          bodyTime: [
+                            shiftDetails.startTimeInSeconds,
+                            shiftDetails.endTimeInSeconds,
+                          ],
+                          bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
+                        },
                           collapseKey =
                             req.body
                               .shiftDetailsId; /*unique id for this particular shift */
@@ -4855,6 +4956,19 @@ class shift {
                           },
                         },
                       );
+                      if (splitShift) {
+                        await ShiftDetails.updateOne(
+                          {
+                            _id: splitShift._id,
+                          },
+                          {
+                            $set: {
+                              isShortTimeAdjust: 1,
+                              shortTimeAdjustRequestRecjectedFlexistaffs: [],
+                            },
+                          },
+                        );
+                      }
 
                       var appliedStaffsArray = [],
                         flexiStaffs = [],
@@ -4865,15 +4979,15 @@ class shift {
 
                       if (deviceTokens.length > 0) {
                         var pushData = {
-                            title: 'Confirm your standby shift now!',
-                            body: `Standby shift is available for confirmation`,
-                            bodyText: `Standby shift on XXX to XXX is available for confirmation`,
-                            bodyTime: [
-                              shiftDetails.startTimeInSeconds,
-                              shiftDetails.endTimeInSeconds,
-                            ],
-                            bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
-                          },
+                          title: 'Confirm your standby shift now!',
+                          body: `Standby shift is available for confirmation`,
+                          bodyText: `Standby shift on XXX to XXX is available for confirmation`,
+                          bodyTime: [
+                            shiftDetails.startTimeInSeconds,
+                            shiftDetails.endTimeInSeconds,
+                          ],
+                          bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
+                        },
                           collapseKey =
                             req.body
                               .shiftDetailsId; /*unique id for this particular shift */
@@ -4894,15 +5008,15 @@ class shift {
                     // Check Adjuste Count is higher that previous
                     if (req.body.staffNeedCount > previousStaffNeedCount) {
                       var pushData = {
-                          title: 'Immediate shift for Booking!',
-                          body: `Shift is available for booking`,
-                          bodyText: `Shift on XXX to XXX is available for booking`,
-                          bodyTime: [
-                            shiftDetails.startTimeInSeconds,
-                            shiftDetails.endTimeInSeconds,
-                          ],
-                          bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
-                        },
+                        title: 'Immediate shift for Booking!',
+                        body: `Shift is available for booking`,
+                        bodyText: `Shift on XXX to XXX is available for booking`,
+                        bodyTime: [
+                          shiftDetails.startTimeInSeconds,
+                          shiftDetails.endTimeInSeconds,
+                        ],
+                        bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
+                      },
                         collapseKey =
                           req.body
                             .shiftDetailsId; /*unique id for this particular shift */
@@ -4926,6 +5040,22 @@ class shift {
                       },
                     },
                   );
+                  if (splitShift) {
+                    await ShiftDetails.updateOne(
+                      {
+                        _id: splitShift._id,
+                      },
+                      {
+                        $push: {
+                          adjustedBy: {
+                            increasedStaffCount: staffIncreasedBy,
+                            adjustedUserId: req.user._id,
+                            minutesToShiftStartTime: shiftStartsWithInMinutes,
+                          },
+                        },
+                      },
+                    );
+                  }
                   /*data for report (adjust user log) ends */
                   let adjustedShift = req.body.shiftDetailsId;
                   delete req.body.shiftDetailsId;
@@ -4951,16 +5081,18 @@ class shift {
                     oldCount: oldCount,
                     newCount: newCount,
                   };
-                  // const callTwoAtaTime = await Promise.all([
-                  // shiftLogController.create(statusLogData, res),
-                  // this.updateRedis(redisBuId),
-                  // ]);
-                  // console.log('callTwoAtaTime', callTwoAtaTime);
-                  await shiftLogController.create(statusLogData, res);
+                  const callTwoAtaTime = await Promise.all([
+                    shiftLogController.create(statusLogData, res),
+                  ]);
+                  // this.updateRedis(redisBuId).then((redisResult) => {
+                  //   console.log('redis update', redisResult)
+                  // })
+                  console.log('callTwoAtaTime', callTwoAtaTime);
+                  // await shiftLogController.create(statusLogData, res);
                   // await this.updateRedis(redisBuId)
                   console.log('In adjust after setting');
                   if (req.body.businessUnitId && req.body.startDate)
-                    this.readNew(req, res); /*for web */
+                    return this.readNew(req, res); /*for web */
                   /*for mobile */ else
                     __.out(res, 201, 'Shift has been updated successfully');
                 } else {
@@ -5158,15 +5290,15 @@ class shift {
                   );
                   if (deviceTokens.length > 0) {
                     var pushData = {
-                        title: 'You are activated!',
-                        body: `Standby shift has been activated`,
-                        bodyText: `Standby shift on XXX to XXX has been activated`,
-                        bodyTime: [
-                          shiftDetails.startTimeInSeconds,
-                          shiftDetails.endTimeInSeconds,
-                        ],
-                        bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
-                      },
+                      title: 'You are activated!',
+                      body: `Standby shift has been activated`,
+                      bodyText: `Standby shift on XXX to XXX has been activated`,
+                      bodyTime: [
+                        shiftDetails.startTimeInSeconds,
+                        shiftDetails.endTimeInSeconds,
+                      ],
+                      bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
+                    },
                       collapseKey =
                         req.body
                           .shiftDetailsId; /*unique id for this particular shift */
@@ -5201,15 +5333,15 @@ class shift {
                   }
                   if (deviceTokens.length > 0) {
                     var pushData = {
-                        title: 'Confirm your standby shift now!',
-                        body: `Standby shift is available for confirmation`,
-                        bodyText: `Standby shift on XXX to XXX is available for confirmation`,
-                        bodyTime: [
-                          shiftDetails.startTimeInSeconds,
-                          shiftDetails.endTimeInSeconds,
-                        ],
-                        bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
-                      },
+                      title: 'Confirm your standby shift now!',
+                      body: `Standby shift is available for confirmation`,
+                      bodyText: `Standby shift on XXX to XXX is available for confirmation`,
+                      bodyTime: [
+                        shiftDetails.startTimeInSeconds,
+                        shiftDetails.endTimeInSeconds,
+                      ],
+                      bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
+                    },
                       collapseKey =
                         req.body
                           .shiftDetailsId; /*unique id for this particular shift */
@@ -5230,15 +5362,15 @@ class shift {
                 // Check Adjuste Count is higher that previous
                 if (req.body.staffNeedCount > previousStaffNeedCount) {
                   var pushData = {
-                      title: 'Immediate shift for Booking!',
-                      body: `Shift is available for booking`,
-                      bodyText: `Shift on XXX to XXX is available for booking`,
-                      bodyTime: [
-                        shiftDetails.startTimeInSeconds,
-                        shiftDetails.endTimeInSeconds,
-                      ],
-                      bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
-                    },
+                    title: 'Immediate shift for Booking!',
+                    body: `Shift is available for booking`,
+                    bodyText: `Shift on XXX to XXX is available for booking`,
+                    bodyTime: [
+                      shiftDetails.startTimeInSeconds,
+                      shiftDetails.endTimeInSeconds,
+                    ],
+                    bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
+                  },
                     collapseKey =
                       req.body
                         .shiftDetailsId; /*unique id for this particular shift */
@@ -5287,7 +5419,7 @@ class shift {
                 newCount: newCount,
               };
               shiftLogController.create(statusLogData, res);
-              await this.updateRedis(logMetaData.businessUnitId);
+              // await this.updateRedis(logMetaData.businessUnitId);
               if (req.body.businessUnitId && req.body.startDate)
                 this.readNew(req, res); /*for web */
               /*for mobile */ else
@@ -5347,9 +5479,9 @@ class shift {
         if (existingShiftDetails) {
           /* Check if given shift start time is lesser than the current time */
           let requestStartTime = moment(
-              req.body.startTime,
-              'MM-DD-YYYY HH:mm:ss Z',
-            ).utc(),
+            req.body.startTime,
+            'MM-DD-YYYY HH:mm:ss Z',
+          ).utc(),
             currentTime = moment().utc();
           if (moment(currentTime).isAfter(requestStartTime)) {
             __.out(
@@ -5463,16 +5595,16 @@ class shift {
             }
             if (userDeviceToken) {
               var pushData = {
-                  title: 'Shift Change Request!',
-                  body: 'Shift Change Request',
-                  bodyText: 'Shift on XXX, change to XXX - XXX',
-                  bodyTime: [
-                    insertedShiftDetails.startTimeInSeconds,
-                    insertedShiftDetails.startTimeInSeconds,
-                    insertedShiftDetails.endTimeInSeconds,
-                  ],
-                  bodyTimeFormat: ['dd MMM', 'HHmm', 'HHmm'],
-                },
+                title: 'Shift Change Request!',
+                body: 'Shift Change Request',
+                bodyText: 'Shift on XXX, change to XXX - XXX',
+                bodyTime: [
+                  insertedShiftDetails.startTimeInSeconds,
+                  insertedShiftDetails.startTimeInSeconds,
+                  insertedShiftDetails.endTimeInSeconds,
+                ],
+                bodyTimeFormat: ['dd MMM', 'HHmm', 'HHmm'],
+              },
                 collapseKey =
                   req.body.shiftId; /*unique id for this particular shift */
               FCM.push([userDeviceToken], pushData, collapseKey);
@@ -5491,7 +5623,7 @@ class shift {
               existingShift: req.body.shiftDetailsId,
             };
             shiftLogController.create(statusLogData, res);
-            await this.updateRedis(shiftBusinessUnit);
+            // await this.updateRedis(shiftBusinessUnit);
             __.out(
               res,
               201,
@@ -5684,15 +5816,15 @@ class shift {
       // Request Change Shift Notification
       if (requestuserTokens.length > 0) {
         var pushRequestData = {
-            title: 'Shift Change Request',
-            body: 'You have a shift change request',
-            bodyText: 'XXX - XXX shift is on request change',
-            bodyTime: [
-              shiftDetailsData.shiftId.weeksStartsAtForPush,
-              shiftDetailsData.shiftId.weeksEndsAtForPush,
-            ],
-            bodyTimeFormat: ['dd MMM', 'dd MMM'],
-          },
+          title: 'Shift Change Request',
+          body: 'You have a shift change request',
+          bodyText: 'XXX - XXX shift is on request change',
+          bodyTime: [
+            shiftDetailsData.shiftId.weeksStartsAtForPush,
+            shiftDetailsData.shiftId.weeksEndsAtForPush,
+          ],
+          bodyTimeFormat: ['dd MMM', 'dd MMM'],
+        },
           collapseKey =
             newShiftData._id; /*unique id for this particular shift */
         FCM.push(requestuserTokens, pushRequestData, collapseKey);
@@ -5737,7 +5869,7 @@ class shift {
         existingShift: shiftDetailsData._id,
       };
       shiftLogController.create(statusLogData, res);
-      await this.updateRedis(redisBuId);
+      // await this.updateRedis(redisBuId);
       return __.out(res, 201, 'Requested Shift Changed sucessfully');
     } catch (err) {
       __.log(err);
@@ -5847,6 +5979,14 @@ class shift {
       // return res.json({shiftDetailsData})
       shiftDetailsData.status = 2;
       await shiftDetailsData.save();
+
+      AgendaCron.removeEvent({ 'data.shiftDetailId': req.body.shiftDetailsId })
+        .then((removeEventResult) => {
+          logInfo('remove shift cancelled', removeEventResult);
+        })
+        .catch((removeEventResultError) => {
+          logError('remove shift cancelled', removeEventResultError);
+        });
       let usersDeviceTokens = [];
       // Loop all shiftdetails
       for (let elemConfirm of shiftDetailsData.confirmedStaffs) {
@@ -5863,9 +6003,9 @@ class shift {
       __.log(usersDeviceTokens, 'usersDeviceTokens');
       if (usersDeviceTokens.length > 0) {
         var pushData = {
-            title: 'Shift Cancelled',
-            body: 'Your Booked Shift Has been Cancelled',
-          },
+          title: 'Shift Cancelled',
+          body: 'Your Booked Shift Has been Cancelled',
+        },
           collapseKey =
             req.body.shiftDetailsId; /*unique id for this particular shift */
         FCM.push(usersDeviceTokens, pushData, collapseKey);
@@ -6012,9 +6152,9 @@ class shift {
       __.log(usersDeviceTokens, 'usersDeviceTokens');
       if (usersDeviceTokens.length > 0) {
         var pushData = {
-            title: 'Shift Cancelled',
-            body: 'Your Confirmed Booking has been Cancelled.',
-          },
+          title: 'Shift Cancelled',
+          body: 'Your Confirmed Booking has been Cancelled.',
+        },
           collapseKey =
             req.body.shiftDetailsId; /*unique id for this particular shift */
         FCM.push(usersDeviceTokens, pushData, collapseKey);
@@ -6034,13 +6174,13 @@ class shift {
       };
       operation.push(shiftLogController.create(statusLogData, res));
       await Promise.all(operation);
-      this.updateRedis(statusLogData.businessUnitId)
-        .then((redisRes) => {
-          console.log('redis result', redisRes);
-        })
-        .catch((er) => {
-          console.log('redis error', er);
-        });
+      // this.updateRedis(statusLogData.businessUnitId)
+      //   .then((redisRes) => {
+      //     console.log('redis result', redisRes);
+      //   })
+      //   .catch((er) => {
+      //     console.log('redis error', er);
+      //   });
       return __.out(
         res,
         201,
@@ -6255,7 +6395,7 @@ class shift {
         existingShift: shiftDetailsData._id,
       };
       await shiftLogController.create(statusLogData, res);
-      await this.updateRedis(logMetaData.businessUnitId);
+      // await this.updateRedis(logMetaData.businessUnitId);
       return __.out(res, 201, 'Shift requesting is stopped');
     } catch (err) {
       __.log(err);
@@ -6694,7 +6834,7 @@ class shift {
       if (shiftData) {
         if (
           new Date(startTime).getTime() <
-            new Date(shiftData.endTime).getTime() &&
+          new Date(shiftData.endTime).getTime() &&
           new Date(shiftData.startTime).getTime() < new Date(endTime).getTime()
         ) {
           return true;
@@ -6709,9 +6849,9 @@ class shift {
       if (assingShiftData) {
         if (
           new Date(startTime).getTime() <
-            new Date(assingShiftData.endTime).getTime() &&
+          new Date(assingShiftData.endTime).getTime() &&
           new Date(assingShiftData.startTime).getTime() <
-            new Date(endTime).getTime()
+          new Date(endTime).getTime()
         ) {
           return true;
         }
@@ -6811,7 +6951,7 @@ class shift {
               const obj = {
                 confirmStatus: 1,
               };
-              await this.updateRedis(shiftDetailsData.shiftId.businessUnitId);
+              // await this.updateRedis(shiftDetailsData.shiftId.businessUnitId);
               User.findById(mongoose.Types.ObjectId(req.body.userId), {
                 deviceToken: 1,
                 _id: 0,
@@ -6822,15 +6962,15 @@ class shift {
                   //  console.log('dee', deviceTokens);
                   if (deviceTokens && deviceTokens.length > 0) {
                     var pushData = {
-                        title: 'Shift extension Request',
-                        body: `You have a shift extension request`,
-                        bodyText: `New Shift time is XXX to XXX`,
-                        bodyTime: [
-                          new Date(req.body.startDateTime).getTime(),
-                          new Date(req.body.endDateTime).getTime(),
-                        ],
-                        bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
-                      },
+                      title: 'Shift extension Request',
+                      body: `You have a shift extension request`,
+                      bodyText: `New Shift time is XXX to XXX`,
+                      bodyTime: [
+                        new Date(req.body.startDateTime).getTime(),
+                        new Date(req.body.endDateTime).getTime(),
+                      ],
+                      bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
+                    },
                       collapseKey =
                         result._id; /*unique id for this particular shift */
                     FCM.push(deviceTokens, pushData, collapseKey);
@@ -7003,7 +7143,7 @@ class shift {
               const obj = {
                 confirmStatus: 1,
               };
-              await this.updateRedis(shiftDetailsData.shiftId.businessUnitId);
+              // await this.updateRedis(shiftDetailsData.shiftId.businessUnitId);
               User.findById(mongoose.Types.ObjectId(req.body.userId), {
                 deviceToken: 1,
                 _id: 0,
@@ -7014,15 +7154,15 @@ class shift {
                   //  console.log('dee', deviceTokens);
                   if (deviceTokens && deviceTokens.length > 0) {
                     var pushData = {
-                        title: 'Shift extension Request',
-                        body: `You have a shift extension request`,
-                        bodyText: `New Shift time is XXX to XXX`,
-                        bodyTime: [
-                          new Date(req.body.startDateTime).getTime(),
-                          new Date(req.body.endDateTime).getTime(),
-                        ],
-                        bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
-                      },
+                      title: 'Shift extension Request',
+                      body: `You have a shift extension request`,
+                      bodyText: `New Shift time is XXX to XXX`,
+                      bodyTime: [
+                        new Date(req.body.startDateTime).getTime(),
+                        new Date(req.body.endDateTime).getTime(),
+                      ],
+                      bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
+                    },
                       collapseKey =
                         result._id; /*unique id for this particular shift */
                     FCM.push(deviceTokens, pushData, collapseKey);
@@ -7128,9 +7268,9 @@ class shift {
         shiftDetailsData.isExtendedShift = false;
       }
       const shNew = await shiftDetailsData.save();
-      const udateRedis = await this.updateRedis(
-        shiftDetailsData.shiftId.businessUnitId,
-      );
+      // const udateRedis = await this.updateRedis(
+      //   shiftDetailsData.shiftId.businessUnitId,
+      // );
       return res.json({
         status: true,
         message: 'Shift Extension Request is successfully stopped',
@@ -7235,7 +7375,7 @@ class shift {
               console.log('shiftExtensionObj', shiftExtensionObj);
               const shiftInfo = await Shift.findById(result.shiftId);
               //console.log('shiftInfo', shiftInfo);
-              await this.updateRedis(shiftInfo.businessUnitId);
+              // await this.updateRedis(shiftInfo.businessUnitId);
               let statusLogData = {
                 userId: req.body.userId,
                 status: req.body.status == 2 ? 13 : 14,
@@ -7715,56 +7855,56 @@ class shift {
     }
   }
 }
-setInterval(async () => {
-  try {
-    console.log('caled');
-    // const shiftDetailsData = await ShiftDetails.find({ $where: 'this.backUpStaffs.length > 0', startTime: { $lte: new Date().toISOString() } });
-    let lastTime = new Date();
-    lastTime.setHours(lastTime.getHours() - 1);
-    lastTime = new Date(lastTime);
-    const shiftDetailsData = await ShiftDetails.find({
-      $where: 'this.backUpStaffs.length > 0',
+// setInterval(async () => {
+//   try {
+//     console.log('caled');
+//     // const shiftDetailsData = await ShiftDetails.find({ $where: 'this.backUpStaffs.length > 0', startTime: { $lte: new Date().toISOString() } });
+//     let lastTime = new Date();
+//     lastTime.setHours(lastTime.getHours() - 1);
+//     lastTime = new Date(lastTime);
+//     const shiftDetailsData = await ShiftDetails.find({
+//       $where: 'this.backUpStaffs.length > 0',
 
-      $and: [
-        { startTime: { $lte: new Date().toISOString() } },
-        { startTime: { $gt: new Date(lastTime).toISOString() } },
-      ],
-    });
-    console.log('shiftDetailsData', shiftDetailsData.length);
-    for (let i = 0; i < shiftDetailsData.length; i++) {
-      console.log('_iddd', shiftDetailsData[i]._id);
-      if (shiftDetailsData[i].backUpStaffs.length > 0) {
-        const update = await ShiftDetails.findOneAndUpdate(
-          {
-            _id: shiftDetailsData[i]._id,
-            $where: 'this.backUpStaffs.length > 0',
-          },
-          {
-            $set: {
-              backUpStaffs: [],
-              backUpStaffsLog: shiftDetailsData[i].backUpStaffs,
-              backUpStaffNeedCountLog: shiftDetailsData[i].backUpStaffNeedCount,
-              backUpStaffNeedCount: 0,
-            },
-          },
-        );
-        const backupStaff = shiftDetailsData[i].backUpStaffs;
-        const shiftDetailIdId = shiftDetailsData[i]._id;
-        for (let j = 0; j < backupStaff.length; j++) {
-          const userId = backupStaff[j];
-          const appliedUpdate = await AppliedStaffs.findOneAndUpdate(
-            { flexiStaff: userId, shiftDetailsId: shiftDetailIdId },
-            { status: 0 },
-          );
-        }
-        console.log('update', update._id);
-      }
-    }
-  } catch (err) {
-    __.log(err);
-    __.out(res, 500, err);
-  }
-  // console.log('called after 1 min', shiftDetailsData.length)
-}, 60000);
+//       $and: [
+//         { startTime: { $lte: new Date().toISOString() } },
+//         { startTime: { $gt: new Date(lastTime).toISOString() } },
+//       ],
+//     });
+//     console.log('shiftDetailsData', shiftDetailsData.length);
+//     for (let i = 0; i < shiftDetailsData.length; i++) {
+//       console.log('_iddd', shiftDetailsData[i]._id);
+//       if (shiftDetailsData[i].backUpStaffs.length > 0) {
+//         const update = await ShiftDetails.findOneAndUpdate(
+//           {
+//             _id: shiftDetailsData[i]._id,
+//             $where: 'this.backUpStaffs.length > 0',
+//           },
+//           {
+//             $set: {
+//               backUpStaffs: [],
+//               backUpStaffsLog: shiftDetailsData[i].backUpStaffs,
+//               backUpStaffNeedCountLog: shiftDetailsData[i].backUpStaffNeedCount,
+//               backUpStaffNeedCount: 0,
+//             },
+//           },
+//         );
+//         const backupStaff = shiftDetailsData[i].backUpStaffs;
+//         const shiftDetailIdId = shiftDetailsData[i]._id;
+//         for (let j = 0; j < backupStaff.length; j++) {
+//           const userId = backupStaff[j];
+//           const appliedUpdate = await AppliedStaffs.findOneAndUpdate(
+//             { flexiStaff: userId, shiftDetailsId: shiftDetailIdId },
+//             { status: 0 },
+//           );
+//         }
+//         console.log('update', update._id);
+//       }
+//     }
+//   } catch (err) {
+//     __.log(err);
+//     __.out(res, 500, err);
+//   }
+//   // console.log('called after 1 min', shiftDetailsData.length)
+// }, 60000);
 
 module.exports = new shift();
