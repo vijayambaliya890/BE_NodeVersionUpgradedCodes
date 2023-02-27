@@ -1,3 +1,4 @@
+
 // Controller Code Starts here
 const mongoose = require('mongoose'),
   AppliedStaffs = require('../../models/appliedStaff'),
@@ -1473,6 +1474,12 @@ class staffShift {
         var statusString =
           'Your booking is unsuccessful as the slot has been assigned.Please view other available shifts';
         await ShiftDetails.updateOne({ _id: req.body.shiftDetailsId }, pullObj);
+        if (req.body.isSplitShift) {
+          await ShiftDetails.updateOne(
+            { _id: req.body.splitShiftDetailsId },
+            pullObj,
+          );
+        }
         return __.out(res, 300, statusString);
       }
 
