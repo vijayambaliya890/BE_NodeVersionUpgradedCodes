@@ -6,6 +6,7 @@ const mongoose = require("mongoose"),
   OpsGroup = require("../../models/ops"),
   LeaveApplied = require("../../models/leaveApplied");
 const __ = require("../../../helpers/globalFunctions");
+const _ = require("lodash");
 const moment = require("moment");
 const { use } = require("passport");
 const User = require("../../models/user");

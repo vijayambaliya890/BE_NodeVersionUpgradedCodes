@@ -2117,9 +2117,7 @@ class ballot {
           userSlotOps = [];
           userTierOps = [];
           if (opsGroupList && opsGroupList.opsTeamId.length > 0) {
-            let teamIndex = slotRange.opsTeam.findIndex((tttt) => {
-              return tttt._id.toString() === opsTeamList._id.toString();
-            });
+            let teamIndex = slotRange.opsTeam.findIndex((tttt) =>  tttt && tttt._d && tttt._id.toString() === opsTeamList._id.toString());
             // //console.logs("TEAMINDEX: ",teamIndex);
             slotRange.arr.forEach((ii, indexArr) => {
               const key = 'OG' + indexArr + 'OT' + teamIndex;
@@ -6132,7 +6130,7 @@ class ballot {
     return res.json({
       success: true,
       data: actualData,
-      finalTotalQuota: finalQuota,
+      finalTotalQuota: finalQuota,   
       finalTotalApplied,
       finalTotalSuccessful,
       totalTeamUnassign,
