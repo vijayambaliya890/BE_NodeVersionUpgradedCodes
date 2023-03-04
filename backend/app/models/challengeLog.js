@@ -119,7 +119,7 @@ const ChallengeLogSchema = new Schema(
     criteriaSourceType: {
       type: Number,
       /** 1: Reading Articles 2: Quessionalries, 3: Event attendence 4: Post Done 5: First Login*/
-      enum: [1, 2, 3, 4, 5,6,7, 8,9,10,11],
+      enum: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
       default: 1
     },
     criteriaCountType: {
