@@ -113,6 +113,10 @@ module.exports.readAll = async (req, res) => {
       { adminId: 0, companyId: 0 },
     ).populate([
       {
+        path: "opsTeamId",
+        select: ["name", "_id"],
+      },
+      {
         path: 'createdBy',
         select: ['name', 'email', 'doj'],
       },
