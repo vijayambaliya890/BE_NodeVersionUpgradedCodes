@@ -98,6 +98,19 @@ app.use(
   }),
 );
 
+const opts = {
+  explorer: false,
+  swaggerOptions: {
+      validatorUrl: null
+  },
+  customSiteTitle: 'Flexishift - Backend REST Service',
+  customfavIcon: 'https://www.doodleblue.com/favicon/16x16.png'
+};
+
+const swaggerUI = require('swagger-ui-express');
+const swaggerDocument = require('./docs/swagger.json');
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument, opts));
+
 app.use(passport.initialize());
 
 /**

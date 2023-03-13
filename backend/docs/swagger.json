@@ -1,0 +1,1921 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "defaultTitle",
+        "description": "defaultDescription",
+        "version": "0.1"
+    },
+    "servers": [
+        {
+            "url": "https://admin.netroc3.tk"
+        }
+    ],
+    "paths": {
+        "/shift/create": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shift_create_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n    \"businessUnitId\": \"60193916ba04cf4ac725c19c\",\r\n    \"weekRangeStartsAt\": \"05-03-2023 00:00:00 GMT+0530\",\r\n    \"weekRangeEndsAt\": \"05-09-2023 00:00:00 GMT+0530\",\r\n    \"shifts\": [\r\n        {\r\n            \"subSkillSets\": [\r\n                \"606ac184b3572b1fe35bd73d\"\r\n            ],\r\n            \"staffNeedCount\": 3,\r\n            \"backUpStaffNeedCount\": 2,\r\n            \"dayDate\": [\r\n                {\r\n                    \"date\": \"05-07-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Friday\",\r\n                    \"startTime\": \"05-07-2023 10:00:00 GMT+0530\",\r\n                    \"endTime\": \"05-07-2023 12:00:00 GMT+05:30\"\r\n                },\r\n                {\r\n                    \"date\": \"05-08-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Saturday\",\r\n                    \"startTime\": \"05-08-2023 10:00:00 GMT+0530\",\r\n                    \"endTime\": \"05-08-2023 12:00:00 GMT+05:30\"\r\n                },\r\n                {\r\n                    \"date\": \"05-09-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Sunday\",\r\n                    \"startTime\": \"05-09-2023 10:00:00 GMT+0530\",\r\n                    \"endTime\": \"05-09-2023 12:00:00 GMT+05:30\"\r\n                }\r\n            ],\r\n            \"reportLocationId\": \"6069b11cb3572b1fe35bd734\",\r\n            \"status\": \"1\",\r\n            \"isSplitShift\": false\r\n        }\r\n    ],\r\n    \"status\": \"1\",\r\n    \"isTemplate\": 0,\r\n    \"businessUnitName\": \"\",\r\n    \"platform\": \"web\",\r\n    \"skillSetTierType\": 2\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shiftLog/read": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shiftLog_read_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"status\":1,\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"startDate\":\"05-16-2022 00:00:00 GMT+0530\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/cancel": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shift_cancel_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n    \"shiftId\": \"6405ef968ee6227d74b71612\",\r\n    \"shiftDetailsId\": \"6405ef968ee6227d74b71613\",\r\n    \"isSplitShift\": true,\r\n    \"splitShiftDetailsId\": \"6405ef968ee6227d74b71614\"\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/template/read": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/template_read_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n    \"businessUnitId\": \"5bd7f1cea6f8e97f5d80cc8a\",\r\n    \"weekRangeStartsAt\": \"2023-03-05T18:30:00.000Z\",\r\n    \"date\": \"2023-03-11T08:33:20.625Z\"\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/template/create": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/template_create_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n    \"businessUnitId\": \"5bd7f1cea6f8e97f5d80cc8a\",\r\n    \"businessUnitName\": \"\",\r\n    \"weekRangeStartsAt\": \"03-06-2023 00:00:00 GMT+0530\",\r\n    \"weekRangeEndsAt\": \"03-12-2023 00:00:00 GMT+0530\",\r\n    \"shifts\": [\r\n        {\r\n            \"staffNeedCount\": 2,\r\n            \"dayDate\": [\r\n                {\r\n                    \"date\": \"03-11-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Saturday\",\r\n                    \"startTime\": \"03-11-2023 22:30:00 GMT+0530\",\r\n                    \"endTime\": \"03-11-2023 23:00:00 GMT+05:30\"\r\n                },\r\n                {\r\n                    \"date\": \"03-12-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Sunday\",\r\n                    \"startTime\": \"03-12-2023 22:30:00 GMT+0530\",\r\n                    \"endTime\": \"03-12-2023 23:00:00 GMT+05:30\"\r\n                },\r\n                {\r\n                    \"date\": \"03-11-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Saturday\",\r\n                    \"startTime\": \"03-11-2023 23:00:00 GMT+0530\",\r\n                    \"endTime\": \"03-11-2023 23:30:00 GMT+05:30\"\r\n                },\r\n                {\r\n                    \"date\": \"03-12-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Sunday\",\r\n                    \"startTime\": \"03-12-2023 23:00:00 GMT+0530\",\r\n                    \"endTime\": \"03-12-2023 23:30:00 GMT+05:30\"\r\n                }\r\n            ],\r\n            \"reportLocationId\": \"5a991df336ab4f444b42717a\",\r\n            \"status\": \"1\",\r\n            \"isSplitShift\": true,\r\n            \"backUpStaffNeedCount\": 2,\r\n            \"geoReportingLocation\": null,\r\n            \"subSkillSets\": [\r\n                \"5a991ddb36ab4f444b427178\"\r\n            ]\r\n        }\r\n    ],\r\n    \"status\": \"1\",\r\n    \"isTemplate\": 0,\r\n    \"platform\": \"web\",\r\n    \"skillSetTierType\": 2,\r\n    \"proximity\": 0,\r\n    \"isCheckInEnabled\": false,\r\n    \"isProximityEnabled\": false\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/read": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shift_read_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n    \"businessUnitId\": \"5bd7f1cea6f8e97f5d80cc8a\",\r\n    \"startDate\": \"03-06-2023 00:00:00 GMT+0530\",\r\n    \"from\": \"plan\",\r\n    \"date\": \"03-06-2023 00:00:00 GMT+0530\",\r\n    \"cancelledShifts\": true\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsgroup/5f8d569989b1f5247647a111": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsGroup/detail/5db7ce7350fe8e253ff9818f": {
+            "get": {
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsGroup": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/opsGroup_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n  \"opsGroupName\": \"123456\",\r\n  \"buId\": [\r\n    \"5bd723a8c1e35a7a250d562a\"\r\n  ],\r\n  \"adminId\": [\r\n    \"5a98fb9536ab4f444b427176\"\r\n  ],\r\n  \"noOfTeam\": 1,\r\n  \"opsTeam\": [\r\n    {\r\n      \"userId\": [\r\n        \"5bd72cb68e13ca7ce6718f3d\"\r\n      ],\r\n      \"admin\": [],\r\n      \"name\": \"Team 1\"\r\n    }\r\n  ],\r\n  \"isDraft\": false,\r\n  \"userId\": [\r\n    \"5bd72cb68e13ca7ce6718f3d\"\r\n  ],\r\n  \"swopSetup\": \"0\"\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsgroup/remove/staff": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/remove_staff_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n  \"userId\": [\r\n    \"5bd72cb68e13ca7ce6718f3d\"\r\n  ],\r\n  \"teamId\": \"60fbebc999d56669ed8a36ca\"\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsGroup/unassign/stafflist": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/unassign_stafflist_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n  \"buId\": [\r\n    \"5bd723a8c1e35a7a250d562a\"\r\n  ]\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsGroup/update": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/opsGroup_update_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n  \"OpsGroup\": {\r\n        \"opsGroupName\": \"Update for swagger creation\",\r\n        \"userId\": [\r\n            \"5bd72cb68e13ca7ce6718f3d\"\r\n        ],\r\n        \"buId\": [\r\n            \"5bd723a8c1e35a7a250d562a\"\r\n        ],\r\n        \"opsTeamId\": [],\r\n        \"createdBy\": \"5a98fb9536ab4f444b427176\",\r\n        \"companyId\": \"5a9d162b36ab4f444b4271c8\",\r\n        \"noOfTeam\": 1,\r\n        \"swopSetup\": \"0\",\r\n        \"adminId\": [\r\n            \"5a98fb9536ab4f444b427176\"\r\n        ],\r\n        \"isDelete\": false,\r\n        \"isDraft\": false,\r\n        \"_id\": \"640c0eaf1d039811545289f8\",\r\n        \"removeOpsTeamId\": [],\r\n        \"updatedBy\": [],\r\n        \"createdAt\": \"2023-03-11T05:16:31.604Z\",\r\n        \"updatedAt\": \"2023-03-11T05:16:31.604Z\",\r\n        \"__v\": 0\r\n    }\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsGroup/get": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/opsGroup_get_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n  \"privilage\": true\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/cancelIndividualShift": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shift_cancelIndividualShift_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"shiftId\": \"63457b6b9d08e37fa8855ab6\", \"shiftDetailsId\": \"63457b6b9d08e37fa8855ab9\", \"userId\": \"5a9973ae36ab4f444b42718b\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/shiftExtension/confirmation": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shiftExtension_confirmation_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"shiftDetailId\":\"633af5816da8d435e6568e3d\",\"userId\":\"5a9973dd36ab4f444b42718c\",\"status\":2}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "500": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/staffshift/checklimit": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/staffshift_checklimit_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"shiftDetailsId\": \"6247e0e150b2f84b5b5d5137\", \"isConfirmed\":1, \"splitShiftDetailsId\":\"\", \"isSplitShift\":false, \"from\":\"makebooking\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/adjust": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shift_adjust_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n    \"shiftDetailsId\": \"640c07aa4a5ae61030d99a09\",\r\n    \"staffNeedCount\": 4,\r\n    \"businessUnitId\": \"5bd723a8c1e35a7a250d562a\",\r\n    \"startDate\": \"02-06-2023 00:00:00 GMT+0530\"\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/leavemanagement/appliedLeave/bu": {
+            "get": {
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/ballot/user": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ballot_user_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"isOpsGroup\":false,\"buId\":\"5bd7f1cea6f8e97f5d80cc8a\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/newleaveplanner/usersbydate/bu": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/usersbydate_bu_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"date\":\"01-01-2023\",\"timeZone\":\"GMT+0530\",\"year\":2023,\"buId\":\"5d7fb505a6dcf1405d1345e6\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/shiftExtension": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shift_shiftExtension_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n    \"endDateTime\": \"05-09-2023 22:00:00 GMT+0530\",\r\n    \"shiftDetailId\": \"63f71a766b323cb7ac350e27\",\r\n    \"startDateTime\": \"05-02-2023 14:00:00 GMT+0530\",\r\n    \"userId\": \"609638b9bf153f7f1532dae5\"\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/staffshift/bookingslist": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/staffshift_bookingslist_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"startDate\": \"01-30-2023 00:00:00 GMT+0530\",  \"cancelledShifts\": false, \"type\": \"\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/requestChange": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shift_requestChange_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"shiftId\":\"6405e9f94a5ae61030d84eb5\",\"shiftDetailsId\":\"6405e9f94a5ae61030d84ec9\",\"startTime\":\"03-12-2023 20:15:00 GMT+0530\",\"endTime\":\"03-12-2023 21:15:00 GMT+0530\",\"reportLocationId\":\"5a9d171036ab4f444b4271d8\",\"staffNeedCount\":1}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/cancel": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shift_cancel_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n    \"shiftId\": \"6405ef968ee6227d74b71612\",\r\n    \"shiftDetailsId\": \"6405ef968ee6227d74b71613\",\r\n    \"isSplitShift\": true,\r\n    \"splitShiftDetailsId\": \"6405ef968ee6227d74b71614\"\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/staffshift/resRequestShiftChange/checklimit": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/resRequestShiftChange_checklimit_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n        \"shiftDetailsId\": {\r\n                \"_id\": \"6341113714b1c71c92cef4eb\",\r\n                \"updatedAt\": \"2022-10-08T05:57:11.806Z\",\r\n                \"createdAt\": \"2022-10-08T05:57:11.801Z\",\r\n                \"shiftId\": \"633af5816da8d435e6568e38\",\r\n                \"date\": \"2022-10-07T18:30:00.000Z\",\r\n                \"startTime\": \"2022-10-08T16:45:00.000Z\",\r\n                \"endTime\": \"2022-10-08T17:45:00.000Z\",\r\n                \"startTimeInSeconds\": 1665247500,\r\n                \"endTimeInSeconds\": 1665251100,\r\n                \"reportLocationId\": {\r\n                        \"_id\": \"5a991df936ab4f444b42717b\",\r\n                        \"status\": 1,\r\n                        \"name\": \"test location 2\"\r\n                },\r\n                \"requestedBy\": \"5a98fb9536ab4f444b427176\",\r\n                \"referenceShiftDetailsId\": \"633af5816da8d435e6568e3d\",\r\n                \"isRecallAccepted\": 1,\r\n                \"isRecalled\": false,\r\n                \"isRest\": false,\r\n                \"isOff\": false,\r\n                \"extendedStaff\": [],\r\n                \"isAssignShift\": false,\r\n                \"isSplitShift\": false,\r\n                \"isExtendedShift\": false,\r\n                \"status\": 0,\r\n                \"activeStatus\": false,\r\n                \"requestedUsers\": [],\r\n                \"isRequested\": true,\r\n                \"cancelledBy\": [],\r\n                \"adjustedBy\": [],\r\n                \"shortTimeAdjustRequestRecjectedFlexistaffs\": [],\r\n                \"isShortTimeAdjust\": 0,\r\n                \"shortTimeRequestRecjectedFlexistaffs\": [],\r\n                \"isShortTimeCancel\": 0,\r\n                \"requestedShifts\": [],\r\n                \"duration\": 1,\r\n                \"day\": \"2022-10-08\",\r\n                \"appliedStaffs\": [\r\n                        \"6341113714b1c71c92cef4ec\"\r\n                ],\r\n                \"cancelledStaffs\": [],\r\n                \"backUpStaffsLog\": [],\r\n                \"backUpStaffNeedCountLog\": 0,\r\n                \"backUpStaffs\": [],\r\n                \"confirmedStaffs\": [],\r\n                \"backUpStaffNeedCount\": 0,\r\n                \"staffNeedCount\": 1,\r\n                \"isLimit\": false,\r\n                \"timeZone\": \"+0800\",\r\n                \"totalStaffNeedCount\": 1,\r\n                \"skillSetTierType\": 2,\r\n                \"mainSkillSets\": [],\r\n                \"subSkillSets\": [\r\n                        \"5a991ddb36ab4f444b427178\"\r\n                ],\r\n                \"__v\": 1\r\n        },\r\n        \"isAccepted\": 1\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "default": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/newleaveplanner/staffleavetype": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/newleaveplanner_staffleavetype_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"userId\":\"5ff971775c035b7b7fe1cca4\",\"year\":2023}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/newleaveplanner/leavetype": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/newleaveplanner_leavetype_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"date\":\"01-01-2023\",\"timeZone\":\"GMT+0530\",\"year\":2023,\"opsGroupId\":\"6177f73326a82b6940f3ac53\",\"opsTeamId\":\"6177f73326a82b6940f3ac54\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/staffshift/cancel": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/staffshift_cancel_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"isSplitShift\": false, \"shiftDetailsId\": \"\", \"splitShiftDetailsId\": \"\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        }
+    },
+    "components": {
+        "schemas": {
+            "template_read_body": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "weekRangeStartsAt": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "template_create_body": {
+                "type": "object",
+                "properties": {
+                    "businessUnitName": {
+                        "type": "string"
+                    },
+                    "weekRangeEndsAt": {
+                        "type": "string"
+                    },
+                    "proximity": {
+                        "type": "integer"
+                    },
+                    "isProximityEnabled": {
+                        "type": "boolean"
+                    },
+                    "isTemplate": {
+                        "type": "integer"
+                    },
+                    "shifts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/templatecreate_shifts"
+                        }
+                    },
+                    "weekRangeStartsAt": {
+                        "type": "string"
+                    },
+                    "skillSetTierType": {
+                        "type": "integer"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "platform": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "isCheckInEnabled": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "shift_read_body": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "cancelledShifts": {
+                        "type": "boolean"
+                    },
+                    "from": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "startDate": {
+                        "type": "string"
+                    }
+                }
+            },
+            "shiftcreate_shifts": {
+                "type": "object",
+                "properties": {
+                    "subSkillSets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "dayDate": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/shiftcreate_dayDate"
+                        }
+                    },
+                    "reportLocationId": {
+                        "type": "string"
+                    },
+                    "staffNeedCount": {
+                        "type": "integer"
+                    },
+                    "backUpStaffNeedCount": {
+                        "type": "integer"
+                    },
+                    "isSplitShift": {
+                        "type": "boolean"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "templatecreate_shifts": {
+                "type": "object",
+                "properties": {
+                    "subSkillSets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "dayDate": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/shiftcreate_dayDate"
+                        }
+                    },
+                    "reportLocationId": {
+                        "type": "string"
+                    },
+                    "staffNeedCount": {
+                        "type": "integer"
+                    },
+                    "isSplitShift": {
+                        "type": "boolean"
+                    },
+                    "backUpStaffNeedCount": {
+                        "type": "integer"
+                    },
+                    "geoReportingLocation": {},
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "shiftLog_read_body": {
+                "type": "object",
+                "properties": {
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "startDate": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "shift_cancel_body": {
+                "type": "object",
+                "properties": {
+                    "shiftId": {
+                        "type": "string"
+                    },
+                    "splitShiftDetailsId": {
+                        "type": "string"
+                    },
+                    "isSplitShift": {
+                        "type": "boolean"
+                    },
+                    "shiftDetailsId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "shiftcreate_dayDate": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "startTime": {
+                        "type": "string"
+                    },
+                    "endTime": {
+                        "type": "string"
+                    },
+                    "day": {
+                        "type": "string"
+                    }
+                }
+            },
+            "shift_create_body": {
+                "type": "object",
+                "properties": {
+                    "businessUnitName": {
+                        "type": "string"
+                    },
+                    "weekRangeEndsAt": {
+                        "type": "string"
+                    },
+                    "isTemplate": {
+                        "type": "integer"
+                    },
+                    "shifts": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/shiftcreate_shifts"
+                        }
+                    },
+                    "weekRangeStartsAt": {
+                        "type": "string"
+                    },
+                    "skillSetTierType": {
+                        "type": "integer"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "platform": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "unassign_stafflist_body": {
+                "type": "object",
+                "properties": {
+                    "buId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "opsGroup_opsTeam": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "admin": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "userId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "opsGroupupdate_OpsGroup": {
+                "type": "object",
+                "properties": {
+                    "buId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "updatedBy": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "opsGroupName": {
+                        "type": "string"
+                    },
+                    "swopSetup": {
+                        "type": "string"
+                    },
+                    "isDelete": {
+                        "type": "boolean"
+                    },
+                    "isDraft": {
+                        "type": "boolean"
+                    },
+                    "removeOpsTeamId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "userId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "createdAt": {
+                        "type": "string"
+                    },
+                    "companyId": {
+                        "type": "string"
+                    },
+                    "createdBy": {
+                        "type": "string"
+                    },
+                    "__v": {
+                        "type": "integer"
+                    },
+                    "adminId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "opsTeamId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "_id": {
+                        "type": "string"
+                    },
+                    "noOfTeam": {
+                        "type": "integer"
+                    },
+                    "updatedAt": {
+                        "type": "string"
+                    }
+                }
+            },
+            "remove_staff_body": {
+                "type": "object",
+                "properties": {
+                    "teamId": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "opsGroup_body": {
+                "type": "object",
+                "properties": {
+                    "buId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "opsTeam": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/opsGroup_opsTeam"
+                        }
+                    },
+                    "opsGroupName": {
+                        "type": "string"
+                    },
+                    "swopSetup": {
+                        "type": "string"
+                    },
+                    "adminId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "isDraft": {
+                        "type": "boolean"
+                    },
+                    "noOfTeam": {
+                        "type": "integer"
+                    },
+                    "userId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "opsGroup_get_body": {
+                "type": "object",
+                "properties": {
+                    "privilage": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "opsGroup_update_body": {
+                "type": "object",
+                "properties": {
+                    "OpsGroup": {
+                        "$ref": "#/components/schemas/opsGroupupdate_OpsGroup"
+                    }
+                }
+            },
+            "usersbydate_bu_body": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "buId": {
+                        "type": "string"
+                    },
+                    "year": {
+                        "type": "integer"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    }
+                }
+            },
+            "staffshiftresRequestShiftChangechecklimit_shiftDetailsId_reportLocationId": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "_id": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "shift_cancelIndividualShift_body": {
+                "type": "object",
+                "properties": {
+                    "shiftId": {
+                        "type": "string"
+                    },
+                    "shiftDetailsId": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "shiftExtension_confirmation_body": {
+                "type": "object",
+                "properties": {
+                    "shiftDetailId": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "shift_requestChange_body": {
+                "type": "object",
+                "properties": {
+                    "shiftId": {
+                        "type": "string"
+                    },
+                    "reportLocationId": {
+                        "type": "string"
+                    },
+                    "staffNeedCount": {
+                        "type": "integer"
+                    },
+                    "startTime": {
+                        "type": "string"
+                    },
+                    "endTime": {
+                        "type": "string"
+                    },
+                    "shiftDetailsId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "newleaveplanner_staffleavetype_body": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer"
+                    },
+                    "userId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "newleaveplanner_leavetype_body": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "year": {
+                        "type": "integer"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "opsTeamId": {
+                        "type": "string"
+                    },
+                    "opsGroupId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "shift_cancel_body": {
+                "type": "object",
+                "properties": {
+                    "shiftId": {
+                        "type": "string"
+                    },
+                    "splitShiftDetailsId": {
+                        "type": "string"
+                    },
+                    "isSplitShift": {
+                        "type": "boolean"
+                    },
+                    "shiftDetailsId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "staffshift_checklimit_body": {
+                "type": "object",
+                "properties": {
+                    "splitShiftDetailsId": {
+                        "type": "string"
+                    },
+                    "isSplitShift": {
+                        "type": "boolean"
+                    },
+                    "isConfirmed": {
+                        "type": "integer"
+                    },
+                    "from": {
+                        "type": "string"
+                    },
+                    "shiftDetailsId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "shift_adjust_body": {
+                "type": "object",
+                "properties": {
+                    "staffNeedCount": {
+                        "type": "integer"
+                    },
+                    "shiftDetailsId": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "startDate": {
+                        "type": "string"
+                    }
+                }
+            },
+            "resRequestShiftChange_checklimit_body": {
+                "type": "object",
+                "properties": {
+                    "isAccepted": {
+                        "type": "integer"
+                    },
+                    "shiftDetailsId": {
+                        "$ref": "#/components/schemas/staffshiftresRequestShiftChangechecklimit_shiftDetailsId"
+                    }
+                }
+            },
+            "staffshift_cancel_body": {
+                "type": "object",
+                "properties": {
+                    "splitShiftDetailsId": {
+                        "type": "string"
+                    },
+                    "isSplitShift": {
+                        "type": "boolean"
+                    },
+                    "shiftDetailsId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "staffshiftresRequestShiftChangechecklimit_shiftDetailsId": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "referenceShiftDetailsId": {
+                        "type": "string"
+                    },
+                    "appliedStaffs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "isShortTimeCancel": {
+                        "type": "integer"
+                    },
+                    "isAssignShift": {
+                        "type": "boolean"
+                    },
+                    "skillSetTierType": {
+                        "type": "integer"
+                    },
+                    "cancelledBy": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "backUpStaffs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "duration": {
+                        "type": "integer"
+                    },
+                    "createdAt": {
+                        "type": "string"
+                    },
+                    "startTimeInSeconds": {
+                        "type": "integer"
+                    },
+                    "backUpStaffNeedCountLog": {
+                        "type": "integer"
+                    },
+                    "isExtendedShift": {
+                        "type": "boolean"
+                    },
+                    "reportLocationId": {
+                        "$ref": "#/components/schemas/staffshiftresRequestShiftChangechecklimit_shiftDetailsId_reportLocationId"
+                    },
+                    "extendedStaff": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "__v": {
+                        "type": "integer"
+                    },
+                    "isOff": {
+                        "type": "boolean"
+                    },
+                    "staffNeedCount": {
+                        "type": "integer"
+                    },
+                    "startTime": {
+                        "type": "string"
+                    },
+                    "mainSkillSets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "isRecallAccepted": {
+                        "type": "integer"
+                    },
+                    "day": {
+                        "type": "string"
+                    },
+                    "updatedAt": {
+                        "type": "string"
+                    },
+                    "shiftId": {
+                        "type": "string"
+                    },
+                    "endTimeInSeconds": {
+                        "type": "integer"
+                    },
+                    "confirmedStaffs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "isSplitShift": {
+                        "type": "boolean"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "shortTimeRequestRecjectedFlexistaffs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "requestedBy": {
+                        "type": "string"
+                    },
+                    "adjustedBy": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "subSkillSets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "activeStatus": {
+                        "type": "boolean"
+                    },
+                    "isShortTimeAdjust": {
+                        "type": "integer"
+                    },
+                    "cancelledStaffs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "backUpStaffsLog": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "isRecalled": {
+                        "type": "boolean"
+                    },
+                    "isRest": {
+                        "type": "boolean"
+                    },
+                    "requestedShifts": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "totalStaffNeedCount": {
+                        "type": "integer"
+                    },
+                    "requestedUsers": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "backUpStaffNeedCount": {
+                        "type": "integer"
+                    },
+                    "isLimit": {
+                        "type": "boolean"
+                    },
+                    "_id": {
+                        "type": "string"
+                    },
+                    "endTime": {
+                        "type": "string"
+                    },
+                    "shortTimeAdjustRequestRecjectedFlexistaffs": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "isRequested": {
+                        "type": "boolean"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "ballot_user_body": {
+                "type": "object",
+                "properties": {
+                    "buId": {
+                        "type": "string"
+                    },
+                    "isOpsGroup": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "staffshift_bookingslist_body": {
+                "type": "object",
+                "properties": {
+                    "cancelledShifts": {
+                        "type": "boolean"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "startDate": {
+                        "type": "string"
+                    }
+                }
+            },
+            "shift_shiftExtension_body": {
+                "type": "object",
+                "properties": {
+                    "startDateTime": {
+                        "type": "string"
+                    },
+                    "shiftDetailId": {
+                        "type": "string"
+                    },
+                    "endDateTime": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "oauth2": {
+                "type": "oauth2",
+                "flows": {
+                    "implicit": {
+                        "authorizationUrl": "http://yourauthurl.com",
+                        "scopes": {
+                            "scope_name": "Enter your scopes here"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
