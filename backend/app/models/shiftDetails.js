@@ -286,6 +286,15 @@ const ShiftDetailsSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'geoReportingLocation'
     },
+    proximity: {
+      type: Number
+    },
+    isCheckInEnabled: {
+        type: Boolean
+    },
+    isProximityEnabled: {
+        type: Boolean
+    },
   },
   {
     timestamps: true,
