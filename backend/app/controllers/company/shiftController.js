@@ -1826,7 +1826,7 @@ class shift {
                 {
                   path: 'businessUnitId',
                   select:
-                    'name adminEmail techEmail shiftCancelHours cancelShiftPermission standByShiftPermission status isCheckInEnabled isProximityEnabled proximity',
+                    'name adminEmail techEmail shiftCancelHours cancelShiftPermission standByShiftPermission status',
                   match: {
                     status: 1,
                   },
@@ -1856,7 +1856,7 @@ class shift {
             },
             {
               path: 'reportLocationId',
-              select: 'name status isCheckInEnabled isProximityEnabled proximity',
+              select: 'name status',
               match: {
                 status: 1,
               },
@@ -2029,14 +2029,7 @@ class shift {
             //console.log('element', element.isAssignShift)
             let totalExtension = 0;
             let totalExtensionHrs = 0;
-            if (
-              (((element.mainSkillSets && element.mainSkillSets.length) ||
-                (element.subSkillSets && element.subSkillSets.length)) &&
-                element.reportLocationId &&
-                element.shiftId &&
-                element.shiftId.businessUnitId) ||
-              element.isAssignShift
-            ) {
+            if ((element.shiftId && element.shiftId.businessUnitId) || element.isAssignShift) {
               let tz = element.timeZone;
               if (!tz) {
                 tz = '+0800';
