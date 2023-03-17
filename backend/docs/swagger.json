@@ -1072,6 +1072,402 @@
                     "url": "https://admin.netroc3.tk"
                 }
             ]
+        },
+        "/timesheet/export/5bd723a8c1e35a7a250d562a": {
+            "get": {
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/timesheet/history/export/5bd723a8c1e35a7a250d562a": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/export_5bd723a8c1e35a7a250d562a_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"endDate\":\"13-03-2023\",\"startDate\":\"01-02-2023\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "default": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/timesheet/userimage/5a98fb9536ab4f444b427176": {
+            "get": {
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/timesheet/lock": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/timesheet_lock_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"_id\":\"60cdad7c592add0c7f405a34\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/timesheet/read/5bd723a8c1e35a7a250d562a": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/read_5bd723a8c1e35a7a250d562a_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"timeZone\":330}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/attendance/add": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/attendance_add_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"userId\":\"5a98fb9536ab4f444b427176\",\"shiftId\":\"640f28b44a5ae61030dbfa41\",\"shiftDetailId\":\"640f28b44a5ae61030dbfa43\",\"attendanceMode\":\"Qr\",\"attandanceTakenBy\":\"\\\"5a98fb9536ab4f444b427176\\\"\",\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"status\":1}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/timesheet/history/5bd723a8c1e35a7a250d562a": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/history_5bd723a8c1e35a7a250d562a_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"endDate\":\"2023-03-13\",\"isDefault\":false,\"startDate\":\"2023-03-07\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/timesheet/5bd723a8c1e35a7a250d562a": {
+            "get": {
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/timesheet/approval": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/timesheet_approval_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"clocked\":true,\"neither\":false,\"shift\":false,\"breakTime\":[],\"approveClockInTime\":\"2023-02-25T11:33:19.090Z\",\"approveClockOutTime\":\"2023-02-25T15:39:55.763Z\",\"shiftDetailId\":\"63f71a766b323cb7ac350e24\",\"shiftId\":\"63f71a766b323cb7ac350e1c\",\"userId\":\"5a98fb9536ab4f444b427176\",\"neitherMessage\":\"Approving Clocked hours\",\"_id\":\"63f9f1ff6b323cb7ac3785d7\"}\r\n"
+                                },
+                                "1": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"clocked\":false,\"neither\":true,\"shift\":false,\"approveClockInTime\":\"2023-03-07T19:40:00.000Z\",\"approveClockOutTime\":\"2023-03-07T22:25:00.000Z\",\"shiftDetailId\":\"64077a501d0398115451b5f6\",\"shiftId\":\"64077a501d0398115451b5f4\",\"userId\":\"5a98fb9536ab4f444b427176\",\"neitherMessage\":\"worked for these hours\"}\r\n"
+                                },
+                                "2": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"clocked\":false,\"neither\":false,\"shift\":true,\"breakTime\":[{\"startTime\":\"2023-03-13T15:45:00.000Z\",\"endTime\":\"2023-03-13T16:00:00.000Z\",\"duration\":15,\"_id\":\"640f2be71d0398115454a581\"}],\"approveClockInTime\":\"2023-03-13T15:30:00.000Z\",\"approveClockOutTime\":\"2023-03-13T16:30:00.000Z\",\"shiftDetailId\":\"640f28b44a5ae61030dbfa43\",\"shiftId\":\"640f28b44a5ae61030dbfa41\",\"userId\":\"5a98fb9536ab4f444b427176\",\"neitherMessage\":\"Approving Shift hours\",\"_id\":\"640f2a8d1d0398115454a177\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/timesheet/lockall": {
+            "post": {
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/timesheet_lockall_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"ids\":[\"60ccb5db1198bc0c99a18535\",\"60cc4d4988aaff0ca88351e0\",\"60cd91ae88aaff0ca8835293\"]}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/timesheet/qrcode/5a98fb9536ab4f444b427176/640f28b44a5ae61030dbfa43": {
+            "get": {
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
         }
     },
     "components": {
@@ -1899,6 +2295,137 @@
                         "type": "string"
                     },
                     "userId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "timesheet_lock_body": {
+                "type": "object",
+                "properties": {
+                    "_id": {
+                        "type": "string"
+                    }
+                }
+            },
+            "attendance_add_body": {
+                "type": "object",
+                "properties": {
+                    "shiftId": {
+                        "type": "string"
+                    },
+                    "attendanceMode": {
+                        "type": "string"
+                    },
+                    "shiftDetailId": {
+                        "type": "string"
+                    },
+                    "attandanceTakenBy": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "export_5bd723a8c1e35a7a250d562a_body": {
+                "type": "object",
+                "properties": {
+                    "endDate": {
+                        "type": "string"
+                    },
+                    "startDate": {
+                        "type": "string"
+                    }
+                }
+            },
+            "history_5bd723a8c1e35a7a250d562a_body": {
+                "type": "object",
+                "properties": {
+                    "isDefault": {
+                        "type": "boolean"
+                    },
+                    "endDate": {
+                        "type": "string"
+                    },
+                    "startDate": {
+                        "type": "string"
+                    }
+                }
+            },
+            "timesheet_lockall_body": {
+                "type": "object",
+                "properties": {
+                    "ids": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "timesheetapproval_breakTime": {
+                "type": "object",
+                "properties": {
+                    "duration": {
+                        "type": "integer"
+                    },
+                    "startTime": {
+                        "type": "string"
+                    },
+                    "endTime": {
+                        "type": "string"
+                    },
+                    "_id": {
+                        "type": "string"
+                    }
+                }
+            },
+            "timesheet_approval_body": {
+                "type": "object",
+                "properties": {
+                    "approveClockOutTime": {
+                        "type": "string"
+                    },
+                    "shiftId": {
+                        "type": "string"
+                    },
+                    "clocked": {
+                        "type": "boolean"
+                    },
+                    "breakTime": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/timesheetapproval_breakTime"
+                        }
+                    },
+                    "neither": {
+                        "type": "boolean"
+                    },
+                    "shift": {
+                        "type": "boolean"
+                    },
+                    "shiftDetailId": {
+                        "type": "string"
+                    },
+                    "_id": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "approveClockInTime": {
+                        "type": "string"
+                    },
+                    "neitherMessage": {
                         "type": "string"
                     }
                 }
