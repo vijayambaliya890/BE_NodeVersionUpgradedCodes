@@ -24,7 +24,7 @@
                                 "$ref": "#/components/schemas/shift_create_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n    \"businessUnitId\": \"60193916ba04cf4ac725c19c\",\r\n    \"weekRangeStartsAt\": \"05-03-2023 00:00:00 GMT+0530\",\r\n    \"weekRangeEndsAt\": \"05-09-2023 00:00:00 GMT+0530\",\r\n    \"shifts\": [\r\n        {\r\n            \"subSkillSets\": [\r\n                \"606ac184b3572b1fe35bd73d\"\r\n            ],\r\n            \"staffNeedCount\": 3,\r\n            \"backUpStaffNeedCount\": 2,\r\n            \"dayDate\": [\r\n                {\r\n                    \"date\": \"05-07-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Friday\",\r\n                    \"startTime\": \"05-07-2023 10:00:00 GMT+0530\",\r\n                    \"endTime\": \"05-07-2023 12:00:00 GMT+05:30\"\r\n                },\r\n                {\r\n                    \"date\": \"05-08-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Saturday\",\r\n                    \"startTime\": \"05-08-2023 10:00:00 GMT+0530\",\r\n                    \"endTime\": \"05-08-2023 12:00:00 GMT+05:30\"\r\n                },\r\n                {\r\n                    \"date\": \"05-09-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Sunday\",\r\n                    \"startTime\": \"05-09-2023 10:00:00 GMT+0530\",\r\n                    \"endTime\": \"05-09-2023 12:00:00 GMT+05:30\"\r\n                }\r\n            ],\r\n            \"reportLocationId\": \"6069b11cb3572b1fe35bd734\",\r\n            \"status\": \"1\",\r\n            \"isSplitShift\": false\r\n        }\r\n    ],\r\n    \"status\": \"1\",\r\n    \"isTemplate\": 0,\r\n    \"businessUnitName\": \"\",\r\n    \"platform\": \"web\",\r\n    \"skillSetTierType\": 2\r\n}"
                                 }
                             }
@@ -69,7 +69,7 @@
                                 "$ref": "#/components/schemas/shiftLog_read_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"status\":1,\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"startDate\":\"05-16-2022 00:00:00 GMT+0530\"}\r\n"
                                 }
                             }
@@ -114,7 +114,7 @@
                                 "$ref": "#/components/schemas/shift_cancel_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n    \"shiftId\": \"6405ef968ee6227d74b71612\",\r\n    \"shiftDetailsId\": \"6405ef968ee6227d74b71613\",\r\n    \"isSplitShift\": true,\r\n    \"splitShiftDetailsId\": \"6405ef968ee6227d74b71614\"\r\n}"
                                 }
                             }
@@ -159,7 +159,7 @@
                                 "$ref": "#/components/schemas/template_read_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n    \"businessUnitId\": \"5bd7f1cea6f8e97f5d80cc8a\",\r\n    \"weekRangeStartsAt\": \"2023-03-05T18:30:00.000Z\",\r\n    \"date\": \"2023-03-11T08:33:20.625Z\"\r\n}"
                                 }
                             }
@@ -196,7 +196,7 @@
                                 "$ref": "#/components/schemas/template_create_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n    \"businessUnitId\": \"5bd7f1cea6f8e97f5d80cc8a\",\r\n    \"businessUnitName\": \"\",\r\n    \"weekRangeStartsAt\": \"03-06-2023 00:00:00 GMT+0530\",\r\n    \"weekRangeEndsAt\": \"03-12-2023 00:00:00 GMT+0530\",\r\n    \"shifts\": [\r\n        {\r\n            \"staffNeedCount\": 2,\r\n            \"dayDate\": [\r\n                {\r\n                    \"date\": \"03-11-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Saturday\",\r\n                    \"startTime\": \"03-11-2023 22:30:00 GMT+0530\",\r\n                    \"endTime\": \"03-11-2023 23:00:00 GMT+05:30\"\r\n                },\r\n                {\r\n                    \"date\": \"03-12-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Sunday\",\r\n                    \"startTime\": \"03-12-2023 22:30:00 GMT+0530\",\r\n                    \"endTime\": \"03-12-2023 23:00:00 GMT+05:30\"\r\n                },\r\n                {\r\n                    \"date\": \"03-11-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Saturday\",\r\n                    \"startTime\": \"03-11-2023 23:00:00 GMT+0530\",\r\n                    \"endTime\": \"03-11-2023 23:30:00 GMT+05:30\"\r\n                },\r\n                {\r\n                    \"date\": \"03-12-2023 00:00:00 GMT+0530\",\r\n                    \"day\": \"Sunday\",\r\n                    \"startTime\": \"03-12-2023 23:00:00 GMT+0530\",\r\n                    \"endTime\": \"03-12-2023 23:30:00 GMT+05:30\"\r\n                }\r\n            ],\r\n            \"reportLocationId\": \"5a991df336ab4f444b42717a\",\r\n            \"status\": \"1\",\r\n            \"isSplitShift\": true,\r\n            \"backUpStaffNeedCount\": 2,\r\n            \"geoReportingLocation\": null,\r\n            \"subSkillSets\": [\r\n                \"5a991ddb36ab4f444b427178\"\r\n            ]\r\n        }\r\n    ],\r\n    \"status\": \"1\",\r\n    \"isTemplate\": 0,\r\n    \"platform\": \"web\",\r\n    \"skillSetTierType\": 2,\r\n    \"proximity\": 0,\r\n    \"isCheckInEnabled\": false,\r\n    \"isProximityEnabled\": false\r\n}"
                                 }
                             }
@@ -241,7 +241,7 @@
                                 "$ref": "#/components/schemas/shift_read_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n    \"businessUnitId\": \"5bd7f1cea6f8e97f5d80cc8a\",\r\n    \"startDate\": \"03-06-2023 00:00:00 GMT+0530\",\r\n    \"from\": \"plan\",\r\n    \"date\": \"03-06-2023 00:00:00 GMT+0530\",\r\n    \"cancelledShifts\": true\r\n}"
                                 }
                             }
@@ -286,7 +286,7 @@
                                 "$ref": "#/components/schemas/shift_cancelIndividualShift_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"shiftId\": \"63457b6b9d08e37fa8855ab6\", \"shiftDetailsId\": \"63457b6b9d08e37fa8855ab9\", \"userId\": \"5a9973ae36ab4f444b42718b\"}"
                                 }
                             }
@@ -331,7 +331,7 @@
                                 "$ref": "#/components/schemas/staffshift_checklimit_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"shiftDetailsId\": \"6247e0e150b2f84b5b5d5137\", \"isConfirmed\":1, \"splitShiftDetailsId\":\"\", \"isSplitShift\":false, \"from\":\"makebooking\"}"
                                 }
                             }
@@ -376,7 +376,7 @@
                                 "$ref": "#/components/schemas/shift_adjust_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n    \"shiftDetailsId\": \"640c07aa4a5ae61030d99a09\",\r\n    \"staffNeedCount\": 4,\r\n    \"businessUnitId\": \"5bd723a8c1e35a7a250d562a\",\r\n    \"startDate\": \"02-06-2023 00:00:00 GMT+0530\"\r\n}"
                                 }
                             }
@@ -421,7 +421,7 @@
                                 "$ref": "#/components/schemas/shift_shiftExtension_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n    \"endDateTime\": \"05-09-2023 22:00:00 GMT+0530\",\r\n    \"shiftDetailId\": \"63f71a766b323cb7ac350e27\",\r\n    \"startDateTime\": \"05-02-2023 14:00:00 GMT+0530\",\r\n    \"userId\": \"609638b9bf153f7f1532dae5\"\r\n}"
                                 }
                             }
@@ -466,7 +466,7 @@
                                 "$ref": "#/components/schemas/staffshift_bookingslist_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"startDate\": \"01-30-2023 00:00:00 GMT+0530\",  \"cancelledShifts\": false, \"type\": \"\"}"
                                 }
                             }
@@ -503,7 +503,7 @@
                                 "$ref": "#/components/schemas/shift_requestChange_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"shiftId\":\"6405e9f94a5ae61030d84eb5\",\"shiftDetailsId\":\"6405e9f94a5ae61030d84ec9\",\"startTime\":\"03-12-2023 20:15:00 GMT+0530\",\"endTime\":\"03-12-2023 21:15:00 GMT+0530\",\"reportLocationId\":\"5a9d171036ab4f444b4271d8\",\"staffNeedCount\":1}\r\n"
                                 }
                             }
@@ -548,7 +548,7 @@
                                 "$ref": "#/components/schemas/resRequestShiftChange_checklimit_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n        \"shiftDetailsId\": {\r\n                \"_id\": \"6341113714b1c71c92cef4eb\",\r\n                \"updatedAt\": \"2022-10-08T05:57:11.806Z\",\r\n                \"createdAt\": \"2022-10-08T05:57:11.801Z\",\r\n                \"shiftId\": \"633af5816da8d435e6568e38\",\r\n                \"date\": \"2022-10-07T18:30:00.000Z\",\r\n                \"startTime\": \"2022-10-08T16:45:00.000Z\",\r\n                \"endTime\": \"2022-10-08T17:45:00.000Z\",\r\n                \"startTimeInSeconds\": 1665247500,\r\n                \"endTimeInSeconds\": 1665251100,\r\n                \"reportLocationId\": {\r\n                        \"_id\": \"5a991df936ab4f444b42717b\",\r\n                        \"status\": 1,\r\n                        \"name\": \"test location 2\"\r\n                },\r\n                \"requestedBy\": \"5a98fb9536ab4f444b427176\",\r\n                \"referenceShiftDetailsId\": \"633af5816da8d435e6568e3d\",\r\n                \"isRecallAccepted\": 1,\r\n                \"isRecalled\": false,\r\n                \"isRest\": false,\r\n                \"isOff\": false,\r\n                \"extendedStaff\": [],\r\n                \"isAssignShift\": false,\r\n                \"isSplitShift\": false,\r\n                \"isExtendedShift\": false,\r\n                \"status\": 0,\r\n                \"activeStatus\": false,\r\n                \"requestedUsers\": [],\r\n                \"isRequested\": true,\r\n                \"cancelledBy\": [],\r\n                \"adjustedBy\": [],\r\n                \"shortTimeAdjustRequestRecjectedFlexistaffs\": [],\r\n                \"isShortTimeAdjust\": 0,\r\n                \"shortTimeRequestRecjectedFlexistaffs\": [],\r\n                \"isShortTimeCancel\": 0,\r\n                \"requestedShifts\": [],\r\n                \"duration\": 1,\r\n                \"day\": \"2022-10-08\",\r\n                \"appliedStaffs\": [\r\n                        \"6341113714b1c71c92cef4ec\"\r\n                ],\r\n                \"cancelledStaffs\": [],\r\n                \"backUpStaffsLog\": [],\r\n                \"backUpStaffNeedCountLog\": 0,\r\n                \"backUpStaffs\": [],\r\n                \"confirmedStaffs\": [],\r\n                \"backUpStaffNeedCount\": 0,\r\n                \"staffNeedCount\": 1,\r\n                \"isLimit\": false,\r\n                \"timeZone\": \"+0800\",\r\n                \"totalStaffNeedCount\": 1,\r\n                \"skillSetTierType\": 2,\r\n                \"mainSkillSets\": [],\r\n                \"subSkillSets\": [\r\n                        \"5a991ddb36ab4f444b427178\"\r\n                ],\r\n                \"__v\": 1\r\n        },\r\n        \"isAccepted\": 1\r\n}"
                                 }
                             }
@@ -585,7 +585,7 @@
                                 "$ref": "#/components/schemas/staffshift_cancel_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"isSplitShift\": false, \"shiftDetailsId\": \"\", \"splitShiftDetailsId\": \"\"}"
                                 }
                             }
@@ -661,7 +661,7 @@
                                 "$ref": "#/components/schemas/export_5bd723a8c1e35a7a250d562a_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"endDate\":\"13-03-2023\",\"startDate\":\"01-02-2023\"}"
                                 }
                             }
@@ -729,7 +729,7 @@
                                 "$ref": "#/components/schemas/timesheet_lock_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"_id\":\"60cdad7c592add0c7f405a34\"}\r\n"
                                 }
                             }
@@ -774,7 +774,7 @@
                                 "$ref": "#/components/schemas/read_5bd723a8c1e35a7a250d562a_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"timeZone\":330}\r\n"
                                 }
                             }
@@ -819,7 +819,7 @@
                                 "$ref": "#/components/schemas/history_5bd723a8c1e35a7a250d562a_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"endDate\":\"2023-03-13\",\"isDefault\":false,\"startDate\":\"2023-03-07\"}"
                                 }
                             }
@@ -887,7 +887,7 @@
                                 "$ref": "#/components/schemas/timesheet_lockall_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"ids\":[\"60ccb5db1198bc0c99a18535\",\"60cc4d4988aaff0ca88351e0\",\"60cd91ae88aaff0ca8835293\"]}\r\n"
                                 }
                             }
@@ -963,7 +963,7 @@
                                 "$ref": "#/components/schemas/companyuser_update_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"userId\":\"5a9d1d8f36ab4f444b4271ea\",\"schemeId\":\"5f278f586fe0636108ae4b96\",\"skillSetTierType\":2,\"role\":\"5a9d093736ab4f444b4271c5\",\"subSkillSets\":[\"5c08f01dd818ed0513fe438f\"]}"
                                 }
                             }
@@ -1023,7 +1023,7 @@
                                 "$ref": "#/components/schemas/scheme_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"companyID\":\"5a9d162b36ab4f444b4271c8\",\"schemeName\":\"Scheme Permanent Staff\",\"schemeDesc\":\"for Permanent Staff only\",\"shiftSchemeType\":2,\"admin\":\"\",\"shiftSetup\":{\"assignShift\":{\"enabled\":false,\"disabled\":true,\"normal\":true,\"ot\":false,\"allowShiftExtension\":{\"yes\":true,\"no\":false,\"normal\":true,\"ot\":false},\"allowRecall\":{\"no\":false,\"normal\":true,\"ot\":false,\"yes\":true}},\"openShift\":{\"enabled\":false,\"disabled\":true,\"normal\":\"\",\"ot\":\"\",\"allowShiftExtension\":{\"yes\":\"\",\"no\":\"\",\"normal\":\"\",\"ot\":\"\"}},\"limits\":{\"dayOverall\":\"3\",\"weekOverall\":\"20\",\"monthOverall\":null,\"normalHr\":{\"day\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true},\"week\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":\"\",\"disallow\":\"\"},\"month\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":\"\",\"disallow\":\"\"}},\"otHr\":{\"day\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":\"\",\"disallow\":\"\"},\"week\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":\"\",\"disallow\":\"\"},\"month\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":\"\",\"disallow\":\"\"}}}}}\r\n"
                                 }
                             }
@@ -1068,7 +1068,7 @@
                                 "$ref": "#/components/schemas/skillset_read_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"headers\":{\"normalizedNames\":{},\"lazyUpdate\":null}}"
                                 }
                             }
@@ -1128,7 +1128,7 @@
                                 "$ref": "#/components/schemas/read_single_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"userId\":\"5a9d22a736ab4f444b4271f5\"}"
                                 }
                             }
@@ -1265,7 +1265,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "example": "1"
+                        "example": "2"
                     },
                     {
                         "name": "draw",
@@ -1276,7 +1276,7 @@
                         "schema": {
                             "type": "string"
                         },
-                        "example": "1"
+                        "example": "2"
                     },
                     {
                         "name": "search%5Bvalue%5D",
@@ -1328,7 +1328,7 @@
                                 "$ref": "#/components/schemas/scheme_userlog_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"type\":1}"
                                 }
                             }
@@ -1365,7 +1365,7 @@
                                 "$ref": "#/components/schemas/scheme_update_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"companyID\":\"5a9d162b36ab4f444b4271c8\",\"schemeName\":\"SATS Flexi Scheme\",\"schemeDesc\":\"Flexi only\",\"shiftSchemeType\":1,\"admin\":\"\",\"noOfWeek\":3,\"isShiftInterval\":false,\"shiftIntervalHour\":0,\"shiftIntervalMins\":0,\"shiftSetup\":{\"openShift\":{\"enabled\":false,\"disabled\":true,\"normal\":true,\"ot\":false,\"allowShiftExtension\":{\"yes\":true,\"no\":false,\"normal\":true,\"ot\":false}},\"limits\":{\"dayOverall\":12,\"weekOverall\":60,\"monthOverall\":0,\"normalHr\":{\"day\":{\"value\":\"12\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true},\"week\":{\"value\":\"60\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true},\"month\":{\"value\":\"0\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true}},\"otHr\":{\"day\":{\"value\":\"0\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true},\"week\":{\"value\":\"0\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true},\"month\":{\"value\":\"0\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true}}}},\"_id\":\"5e20695ed16e9e7fd2b7da7b\",\"status\":true}\r\n"
                                 }
                             }
@@ -1410,7 +1410,7 @@
                                 "$ref": "#/components/schemas/role_read_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"headers\":{\"normalizedNames\":{},\"lazyUpdate\":null}}"
                                 }
                             }
@@ -1447,10 +1447,10 @@
                                 "$ref": "#/components/schemas/shiftExtension_confirmation_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"shiftDetailId\":\"633af5816da8d435e6568e3d\",\"userId\":\"5a9973dd36ab4f444b42718c\",\"status\":2}"
                                 },
-                                "1": {
+                                "2": {
                                     "value": "{\"shiftDetailId\":\"633af5816da8d435e6568e3d\",\"userId\":\"5a9973dd36ab4f444b42718c\",\"status\":1}"
                                 }
                             }
@@ -1506,10 +1506,10 @@
                                 "$ref": "#/components/schemas/attendance_add_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"userId\":\"5a98fb9536ab4f444b427176\",\"shiftId\":\"640f28b44a5ae61030dbfa41\",\"shiftDetailId\":\"640f28b44a5ae61030dbfa43\",\"attendanceMode\":\"Qr\",\"attandanceTakenBy\":\"\\\"5a98fb9536ab4f444b427176\\\"\",\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"status\":1}"
                                 },
-                                "1": {
+                                "2": {
                                     "value": "{\"userId\":\"5a98fb9536ab4f444b427176\",\"shiftId\":\"640f28b44a5ae61030dbfa41\",\"shiftDetailId\":\"640f28b44a5ae61030dbfa43\",\"attendanceMode\":\"Qr\",\"attandanceTakenBy\":\"\\\"5a98fb9536ab4f444b427176\\\"\",\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"status\":2}"
                                 }
                             }
@@ -1554,7 +1554,7 @@
                                 "$ref": "#/components/schemas/businessunit_skillsetsandlocations_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"businessUnitId\":{\"_id\":\"5bd723a8c1e35a7a250d562a\",\"orgName\":\"SATS > test > test > test BU\"}}"
                                 }
                             }
@@ -1630,7 +1630,7 @@
                                 "$ref": "#/components/schemas/attendance_breakTime_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"userId\":\"5a9973dd36ab4f444b42718c\",\"shiftDetailId\":\"60c4d597592add0c7f404420\",\"startTime\":\"6-16-2021 17:30:00 GMT+0530\",\"endTime\":\"6-16-2021 17:35:00 GMT+0530\"}\r\n"
                                 }
                             }
@@ -1675,10 +1675,10 @@
                                 "$ref": "#/components/schemas/timesheet_approval_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"clocked\":false,\"neither\":true,\"shift\":false,\"approveClockInTime\":\"2023-03-07T19:40:00.000Z\",\"approveClockOutTime\":\"2023-03-07T22:25:00.000Z\",\"shiftDetailId\":\"64077a501d0398115451b5f6\",\"shiftId\":\"64077a501d0398115451b5f4\",\"userId\":\"5a98fb9536ab4f444b427176\",\"neitherMessage\":\"worked for these hours\"}"
                                 },
-                                "1": {
+                                "2": {
                                     "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"clocked\":false,\"neither\":false,\"shift\":true,\"breakTime\":[{\"startTime\":\"2023-03-13T15:45:00.000Z\",\"endTime\":\"2023-03-13T16:00:00.000Z\",\"duration\":15,\"_id\":\"640f2be71d0398115454a581\"}],\"approveClockInTime\":\"2023-03-13T15:30:00.000Z\",\"approveClockOutTime\":\"2023-03-13T16:30:00.000Z\",\"shiftDetailId\":\"640f28b44a5ae61030dbfa43\",\"shiftId\":\"640f28b44a5ae61030dbfa41\",\"userId\":\"5a98fb9536ab4f444b427176\",\"neitherMessage\":\"Approving Shift hours\",\"_id\":\"640f2a8d1d0398115454a177\"}"
                                 }
                             }
@@ -1785,7 +1785,7 @@
                                 "$ref": "#/components/schemas/usersbydate_bu_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"date\":\"01-01-2023\",\"timeZone\":\"GMT+0530\",\"year\":2023,\"buId\":\"5d7fb505a6dcf1405d1345e6\"}"
                                 }
                             }
@@ -1853,7 +1853,7 @@
                                 "$ref": "#/components/schemas/newleaveplanner_staffleavetype_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"userId\":\"5ff971775c035b7b7fe1cca4\",\"year\":2023}"
                                 }
                             }
@@ -1898,7 +1898,7 @@
                                 "$ref": "#/components/schemas/newleaveplanner_leavetype_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"date\":\"01-01-2023\",\"timeZone\":\"GMT+0530\",\"year\":2023,\"opsGroupId\":\"6177f73326a82b6940f3ac53\",\"opsTeamId\":\"6177f73326a82b6940f3ac54\"}"
                                 }
                             }
@@ -1935,7 +1935,7 @@
                                 "$ref": "#/components/schemas/ballot_user_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\"isOpsGroup\":false,\"buId\":\"5bd7f1cea6f8e97f5d80cc8a\"}"
                                 }
                             }
@@ -2026,7 +2026,7 @@
                                 "$ref": "#/components/schemas/opsGroup_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n  \"opsGroupName\": \"123456\",\r\n  \"buId\": [\r\n    \"5bd723a8c1e35a7a250d562a\"\r\n  ],\r\n  \"adminId\": [\r\n    \"5a98fb9536ab4f444b427176\"\r\n  ],\r\n  \"noOfTeam\": 1,\r\n  \"opsTeam\": [\r\n    {\r\n      \"userId\": [\r\n        \"5bd72cb68e13ca7ce6718f3d\"\r\n      ],\r\n      \"admin\": [],\r\n      \"name\": \"Team 1\"\r\n    }\r\n  ],\r\n  \"isDraft\": false,\r\n  \"userId\": [\r\n    \"5bd72cb68e13ca7ce6718f3d\"\r\n  ],\r\n  \"swopSetup\": \"0\"\r\n}"
                                 }
                             }
@@ -2071,7 +2071,7 @@
                                 "$ref": "#/components/schemas/remove_staff_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n  \"userId\": [\r\n    \"5bd72cb68e13ca7ce6718f3d\"\r\n  ],\r\n  \"teamId\": \"60fbebc999d56669ed8a36ca\"\r\n}"
                                 }
                             }
@@ -2116,7 +2116,7 @@
                                 "$ref": "#/components/schemas/unassign_stafflist_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n  \"buId\": [\r\n    \"5bd723a8c1e35a7a250d562a\"\r\n  ]\r\n}"
                                 }
                             }
@@ -2153,7 +2153,7 @@
                                 "$ref": "#/components/schemas/opsGroup_update_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n  \"OpsGroup\": {\r\n        \"opsGroupName\": \"Update for swagger creation\",\r\n        \"userId\": [\r\n            \"5bd72cb68e13ca7ce6718f3d\"\r\n        ],\r\n        \"buId\": [\r\n            \"5bd723a8c1e35a7a250d562a\"\r\n        ],\r\n        \"opsTeamId\": [],\r\n        \"createdBy\": \"5a98fb9536ab4f444b427176\",\r\n        \"companyId\": \"5a9d162b36ab4f444b4271c8\",\r\n        \"noOfTeam\": 1,\r\n        \"swopSetup\": \"0\",\r\n        \"adminId\": [\r\n            \"5a98fb9536ab4f444b427176\"\r\n        ],\r\n        \"isDelete\": false,\r\n        \"isDraft\": false,\r\n        \"_id\": \"640c0eaf1d039811545289f8\",\r\n        \"removeOpsTeamId\": [],\r\n        \"updatedBy\": [],\r\n        \"createdAt\": \"2023-03-11T05:16:31.604Z\",\r\n        \"updatedAt\": \"2023-03-11T05:16:31.604Z\",\r\n        \"__v\": 0\r\n    }\r\n}"
                                 }
                             }
@@ -2198,7 +2198,7 @@
                                 "$ref": "#/components/schemas/opsGroup_get_body"
                             },
                             "examples": {
-                                "0": {
+                                "1": {
                                     "value": "{\r\n  \"privilage\": true\r\n}"
                                 }
                             }
@@ -2208,6 +2208,529 @@
                 "responses": {
                     "200": {
                         "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/subskillset/create": {
+            "post": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/subskillset_create_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"name\":\"Test Speciality\",\"skillSetId\":\"640c0fe91d03981154528c96\",\"status\":\"1\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/businessunit/read/new": {
+            "post": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/read_new_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"isWebsite\":\"1\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/repotinglocation/read": {
+            "post": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/repotinglocation_read_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"headers\":{\"normalizedNames\":{},\"lazyUpdate\":null}}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/businessunit/updateBuShiftScheme": {
+            "post": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/businessunit_updateBuShiftScheme_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"mainSkillSets\":[],\"subSkillSets\":[\"5a991ddb36ab4f444b427178\",\"5a991de536ab4f444b427179\",\"5b583fc6b807072999b93504\",\"633ae0771e18ec42d9a5189a\",\"633ae0a6e604bf42ade18665\",\"633ae0d5e604bf42ade18666\"],\"skillSetTierType\":2,\"reportingLocation\":[\"5a991df336ab4f444b42717a\",\"5a9d171036ab4f444b4271d8\",\"5a991df936ab4f444b42717b\"],\"scheme\":[\"5e5764b08706ec2618d548ca\",\"5e562a844884cb2fcece6037\",\"602dffb9bc0f9222ec023e98\",\"5f12b06691e8206685073e73\"],\"noOfWeek\":10,\"plannedHours\":30,\"shiftTimeInMinutes\":30,\"shiftBreak\":[{\"breakInMinutes\":15,\"shiftHour\":4,\"_id\":\"641309bf74e97809c9ffb0aa\"}],\"isBreakTime\":true,\"standByShiftPermission\":true,\"shiftCancelHours\":12,\"cancelShiftPermission\":true,\"cutOffDaysForBookingAndCancelling\":\"\",\"geoReportingLocation\":[\"WRQM+XVM, Dhobi Talao, Chhatrapati Shivaji Terminus Area, Fort, Mumbai, Maharashtra 400001, India\",\"805, 804, 9th A Main Rd, Binnamangala, Stage 1, Indiranagar, Bengaluru, Karnataka 560038, India\",\"ARIHANT KRUPA, 20, Sector 27, Ranjanpada, Sector 27, Kharghar, Navi Mumbai, Maharashtra 410210, India\"],\"reportingLocationType\":\"map\",\"isCheckInEnabled\":true,\"isProximityEnabled\":true,\"reportingLocationRadius\":500}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsgroup/planbu": {
+            "get": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/businessunit/setting/5a9d165f36ab4f444b4271cb": {
+            "get": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/skillset/create": {
+            "post": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/skillset_create_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"name\":\"Test Skillset\",\"status\":\"1\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/subskillset/delete": {
+            "post": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/subskillset_delete_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"subSkillSetId\":\"640c11094a5ae61030d9a001\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/skillset/read": {
+            "post": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/skillset_read_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"headers\":{\"normalizedNames\":{},\"lazyUpdate\":null}}"
+                                },
+                                "1": {
+                                    "value": "{\"headers\":{\"normalizedNames\":{},\"lazyUpdate\":null}}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/subskillset/update": {
+            "post": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/subskillset_update_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"name\":\"Test Speciality1\",\"skillSetId\":\"640c0fe91d03981154528c96\",\"status\":1,\"subSkillSetId\":\"640c11094a5ae61030d9a001\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/businessunit/read/singlebu": {
+            "post": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/read_singlebu_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"businessUnitId\":\"5a9d165f36ab4f444b4271cb\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/skillset/update": {
+            "post": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/skillset_update_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"name\":\"APJT1\",\"skillSetId\":\"639b937116221b168835b607\",\"status\":\"1\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/pageSetting/skillset": {
+            "get": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/skillset/delete": {
+            "post": {
+                "tags": ["BU Shift setup"],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/skillset_delete_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"skillSetId\":\"639b9375b3bca6382e1de3a4\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
                     }
                 },
                 "servers": [
@@ -3612,6 +4135,217 @@
                 "properties": {
                     "businessUnitId": {
                         "$ref": "#/components/schemas/businessunitskillsetsandlocations_businessUnitId"
+                    }
+                }
+            },
+            "skillset_delete_body": {
+                "type": "object",
+                "properties": {
+                    "skillSetId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "subskillset_create_body": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "skillSetId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "subskillset_update_body": {
+                "type": "object",
+                "properties": {
+                    "subSkillSetId": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "skillSetId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "read_singlebu_body": {
+                "type": "object",
+                "properties": {
+                    "businessUnitId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "businessunitupdateBuShiftScheme_shiftBreak": {
+                "type": "object",
+                "properties": {
+                    "_id": {
+                        "type": "string"
+                    },
+                    "breakInMinutes": {
+                        "type": "integer"
+                    },
+                    "shiftHour": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "skillset_create_body": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "repotinglocationread_headers": {
+                "type": "object",
+                "properties": {
+                    "normalizedNames": {
+                        "type": "object",
+                        "properties": {}
+                    },
+                    "lazyUpdate": {}
+                }
+            },
+            "businessunit_updateBuShiftScheme_body": {
+                "type": "object",
+                "properties": {
+                    "reportingLocation": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "scheme": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "noOfWeek": {
+                        "type": "integer"
+                    },
+                    "reportingLocationType": {
+                        "type": "string"
+                    },
+                    "geoReportingLocation": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "skillSetTierType": {
+                        "type": "integer"
+                    },
+                    "cutOffDaysForBookingAndCancelling": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "isCheckInEnabled": {
+                        "type": "boolean"
+                    },
+                    "subSkillSets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "cancelShiftPermission": {
+                        "type": "boolean"
+                    },
+                    "isProximityEnabled": {
+                        "type": "boolean"
+                    },
+                    "shiftBreak": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/businessunitupdateBuShiftScheme_shiftBreak"
+                        }
+                    },
+                    "shiftCancelHours": {
+                        "type": "integer"
+                    },
+                    "standByShiftPermission": {
+                        "type": "boolean"
+                    },
+                    "mainSkillSets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "reportingLocationRadius": {
+                        "type": "integer"
+                    },
+                    "plannedHours": {
+                        "type": "integer"
+                    },
+                    "shiftTimeInMinutes": {
+                        "type": "integer"
+                    },
+                    "isBreakTime": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "skillset_read_body": {
+                "type": "object",
+                "properties": {
+                    "headers": {
+                        "$ref": "#/components/schemas/repotinglocationread_headers"
+                    }
+                }
+            },
+            "skillset_update_body": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "skillSetId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "repotinglocation_read_body": {
+                "type": "object",
+                "properties": {
+                    "headers": {
+                        "$ref": "#/components/schemas/repotinglocationread_headers"
+                    }
+                }
+            },
+            "read_new_body": {
+                "type": "object",
+                "properties": {
+                    "isWebsite": {
+                        "type": "string"
+                    }
+                }
+            },
+            "subskillset_delete_body": {
+                "type": "object",
+                "properties": {
+                    "subSkillSetId": {
+                        "type": "string"
                     }
                 }
             }
