@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "defaultTitle",
+        "title": "Swagger",
         "description": "defaultDescription",
         "version": "0.1"
     },
@@ -13,6 +13,9 @@
     "paths": {
         "/shift/create": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -55,6 +58,9 @@
         },
         "/shiftLog/read": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -97,6 +103,9 @@
         },
         "/shift/cancel": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -139,6 +148,9 @@
         },
         "/template/read": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -173,6 +185,9 @@
         },
         "/template/create": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -215,6 +230,9 @@
         },
         "/shift/read": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -255,250 +273,11 @@
                 }
             ]
         },
-        "/opsgroup/5f8d569989b1f5247647a111": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {}
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
-        "/opsGroup/detail/5db7ce7350fe8e253ff9818f": {
-            "get": {
-                "description": "Auto generated using Swagger Inspector",
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector"
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
-        "/opsGroup": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/opsGroup_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\r\n  \"opsGroupName\": \"123456\",\r\n  \"buId\": [\r\n    \"5bd723a8c1e35a7a250d562a\"\r\n  ],\r\n  \"adminId\": [\r\n    \"5a98fb9536ab4f444b427176\"\r\n  ],\r\n  \"noOfTeam\": 1,\r\n  \"opsTeam\": [\r\n    {\r\n      \"userId\": [\r\n        \"5bd72cb68e13ca7ce6718f3d\"\r\n      ],\r\n      \"admin\": [],\r\n      \"name\": \"Team 1\"\r\n    }\r\n  ],\r\n  \"isDraft\": false,\r\n  \"userId\": [\r\n    \"5bd72cb68e13ca7ce6718f3d\"\r\n  ],\r\n  \"swopSetup\": \"0\"\r\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {}
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
-        "/opsgroup/remove/staff": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/remove_staff_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\r\n  \"userId\": [\r\n    \"5bd72cb68e13ca7ce6718f3d\"\r\n  ],\r\n  \"teamId\": \"60fbebc999d56669ed8a36ca\"\r\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {}
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
-        "/opsGroup/unassign/stafflist": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/unassign_stafflist_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\r\n  \"buId\": [\r\n    \"5bd723a8c1e35a7a250d562a\"\r\n  ]\r\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector"
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
-        "/opsGroup/update": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/opsGroup_update_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\r\n  \"OpsGroup\": {\r\n        \"opsGroupName\": \"Update for swagger creation\",\r\n        \"userId\": [\r\n            \"5bd72cb68e13ca7ce6718f3d\"\r\n        ],\r\n        \"buId\": [\r\n            \"5bd723a8c1e35a7a250d562a\"\r\n        ],\r\n        \"opsTeamId\": [],\r\n        \"createdBy\": \"5a98fb9536ab4f444b427176\",\r\n        \"companyId\": \"5a9d162b36ab4f444b4271c8\",\r\n        \"noOfTeam\": 1,\r\n        \"swopSetup\": \"0\",\r\n        \"adminId\": [\r\n            \"5a98fb9536ab4f444b427176\"\r\n        ],\r\n        \"isDelete\": false,\r\n        \"isDraft\": false,\r\n        \"_id\": \"640c0eaf1d039811545289f8\",\r\n        \"removeOpsTeamId\": [],\r\n        \"updatedBy\": [],\r\n        \"createdAt\": \"2023-03-11T05:16:31.604Z\",\r\n        \"updatedAt\": \"2023-03-11T05:16:31.604Z\",\r\n        \"__v\": 0\r\n    }\r\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {}
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
-        "/opsGroup/get": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/opsGroup_get_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\r\n  \"privilage\": true\r\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector"
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
         "/shift/cancelIndividualShift": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -539,50 +318,11 @@
                 }
             ]
         },
-        "/shift/shiftExtension/confirmation": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/shiftExtension_confirmation_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\"shiftDetailId\":\"633af5816da8d435e6568e3d\",\"userId\":\"5a9973dd36ab4f444b42718c\",\"status\":2}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "500": {
-                        "description": "Auto generated using Swagger Inspector",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {}
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
         "/staffshift/checklimit": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -625,6 +365,9 @@
         },
         "/shift/adjust": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -665,104 +408,11 @@
                 }
             ]
         },
-        "/leavemanagement/appliedLeave/bu": {
-            "get": {
-                "description": "Auto generated using Swagger Inspector",
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector"
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
-        "/ballot/user": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ballot_user_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\"isOpsGroup\":false,\"buId\":\"5bd7f1cea6f8e97f5d80cc8a\"}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Auto generated using Swagger Inspector"
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
-        "/newleaveplanner/usersbydate/bu": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/usersbydate_bu_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\"date\":\"01-01-2023\",\"timeZone\":\"GMT+0530\",\"year\":2023,\"buId\":\"5d7fb505a6dcf1405d1345e6\"}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {}
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
         "/shift/shiftExtension": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -805,6 +455,9 @@
         },
         "/staffshift/bookingslist": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -839,6 +492,9 @@
         },
         "/shift/requestChange": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -879,50 +535,11 @@
                 }
             ]
         },
-        "/shift/cancel": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/shift_cancel_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\r\n    \"shiftId\": \"6405ef968ee6227d74b71612\",\r\n    \"shiftDetailsId\": \"6405ef968ee6227d74b71613\",\r\n    \"isSplitShift\": true,\r\n    \"splitShiftDetailsId\": \"6405ef968ee6227d74b71614\"\r\n}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "300": {
-                        "description": "Auto generated using Swagger Inspector",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {}
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
         "/staffshift/resRequestShiftChange/checklimit": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -955,84 +572,11 @@
                 }
             ]
         },
-        "/newleaveplanner/staffleavetype": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/newleaveplanner_staffleavetype_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\"userId\":\"5ff971775c035b7b7fe1cca4\",\"year\":2023}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {}
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
-        "/newleaveplanner/leavetype": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/newleaveplanner_leavetype_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\"date\":\"01-01-2023\",\"timeZone\":\"GMT+0530\",\"year\":2023,\"opsGroupId\":\"6177f73326a82b6940f3ac53\",\"opsTeamId\":\"6177f73326a82b6940f3ac54\"}"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector"
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
         "/staffshift/cancel": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -1075,6 +619,9 @@
         },
         "/timesheet/export/5bd723a8c1e35a7a250d562a": {
             "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "responses": {
                     "200": {
@@ -1103,6 +650,9 @@
         },
         "/timesheet/history/export/5bd723a8c1e35a7a250d562a": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -1137,6 +687,9 @@
         },
         "/timesheet/userimage/5a98fb9536ab4f444b427176": {
             "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "responses": {
                     "200": {
@@ -1165,6 +718,9 @@
         },
         "/timesheet/lock": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -1207,6 +763,9 @@
         },
         "/timesheet/read/5bd723a8c1e35a7a250d562a": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -1247,50 +806,11 @@
                 }
             ]
         },
-        "/attendance/add": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/attendance_add_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\"userId\":\"5a98fb9536ab4f444b427176\",\"shiftId\":\"640f28b44a5ae61030dbfa41\",\"shiftDetailId\":\"640f28b44a5ae61030dbfa43\",\"attendanceMode\":\"Qr\",\"attandanceTakenBy\":\"\\\"5a98fb9536ab4f444b427176\\\"\",\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"status\":1}\r\n"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {}
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
         "/timesheet/history/5bd723a8c1e35a7a250d562a": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -1325,55 +845,10 @@
         },
         "/timesheet/5bd723a8c1e35a7a250d562a": {
             "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
-                "responses": {
-                    "200": {
-                        "description": "Auto generated using Swagger Inspector",
-                        "content": {
-                            "application/json; charset=utf-8": {
-                                "schema": {
-                                    "type": "string"
-                                },
-                                "examples": {}
-                            }
-                        }
-                    }
-                },
-                "servers": [
-                    {
-                        "url": "https://admin.netroc3.tk"
-                    }
-                ]
-            },
-            "servers": [
-                {
-                    "url": "https://admin.netroc3.tk"
-                }
-            ]
-        },
-        "/timesheet/approval": {
-            "post": {
-                "description": "Auto generated using Swagger Inspector",
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/timesheet_approval_body"
-                            },
-                            "examples": {
-                                "0": {
-                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"clocked\":true,\"neither\":false,\"shift\":false,\"breakTime\":[],\"approveClockInTime\":\"2023-02-25T11:33:19.090Z\",\"approveClockOutTime\":\"2023-02-25T15:39:55.763Z\",\"shiftDetailId\":\"63f71a766b323cb7ac350e24\",\"shiftId\":\"63f71a766b323cb7ac350e1c\",\"userId\":\"5a98fb9536ab4f444b427176\",\"neitherMessage\":\"Approving Clocked hours\",\"_id\":\"63f9f1ff6b323cb7ac3785d7\"}\r\n"
-                                },
-                                "1": {
-                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"clocked\":false,\"neither\":true,\"shift\":false,\"approveClockInTime\":\"2023-03-07T19:40:00.000Z\",\"approveClockOutTime\":\"2023-03-07T22:25:00.000Z\",\"shiftDetailId\":\"64077a501d0398115451b5f6\",\"shiftId\":\"64077a501d0398115451b5f4\",\"userId\":\"5a98fb9536ab4f444b427176\",\"neitherMessage\":\"worked for these hours\"}\r\n"
-                                },
-                                "2": {
-                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"clocked\":false,\"neither\":false,\"shift\":true,\"breakTime\":[{\"startTime\":\"2023-03-13T15:45:00.000Z\",\"endTime\":\"2023-03-13T16:00:00.000Z\",\"duration\":15,\"_id\":\"640f2be71d0398115454a581\"}],\"approveClockInTime\":\"2023-03-13T15:30:00.000Z\",\"approveClockOutTime\":\"2023-03-13T16:30:00.000Z\",\"shiftDetailId\":\"640f28b44a5ae61030dbfa43\",\"shiftId\":\"640f28b44a5ae61030dbfa41\",\"userId\":\"5a98fb9536ab4f444b427176\",\"neitherMessage\":\"Approving Shift hours\",\"_id\":\"640f2a8d1d0398115454a177\"}\r\n"
-                                }
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
                         "description": "Auto generated using Swagger Inspector",
@@ -1401,6 +876,9 @@
         },
         "/timesheet/lockall": {
             "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -1443,6 +921,9 @@
         },
         "/timesheet/qrcode/5a98fb9536ab4f444b427176/640f28b44a5ae61030dbfa43": {
             "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "responses": {
                     "200": {
@@ -1455,6 +936,1278 @@
                                 "examples": {}
                             }
                         }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/companyuser/update": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/companyuser_update_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"userId\":\"5a9d1d8f36ab4f444b4271ea\",\"schemeId\":\"5f278f586fe0636108ae4b96\",\"skillSetTierType\":2,\"role\":\"5a9d093736ab4f444b4271c5\",\"subSkillSets\":[\"5c08f01dd818ed0513fe438f\"]}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/scheme/5a9d162b36ab4f444b4271c8": {
+            "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/scheme": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/scheme_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"companyID\":\"5a9d162b36ab4f444b4271c8\",\"schemeName\":\"Scheme Permanent Staff\",\"schemeDesc\":\"for Permanent Staff only\",\"shiftSchemeType\":2,\"admin\":\"\",\"shiftSetup\":{\"assignShift\":{\"enabled\":false,\"disabled\":true,\"normal\":true,\"ot\":false,\"allowShiftExtension\":{\"yes\":true,\"no\":false,\"normal\":true,\"ot\":false},\"allowRecall\":{\"no\":false,\"normal\":true,\"ot\":false,\"yes\":true}},\"openShift\":{\"enabled\":false,\"disabled\":true,\"normal\":\"\",\"ot\":\"\",\"allowShiftExtension\":{\"yes\":\"\",\"no\":\"\",\"normal\":\"\",\"ot\":\"\"}},\"limits\":{\"dayOverall\":\"3\",\"weekOverall\":\"20\",\"monthOverall\":null,\"normalHr\":{\"day\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true},\"week\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":\"\",\"disallow\":\"\"},\"month\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":\"\",\"disallow\":\"\"}},\"otHr\":{\"day\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":\"\",\"disallow\":\"\"},\"week\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":\"\",\"disallow\":\"\"},\"month\":{\"value\":null,\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":\"\",\"disallow\":\"\"}}}}}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/skillset/read": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/skillset_read_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"headers\":{\"normalizedNames\":{},\"lazyUpdate\":null}}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/leavegroup/bu/adminlist": {
+            "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/companyUser/read/single": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/read_single_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"userId\":\"5a9d22a736ab4f444b4271f5\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/pageSetting/skillset": {
+            "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/companyuser/editList": {
+            "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "parameters": [
+                    {
+                        "name": "search%5Bregex%5D",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": "false"
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "10"
+                    },
+                    {
+                        "name": "length",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "10"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "10"
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "sortWith",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "1"
+                    },
+                    {
+                        "name": "draw",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "1"
+                    },
+                    {
+                        "name": "search%5Bvalue%5D",
+                        "in": "query",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/scheme/userlog": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/scheme_userlog_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"type\":1}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/scheme/update": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/scheme_update_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"companyID\":\"5a9d162b36ab4f444b4271c8\",\"schemeName\":\"SATS Flexi Scheme\",\"schemeDesc\":\"Flexi only\",\"shiftSchemeType\":1,\"admin\":\"\",\"noOfWeek\":3,\"isShiftInterval\":false,\"shiftIntervalHour\":0,\"shiftIntervalMins\":0,\"shiftSetup\":{\"openShift\":{\"enabled\":false,\"disabled\":true,\"normal\":true,\"ot\":false,\"allowShiftExtension\":{\"yes\":true,\"no\":false,\"normal\":true,\"ot\":false}},\"limits\":{\"dayOverall\":12,\"weekOverall\":60,\"monthOverall\":0,\"normalHr\":{\"day\":{\"value\":\"12\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true},\"week\":{\"value\":\"60\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true},\"month\":{\"value\":\"0\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true}},\"otHr\":{\"day\":{\"value\":\"0\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true},\"week\":{\"value\":\"0\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true},\"month\":{\"value\":\"0\",\"no\":\"\",\"enable\":\"\",\"action\":\"false\",\"alert\":false,\"disallow\":true}}}},\"_id\":\"5e20695ed16e9e7fd2b7da7b\",\"status\":true}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/role/read": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/role_read_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"headers\":{\"normalizedNames\":{},\"lazyUpdate\":null}}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/shiftExtension/confirmation": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shiftExtension_confirmation_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"shiftDetailId\":\"633af5816da8d435e6568e3d\",\"userId\":\"5a9973dd36ab4f444b42718c\",\"status\":2}"
+                                },
+                                "1": {
+                                    "value": "{\"shiftDetailId\":\"633af5816da8d435e6568e3d\",\"userId\":\"5a9973dd36ab4f444b42718c\",\"status\":1}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/attendance/add": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/attendance_add_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"userId\":\"5a98fb9536ab4f444b427176\",\"shiftId\":\"640f28b44a5ae61030dbfa41\",\"shiftDetailId\":\"640f28b44a5ae61030dbfa43\",\"attendanceMode\":\"Qr\",\"attandanceTakenBy\":\"\\\"5a98fb9536ab4f444b427176\\\"\",\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"status\":1}"
+                                },
+                                "1": {
+                                    "value": "{\"userId\":\"5a98fb9536ab4f444b427176\",\"shiftId\":\"640f28b44a5ae61030dbfa41\",\"shiftDetailId\":\"640f28b44a5ae61030dbfa43\",\"attendanceMode\":\"Qr\",\"attandanceTakenBy\":\"\\\"5a98fb9536ab4f444b427176\\\"\",\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"status\":2}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/businessunit/skillsetsandlocations": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/businessunit_skillsetsandlocations_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"businessUnitId\":{\"_id\":\"5bd723a8c1e35a7a250d562a\",\"orgName\":\"SATS > test > test > test BU\"}}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/businessunit/weekNo/5bd723a8c1e35a7a250d562a": {
+            "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/attendance/breakTime": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/attendance_breakTime_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"userId\":\"5a9973dd36ab4f444b42718c\",\"shiftDetailId\":\"60c4d597592add0c7f404420\",\"startTime\":\"6-16-2021 17:30:00 GMT+0530\",\"endTime\":\"6-16-2021 17:35:00 GMT+0530\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/timesheet/approval": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/timesheet_approval_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"clocked\":false,\"neither\":true,\"shift\":false,\"approveClockInTime\":\"2023-03-07T19:40:00.000Z\",\"approveClockOutTime\":\"2023-03-07T22:25:00.000Z\",\"shiftDetailId\":\"64077a501d0398115451b5f6\",\"shiftId\":\"64077a501d0398115451b5f4\",\"userId\":\"5a98fb9536ab4f444b427176\",\"neitherMessage\":\"worked for these hours\"}"
+                                },
+                                "1": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"clocked\":false,\"neither\":false,\"shift\":true,\"breakTime\":[{\"startTime\":\"2023-03-13T15:45:00.000Z\",\"endTime\":\"2023-03-13T16:00:00.000Z\",\"duration\":15,\"_id\":\"640f2be71d0398115454a581\"}],\"approveClockInTime\":\"2023-03-13T15:30:00.000Z\",\"approveClockOutTime\":\"2023-03-13T16:30:00.000Z\",\"shiftDetailId\":\"640f28b44a5ae61030dbfa43\",\"shiftId\":\"640f28b44a5ae61030dbfa41\",\"userId\":\"5a98fb9536ab4f444b427176\",\"neitherMessage\":\"Approving Shift hours\",\"_id\":\"640f2a8d1d0398115454a177\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/delete": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "400": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/create/restoff": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "400": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/newleaveplanner/usersbydate/bu": {
+            "post": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/usersbydate_bu_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"date\":\"01-01-2023\",\"timeZone\":\"GMT+0530\",\"year\":2023,\"buId\":\"5d7fb505a6dcf1405d1345e6\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/leavemanagement/appliedLeave/bu": {
+            "get": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/newleaveplanner/staffleavetype": {
+            "post": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/newleaveplanner_staffleavetype_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"userId\":\"5ff971775c035b7b7fe1cca4\",\"year\":2023}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/newleaveplanner/leavetype": {
+            "post": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/newleaveplanner_leavetype_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"date\":\"01-01-2023\",\"timeZone\":\"GMT+0530\",\"year\":2023,\"opsGroupId\":\"6177f73326a82b6940f3ac53\",\"opsTeamId\":\"6177f73326a82b6940f3ac54\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/ballot/user": {
+            "post": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ballot_user_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"isOpsGroup\":false,\"buId\":\"5bd7f1cea6f8e97f5d80cc8a\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsgroup/5f8d569989b1f5247647a111": {
+            "post": {
+                "tags": [
+                    "Ops Group"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsGroup/detail/5db7ce7350fe8e253ff9818f": {
+            "get": {
+                "tags": [
+                    "Ops Group"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsGroup": {
+            "post": {
+                "tags": [
+                    "Ops Group"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/opsGroup_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n  \"opsGroupName\": \"123456\",\r\n  \"buId\": [\r\n    \"5bd723a8c1e35a7a250d562a\"\r\n  ],\r\n  \"adminId\": [\r\n    \"5a98fb9536ab4f444b427176\"\r\n  ],\r\n  \"noOfTeam\": 1,\r\n  \"opsTeam\": [\r\n    {\r\n      \"userId\": [\r\n        \"5bd72cb68e13ca7ce6718f3d\"\r\n      ],\r\n      \"admin\": [],\r\n      \"name\": \"Team 1\"\r\n    }\r\n  ],\r\n  \"isDraft\": false,\r\n  \"userId\": [\r\n    \"5bd72cb68e13ca7ce6718f3d\"\r\n  ],\r\n  \"swopSetup\": \"0\"\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsgroup/remove/staff": {
+            "post": {
+                "tags": [
+                    "Ops Group"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/remove_staff_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n  \"userId\": [\r\n    \"5bd72cb68e13ca7ce6718f3d\"\r\n  ],\r\n  \"teamId\": \"60fbebc999d56669ed8a36ca\"\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsGroup/unassign/stafflist": {
+            "post": {
+                "tags": [
+                    "Ops Group"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/unassign_stafflist_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n  \"buId\": [\r\n    \"5bd723a8c1e35a7a250d562a\"\r\n  ]\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsGroup/update": {
+            "post": {
+                "tags": [
+                    "Ops Group"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/opsGroup_update_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n  \"OpsGroup\": {\r\n        \"opsGroupName\": \"Update for swagger creation\",\r\n        \"userId\": [\r\n            \"5bd72cb68e13ca7ce6718f3d\"\r\n        ],\r\n        \"buId\": [\r\n            \"5bd723a8c1e35a7a250d562a\"\r\n        ],\r\n        \"opsTeamId\": [],\r\n        \"createdBy\": \"5a98fb9536ab4f444b427176\",\r\n        \"companyId\": \"5a9d162b36ab4f444b4271c8\",\r\n        \"noOfTeam\": 1,\r\n        \"swopSetup\": \"0\",\r\n        \"adminId\": [\r\n            \"5a98fb9536ab4f444b427176\"\r\n        ],\r\n        \"isDelete\": false,\r\n        \"isDraft\": false,\r\n        \"_id\": \"640c0eaf1d039811545289f8\",\r\n        \"removeOpsTeamId\": [],\r\n        \"updatedBy\": [],\r\n        \"createdAt\": \"2023-03-11T05:16:31.604Z\",\r\n        \"updatedAt\": \"2023-03-11T05:16:31.604Z\",\r\n        \"__v\": 0\r\n    }\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/opsGroup/get": {
+            "post": {
+                "tags": [
+                    "Ops Group"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/opsGroup_get_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n  \"privilage\": true\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
                     }
                 },
                 "servers": [
@@ -1626,23 +2379,6 @@
                     },
                     "status": {
                         "type": "integer"
-                    }
-                }
-            },
-            "shift_cancel_body": {
-                "type": "object",
-                "properties": {
-                    "shiftId": {
-                        "type": "string"
-                    },
-                    "splitShiftDetailsId": {
-                        "type": "string"
-                    },
-                    "isSplitShift": {
-                        "type": "boolean"
-                    },
-                    "shiftDetailsId": {
-                        "type": "string"
                     }
                 }
             },
@@ -1916,20 +2652,6 @@
                     },
                     "userId": {
                         "type": "string"
-                    }
-                }
-            },
-            "shiftExtension_confirmation_body": {
-                "type": "object",
-                "properties": {
-                    "shiftDetailId": {
-                        "type": "string"
-                    },
-                    "userId": {
-                        "type": "string"
-                    },
-                    "status": {
-                        "type": "integer"
                     }
                 }
             },
@@ -2307,32 +3029,6 @@
                     }
                 }
             },
-            "attendance_add_body": {
-                "type": "object",
-                "properties": {
-                    "shiftId": {
-                        "type": "string"
-                    },
-                    "attendanceMode": {
-                        "type": "string"
-                    },
-                    "shiftDetailId": {
-                        "type": "string"
-                    },
-                    "attandanceTakenBy": {
-                        "type": "string"
-                    },
-                    "userId": {
-                        "type": "string"
-                    },
-                    "businessUnitId": {
-                        "type": "string"
-                    },
-                    "status": {
-                        "type": "integer"
-                    }
-                }
-            },
             "export_5bd723a8c1e35a7a250d562a_body": {
                 "type": "object",
                 "properties": {
@@ -2386,6 +3082,487 @@
                     }
                 }
             },
+            "read_5bd723a8c1e35a7a250d562a_body": {
+                "type": "object",
+                "properties": {
+                    "timeZone": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "schemeupdate_shiftSetup_limits_normalHr": {
+                "type": "object",
+                "properties": {
+                    "week": {
+                        "$ref": "#/components/schemas/schemeupdate_shiftSetup_limits_normalHr_week"
+                    },
+                    "month": {
+                        "$ref": "#/components/schemas/schemeupdate_shiftSetup_limits_normalHr_week"
+                    },
+                    "day": {
+                        "$ref": "#/components/schemas/schemeupdate_shiftSetup_limits_normalHr_week"
+                    }
+                }
+            },
+            "schemeupdate_shiftSetup_limits_normalHr_week": {
+                "type": "object",
+                "properties": {
+                    "no": {
+                        "type": "string"
+                    },
+                    "disallow": {
+                        "type": "boolean"
+                    },
+                    "alert": {
+                        "type": "boolean"
+                    },
+                    "enable": {
+                        "type": "string"
+                    },
+                    "action": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "type": "string"
+                    }
+                }
+            },
+            "scheme_shiftSetup_limits_normalHr_week": {
+                "type": "object",
+                "properties": {
+                    "no": {
+                        "type": "string"
+                    },
+                    "disallow": {
+                        "type": "string"
+                    },
+                    "alert": {
+                        "type": "string"
+                    },
+                    "enable": {
+                        "type": "string"
+                    },
+                    "action": {
+                        "type": "string"
+                    },
+                    "value": {}
+                }
+            },
+            "companyuser_update_body": {
+                "type": "object",
+                "properties": {
+                    "subSkillSets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "schemeId": {
+                        "type": "string"
+                    },
+                    "skillSetTierType": {
+                        "type": "integer"
+                    },
+                    "userId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "scheme_body": {
+                "type": "object",
+                "properties": {
+                    "companyID": {
+                        "type": "string"
+                    },
+                    "schemeDesc": {
+                        "type": "string"
+                    },
+                    "schemeName": {
+                        "type": "string"
+                    },
+                    "admin": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "shiftSetup": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup"
+                    },
+                    "shiftSchemeType": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "schemeupdate_shiftSetup_limits": {
+                "type": "object",
+                "properties": {
+                    "dayOverall": {
+                        "type": "integer"
+                    },
+                    "monthOverall": {
+                        "type": "integer"
+                    },
+                    "normalHr": {
+                        "$ref": "#/components/schemas/schemeupdate_shiftSetup_limits_normalHr"
+                    },
+                    "weekOverall": {
+                        "type": "integer"
+                    },
+                    "otHr": {
+                        "$ref": "#/components/schemas/schemeupdate_shiftSetup_limits_normalHr"
+                    }
+                }
+            },
+            "scheme_shiftSetup_assignShift_allowShiftExtension": {
+                "type": "object",
+                "properties": {
+                    "no": {
+                        "type": "boolean"
+                    },
+                    "normal": {
+                        "type": "boolean"
+                    },
+                    "ot": {
+                        "type": "boolean"
+                    },
+                    "yes": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "scheme_userlog_body": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "integer"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "scheme_shiftSetup_openShift_allowShiftExtension": {
+                "type": "object",
+                "properties": {
+                    "no": {
+                        "type": "string"
+                    },
+                    "normal": {
+                        "type": "string"
+                    },
+                    "ot": {
+                        "type": "string"
+                    },
+                    "yes": {
+                        "type": "string"
+                    }
+                }
+            },
+            "skillsetread_headers": {
+                "type": "object",
+                "properties": {
+                    "normalizedNames": {
+                        "type": "object",
+                        "properties": {}
+                    },
+                    "lazyUpdate": {}
+                }
+            },
+            "skillset_read_body": {
+                "type": "object",
+                "properties": {
+                    "headers": {
+                        "$ref": "#/components/schemas/skillsetread_headers"
+                    }
+                }
+            },
+            "scheme_shiftSetup_openShift": {
+                "type": "object",
+                "properties": {
+                    "normal": {
+                        "type": "string"
+                    },
+                    "allowShiftExtension": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_openShift_allowShiftExtension"
+                    },
+                    "ot": {
+                        "type": "string"
+                    },
+                    "disabled": {
+                        "type": "boolean"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "scheme_shiftSetup_limits_normalHr_day": {
+                "type": "object",
+                "properties": {
+                    "no": {
+                        "type": "string"
+                    },
+                    "disallow": {
+                        "type": "boolean"
+                    },
+                    "alert": {
+                        "type": "boolean"
+                    },
+                    "enable": {
+                        "type": "string"
+                    },
+                    "action": {
+                        "type": "string"
+                    },
+                    "value": {}
+                }
+            },
+            "scheme_shiftSetup_assignShift": {
+                "type": "object",
+                "properties": {
+                    "normal": {
+                        "type": "boolean"
+                    },
+                    "allowShiftExtension": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_assignShift_allowShiftExtension"
+                    },
+                    "ot": {
+                        "type": "boolean"
+                    },
+                    "disabled": {
+                        "type": "boolean"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    },
+                    "allowRecall": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_assignShift_allowShiftExtension"
+                    }
+                }
+            },
+            "scheme_shiftSetup_limits_normalHr": {
+                "type": "object",
+                "properties": {
+                    "week": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_limits_normalHr_week"
+                    },
+                    "month": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_limits_normalHr_week"
+                    },
+                    "day": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_limits_normalHr_day"
+                    }
+                }
+            },
+            "read_single_body": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "role_read_body": {
+                "type": "object",
+                "properties": {
+                    "headers": {
+                        "$ref": "#/components/schemas/skillsetread_headers"
+                    }
+                }
+            },
+            "scheme_shiftSetup_limits": {
+                "type": "object",
+                "properties": {
+                    "dayOverall": {
+                        "type": "string"
+                    },
+                    "monthOverall": {},
+                    "normalHr": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_limits_normalHr"
+                    },
+                    "weekOverall": {
+                        "type": "string"
+                    },
+                    "otHr": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_limits_otHr"
+                    }
+                }
+            },
+            "scheme_shiftSetup": {
+                "type": "object",
+                "properties": {
+                    "openShift": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_openShift"
+                    },
+                    "assignShift": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_assignShift"
+                    },
+                    "limits": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_limits"
+                    }
+                }
+            },
+            "scheme_shiftSetup_limits_otHr": {
+                "type": "object",
+                "properties": {
+                    "week": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_limits_normalHr_week"
+                    },
+                    "month": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_limits_normalHr_week"
+                    },
+                    "day": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_limits_normalHr_week"
+                    }
+                }
+            },
+            "schemeupdate_shiftSetup": {
+                "type": "object",
+                "properties": {
+                    "openShift": {
+                        "$ref": "#/components/schemas/schemeupdate_shiftSetup_openShift"
+                    },
+                    "limits": {
+                        "$ref": "#/components/schemas/schemeupdate_shiftSetup_limits"
+                    }
+                }
+            },
+            "scheme_update_body": {
+                "type": "object",
+                "properties": {
+                    "schemeDesc": {
+                        "type": "string"
+                    },
+                    "noOfWeek": {
+                        "type": "integer"
+                    },
+                    "schemeName": {
+                        "type": "string"
+                    },
+                    "admin": {
+                        "type": "string"
+                    },
+                    "shiftIntervalMins": {
+                        "type": "integer"
+                    },
+                    "shiftIntervalHour": {
+                        "type": "integer"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "isShiftInterval": {
+                        "type": "boolean"
+                    },
+                    "shiftSetup": {
+                        "$ref": "#/components/schemas/schemeupdate_shiftSetup"
+                    },
+                    "companyID": {
+                        "type": "string"
+                    },
+                    "_id": {
+                        "type": "string"
+                    },
+                    "shiftSchemeType": {
+                        "type": "integer"
+                    },
+                    "status": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "schemeupdate_shiftSetup_openShift": {
+                "type": "object",
+                "properties": {
+                    "normal": {
+                        "type": "boolean"
+                    },
+                    "allowShiftExtension": {
+                        "$ref": "#/components/schemas/scheme_shiftSetup_assignShift_allowShiftExtension"
+                    },
+                    "ot": {
+                        "type": "boolean"
+                    },
+                    "disabled": {
+                        "type": "boolean"
+                    },
+                    "enabled": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "businessunitskillsetsandlocations_businessUnitId": {
+                "type": "object",
+                "properties": {
+                    "orgName": {
+                        "type": "string"
+                    },
+                    "_id": {
+                        "type": "string"
+                    }
+                }
+            },
+            "attendance_add_body": {
+                "type": "object",
+                "properties": {
+                    "shiftId": {
+                        "type": "string"
+                    },
+                    "attendanceMode": {
+                        "type": "string"
+                    },
+                    "shiftDetailId": {
+                        "type": "string"
+                    },
+                    "attandanceTakenBy": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "shiftExtension_confirmation_body": {
+                "type": "object",
+                "properties": {
+                    "shiftDetailId": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "attendance_breakTime_body": {
+                "type": "object",
+                "properties": {
+                    "shiftDetailId": {
+                        "type": "string"
+                    },
+                    "startTime": {
+                        "type": "string"
+                    },
+                    "endTime": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    }
+                }
+            },
             "timesheet_approval_body": {
                 "type": "object",
                 "properties": {
@@ -2427,6 +3604,14 @@
                     },
                     "neitherMessage": {
                         "type": "string"
+                    }
+                }
+            },
+            "businessunit_skillsetsandlocations_body": {
+                "type": "object",
+                "properties": {
+                    "businessUnitId": {
+                        "$ref": "#/components/schemas/businessunitskillsetsandlocations_businessUnitId"
                     }
                 }
             }
