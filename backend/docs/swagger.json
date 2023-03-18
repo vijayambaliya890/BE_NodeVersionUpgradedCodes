@@ -1772,6 +1772,337 @@
                 }
             ]
         },
+        "/uploads/reportsDownloads/shifts_list_s4j2tijdf2.csv": {
+            "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/facial/list/5bd723a8c1e35a7a250d562a": {
+            "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/facial/create": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/facial_create_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"userId\":\"5a99734636ab4f444b427189\",\"facialInfo\":\"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAAAAAAAAAAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXN........0.09903201460838318,-0.033396001905202866,0.033180464059114456,-0.08753366768360138,-0.1680222749710083,-0.11353716254234314,0.10531715303659439,-0.06963645666837692,0.08044866472482681,0.04863100126385689]\"\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/viewbookings": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/shift_viewbookings_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"cancelledShifts\":true,\"startDate\":\"03-13-2023 00:00:00 GMT+0530\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/reports/bookings": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/reports_bookings_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"date\":\"03-13-2023 08:03:36 GMT+0530\",\"businessUnitId\":[\"5bd723a8c1e35a7a250d562a\"],\"startDate\":\"02-01-2023 00:00:00 GMT+0530\",\"endDate\":\"03-15-2023 00:00:00 GMT+0530\",\"AllBuSelected\":false}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "500": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/reports/listofshifts": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/reports_listofshifts_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"date\":\"03-13-2023 00:00:00 GMT+0800\",\"businessUnitId\":[\"5bd723a8c1e35a7a250d562a\"],\"startDate\":\"02-01-2023 00:00:00 GMT+0800\",\"endDate\":\"03-31-2023 00:00:00 GMT+0800\",\"AllBuSelected\":false}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/uploads/reportsDownloads/cancelled_shifts_ugx66631q4.csv": {
+            "get": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/reports/listofcancellations": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/reports_listofcancellations_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"date\":\"03-13-2023 00:00:00 GMT+0800\",\"businessUnitId\":[\"5bd723a8c1e35a7a250d562a\"],\"startDate\":\"01-01-2023 00:00:00 GMT+0800\",\"endDate\":\"03-31-2023 00:00:00 GMT+0800\",\"cancelHours\":null}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/reports/users": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/reports_users_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"date\":\"03-13-2023 00:00:00 GMT+0530\",\"status\":1,\"appointmentId\":[],\"skillsets\":[],\"businessUnitId\":[\"5a9d165f36ab4f444b4271cb\"],\"doj\":{},\"airportPassExpiryDate\":{}}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
         "/newleaveplanner/usersbydate/bu": {
             "post": {
                 "tags": [
@@ -2224,7 +2555,9 @@
         },
         "/subskillset/create": {
             "post": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -2267,7 +2600,9 @@
         },
         "/businessunit/read/new": {
             "post": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -2302,7 +2637,9 @@
         },
         "/repotinglocation/read": {
             "post": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -2337,7 +2674,9 @@
         },
         "/businessunit/updateBuShiftScheme": {
             "post": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -2372,7 +2711,9 @@
         },
         "/opsgroup/planbu": {
             "get": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "responses": {
                     "200": {
@@ -2393,7 +2734,9 @@
         },
         "/businessunit/setting/5a9d165f36ab4f444b4271cb": {
             "get": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "responses": {
                     "200": {
@@ -2422,7 +2765,9 @@
         },
         "/skillset/create": {
             "post": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -2465,7 +2810,9 @@
         },
         "/subskillset/delete": {
             "post": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -2508,7 +2855,9 @@
         },
         "/skillset/read": {
             "post": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -2546,7 +2895,9 @@
         },
         "/subskillset/update": {
             "post": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -2589,7 +2940,9 @@
         },
         "/businessunit/read/singlebu": {
             "post": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -2632,7 +2985,9 @@
         },
         "/skillset/update": {
             "post": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -2675,7 +3030,9 @@
         },
         "/pageSetting/skillset": {
             "get": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "responses": {
                     "200": {
@@ -2704,7 +3061,9 @@
         },
         "/skillset/delete": {
             "post": {
-                "tags": ["BU Shift setup"],
+                "tags": [
+                    "BU Shift setup"
+                ],
                 "description": "Auto generated using Swagger Inspector",
                 "requestBody": {
                     "content": {
@@ -4345,6 +4704,135 @@
                 "type": "object",
                 "properties": {
                     "subSkillSetId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "reports_bookings_body": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "endDate": {
+                        "type": "string"
+                    },
+                    "AllBuSelected": {
+                        "type": "boolean"
+                    },
+                    "businessUnitId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "startDate": {
+                        "type": "string"
+                    }
+                }
+            },
+            "reports_listofshifts_body": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "endDate": {
+                        "type": "string"
+                    },
+                    "AllBuSelected": {
+                        "type": "boolean"
+                    },
+                    "businessUnitId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "startDate": {
+                        "type": "string"
+                    }
+                }
+            },
+            "reports_listofcancellations_body": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "endDate": {
+                        "type": "string"
+                    },
+                    "cancelHours": {},
+                    "businessUnitId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "startDate": {
+                        "type": "string"
+                    }
+                }
+            },
+            "reports_users_body": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "appointmentId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "businessUnitId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "doj": {
+                        "type": "object",
+                        "properties": {}
+                    },
+                    "status": {
+                        "type": "integer"
+                    },
+                    "skillsets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "airportPassExpiryDate": {
+                        "type": "object",
+                        "properties": {}
+                    }
+                }
+            },
+            "facial_create_body": {
+                "type": "object",
+                "properties": {
+                    "facialInfo": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "shift_viewbookings_body": {
+                "type": "object",
+                "properties": {
+                    "cancelledShifts": {
+                        "type": "boolean"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "startDate": {
                         "type": "string"
                     }
                 }
