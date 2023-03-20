@@ -2290,6 +2290,283 @@
                 }
             ]
         },
+        "/leavemanagement/checkoverlap": {
+            "post": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/leavemanagement_checkoverlap_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"leaveTypeId\":\"5f929d3fa8760b3ec83362c3\",\"leaveGroupId\":\"5f93bccdc2d91279357fcfc6\",\"userId\":\"5a99734636ab4f444b427189\",\"businessUnitId\":\"\",\"timeZone\":\"+0530\",\"startDate\":\"07-01-2023 00:00:00 GMT+0530\",\"endDate\":\"07-04-2023 00:00:00 GMT+0530\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/ballot/getcalenderforyear": {
+            "post": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ballot_getcalenderforyear_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"opsGroupId\":\"6177f73326a82b6940f3ac53\",\"year\":2023}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/newleaveplanner/usersbydate": {
+            "post": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/newleaveplanner_usersbydate_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"opsGroupId\":\"6177f73326a82b6940f3ac53\",\"year\":2023,\"date\":\"01-01-2023\",\"timeZone\":\"GMT+0530\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/ballot/getballotcalender1/5a98fb9536ab4f444b427176": {
+            "get": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/newleaveplanner/leavetype/bu": {
+            "post": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/leavetype_bu_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"buId\":\"5bd723a8c1e35a7a250d562a\",\"date\":\"01-03-2022\",\"timeZone\":\"GMT+0530\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/leavemanagement/allocatteleave": {
+            "post": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/leavemanagement_allocatteleave_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"leaveTypeId\":\"5f929d3fa8760b3ec83362c3\",\"leaveGroupId\":\"5f93bccdc2d91279357fcfc6\",\"userId\":\"5a99734636ab4f444b427189\",\"businessUnitId\":\"\",\"timeZone\":\"+0530\",\"startDate\":\"07-01-2023\",\"endDate\":\"07-04-2023\",\"type\":\"5f929d3fa8760b3ec83362c3\",\"isSwappable\":1,\"remark\":\"\",\"submittedFrom\":3,\"startAt\":\"AM\",\"endAt\":\"AM\",\"opsGroupId\":\"6177f73326a82b6940f3ac53\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/leavemanagement/allocateleavechangedate": {
+            "post": {
+                "tags": [
+                    "Leave Planner"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/leavemanagement_allocateleavechangedate_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"userId\":\"5a99734636ab4f444b427189\",\"startDate\":\"07-01-2023\",\"endDate\":\"07-05-2023\",\"remark\":\"medical\",\"timeZone\":\"GMT+05:30\",\"leaveAppliedId\":\"640c8c274a5ae61030da9fdc\",\"startAt\":\"AM\",\"endAt\":\"AM\",\"isSwappable\":\"1\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
         "/opsgroup/5f8d569989b1f5247647a111": {
             "post": {
                 "tags": [
@@ -4828,6 +5105,153 @@
                 "properties": {
                     "cancelledShifts": {
                         "type": "boolean"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "startDate": {
+                        "type": "string"
+                    }
+                }
+            },
+            "leavetype_bu_body": {
+                "type": "object",
+                "properties": {
+                    "buId": {
+                        "type": "string"
+                    },
+                    "date": {
+                        "type": "string"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    }
+                }
+            },
+            "leavemanagement_allocatteleave_body": {
+                "type": "object",
+                "properties": {
+                    "submittedFrom": {
+                        "type": "integer"
+                    },
+                    "endDate": {
+                        "type": "string"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "remark": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "endAt": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "opsGroupId": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "leaveGroupId": {
+                        "type": "string"
+                    },
+                    "isSwappable": {
+                        "type": "integer"
+                    },
+                    "leaveTypeId": {
+                        "type": "string"
+                    },
+                    "startDate": {
+                        "type": "string"
+                    },
+                    "startAt": {
+                        "type": "string"
+                    }
+                }
+            },
+            "leavemanagement_allocateleavechangedate_body": {
+                "type": "object",
+                "properties": {
+                    "endDate": {
+                        "type": "string"
+                    },
+                    "leaveAppliedId": {
+                        "type": "string"
+                    },
+                    "isSwappable": {
+                        "type": "string"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "remark": {
+                        "type": "string"
+                    },
+                    "endAt": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "startDate": {
+                        "type": "string"
+                    },
+                    "startAt": {
+                        "type": "string"
+                    }
+                }
+            },
+            "newleaveplanner_usersbydate_body": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string"
+                    },
+                    "year": {
+                        "type": "integer"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "opsGroupId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ballot_getcalenderforyear_body": {
+                "type": "object",
+                "properties": {
+                    "year": {
+                        "type": "integer"
+                    },
+                    "opsGroupId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "leavemanagement_checkoverlap_body": {
+                "type": "object",
+                "properties": {
+                    "leaveGroupId": {
+                        "type": "string"
+                    },
+                    "endDate": {
+                        "type": "string"
+                    },
+                    "timeZone": {
+                        "type": "string"
+                    },
+                    "leaveTypeId": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
                     },
                     "businessUnitId": {
                         "type": "string"
