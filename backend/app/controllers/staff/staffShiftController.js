@@ -908,6 +908,13 @@ class staffShift {
             },
           },
           {
+            path: 'geoReportingLocation',
+            select: '_id name',
+            match: {
+              status: 'active',
+            },
+          },
+          {
             path: 'subSkillSets',
             select: 'name status',
             match: {
