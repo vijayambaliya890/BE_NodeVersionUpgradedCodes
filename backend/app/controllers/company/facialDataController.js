@@ -1,6 +1,7 @@
 const mongoose = require('mongoose'),
     FacialData = require("../../models/facialData"),
-    User = require('../../models/user');
+    User = require('../../models/user'),
+    __ = require('../../../helpers/globalFunctions');
 
 
 class facialDataController {

@@ -133,6 +133,9 @@ class shift {
                   shiftObj.subSkillSets = userInfo.subSkillSets;
                   shiftObj.confirmedStaffs = [];
                   shiftObj.confirmedStaffs[0] = userInfo._id;
+                  shiftObj.isProximityEnabled = body.isProximityEnabled
+                  shiftObj.isCheckInEnabled = body.isCheckInEnabled
+                  shiftObj.proximity = body.proximity
                   //     console.log('shiftObj.endTime', shiftObj.endTime, moment(new Date(shiftObj.endTime), 'MM-DD-YYYY HH:mm:ss Z').utc().unix());
                   shiftObj.startTimeInSeconds = moment(
                     new Date(shiftObj.startTime),
@@ -452,7 +455,9 @@ class shift {
           let isSplitShift = false;
           let separateShiftPerDay = function () {
             for (let elementData of req.body.shifts) {
+              console.log('-------- elementData ----------- ', elementData)
               for (let elem of elementData.dayDate) {
+                console.log('--------elem----------- ', elem)
                 const randomShiftId = new mongoose.Types.ObjectId();
                 let shiftSeparated = {
                   subSkillSets: elementData.subSkillSets,
@@ -470,6 +475,9 @@ class shift {
                   isParent: elem.isSplitShift ? 1 : null,
                   randomShiftId: elem.isSplitShift ? randomShiftId : null,
                   geoReportingLocation: elementData.geoReportingLocation,
+                  isProximityEnabled: req.body.isProximityEnabled,
+                  isCheckInEnabled: req.body.isCheckInEnabled,
+                  proximity: req.body.proximity
                 };
 
                 shiftsNewFormat.push(shiftSeparated);
@@ -486,6 +494,9 @@ class shift {
                     endTime: elem.splitEndTime,
                     reportLocationId: elementData.reportLocationId,
                     geoReportingLocation: elementData.geoReportingLocation,
+                    isProximityEnabled: req.body.isProximityEnabled,
+                    isCheckInEnabled: req.body.isCheckInEnabled,
+                    proximity: req.body.proximity,
                     status: elementData.status,
                     isSplitShift: elem.isSplitShift ? true : false,
                     isParent: 2,
@@ -497,6 +508,7 @@ class shift {
                 }
               }
             }
+            // hello
             //  return res.json({shiftsNewFormat})
             req.body.shifts = shiftsNewFormat;
           };
@@ -685,6 +697,7 @@ class shift {
                 shiftObj,
               ).save(),
                 insertedShiftDetailsId = insertedShiftDetails._id;
+                console.log('_____________________________ insertedShiftDetailsId ________ ', insertedShiftDetailsId)
               insertedShiftDetailsIdArray.push(
                 mongoose.Types.ObjectId(insertedShiftDetailsId),
               );
@@ -2016,14 +2029,7 @@ class shift {
             //console.log('element', element.isAssignShift)
             let totalExtension = 0;
             let totalExtensionHrs = 0;
-            if (
-              (((element.mainSkillSets && element.mainSkillSets.length) ||
-                (element.subSkillSets && element.subSkillSets.length)) &&
-                element.reportLocationId &&
-                element.shiftId &&
-                element.shiftId.businessUnitId) ||
-              element.isAssignShift
-            ) {
+            if ((element.shiftId && element.shiftId.businessUnitId) || element.isAssignShift) {
               let tz = element.timeZone;
               if (!tz) {
                 tz = '+0800';
@@ -2462,8 +2468,10 @@ class shift {
           // __.log(listData)
           var templistData = JSON.stringify(listData);
           listData = JSON.parse(templistData);
+          console.log('________________ item ______________ ',listData)
           for (let date in listData) {
             listData[date].forEach((item, index) => {
+              // console.log('________________ item ______________ ',item)
               if (item.isLimit) {
                 const isLimitedStaff = item.appliedStaffs.filter((limit) => {
                   return limit.status == 1 && limit.isLimit;
