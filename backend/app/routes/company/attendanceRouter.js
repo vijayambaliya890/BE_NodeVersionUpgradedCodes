@@ -16,7 +16,7 @@ attendanceRouter.use(passport.authenticate('jwt', {
     });
 
     attendanceRouter.post('/add', (req, res) => {
-        attendanceController.add(req, res)
+        attendanceController.addAttendance(req, res)
     });
     attendanceRouter.post('/', (req, res) => {
         attendanceController.update(req, res)

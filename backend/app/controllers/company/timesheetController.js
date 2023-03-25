@@ -1299,7 +1299,8 @@ class timeSheetController {
         if (results.length > 0) {
           const final = [];
           for (let i = 0; i < results.length; i++) {
-            final.push(this.getAttendanceDataForTimesheetData(results[i]));
+            const data = await this.getAttendanceDataForTimesheetData(results[i]) 
+            final.push(data);
           }
           const allData = await Promise.all(final);
           // return res.json({ allData })
@@ -1405,7 +1406,7 @@ class timeSheetController {
               if (item.attendance.approval.breakTime.length === 0) {
                 item.attendance.approval.breakTime = null;
               }
-              if (item.attendance.approval.breakTime.length === 1) {
+              if (item.attendance.approval.breakTime && item.attendance.approval.breakTime.length === 1) {
                 if (!item.attendance.approval.breakTime[0]) {
                   item.attendance.approval.breakTime.length = 0;
                   item.attendance.approval.breakTime = null;
@@ -1417,6 +1418,7 @@ class timeSheetController {
             }
           })
           .catch((err) => {
+            console.log('.......... err ', err)
             resolve(null);
           });
       } else {
