@@ -1448,10 +1448,10 @@
                             },
                             "examples": {
                                 "1": {
-                                    "value": "{\"shiftDetailId\":\"633af5816da8d435e6568e3d\",\"userId\":\"5a9973dd36ab4f444b42718c\",\"status\":2}"
+                                    "value": "{\"shiftDetailId\":\"641fd606a824e72a1e33ac2b\",\"userId\":\"5a98fb9536ab4f444b427176\",\"status\":2}"
                                 },
                                 "2": {
-                                    "value": "{\"shiftDetailId\":\"633af5816da8d435e6568e3d\",\"userId\":\"5a9973dd36ab4f444b42718c\",\"status\":1}"
+                                    "value": "{\"shiftDetailId\":\"641fd606a824e72a1e33ac2e\",\"userId\":\"5a98fb9536ab4f444b427176\",\"status\":3}"
                                 }
                             }
                         }
