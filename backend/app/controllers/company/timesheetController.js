@@ -8,7 +8,8 @@ const mongoose = require('mongoose'),
   QrCode = require('../../models/qrCode'),
   FacialData = require('../../models/facialData'),
   Attendance = require('../../models/attendance'),
-  Company = require('../../models/company');
+  Company = require('../../models/company'),
+  fs = require('fs-extra');
 var moment = require('moment');
 let striptags = require('striptags');
 const async = require('async');
@@ -42,7 +43,7 @@ class timeSheetController {
     if (!__.checkHtmlContent(req.params)) {
       return __.out(res, 300, `You've entered malicious input`);
     }
-    console.log('in read dashbaor', moment.utc().format());
+    // console.log('in read dashbaor', moment.utc().format());
     let date = new Date(moment.utc().format());
     let currentDateTime = new Date(moment.utc().format());
     let timeZone = req.body.timeZone;
@@ -561,11 +562,11 @@ class timeSheetController {
               index !== splitIndex &&
               splitItem.shiftDetails.isSplitShift &&
               item.shiftDetails.shiftId.toString() ==
-                splitItem.shiftDetails.shiftId.toString() &&
+              splitItem.shiftDetails.shiftId.toString() &&
               new Date(item.shiftDetails.date).getTime() ==
-                new Date(splitItem.shiftDetails.date).getTime() &&
+              new Date(splitItem.shiftDetails.date).getTime() &&
               item.shiftDetails.confirmedStaffs.toString() ==
-                splitItem.shiftDetails.confirmedStaffs.toString()
+              splitItem.shiftDetails.confirmedStaffs.toString()
             ) {
               if (
                 item.shiftDetails.startTime < splitItem.shiftDetails.startTime
@@ -591,7 +592,7 @@ class timeSheetController {
       newResult.sort(function (a, b) {
         return a.shiftDetails.startTime && b.shiftDetails.startTime
           ? a.shiftDetails.startTime.getTime() -
-              b.shiftDetails.startTime.getTime()
+          b.shiftDetails.startTime.getTime()
           : null;
       });
       // this.setRedisData(`${req.params.businessUnitId}timeDashboard`, newResult);
@@ -1126,7 +1127,7 @@ class timeSheetController {
                 });
               }
               const qr = new QrCode(qrCodeObj);
-              qr.save(qrCodeObj).then((result) => {});
+              qr.save(qrCodeObj).then((result) => { });
               return res.json({ status: 1, data: { qrCode } });
             });
           } else {
@@ -1299,7 +1300,7 @@ class timeSheetController {
         if (results.length > 0) {
           const final = [];
           for (let i = 0; i < results.length; i++) {
-            const data = await this.getAttendanceDataForTimesheetData(results[i]) 
+            const data = await this.getAttendanceDataForTimesheetData(results[i])
             final.push(data);
           }
           const allData = await Promise.all(final);
@@ -1469,7 +1470,7 @@ class timeSheetController {
           b.shiftDetails &&
           b.shiftDetails.startTime
           ? a.shiftDetails.startTime.getTime() -
-              b.shiftDetails.startTime.getTime()
+          b.shiftDetails.startTime.getTime()
           : null;
       });
       const newArrayResult = [];
@@ -1507,11 +1508,11 @@ class timeSheetController {
                   index !== splitIndex &&
                   splitItem.shiftDetails.isSplitShift &&
                   item.shiftDetails.shiftId.toString() ==
-                    splitItem.shiftDetails.shiftId.toString() &&
+                  splitItem.shiftDetails.shiftId.toString() &&
                   new Date(item.shiftDetails.date).getTime() ==
-                    new Date(splitItem.shiftDetails.date).getTime() &&
+                  new Date(splitItem.shiftDetails.date).getTime() &&
                   item.shiftDetails.confirmedStaffs.toString() ==
-                    splitItem.shiftDetails.confirmedStaffs.toString()
+                  splitItem.shiftDetails.confirmedStaffs.toString()
                 ) {
                   console.log('insplit');
                   isFound = true;
@@ -2184,12 +2185,11 @@ class timeSheetController {
       }
       // 5cda857e94827c2775164834+his+2020-12-31+2021-01-06
       // {"startDate":"2020-12-31","endDate":"2021-01-06"}
-      const redisKey = `${
-        req.params.businessUnitId
-      }his${req.body.startDate.replace(/-/g, '_')}${req.body.endDate.replace(
-        /-/g,
-        '_',
-      )}`;
+      const redisKey = `${req.params.businessUnitId
+        }his${req.body.startDate.replace(/-/g, '_')}${req.body.endDate.replace(
+          /-/g,
+          '_',
+        )}`;
       // const redisData = await redisClient.get(`${redisKey}`);
       // if (redisData && req.body.isDefault) {
       //   console.log('DATATATATATA Present');
@@ -3095,22 +3095,27 @@ class timeSheetController {
         );
       });
       //  return res.json({status: 1, message: 'Data Found', data: csvData});
-      json2csv({ data: csvData, fields: keys }, function (err, csv) {
-        if (err) console.log(err);
-        // console.log(csv);
-        //  res.send(csv);
-        //  fs.writeFile('file.csv', csv, function(err) {
-        //      if (err) throw err;
-        //      console.log('file saved');
-        //  });
-        console.log('ashish file');
-        res.setHeader(
-          'Content-disposition',
-          'attachment; filename=testing.csv',
-        );
-        res.set('Content-Type', 'application/csv');
-        res.status(200).json({ csv, noData: true });
-      });
+      // json2csv({ data: csvData, fields: keys }, function (err, csv) {
+      //   if (err) console.log(err);
+      // console.log(csv);
+      //  res.send(csv);
+      //  fs.writeFile('file.csv', csv, function(err) {
+      //      if (err) throw err;
+      //      console.log('file saved');
+      //  });
+      //   res.setHeader(
+      //     'Content-disposition',
+      //     'attachment; filename=testing.csv',
+      //   );
+      //   res.set('Content-Type', 'application/csv');
+      //   res.status(200).json({ csv, noData: true });
+      // });
+
+      const csv = await json2csv(csvData, keys);
+      const csvType = 'dubbyData';
+      res.setHeader('Content-disposition', 'attachment; filename=testing.csv');
+      res.set('Content-Type', 'application/csv');
+      res.status(200).json({ csv, noData: true });
     } catch (err) {
       __.log(err);
       __.out(res, 500, err);
