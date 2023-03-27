@@ -850,6 +850,7 @@ class user {
   }
   async read(req, res) {
     try {
+      console.log("=========================================")
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -900,45 +901,45 @@ class user {
           {
             path: 'parentBussinessUnitId',
             select: 'name orgName',
-            populate: {
-              path: 'sectionId',
-              select: 'name',
-              populate: {
-                path: 'departmentId',
-                select: 'name',
-                populate: {
-                  path: 'companyId',
-                  select: 'name',
-                },
-              },
-            },
+            // populate: {
+            //   path: 'sectionId',
+            //   select: 'name',
+            //   populate: {
+            //     path: 'departmentId',
+            //     select: 'name',
+            //     populate: {
+            //       path: 'companyId',
+            //       select: 'name',
+            //     },
+            //   },
+            // },
           },
           {
             path: 'planBussinessUnitId',
-            select: 'name sectionId appointments subSkillSets orgName',
+            select: 'name subSkillSets orgName',
             match: {
               status: 1,
             },
             populate: [
-              {
-                path: 'sectionId',
-                select: 'name',
-                populate: {
-                  path: 'departmentId',
-                  select: 'name',
-                  populate: {
-                    path: 'companyId',
-                    select: 'name',
-                  },
-                },
-              },
-              {
-                path: 'appointments',
-                select: 'name status',
-                match: {
-                  status: 1,
-                },
-              },
+              // {
+              //   path: 'sectionId',
+              //   select: 'name',
+              //   populate: {
+              //     path: 'departmentId',
+              //     select: 'name',
+              //     populate: {
+              //       path: 'companyId',
+              //       select: 'name',
+              //     },
+              //   },
+              // },
+              // {
+              //   path: 'appointments',
+              //   select: 'name status',
+              //   match: {
+              //     status: 1,
+              //   },
+              // },
               {
                 path: 'subSkillSets',
                 select: 'name status',
@@ -961,18 +962,18 @@ class user {
             match: {
               status: 1,
             },
-            populate: {
-              path: 'sectionId',
-              select: 'name',
-              populate: {
-                path: 'departmentId',
-                select: 'name',
-                populate: {
-                  path: 'companyId',
-                  select: 'name',
-                },
-              },
-            },
+            // populate: {
+            //   path: 'sectionId',
+            //   select: 'name',
+            //   populate: {
+            //     path: 'departmentId',
+            //     select: 'name',
+            //     populate: {
+            //       path: 'companyId',
+            //       select: 'name',
+            //     },
+            //   },
+            // },
           },
         ],
         users = null;
@@ -1330,45 +1331,45 @@ class user {
           {
             path: 'parentBussinessUnitId',
             select: 'name orgName',
-            populate: {
-              path: 'sectionId',
-              select: 'name',
-              populate: {
-                path: 'departmentId',
-                select: 'name',
-                populate: {
-                  path: 'companyId',
-                  select: 'name',
-                },
-              },
-            },
+            // populate: {
+            //   path: 'sectionId',
+            //   select: 'name',
+            //   populate: {
+            //     path: 'departmentId',
+            //     select: 'name',
+            //     populate: {
+            //       path: 'companyId',
+            //       select: 'name',
+            //     },
+            //   },
+            // },
           },
           {
             path: 'planBussinessUnitId',
-            select: 'name sectionId appointments subSkillSets',
+            select: 'name subSkillSets',
             match: {
               status: 1,
             },
             populate: [
-              {
-                path: 'sectionId',
-                select: 'name orgName',
-                populate: {
-                  path: 'departmentId',
-                  select: 'name',
-                  populate: {
-                    path: 'companyId',
-                    select: 'name',
-                  },
-                },
-              },
-              {
-                path: 'appointments',
-                select: 'name status',
-                match: {
-                  status: 1,
-                },
-              },
+              // {
+              //   path: 'sectionId',
+              //   select: 'name orgName',
+              //   populate: {
+              //     path: 'departmentId',
+              //     select: 'name',
+              //     populate: {
+              //       path: 'companyId',
+              //       select: 'name',
+              //     },
+              //   },
+              // },
+              // {
+              //   path: 'appointments',
+              //   select: 'name status',
+              //   match: {
+              //     status: 1,
+              //   },
+              // },
               {
                 path: 'subSkillSets',
                 select: 'name status',
@@ -1391,18 +1392,18 @@ class user {
             match: {
               status: 1,
             },
-            populate: {
-              path: 'sectionId',
-              select: 'name',
-              populate: {
-                path: 'departmentId',
-                select: 'name',
-                populate: {
-                  path: 'companyId',
-                  select: 'name',
-                },
-              },
-            },
+            // populate: {
+            //   path: 'sectionId',
+            //   select: 'name',
+            //   populate: {
+            //     path: 'departmentId',
+            //     select: 'name',
+            //     populate: {
+            //       path: 'companyId',
+            //       select: 'name',
+            //     },
+            //   },
+            // },
           },
         ],
         users = null;
