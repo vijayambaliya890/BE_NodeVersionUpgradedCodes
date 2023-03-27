@@ -7305,9 +7305,7 @@ class shift {
       //     }]);
       // req.user._id = mongoose.Types.ObjectId("5a99737036ab4f444b42718a");
       const userId = req.body.userId;
-      let limitData = {
-        status: 1,
-      };
+      let limitData = { status: 1 };
       if (req.body.status == 2) {
         let schemeDetails = await User.findById(userId, {
           schemeId: 1,
@@ -7322,7 +7320,7 @@ class shift {
         ]);
         schemeDetails = schemeDetails.schemeId;
         if (schemeDetails.isShiftInterval) {
-          const shiftDetail = await ShiftDetails.findOneAndUpdate({
+          const shiftDetail = await ShiftDetails.findOne({
             _id: mongoose.Types.ObjectId(shiftDetailId),
             'extendedStaff.userId': mongoose.Types.ObjectId(req.body.userId),
           });

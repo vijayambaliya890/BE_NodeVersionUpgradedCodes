@@ -6,6 +6,7 @@ const mongoose = require('mongoose'),
   Attendance = require('../../models/attendance'),
   AttendanceLog = require('../../models/attendanceLog'),
   FacialData = require('../../models/facialData'),
+  json2csv = require('json2csv').parse,
   SubSection = require('../../models/subSection');
 var moment = require('moment');
 // const redisData = require('../../../helpers/redisDataGenerator');
@@ -127,22 +128,11 @@ class attendanceController {
         dataFormat.push(item);
       }
       if (keys.length > 0) {
-        json2csv({ data: dataFormat, fields: keys }, function (err, csv) {
-          if (err) console.log(err);
-          // console.log(csv);
-          //  res.send(csv);
-          //  fs.writeFile('file.csv', csv, function(err) {
-          //      if (err) throw err;
-          //      console.log('file saved');
-          //  });
-          console.log('ashish file');
-          res.setHeader(
-            'Content-disposition',
-            'attachment; filename=attendancelog.csv',
-          );
-          res.set('Content-Type', 'application/csv');
-          res.status(200).json({ csv, noData: true });
-        });
+        const csv = await json2csv(dataFormat, keys);
+        const csvType = 'dubbyData';
+        res.setHeader('Content-disposition', 'attachment; filename=testing.csv');
+        res.set('Content-Type', 'application/csv');
+        res.status(200).json({ csv, noData: true });
       } else {
         return res.json({ data: [] });
       }
@@ -161,6 +151,9 @@ class attendanceController {
       endDate = new Date(endDate);
       startDate = startDate.setHours(startDate.getHours() - 12);
       startDate = new Date(startDate);
+
+      let { shiftId, shiftDetailId, userId, attandanceTakenBy, businessUnitId, status, clockInDateTime, clockOutDateTime = "", attendanceMode = "", checkInLocation = "", checkOutLocation = "", checkedInDistanceInMeters = 0, checkedOutDistanceInMeters = 0 } = req.body
+
       const shiftData = await Shift.findOne({ _id: req.body.shiftId });
       ShiftDetails.findOne(
         {
@@ -201,26 +194,46 @@ class attendanceController {
                 userId: mongoose.Types.ObjectId(req.body.userId),
               })
                 .then(async (attendanceResult) => {
-                  console.log(attendanceResult, 'attendanceResult');
-                  if (attendanceResult.length === 0) {
-                    if (req.body.attendanceMode === 'Facial Failed') {
-                      req.body.status = 4;
-                    } else if (req.body.attendanceMode === 'QR Failed') {
-                      req.body.status = 5;
-                    } else {
+                  if (req.body.attendanceMode === 'Facial Failed') {
+                    req.body.status = 4;
+                  } else if (req.body.attendanceMode === 'QR Failed') {
+                    req.body.status = 5;
+                  } else {
+                    if (req.body.status === 1)
                       req.body.clockInDateTime = new Date();
-                    }
-                    console.log(
-                      'req.body.clockInDateTime',
-                      req.body.clockInDateTime,
-                    );
+                    else if (req.body.status === 2)
+                      req.body.clockOutDateTime = new Date();
+                  }
+                  console.log(
+                    'req.body.clockInDateTime',
+                    req.body.clockInDateTime,
+                  );
+                  let attend = (status === 1) ? { clockInDateTime: req.body.clockInDateTime } : { clockOutDateTime: req.body.clockOutDateTime }
+
+                  if (attendanceResult.length === 0) {
+
                     delete req.body.breakTime;
-                    new AttendanceLog(req.body)
-                      .save()
-                      .then((log) => {})
-                      .catch((e) => {
-                        console.log('eeee', e);
+                    await AttendanceLog(req.body).save();
+                    // new AttendanceLog(req.body)
+                    //   .save()
+                    //   .then((log) => {})
+                    //   .catch((e) => {
+                    //     console.log('eeee', e);
+                    //   });
+                    const result = await Attendance(req.body).save();
+                    if (req.body.status === 4) {
+                      return res.json({
+                        status: 4,
+                        data: result,
+                        message: req.body.attendanceMode,
                       });
+                    }
+                    return res.json({
+                      status: 1,
+                      data: result,
+                      message: 'Attendance clock in',
+                    });
+                    /*
                     new Attendance(req.body).save().then(async (result) => {
                       console.log('clocking done ***************');
                       // const rR = await this.updateRedisSingle(
@@ -244,13 +257,59 @@ class attendanceController {
                         message: 'Attendance clock in',
                       });
                     });
+                    */
                   } else {
+                    let attendanceLog;
+                    try {
+                      await Attendance.findOneAndUpdate({
+                        shiftDetailId: mongoose.Types.ObjectId(shiftDetailId),
+                        shiftId: mongoose.Types.ObjectId(shiftId),
+                        userId: mongoose.Types.ObjectId(userId)
+                      }, {
+                        $set: { ... { attendanceMode, status, checkOutLocation }, ...attend },
+                      }, { new: true });
+
+                      // await attendance.findOneAndUpdateAttendance({
+                      //   shiftDetailId: mongoose.Types.ObjectId(shiftDetailId),
+                      //   shiftId: mongoose.Types.ObjectId(shiftId),
+                      //   userId: mongoose.Types.ObjectId(userId)
+                      // }, {
+                      //   $set: { ... { attendanceMode, status, checkOutLocation }, ...attend },
+                      // }, { new: true });
+
+                      const attendanceLog = await AttendanceLog.findOneAndUpdate({
+                        shiftDetailId: mongoose.Types.ObjectId(shiftDetailId),
+                        shiftId: mongoose.Types.ObjectId(shiftId),
+                        userId: mongoose.Types.ObjectId(userId),
+                      }, {
+                        $set: { ... { attendanceMode, status, checkOutLocation }, attend },
+
+                      }, { new: true })
+
+                      // attendanceLog = await attendance.findOneAndUpdateAttendanceLog({
+                      //   shiftDetailId: mongoose.Types.ObjectId(shiftDetailId),
+                      //   shiftId: mongoose.Types.ObjectId(shiftId),
+                      //   userId: mongoose.Types.ObjectId(userId),
+                      // }, {
+                      //   $set: { ... { attendanceMode, status, checkOutLocation }, attend },
+
+                      // }, { new: true });
+                    } catch (e) {
+                      console.log("eeee", e);
+                    }
+                    if (status === 4) {
+                      return res.json({
+                        status: 4,
+                        data: attendanceLog,
+                        message: attendanceMode,
+                      });
+                    }
+                    let message = (status == 1) ? 'Attendance Clocked In' : "Attendance Clocked Out"
                     return res.json({
-                      status: 3,
-                      data: null,
-                      message: 'Something went wrong',
+                      status: 1,
+                      data: attendanceLog,
+                      message,
                     });
-                    //return res.json({status:2, data: null, message: "Attendance already clock in"});
                   }
                 })
                 .catch((err) => {
@@ -284,6 +343,189 @@ class attendanceController {
       __.out(res, 500);
     }
   }
+
+  async addAttendance(req, res) {
+    console.log("===========  In this api is used for add attendance ============")
+
+    let { shiftId, shiftDetailId, userId, attandanceTakenBy, businessUnitId, status, clockInDateTime, clockOutDateTime = "", attendanceMode = "", checkInLocation = "", checkOutLocation = "", checkedInDistanceInMeters = 0 } = req.body
+
+    let endDate = new Date();
+    let startDate = new Date();
+    endDate = endDate.setHours(endDate.getHours() + 12);
+    endDate = new Date(endDate);
+    startDate = startDate.setHours(startDate.getHours() - 12);
+    startDate = new Date(startDate);
+    try {
+
+      console.log(userId, shiftDetailId, shiftId)
+
+      const shiftData = await Shift.findOne({ _id: req.body.shiftId });
+      let shiftDetail = await ShiftDetails.findOne(
+        {
+          confirmedStaffs: { $in: [mongoose.Types.ObjectId(req.body.userId)] },
+          _id: mongoose.Types.ObjectId(req.body.shiftDetailId),
+          shiftId: mongoose.Types.ObjectId(req.body.shiftId),
+        },
+        { date: 1, startTime: 1, endTime: 1, shiftId: 1, duration: 1 },
+      );
+
+
+      if (shiftDetail) {
+        shiftDetail = JSON.parse(JSON.stringify(shiftDetail))
+        let shfitStartTime = new Date(shiftDetail.startTime);
+        shfitStartTime = shfitStartTime.setDate(new Date(shfitStartTime).getDate() - 1);
+        var diff = (new Date(shfitStartTime) - new Date());
+        let min = Math.floor((diff / 1000) / 60);
+        if (shiftDetail.isExtendedShift) {
+          const shiftExtendedObj = shiftDetail.extendedStaff.filter((i) => {
+            return i.userId.toString() === userId;
+          });
+          if (shiftExtendedObj.length > 0) {
+            let exshfitStartTime = new Date(shiftExtendedObj[0].startDateTime);
+            var diff = new Date(exshfitStartTime) - new Date();
+            min = Math.floor(diff / 1000 / 60);
+          }
+        }
+        //min < 60
+        if (true) {
+          try {
+            const attendanceResult = await Attendance.find({
+              shiftDetailId: mongoose.Types.ObjectId(req.body.shiftDetailId),
+              shiftId: mongoose.Types.ObjectId(req.body.shiftId),
+              userId: mongoose.Types.ObjectId(req.body.userId),
+            })
+
+            if (attendanceMode === "Facial Failed") {
+              status = 4;
+            } else if (attendanceMode === "QR Failed") {
+              status = 5;
+            } else {
+              if (status === 1) clockInDateTime = new Date();
+              else if (status === 2) clockOutDateTime = new Date();
+
+            }
+            let attend = (status === 1) ? { clockInDateTime } : { clockOutDateTime }
+            if (attendanceResult && attendanceResult.length) {
+              console.log("========== INSIDE FOR UPDATE ========");
+              let attendanceResponse;
+              try {
+                attendanceResponse = await Attendance.findOneAndUpdate({
+                  shiftDetailId: mongoose.Types.ObjectId(shiftDetailId),
+                  shiftId: mongoose.Types.ObjectId(shiftId),
+                  userId: mongoose.Types.ObjectId(userId)
+                }, {
+                  $set: { ... { attendanceMode, status, checkOutLocation }, ...attend },
+                }, { new: true });
+
+                await AttendanceLog.findOneAndUpdate({
+                  shiftDetailId: mongoose.Types.ObjectId(shiftDetailId),
+                  shiftId: mongoose.Types.ObjectId(shiftId),
+                  userId: mongoose.Types.ObjectId(userId),
+                }, {
+                  $set: { ... { attendanceMode, status, checkOutLocation }, attend },
+                }, { new: true });
+              } catch (e) {
+                console.log("eeee", e);
+              }
+              if (status === 4) {
+                return res.json({
+                  status: 4,
+                  data: attendanceResponse,
+                  message: attendanceMode,
+                });
+              }
+              let message = (status == 1) ? 'Attendance Clocked In' : "Attendance Clocked Out"
+              return res.json({
+                status: 1,
+                data: attendanceResponse,
+                message,
+              });
+            } else {
+              console.log("========== INSIDE FOR Create ========");
+              try {
+
+                // await AttendanceLog(req.body).save();
+                // new AttendanceLog(req.body)
+                //   .save()
+                //   .then((log) => {})
+                //   .catch((e) => {
+                //     console.log('eeee', e);
+                //   });
+                // const result = await Attendance(req.body).save();
+
+
+                if (status === 2) {
+                  return res.send({ status: 5, message: "First you have to Clockin." })
+                }
+                console.log("<=== NOW SAVING ATTENDANCE ===>")
+                console.log({ userId, shiftId, shiftDetailId, status, clockInDateTime, attandanceTakenBy, businessUnitId, attendanceMode, checkInLocation, checkOutLocation, checkedInDistanceInMeters, checkedInDistanceInMeters })
+                const result = await Attendance({ userId, shiftId, shiftDetailId, status, attandanceTakenBy, clockInDateTime, businessUnitId, attendanceMode, checkInLocation, checkOutLocation, checkedInDistanceInMeters }).save();
+                let logs = JSON.parse(JSON.stringify(result));
+                delete logs._id;
+                console.log("NOW CREATING LOGS")
+                console.log(logs)
+                try {
+                  const attendanceLog = await AttendanceLog(logs).save();
+                } catch (e) {
+                  console.log("eeee", e);
+                }
+                if (status === 4) {
+                  return res.json({
+                    status: 4,
+                    data: result,
+                    message: req.body.attendanceMode,
+                  });
+                } else if (req.body.status === 5) {
+                  return res.json({
+                    status: 4,
+                    data: result,
+                    message: req.body.attendanceMode,
+                  });
+                }
+                let message = (status == 1) ? 'Attendance Clocked In' : "Attendance Clocked Out"
+                return res.json({
+                  status: 1,
+                  data: result,
+                  message,
+                });
+              } catch (err) {
+                console.log(err)
+                return res.json({
+                  status: 3,
+                  data: null,
+                  message: "Something went wrong3",
+                  err
+                });
+              }
+            }
+          } catch (err) {
+            console.log(err)
+            return res.json({
+              status: 3,
+              data: null,
+              message: "Something went wrong2",
+              err,
+            });
+          }
+        }
+      } else {
+        return res.json({
+          status: 2,
+          data: null,
+          message: "Shift Not found",
+        });
+      }
+    } catch (err) {
+      console.log(err)
+      return res.json({
+        status: 3,
+        data: null,
+        message: "Something went wrong1",
+        err,
+      });
+    }
+  }
+
   async autoApprove(req, res) {
     try {
       console.log('aa');
@@ -543,8 +785,8 @@ class attendanceController {
       // const startTime = obj.startTime.split(':');
       // const endTime = obj.endTime.split(':');
       var timeZone = moment
-          .parseZone(req.body.startTime, 'MM-DD-YYYY HH:mm:ss Z')
-          .format('Z'),
+        .parseZone(req.body.startTime, 'MM-DD-YYYY HH:mm:ss Z')
+        .format('Z'),
         startTimeDate = moment(req.body.startTime, 'MM-DD-YYYY HH:mm:ss Z')
           .utc()
           .format(),
@@ -603,13 +845,13 @@ class attendanceController {
               console.log('shiftBreakEndTime', shiftBreakEndTime);
               if (
                 minutesOfDay(exshfitEndTime) >=
-                  minutesOfDay(shiftBreakStartTime) &&
+                minutesOfDay(shiftBreakStartTime) &&
                 minutesOfDay(shiftBreakStartTime) >=
-                  minutesOfDay(exshfitStartTime) &&
+                minutesOfDay(exshfitStartTime) &&
                 minutesOfDay(exshfitEndTime) >=
-                  minutesOfDay(shiftBreakEndTime) &&
+                minutesOfDay(shiftBreakEndTime) &&
                 minutesOfDay(shiftBreakEndTime) >=
-                  minutesOfDay(exshfitStartTime)
+                minutesOfDay(exshfitStartTime)
               ) {
                 markBreakTime();
               } else {
@@ -629,9 +871,9 @@ class attendanceController {
               //return res.json({a:new Date(shfitEndTime), b:new Date(shiftBreakStartTime),c:new Date(shfitStartTime),d:new Date(shiftBreakEndTime) })
               if (
                 minutesOfDay(shfitEndTime) >=
-                  minutesOfDay(shiftBreakStartTime) &&
+                minutesOfDay(shiftBreakStartTime) &&
                 minutesOfDay(shiftBreakStartTime) >=
-                  minutesOfDay(shfitStartTime) &&
+                minutesOfDay(shfitStartTime) &&
                 minutesOfDay(shfitEndTime) >= minutesOfDay(shiftBreakEndTime) &&
                 minutesOfDay(shiftBreakEndTime) >= minutesOfDay(shfitStartTime)
               ) {
@@ -659,7 +901,7 @@ class attendanceController {
             if (
               minutesOfDay(shfitEndTime) >= minutesOfDay(shiftBreakStartTime) &&
               minutesOfDay(shiftBreakStartTime) >=
-                minutesOfDay(shfitStartTime) &&
+              minutesOfDay(shfitStartTime) &&
               minutesOfDay(shfitEndTime) >= minutesOfDay(shiftBreakEndTime) &&
               minutesOfDay(shiftBreakEndTime) >= minutesOfDay(shfitStartTime)
             ) {
@@ -701,11 +943,11 @@ class attendanceController {
                     (new Date(startTimeDate).getTime() >=
                       new Date(bt.startTime).getTime() &&
                       new Date(startTimeDate).getTime() <
-                        new Date(bt.endTime).getTime()) ||
+                      new Date(bt.endTime).getTime()) ||
                     (new Date(endTimeDate).getTime() >=
                       new Date(bt.startTime).getTime() &&
                       new Date(endTimeDate).getTime() <=
-                        new Date(bt.endTime).getTime())
+                      new Date(bt.endTime).getTime())
                   ) {
                     isBreakTimeOverLap = true;
                   }
@@ -745,13 +987,13 @@ class attendanceController {
                       //   data: result,
                       //   message: 'Break Time Updated successfully',
                       // });
-                    // } else
+                      // } else
                       return res.json({
                         status: 2,
                         data: null,
                         message: 'No Clock in attendance found',
                       });
-                    }  
+                    }
                   })
                   .catch((err) => {
                     return res.json({
@@ -1182,8 +1424,8 @@ class attendanceController {
       const obj = req.body;
       console.log('sss', req.body.startTime);
       var timeZone = moment
-          .parseZone(req.body.startTime, 'MM-DD-YYYY HH:mm:ss Z')
-          .format('Z'),
+        .parseZone(req.body.startTime, 'MM-DD-YYYY HH:mm:ss Z')
+        .format('Z'),
         startTimeDate = moment(req.body.startTime, 'MM-DD-YYYY HH:mm:ss Z')
           .utc()
           .format(),
@@ -1228,9 +1470,9 @@ class attendanceController {
             if (
               shiftInfo[0] &&
               minutesOfDay(shiftInfo[0].endTime) >=
-                minutesOfDay(startTimeDate) &&
+              minutesOfDay(startTimeDate) &&
               minutesOfDay(startTimeDate) >=
-                minutesOfDay(shiftInfo[0].startTime) &&
+              minutesOfDay(shiftInfo[0].startTime) &&
               minutesOfDay(shiftInfo[0].endTime) >= minutesOfDay(endTimeDate) &&
               minutesOfDay(endTimeDate) >= minutesOfDay(shiftInfo[0].startTime)
             ) {
@@ -1239,9 +1481,9 @@ class attendanceController {
             } else if (
               shiftInfo[1] &&
               minutesOfDay(shiftInfo[1].endTime) >=
-                minutesOfDay(startTimeDate) &&
+              minutesOfDay(startTimeDate) &&
               minutesOfDay(startTimeDate) >=
-                minutesOfDay(shiftInfo[1].startTime) &&
+              minutesOfDay(shiftInfo[1].startTime) &&
               minutesOfDay(shiftInfo[1].endTime) >= minutesOfDay(endTimeDate) &&
               minutesOfDay(endTimeDate) >= minutesOfDay(shiftInfo[1].startTime)
             ) {
@@ -1496,4 +1738,4 @@ async function autoApproveCron() {
 }
 
 attendanceController = new attendanceController();
-module.exports = {attendanceController, autoApproveCron};
+module.exports = { attendanceController, autoApproveCron };
