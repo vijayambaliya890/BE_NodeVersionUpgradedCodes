@@ -6,6 +6,7 @@ const mongoose = require('mongoose'),
   Attendance = require('../../models/attendance'),
   AttendanceLog = require('../../models/attendanceLog'),
   FacialData = require('../../models/facialData'),
+  json2csv = require('json2csv').parse,
   SubSection = require('../../models/subSection');
 var moment = require('moment');
 // const redisData = require('../../../helpers/redisDataGenerator');
@@ -127,22 +128,11 @@ class attendanceController {
         dataFormat.push(item);
       }
       if (keys.length > 0) {
-        json2csv({ data: dataFormat, fields: keys }, function (err, csv) {
-          if (err) console.log(err);
-          // console.log(csv);
-          //  res.send(csv);
-          //  fs.writeFile('file.csv', csv, function(err) {
-          //      if (err) throw err;
-          //      console.log('file saved');
-          //  });
-          console.log('ashish file');
-          res.setHeader(
-            'Content-disposition',
-            'attachment; filename=attendancelog.csv',
-          );
-          res.set('Content-Type', 'application/csv');
-          res.status(200).json({ csv, noData: true });
-        });
+        const csv = await json2csv(dataFormat, keys);
+        const csvType = 'dubbyData';
+        res.setHeader('Content-disposition', 'attachment; filename=testing.csv');
+        res.set('Content-Type', 'application/csv');
+        res.status(200).json({ csv, noData: true });
       } else {
         return res.json({ data: [] });
       }
