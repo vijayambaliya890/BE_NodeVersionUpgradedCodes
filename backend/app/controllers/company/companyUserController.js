@@ -1346,7 +1346,7 @@ class user {
           },
           {
             path: 'planBussinessUnitId',
-            select: 'name subSkillSets',
+            select: 'name orgName subSkillSets',
             match: {
               status: 1,
             },

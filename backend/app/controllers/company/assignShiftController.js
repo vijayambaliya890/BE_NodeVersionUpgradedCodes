@@ -4017,7 +4017,6 @@ class assignShift {
         //   mondayDate,
         //   redisTimeZone,
         // );
-        console.log('updateResultYYYYYYYYYYYYYYYYYYYYYY', updateResult);
         this.failedShiftInsert(res, failPublish, req, insertedShift, 1);
         console.log('userIdForNotification', userIdForNotification);
         if (colKey) {
