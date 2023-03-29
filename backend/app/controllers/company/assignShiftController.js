@@ -3328,7 +3328,7 @@ class assignShift {
       // return res.send('aaaa');
       const year = new Date(ddd).getFullYear();
       const month = new Date(ddd).getMonth() + 1;
-      const day = new Date(ddd).getDate()-1; // ashish
+      const day = new Date(ddd).getDate(); // -1; comment out for local
       console.log('yy', year, month, day);
       const where = {
         //  staff_id:{$in: usersOfBu},
