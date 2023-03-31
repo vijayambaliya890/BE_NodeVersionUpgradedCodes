@@ -3042,6 +3042,7 @@ class assignShift {
         if (limitData.status) {
           isAlert = true;
         }
+        console.log("item======",item);
         const data = await AssignShift.findOneAndUpdate(
           { _id: item.assignShiftId },
           {
@@ -3070,6 +3071,10 @@ class assignShift {
               splitEndTime,
               splitStartTimeInSeconds,
               splitEndTimeInSeconds,
+              geoReportingLocation: item.geoReportingLocation ,
+              isProximityEnabled: item.isProximityEnabled,
+              isCheckInEnabled:item.isCheckInEnabled,
+              proximity : item.proximity
             },
           },
         );
@@ -3323,7 +3328,7 @@ class assignShift {
       // return res.send('aaaa');
       const year = new Date(ddd).getFullYear();
       const month = new Date(ddd).getMonth() + 1;
-      const day = new Date(ddd).getDate(); //-1; // ashish
+      const day = new Date(ddd).getDate(); // -1; comment out for local
       console.log('yy', year, month, day);
       const where = {
         //  staff_id:{$in: usersOfBu},
@@ -3339,7 +3344,7 @@ class assignShift {
       let shifts1 = await findOrFindOne
         .select(
           'staffId staff_id staffAppointmentId staffRoleId _id date reportLocationId startTime endTime day status ' +
-            'shiftChangeRequestStatus subSkillSets shiftRead draftStatus shiftChangeRequestMessage duration shiftDetailId schemeDetails alertMessage isLimit isAlert isAllowPublish isOff isRest splitStartTime splitEndTime isSplitShift isRecalled isRecallAccepted isEmpty mainSkillSets skillSetTierType',
+            'shiftChangeRequestStatus subSkillSets shiftRead draftStatus shiftChangeRequestMessage duration shiftDetailId schemeDetails alertMessage isLimit isAlert isAllowPublish isOff isRest splitStartTime splitEndTime isSplitShift isRecalled isRecallAccepted isEmpty mainSkillSets skillSetTierType geoReportingLocation',
         )
         .populate([
           {
@@ -3399,6 +3404,18 @@ class assignShift {
               },
             },
           },
+          {
+            path: 'reportLocationId',
+            select: '_id name',
+            match: {
+              status: 1,
+            },
+          },
+          {
+            path: 'geoReportingLocation',
+            select: '_id name'
+          },
+          
           // , {
           //     path: 'staffAppointmentId',
           //     select: 'name'
@@ -3915,13 +3932,16 @@ class assignShift {
         for (let i = 0; i < allShifts.length; i++) {
           console.log('2');
           const item = allShifts[i];
+          console.log("item=====",item)
           const insertShift = await this.addShift(item);
+          console.log('insertShift=============',insertShift);
           console.log('3');
           if (insertShift) {
             let insertShiftDetail = await this.addShiftDetail(
               item,
               insertShift,
             );
+            console.log("insertShiftDetail",insertShiftDetail);
             let insertShiftDetailSplit;
             if (item.isSplitShift) {
               insertShiftDetailSplit = await this.addShiftDetailSplit(
@@ -4017,7 +4037,6 @@ class assignShift {
         //   mondayDate,
         //   redisTimeZone,
         // );
-        console.log('updateResultYYYYYYYYYYYYYYYYYYYYYY', updateResult);
         this.failedShiftInsert(res, failPublish, req, insertedShift, 1);
         console.log('userIdForNotification', userIdForNotification);
         if (colKey) {
@@ -4461,6 +4480,10 @@ class assignShift {
         isOff: shiftDetail.isOff,
         isRest: shiftDetail.isRest,
         isSplitShift: shiftDetail.isSplitShift,
+        geoReportingLocation : shiftDetail.geoReportingLocation,
+        proximity :shiftDetail.proximity,
+        isCheckInEnabled : shiftDetail.isCheckInEnabled,
+        isProximityEnabled : shiftDetail.isProximityEnabled
       };
       new ShiftDetails(shiftObj)
         .save()
