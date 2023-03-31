@@ -2159,23 +2159,27 @@ module.exports.exportOpsGroup = async (req, res) => {
         }
       }
       //return res.json({success: true, keys,csvData});
-      json2csv({ data: csvData, fields: keys }, function (err, csv) {
-        if (err) console.log(err);
-        // console.log(csv);
-        //  res.send(csv);
-        //  fs.writeFile('file.csv', csv, function(err) {
-        //      if (err) throw err;
-        //      console.log('file saved');
-        //  });
-        console.log('ashish file');
-        res.setHeader(
-          'Content-disposition',
-          'attachment; filename=testing.csv',
-        );
-        res.set('Content-Type', 'application/csv');
-        res.status(200).send(csv);
-        return;
-      });
+      // json2csv({ data: csvData, fields: keys }, function (err, csv) {
+      //   if (err) console.log(err);
+      //   // console.log(csv);
+      //   //  res.send(csv);
+      //   //  fs.writeFile('file.csv', csv, function(err) {
+      //   //      if (err) throw err;
+      //   //      console.log('file saved');
+      //   //  });
+      //   res.setHeader(
+      //     'Content-disposition',
+      //     'attachment; filename=testing.csv',
+      //   ); 
+      //   res.set('Content-Type', 'application/csv');
+      //   res.status(200).send(csv);
+      //   return;
+      // });
+
+      const csv = await json2csv(csvData, keys);
+      res.setHeader('Content-disposition', 'attachment; filename=testing.csv');
+      res.set('Content-Type', 'application/csv');
+      res.status(200).json({ csv, noData: true });
     }
   } catch (err) {
     __.log(err);

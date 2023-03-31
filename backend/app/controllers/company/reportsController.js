@@ -835,6 +835,10 @@ class reports {
               select: 'name status',
             },
             {
+              path: 'geoReportingLocation',
+              select: '_id name'
+            },
+            {
               path: 'subSkillSets',
               select: 'name status',
               populate: {
@@ -962,6 +966,8 @@ class reports {
           'dateOfShift',
           'startTime',
           'endTime',
+          'SplitStartTime',
+          'SplitEndTime',
           'durationInMinutes',
           'isExtendedShift',
           'skillSets',
@@ -982,7 +988,7 @@ class reports {
             element.shiftId.businessUnitId &&
             element.shiftId.businessUnitId.sectionId &&
             element.shiftId.businessUnitId.sectionId.departmentId &&
-            element.shiftId.businessUnitId.sectionId.departmentId.companyId
+            element.shiftId.businessUnitId.sectionId.departmentId.companyId && element.isParent !==2
           ) {
             var json = {};
             json['createdAt'] = moment
@@ -1042,7 +1048,35 @@ class reports {
                   .format('DD-MM-YYYY HH:mm')
               : '';
 
-            json['durationInMinutes'] = (element.duration * 60).toFixed(2);
+            json['SplitStartTime'] = '';
+            json['SplitEndTime'] = '';
+            json['durationInMinutes'] = element.duration
+                ? (element.duration * 60).toFixed(2)
+                : 0;
+              if (element.isSplitShift) {
+                const splitShiftSecond = result.filter(
+                  (record) =>
+                  record.randomShiftId && record?.randomShiftId?.toString() === element?.randomShiftId?.toString() &&
+                    record.isParent === 2,
+                );
+                if (splitShiftSecond.length) {
+                  json['SplitStartTime'] = moment
+                    .utc(splitShiftSecond[0].startTime)
+                    .utcOffset(`${timeZone}`)
+                    .format('DD-MM-YYYY HH:mm');
+                  json['SplitEndTime'] = moment
+                    .utc(splitShiftSecond[0].endTime)
+                    .utcOffset(`${timeZone}`)
+                    .format('DD-MM-YYYY HH:mm');
+                  json['durationInMinutes'] = parseFloat(json['durationInMinutes']) + parseFloat((splitShiftSecond[0].duration
+                      ? (splitShiftSecond[0].duration * 60).toFixed(2)
+                      : 0));
+                } else {
+                  json['SplitStartTime'] = 'Some Error';
+                  json['SplitEndTime'] = 'Some Error';
+                }
+              }
+            // json['durationInMinutes'] = (element.duration * 60).toFixed(2);
             json['isExtendedShift'] = isExtendedShift;
             json['totalStaffNeedCount'] = element.totalStaffNeedCount;
             json['backUpStaffNeedCount'] = element.backUpStaffNeedCount;
@@ -1055,7 +1089,7 @@ class reports {
             json['skillSets'] = skills.join(' , ');
             json['reportTo'] = element.reportLocationId
               ? element.reportLocationId.name
-              : '';
+              : element.geoReportingLocation.name;
             json['submittedByUserName'] = element.shiftId.plannedBy.name;
             json['submittedByStaffId'] = element.shiftId.plannedBy.staffId;
             json['submittedDateTime'] = moment
@@ -1173,7 +1207,8 @@ class reports {
             element.shiftId.businessUnitId &&
             element.shiftId.businessUnitId.sectionId &&
             element.shiftId.businessUnitId.sectionId.departmentId &&
-            element.shiftId.businessUnitId.sectionId.departmentId.companyId
+            element.shiftId.businessUnitId.sectionId.departmentId.companyId &&
+            element.isParent !==2
           ) {
             var json = {};
             json[
@@ -1212,6 +1247,31 @@ class reports {
             json['durationInMinutes'] = element.duration
               ? (element.duration * 60).toFixed(2)
               : 0;
+            
+              if (element.isSplitShift) {
+                console.log('elementelement', element._id, element.randomShiftId, element.isParent)
+                const splitShiftSecond = shiftResult.filter(
+                  (record) =>
+                  record.randomShiftId && record?.randomShiftId?.toString() === element?.randomShiftId?.toString() &&
+                    record.isParent === 2,
+                );
+                if (splitShiftSecond.length) {
+                  json['SplitStartTime'] = moment
+                    .utc(splitShiftSecond[0].startTime)
+                    .utcOffset(`${timeZone}`)
+                    .format('DD-MM-YYYY HH:mm');
+                  json['SplitEndTime'] = moment
+                    .utc(splitShiftSecond[0].endTime)
+                    .utcOffset(`${timeZone}`)
+                    .format('DD-MM-YYYY HH:mm');
+                  json['durationInMinutes'] = parseFloat(json['durationInMinutes']) + parseFloat((splitShiftSecond[0].duration
+                    ? (splitShiftSecond[0].duration * 60).toFixed(2)
+                    : 0));
+                } else {
+                  json['SplitStartTime'] = 'Some Error';
+                  json['SplitEndTime'] = 'Some Error';
+                }
+              }  
 
             var skills = [];
             for (let subSkill of element.subSkillSets) {
@@ -1283,6 +1343,8 @@ class reports {
           'dateOfShift',
           'startTime',
           'endTime',
+          'SplitStartTime',
+          'SplitEndTime',
           'durationInMinutes',
           'skillSets',
           'reportTo',
@@ -1380,7 +1442,8 @@ class reports {
             element.shiftId.businessUnitId &&
             element.shiftId.businessUnitId.sectionId &&
             element.shiftId.businessUnitId.sectionId.departmentId &&
-            element.shiftId.businessUnitId.sectionId.departmentId.companyId
+            element.shiftId.businessUnitId.sectionId.departmentId.companyId && 
+            element.isParent !==2
           ) {
             var json = {};
             json[
@@ -1401,9 +1464,38 @@ class reports {
               .utcOffset(`${timeZone}`)
               .format('DD-MM-YYYY HH:mm');
 
+            // json['durationInMinutes'] = element.duration
+            //   ? (element.duration * 60).toFixed(2)
+            //   : 0;
+            json['SplitStartTime'] = '';
+            json['SplitEndTime'] = '';
             json['durationInMinutes'] = element.duration
               ? (element.duration * 60).toFixed(2)
               : 0;
+            if (element.isSplitShift) {
+              const splitShiftSecond = shiftResult.filter(
+                (record) =>
+                record.randomShiftId && record?.randomShiftId?.toString() === element?.randomShiftId?.toString() &&
+                  record.isParent === 2,
+              );
+              if (splitShiftSecond.length) {
+                json['SplitStartTime'] = moment
+                  .utc(splitShiftSecond[0].startTime)
+                  .utcOffset(`${timeZone}`)
+                  .format('DD-MM-YYYY HH:mm');
+                json['SplitEndTime'] = moment
+                  .utc(splitShiftSecond[0].endTime)
+                  .utcOffset(`${timeZone}`)
+                  .format('DD-MM-YYYY HH:mm');
+                json['durationInMinutes'] = parseFloat(json['durationInMinutes']) + parseFloat((splitShiftSecond[0].duration
+                    ? (splitShiftSecond[0].duration * 60).toFixed(2)
+                    : 0));
+              } else {
+                json['SplitStartTime'] = 'Some Error';
+                json['SplitEndTime'] = 'Some Error';
+              }
+            }
+
             var skills = [];
             // for (let subSkill of element.subSkillSets) {
             //   skills.push(`${subSkill.skillSetId.name} >> ${subSkill.name}`);
@@ -1473,6 +1565,8 @@ class reports {
           'dateOfShift',
           'startTime',
           'endTime',
+          'SplitStartTime',
+          'SplitEndTime',
           'durationInMinutes',
           // 'skillSets',
           'reportTo',
