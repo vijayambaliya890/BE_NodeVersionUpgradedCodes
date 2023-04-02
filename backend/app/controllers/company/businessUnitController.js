@@ -355,12 +355,14 @@ class businessUnit {
   async skillSetsAndLocations(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
+        logError(`businessunit/skillsetsandlocations API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let requiredResult = await __.checkRequiredFields(req, [
         'businessUnitId',
       ]);
       if (!__.checkSpecialCharacters(req.body)) {
+        logError(`businessunit/skillsetsandlocations API, caught an error `, `You've entered some excluded special characters`);
         return __.out(
           res,
           300,
@@ -368,6 +370,8 @@ class businessUnit {
         );
       }
       if (requiredResult.status === false) {
+        logError(`businessunit/skillsetsandlocations API, Required fields missing `, requiredResult.missingFields);
+        logError(`businessunit/skillsetsandlocations API, request payload `, req.body);
         __.out(res, 400, requiredResult.missingFields);
       } else {
         let businessUnitDetails = await SubSection.findById(
@@ -380,9 +384,10 @@ class businessUnit {
           },
         });
         //return res.json({businessUnitDetails})
-        if (businessUnitDetails === null)
+        if (businessUnitDetails === null) {
+          logError(`businessunit/skillsetsandlocations API, Invalid businessUnitId `, req.body);
           __.out(res, 300, 'Invalid businessUnitId');
-        else {
+        } else {
           let result = await SkillSet.find().populate({
             path: 'subSkillSets',
             select: 'name',
@@ -413,6 +418,7 @@ class businessUnit {
         }
       }
     } catch (err) {
+      logError(`businessunit/skillsetsandlocations API, there is an error `, err.toString());
       __.log(err);
       __.out(res, 500);
     }
@@ -577,7 +583,7 @@ class businessUnit {
           !!bu.sectionId.departmentId &&
           !!bu.sectionId.departmentId.companyId &&
           bu.sectionId.departmentId.companyId._id.toString() ==
-            req.user.companyId,
+          req.user.companyId,
       );
 
       let appointmentIds = await User.find({
@@ -722,7 +728,7 @@ class businessUnit {
           !!bu.sectionId.departmentId &&
           !!bu.sectionId.departmentId.companyId &&
           bu.sectionId.departmentId.companyId._id.toString() ==
-            req.user.companyId,
+          req.user.companyId,
       );
 
       return __.out(res, 201, {
@@ -1053,7 +1059,7 @@ class businessUnit {
           !!bu.sectionId.departmentId &&
           !!bu.sectionId.departmentId.companyId &&
           bu.sectionId.departmentId.companyId._id.toString() ==
-            req.user.companyId,
+          req.user.companyId,
       );
       // let appointmentIds = await User.find({ parentBussinessUnitId: { $in: businessUnitList.map(b => b._id) } })
       //     .select("appointmentId").populate([{
@@ -1172,7 +1178,7 @@ class businessUnit {
           !!bu.sectionId.departmentId &&
           !!bu.sectionId.departmentId.companyId &&
           bu.sectionId.departmentId.companyId._id.toString() ==
-            req.user.companyId,
+          req.user.companyId,
       );
 
       var userPlanBussinessUnitIds = [],
@@ -1225,10 +1231,10 @@ class businessUnit {
         return __.out(res, 300, `You've entered malicious input`);
       }
       logInfo('readWithPnV2 has been called', req.user._id);
-      let {sortBy,sortWith,page, limit, search, filter} = req.query;
+      let { sortBy, sortWith, page, limit, search, filter } = req.query;
       const pageNum = !!page ? parseInt(page) : 0;
-       limit = !!limit ? parseInt(limit) : 10;
-      const skip =(pageNum - 1) / limit;
+      limit = !!limit ? parseInt(limit) : 10;
+      const skip = (pageNum - 1) / limit;
       const allBus = new Set([
         ...req.user.planBussinessUnitId,
       ]);
@@ -1238,8 +1244,8 @@ class businessUnit {
           $in: [...allBus],
         },
       };
-      if(search){
-        where.orgName= {
+      if (search) {
+        where.orgName = {
           $regex: search,
           $options: 'ixs',
         }
@@ -1261,7 +1267,7 @@ class businessUnit {
     } catch (err) {
       logError('readWithPnV2 has error', err);
       logError('readWithPnV2 has error.stack', err.stack);
-     return __.out(res, 300, 'Something went wrong try later');
+      return __.out(res, 300, 'Something went wrong try later');
     }
   }
   async getName(data, res) {

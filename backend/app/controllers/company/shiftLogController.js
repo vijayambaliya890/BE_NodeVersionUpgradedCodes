@@ -12,6 +12,7 @@ const mongoose = require('mongoose'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
 const async = require('async');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class shiftLog {
   async create(data, res) {
@@ -308,8 +309,9 @@ class shiftLog {
           'status',
         ]);
         if (requiredResult.status === false) {
-          __.out(res, 400, requiredResult.missingFields);
-          return;
+          logError(`shiftLog\read API, Required fields missing `, requiredResult.missingFields);
+          logError(`shiftLog\read API, request payload `, req.body);
+          return __.out(res, 400, requiredResult.missingFields);
         }
         let status;
         if (Number(req.body.status) >= 5) {
@@ -404,6 +406,7 @@ class shiftLog {
                       }
                     })
                     .catch((err) => {
+                      logError(`shiftLog\read API, there is an error `, err.toString());
                       if (resultLength === index) {
                         console.log('aaa');
                         __.out(res, 201, result);
@@ -445,7 +448,7 @@ class shiftLog {
                           splitShiftNew.isSplitShift &&
                           splitShiftIndex !== splitShiftIndexNew &&
                           new Date(splitShift.date).getTime() ===
-                            new Date(splitShiftNew.date).getTime() &&
+                          new Date(splitShiftNew.date).getTime() &&
                           splitShift.shiftId === splitShiftNew.shiftId
                         ) {
                           splitShift.splitShiftStartTime =
@@ -476,6 +479,7 @@ class shiftLog {
         __.out(res, 201, result);
       }
     } catch (err) {
+      logError(`shiftLog\read API, there is an error `, err.toString());
       __.log(err);
       __.out(res, 500);
     }
