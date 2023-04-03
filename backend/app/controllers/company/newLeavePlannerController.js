@@ -10,7 +10,9 @@ const User = require("../../models/user");
 const staffLeave = require("../../models/staffLeave");
 const ops = require("../../models/ops");
 const pageSetting = require("../../models/pageSetting");
-const json2csv = require("json2csv");
+const json2csv = require("json2csv").parse;
+__ = require('../../../helpers/globalFunctions');
+
 class newLeavePlannerController {
   // /leavetype
   async getLeaveType(req, res) {
@@ -646,9 +648,10 @@ class newLeavePlannerController {
         if (body.opsGroupId && body.opsGroupId.length === 1) {
           let opsDetails = await OpsGroup.findOne({ _id: { $in: body.opsGroupId }, isDelete: false }, { userId: 1, opsGroupName: 1 });
           opsGroupName = [opsDetails.opsGroupName];
-        } else {
-          return res.json({ success: false, message: body.opsGroupId ? "Only 1 Ops Group needed!" : "Ops Group is missing!" });
         }
+        // } else {
+        //   return res.json({ success: false, message: body.opsGroupId ? "Only 1 Ops Group needed!" : "Ops Group is missing!" });
+        // }
       } else if (body.opsGroupId) {
         let userId = await OpsGroup.find({ _id: { $in: body.opsGroupId }, isDelete: false }, { userId: 1, opsGroupName: 1 });
         if (userId) {
@@ -781,19 +784,23 @@ class newLeavePlannerController {
           }
         }
         //return res.json({data})
-        json2csv({ data: data, fields: keys }, function (err, csv) {
-          if (err) console.log(err);
-          // console.log(csv);
-          //  res.send(csv);
-          //  fs.writeFile('file.csv', csv, function(err) {
-          //      if (err) throw err;
-          //      console.log('file saved');
-          //  });
-          res.setHeader('Content-disposition', 'attachment; filename=testing.csv');
-          res.set('Content-Type', 'application/csv');
-          res.status(200).send(csv);
-          return
-        });
+        // json2csv({ data: data, fields: keys }, function (err, csv) {
+        //   if (err) console.log(err);
+        //   // console.log(csv);
+        //   //  res.send(csv);
+        //   //  fs.writeFile('file.csv', csv, function(err) {
+        //   //      if (err) throw err;
+        //   //      console.log('file saved');
+        //   //  });
+        //   res.setHeader('Content-disposition', 'attachment; filename=testing.csv');
+        //   res.set('Content-Type', 'application/csv');
+        //   res.status(200).send(csv);
+        //   return
+        // });
+        const csv = await json2csv(data, keys);
+        res.setHeader('Content-disposition', 'attachment; filename=testing.csv');
+        res.set('Content-Type', 'application/csv');
+        res.status(200).json({ csv, noData: true });
         // return res.json({data})
       } else {
         return res.status(200).json({ message: "No Leave data for this period", success: false });

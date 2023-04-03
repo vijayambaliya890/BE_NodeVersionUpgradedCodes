@@ -3344,7 +3344,7 @@ class assignShift {
       let shifts1 = await findOrFindOne
         .select(
           'staffId staff_id staffAppointmentId staffRoleId _id date reportLocationId startTime endTime day status ' +
-            'shiftChangeRequestStatus subSkillSets shiftRead draftStatus shiftChangeRequestMessage duration shiftDetailId schemeDetails alertMessage isLimit isAlert isAllowPublish isOff isRest splitStartTime splitEndTime isSplitShift isRecalled isRecallAccepted isEmpty mainSkillSets skillSetTierType geoReportingLocation',
+            'shiftChangeRequestStatus subSkillSets shiftRead draftStatus shiftChangeRequestMessage duration shiftDetailId schemeDetails alertMessage isLimit isAlert isAllowPublish isOff isRest splitStartTime splitEndTime isSplitShift isRecalled isRecallAccepted isEmpty mainSkillSets skillSetTierType geoReportingLocation proximity isCheckInEnabled isProximityEnabled',
         )
         .populate([
           {

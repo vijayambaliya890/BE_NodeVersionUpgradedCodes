@@ -916,11 +916,11 @@ class user {
           },
           {
             path: 'planBussinessUnitId',
-            select: 'name subSkillSets orgName',
+            select: 'name orgName',
             match: {
               status: 1,
             },
-            populate: [
+            // populate: [
               // {
               //   path: 'sectionId',
               //   select: 'name',
@@ -940,21 +940,21 @@ class user {
               //     status: 1,
               //   },
               // },
-              {
-                path: 'subSkillSets',
-                select: 'name status',
-                match: {
-                  status: 1,
-                },
-                populate: {
-                  path: 'skillSetId',
-                  select: 'name status',
-                  match: {
-                    status: 1,
-                  },
-                },
-              },
-            ],
+              // {
+              //   path: 'subSkillSets',
+              //   select: 'name status',
+              //   match: {
+              //     status: 1,
+              //   },
+              //   populate: {
+              //     path: 'skillSetId',
+              //     select: 'name status',
+              //     match: {
+              //       status: 1,
+              //     },
+              //   },
+              // },
+            // ],
           },
           {
             path: 'viewBussinessUnitId',
@@ -1123,27 +1123,27 @@ class user {
             },
           ])
           .lean();
-        if (users.planBussinessUnitId) {
-          users.planBussinessUnitId.forEach((bu) => {
-            bu.appointments = bu.appointments ? bu.appointments : [];
-            const buaps = JSON.parse(JSON.stringify(bu.appointments)),
-              allaps = appointmentIds
-                .filter(
-                  (aps) =>
-                    aps.parentBussinessUnitId._id.toString() ===
-                    bu._id.toString(),
-                )
-                .map((aps) => aps.appointmentId);
-            bu.appointments.push(
-              ...allaps.filter(
-                (aaps) =>
-                  !buaps.find(
-                    (bap) => bap._id.toString() === aaps._id.toString(),
-                  ),
-              ),
-            );
-          });
-        }
+        // if (users.planBussinessUnitId) {
+        //   users.planBussinessUnitId.forEach((bu) => {
+        //     bu.appointments = bu.appointments ? bu.appointments : [];
+        //     const buaps = JSON.parse(JSON.stringify(bu.appointments)),
+        //       allaps = appointmentIds
+        //         .filter(
+        //           (aps) =>
+        //             aps.parentBussinessUnitId._id.toString() ===
+        //             bu._id.toString(),
+        //         )
+        //         .map((aps) => aps.appointmentId);
+        //     bu.appointments.push(
+        //       ...allaps.filter(
+        //         (aaps) =>
+        //           !buaps.find(
+        //             (bap) => bap._id.toString() === aaps._id.toString(),
+        //           ),
+        //       ),
+        //     );
+        //   });
+        // }
         /*findone*/
         var privilegeFlags = await __.getUserPrivilegeObject(
           users.role.privileges,
@@ -1346,11 +1346,11 @@ class user {
           },
           {
             path: 'planBussinessUnitId',
-            select: 'name orgName subSkillSets',
+            select: 'name orgName',
             match: {
               status: 1,
             },
-            populate: [
+            // populate: [
               // {
               //   path: 'sectionId',
               //   select: 'name orgName',
@@ -1370,21 +1370,21 @@ class user {
               //     status: 1,
               //   },
               // },
-              {
-                path: 'subSkillSets',
-                select: 'name status',
-                match: {
-                  status: 1,
-                },
-                populate: {
-                  path: 'skillSetId',
-                  select: 'name status',
-                  match: {
-                    status: 1,
-                  },
-                },
-              },
-            ],
+            //   {
+            //     path: 'subSkillSets',
+            //     select: 'name status',
+            //     match: {
+            //       status: 1,
+            //     },
+            //     populate: {
+            //       path: 'skillSetId',
+            //       select: 'name status',
+            //       match: {
+            //         status: 1,
+            //       },
+            //     },
+            //   },
+            // ],
           },
           {
             path: 'viewBussinessUnitId',
