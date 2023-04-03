@@ -1495,11 +1495,12 @@ class challenge {
         individual,
         nonRewardPointSystemEnabled,
       } = req.query;
-      let pageNum = req.query.start ? parseInt(req.query.start) : 0;
+      let pageNum = req.query.draw ? parseInt(req.query.draw) : 1;
       let limit = req.query.length ? parseInt(req.query.length) : 10;
-      let skip = req.query.skip
+      console.log(req.query.skip, pageNum)
+      const skip = req.query.skip
         ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
+        : (pageNum-1) * limit;
 
       if (!!!challengeId) {
         return __.out(res, 300, 'challengeId is required');
@@ -2406,11 +2407,11 @@ class challenge {
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      let pageNum = req.query.start ? parseInt(req.query.start) : 0;
+      let pageNum = req.query.draw ? parseInt(req.query.draw) : 0;
       let limit = req.query.length ? parseInt(req.query.length) : 10;
       let skip = req.query.skip
         ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
+        : (pageNum-1) * limit;
       //"challenge.businessUnit": mongoose.Types.ObjectId(businessUnit)
       let query = {
         administrators: {
@@ -2635,11 +2636,11 @@ class challenge {
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      let pageNum = req.query.start ? parseInt(req.query.start) : 0;
+      let pageNum = req.query.draw ? parseInt(req.query.draw) : 0;
       let limit = req.query.length ? parseInt(req.query.length) : 10;
       let skip = req.query.skip
         ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
+        : (pageNum-1) * limit;
 
       let query = {
         companyId: mongoose.Types.ObjectId(req.user.companyId),
