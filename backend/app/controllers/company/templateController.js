@@ -6,12 +6,14 @@ const mongoose = require('mongoose'),
   businessUnitController = require('./businessUnitController'),
   moment = require('moment'),
   _ = require('lodash'),
+  { logInfo, logError } = require('../../../helpers/logger.helper'),
   __ = require('../../../helpers/globalFunctions');
 
 class template {
   async createOrUpdate(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
+        logError(`template/create API, there is something wrong in request payload`, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let requiredResult1 = await __.checkRequiredFields(
@@ -20,6 +22,8 @@ class template {
         'shift',
       );
       if (requiredResult1.status === false) {
+        logError(`template/create API, Required fields missing `, requiredResult1.missingFields);
+        logError(`template/create API, request payload `, req.body);
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         // Formatting Shift based on below functionalities
@@ -94,15 +98,17 @@ class template {
           );
         }
         if (requiredResult2.status === false) {
+          logError(`template/create API, Required fields missing `, requiredResult2.missingFields);
+          logError(`template/create API, request payload `, req.body);
           __.out(res, 400, requiredResult2.missingFields);
         } else {
           /*compose the date variables */
           var weekRangeStartsAt = moment(
-              req.body.weekRangeStartsAt,
-              'MM-DD-YYYY HH:mm:ss Z',
-            )
-              .utc()
-              .format(),
+            req.body.weekRangeStartsAt,
+            'MM-DD-YYYY HH:mm:ss Z',
+          )
+            .utc()
+            .format(),
             weekRangeEndsAt = moment(
               req.body.weekRangeEndsAt,
               'MM-DD-YYYY HH:mm:ss Z',
@@ -190,8 +196,8 @@ class template {
               businessUnitId: req.body.businessUnitId,
             }).lean();
             var data = {
-                businessUnitId: req.body.businessUnitId,
-              },
+              businessUnitId: req.body.businessUnitId,
+            },
               timeZone = moment
                 .parseZone(req.body.weekRangeStartsAt, 'MM-DD-YYYY HH:mm:ss Z')
                 .format('Z'),
@@ -224,6 +230,7 @@ class template {
         }
       }
     } catch (err) {
+      logError(`template/create API, there is an error `, err.toString());
       __.log(err);
       __.out(res, 500);
     }
@@ -245,10 +252,10 @@ class template {
         //   weekNumber = await __.weekNoStartWithMonday(weekRangeStartsAt);
         //console.log(weekNumber);
         var where = {
-            status: 1,
-            businessUnitId: req.body.businessUnitId,
-            // plannedBy: req.user._id,
-          },
+          status: 1,
+          businessUnitId: req.body.businessUnitId,
+          // plannedBy: req.user._id,
+        },
           findOrFindOne;
 
         if (req.body.templateId) {
@@ -474,9 +481,9 @@ class template {
         //   weekNumber = await __.weekNoStartWithMonday(weekRangeStartsAt);
         //console.log(weekNumber);
         var where = {
-            status: 1,
-            businessUnitId: req.body.businessUnitId,
-          },
+          status: 1,
+          businessUnitId: req.body.businessUnitId,
+        },
           findOrFindOne;
         if (req.body.templateId) {
           where._id = req.body.templateId;
@@ -934,8 +941,8 @@ class template {
         return __.out(res, 400, requiredResult.missingFields);
       }
 
-      const templateObj = await Template.updateOne({_id:mongoose.Types.ObjectId(req.body.templateId), status:1}, {name: req.body.name});
-      if(templateObj.nModified == 1){
+      const templateObj = await Template.updateOne({ _id: mongoose.Types.ObjectId(req.body.templateId), status: 1 }, { name: req.body.name });
+      if (templateObj.nModified == 1) {
         return __.out(res, 200, 'Successfully updated');
       } else {
         return __.out(res, 300, "Error while updating Template");
@@ -970,7 +977,7 @@ class template {
         return __.out(res, 300, 'Template Not Found');
       }
 
-      templateData.shifts =  templateData.shifts.filter(i => i._doc.uniqueId != req.body.planShiftToDelete);
+      templateData.shifts = templateData.shifts.filter(i => i._doc.uniqueId != req.body.planShiftToDelete);
       await templateData.save();
       return __.out(res, 201, 'Plan Shift deleted');
     } catch (err) {
