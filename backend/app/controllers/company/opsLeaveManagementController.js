@@ -2473,39 +2473,19 @@ class opsLeave {
       if (user.isLeaveSwapAllowed && user.isLeaveSwapAllowed == true) {
         await User.findByIdAndUpdate(
           { _id: userId },
-          { isLeaveSwapAllowed: false },
-          function (err, doc) {
-            if (err) {
-              res.status(203).json({
-                status: false,
-                data: err,
-                message: 'error when updating.',
-              });
-            } else {
-              res
-                .status(201)
-                .json({ status: true, message: 'successfully updated.' });
-            }
-          },
+          { $set: { isLeaveSwapAllowed: false } }
         );
+        res
+           .status(201)
+           .json({ status: true, message: 'successfully updated.' });
       } else {
         await User.findByIdAndUpdate(
           { _id: userId },
-          { isLeaveSwapAllowed: true },
-          function (err, doc) {
-            if (err) {
-              res.status(203).json({
-                status: false,
-                data: err,
-                message: 'error when updating.',
-              });
-            } else {
-              res
-                .status(201)
-                .json({ status: true, message: 'successfully updated.' });
-            }
-          },
-        );
+          { $set: { isLeaveSwapAllowed: true }});
+
+        res
+        .status(201)
+        .json({ status: true, message: 'successfully updated.' });
       }
     } catch (err) {
       __.log(err);
