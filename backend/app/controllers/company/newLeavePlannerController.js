@@ -290,6 +290,10 @@ class newLeavePlannerController {
       const date111 = moment(new Date(body.date)).utc(body.timeZone).toISOString();
       console.log("date111", date111);
       console.log("date11111", new Date(date111).toISOString());
+      const opsGroupData = await OpsGroup.find({ userId: { $in: userIdArr }, isDelete: false, isDraft: false }, { opsGroupName: 1, userId: 1 }).sort({
+        updatedAt: -1,
+      });
+      console.log("=================",opsGroupData);
       let leaveApplied = await LeaveApplied.find({
         userId: { $in: userIdArr },
         startDate: { $lte: date },
@@ -297,7 +301,7 @@ class newLeavePlannerController {
       }).populate([
         {
           path: "userId",
-          select: "name staffId parentBussinessUnitId email contactNumber appointmentId",
+          select: "name staffId parentBussinessUnitId email contactNumber appointmentId profilePicture",
           populate: [
             {
               path: "appointmentId",
@@ -305,19 +309,19 @@ class newLeavePlannerController {
             },
             {
               path: "parentBussinessUnitId",
-              select: "name",
-              populate: {
-                path: "sectionId",
-                select: "name",
-                populate: {
-                  path: "departmentId",
-                  select: "name status",
-                  populate: {
-                    path: "companyId",
-                    select: "name status",
-                  },
-                },
-              },
+              select: "orgName",
+              // populate: {
+              //   path: "sectionId",
+              //   select: "name",
+              //   populate: {
+              //     path: "departmentId",
+              //     select: "name status",
+              //     populate: {
+              //       path: "companyId",
+              //       select: "name status",
+              //     },
+              //   },
+              // },
             },
           ],
         },
@@ -346,6 +350,20 @@ class newLeavePlannerController {
       ]);
       let total = 0;
       leaveApplied = JSON.parse(JSON.stringify(leaveApplied));
+      let len = leaveApplied.length;
+      for (let i = 0; i < len; i++) {
+      const item = leaveApplied[i];
+      let opsG = opsGroupData.filter((op) => {
+        let aa = op.userId.map(String);
+        return aa.includes(item.userId._id.toString());
+      });
+      if (opsG && opsG.length > 0) {
+        leaveApplied[i].opsGroup = {
+          name: opsG[0].opsGroupName,
+          opsGroupId: opsG[0]._id,
+        };
+      }
+      }
       // for (let i = 0; i < leaveApplied.length; i++) {
       //   leaveApplied[i].opsGroupName = opsGroupName;
       //   if (leaveApplied[i].status != 2) {
