@@ -1,5 +1,6 @@
 // Controller Code Starts here
 const Shift = require('../../models/shift'),
+mongoose = require('mongoose'),
   ShiftDetails = require('../../models/shiftDetails'),
   ShiftLog = require('../../models/shiftLog'),
   StaffLimit = require('../../models/staffLimit'),
@@ -3937,6 +3938,8 @@ class assignShift {
           console.log('insertShift=============',insertShift);
           console.log('3');
           if (insertShift) {
+            const randomShiftId = new mongoose.Types.ObjectId();
+            item['randomShiftId'] = randomShiftId;
             let insertShiftDetail = await this.addShiftDetail(
               item,
               insertShift,
@@ -4483,7 +4486,9 @@ class assignShift {
         geoReportingLocation : shiftDetail.geoReportingLocation,
         proximity :shiftDetail.proximity,
         isCheckInEnabled : shiftDetail.isCheckInEnabled,
-        isProximityEnabled : shiftDetail.isProximityEnabled
+        isProximityEnabled : shiftDetail.isProximityEnabled,
+        isParent: shiftDetail.isSplitShift ? 1 : null,
+        randomShiftId: shiftDetail.isSplitShift ? shiftDetail.randomShiftId : null,
       };
       new ShiftDetails(shiftObj)
         .save()
@@ -4520,6 +4525,8 @@ class assignShift {
         isOff: shiftDetail.isOff,
         isRest: shiftDetail.isRest,
         isSplitShift: true,
+        isParent : 2,
+        randomShiftId : shiftDetail.randomShiftId
       };
       new ShiftDetails(shiftObj)
         .save()
