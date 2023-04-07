@@ -109,11 +109,14 @@ class newLeavePlannerController {
       const body = req.body;
       let userIdArr = [];
       let opsGroupName = "";
-      let opsData = await OpsGroup.findOne({ _id: body.opsGroupId, isDelete: false }, { userId: 1, opsGroupName: 1 });
+      let teamName = ""
+      let opsData = await OpsGroup.findOne({ _id: body.opsGroupId, isDelete: false }, { userId: 1, opsGroupName: 1 , opsTeamId : 1}).populate([{
+        path: "opsTeamId",
+        select: "name userId",
+      }]);
       if (opsData) {
         opsGroupName = opsData.opsGroupName;
       }
-      let teamName = ""
       if (body.opsTeamId) {
         let userId = await OpsTeam.findOne({ _id: body.opsTeamId }, { userId: 1, name: 1 });
         if (userId) {
@@ -202,19 +205,19 @@ class newLeavePlannerController {
               },
               {
                 path: "parentBussinessUnitId",
-                select: "name",
-                populate: {
-                  path: "sectionId",
-                  select: "name",
-                  populate: {
-                    path: "departmentId",
-                    select: "name status",
-                    populate: {
-                      path: "companyId",
-                      select: "name status",
-                    },
-                  },
-                },
+                select: "orgName",
+                // populate: {
+                //   path: "sectionId",
+                //   select: "name",
+                //   populate: {
+                //     path: "departmentId",
+                //     select: "name status",
+                //     populate: {
+                //       path: "companyId",
+                //       select: "name status",
+                //     },
+                //   },
+                // },
               },
             ],
           },
@@ -249,6 +252,11 @@ class newLeavePlannerController {
         leaveApplied = JSON.parse(JSON.stringify(leaveApplied));
         for (let i = 0; i < leaveApplied.length; i++) {
           leaveApplied[i].opsGroupName = opsGroupName;
+          opsData.opsTeamId.forEach((team) => {
+            if (team.userId.includes(leaveApplied[i].userId._id)){
+              leaveApplied[i].opsTeam = team.name;
+            }
+          })
           if (leaveApplied[i].status != 2 && leaveApplied[i].status != 5) {
             total += 1;
           }

@@ -723,7 +723,12 @@ class leaveManagementController {
     buId.push(buIds.parentBussinessUnitId);
     const userIds = await User.find({ parentBussinessUnitId: { $in: buId } }, { _id: 1 });
     let userId = userIds.map(user => user._id);
-    const opsGroupData = await OpsGroup.find({ userId: { $in: userId }, isDelete: false, isDraft: false }, { opsGroupName: 1, userId: 1 }).sort({
+    const opsGroupData = await OpsGroup.find({ userId: { $in: userId }, isDelete: false, isDraft: false }, { opsGroupName: 1, userId: 1, opsTeamId : 1 }).populate([
+    {  path: "opsTeamId",
+      select: "name userId"
+    }   
+    ])
+    .sort({
       updatedAt: -1,
     });
     const year = parseInt(req.query.year) || moment().year();
@@ -752,31 +757,7 @@ class leaveManagementController {
       },
       {
         path: "businessUnitId",
-        select: "name status",
-        match: {
-          status: 1,
-        },
-        populate: {
-          path: "sectionId",
-          match: {
-            status: 1,
-          },
-          select: "name",
-          populate: {
-            path: "departmentId",
-            match: {
-              status: 1,
-            },
-            select: "name",
-            populate: {
-              path: "companyId",
-              match: {
-                status: 1,
-              },
-              select: "name",
-            },
-          },
-        },
+        select: "orgName",
       },
       {
         path: "approvalHistory.approvalBy",
@@ -795,6 +776,13 @@ class leaveManagementController {
         let aa = op.userId.map(String);
         return aa.includes(item.userId._id.toString());
       });
+      opsGroupData.forEach((data) =>{
+        data.opsTeamId.forEach((team) => {
+          if (team.userId.includes(leaveList[i].userId._id)){
+            leaveList[i].opsTeam = team.name;
+          }
+        })
+      })
       if (opsG && opsG.length > 0) {
         leaveList[i].opsGroup = {
           name: opsG[0].opsGroupName,
