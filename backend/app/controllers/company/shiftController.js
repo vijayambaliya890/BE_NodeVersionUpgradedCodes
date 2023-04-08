@@ -364,6 +364,7 @@ class shift {
   async create(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
+        logError(`shift\create API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let staffDetail = [];
@@ -420,13 +421,16 @@ class shift {
               }
             } else {
               // await this.updateRedis(businessUnitId);
+              logError(`shift\create API, there is an error`, response2.toString());
               return __.out(res, 300, response2.message);
             }
           } else {
             // await this.updateRedis(businessUnitId);
+            logError(`shift\create API, there is an error`, response.toString());
             return __.out(res, 300, response.message);
           }
         } catch (e) {
+          logError(`shift\create API, there is an error`, e.toString());
           // await this.updateRedis(businessUnitId);
           return __.out(res, 500, e.message);
         }
@@ -448,6 +452,8 @@ class shift {
           'shift',
         );
         if (requiredResult1.status === false) {
+          logError(`shift\create API, Required fields missing `, requiredResult1.missingFields);
+          logError(`shift\create API, request payload `, req.body);
           __.out(res, 400, requiredResult1.missingFields);
         } else {
           // Formatting Shift based on below functionalities
@@ -550,6 +556,8 @@ class shift {
           }
           // 'backUpStaffNeedCount',
           if (requiredResult2.status === false) {
+            logError(`shift\create API, Required fields missing `, requiredResult1.missingFields);
+            logError(`shift\create API, request payload `, req.body);
             __.out(res, 400, requiredResult2.missingFields);
           } else {
             /* Validate start and end time of shifts */
@@ -559,6 +567,7 @@ class shift {
                   moment(thisShift.startTime, 'MM-DD-YYYY HH:mm:ss Z'),
                 )
               ) {
+                logError(`shift\create API, there is some wrong `, 'Invalid startTime or endTime');
                 __.out(res, 300, 'Invalid startTime or endTime');
                 return;
               }
@@ -697,16 +706,16 @@ class shift {
                 shiftObj,
               ).save(),
                 insertedShiftDetailsId = insertedShiftDetails._id;
-                console.log('_____________________________ insertedShiftDetailsId ________ ', insertedShiftDetailsId)
+              console.log('_____________________________ insertedShiftDetailsId ________ ', insertedShiftDetailsId)
               insertedShiftDetailsIdArray.push(
                 mongoose.Types.ObjectId(insertedShiftDetailsId),
               );
               AgendaCron.addEvent(shiftObj.startTime, {
                 shiftDetailId: insertedShiftDetailsId,
                 type: 'BackupStaffRemoval',
-              }, true).then((jobResult)=>{
+              }, true).then((jobResult) => {
                 logInfo('Job added', jobResult)
-              }).catch((jobError)=>{
+              }).catch((jobError) => {
                 logError('Job add error', jobError)
               });
             }
@@ -760,6 +769,7 @@ class shift {
         }
       }
     } catch (err) {
+      logError(`shift\create API, there is something wrong `, err.toString());
       __.log(err);
       __.out(res, 500);
     }
@@ -1703,6 +1713,7 @@ class shift {
   async readNew(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
+        logError(`shift\read API, You've entered malicious input`, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       console.log('callee');
@@ -1711,6 +1722,7 @@ class shift {
         'startDate',
       ]);
       if (requiredResult1.status === false) {
+        logError(`shift\read API, There is something wrong `, requiredResult1.missingFields);
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         var where = {
@@ -1862,13 +1874,13 @@ class shift {
               },
             },
             {
-                path: 'geoReportingLocation',
-                select: 'name status',
-                match: {
-                  status: 'active',
-                },
+              path: 'geoReportingLocation',
+              select: 'name status',
+              match: {
+                status: 'active',
               },
-              {
+            },
+            {
               path: 'subSkillSets',
               select: 'name status',
               match: {
@@ -2468,7 +2480,7 @@ class shift {
           // __.log(listData)
           var templistData = JSON.stringify(listData);
           listData = JSON.parse(templistData);
-          console.log('________________ item ______________ ',listData)
+          console.log('________________ item ______________ ', listData)
           for (let date in listData) {
             listData[date].forEach((item, index) => {
               // console.log('________________ item ______________ ',item)
@@ -2620,6 +2632,7 @@ class shift {
         }
       }
     } catch (err) {
+      logError(`shift\read API is getting fail `, err.toString());
       __.log(err);
       __.out(res, 500);
     }
@@ -2629,6 +2642,7 @@ class shift {
   async delete(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
+        logError(`shift\delete API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let requiredResult = await __.checkRequiredFields(req, [
@@ -2637,6 +2651,8 @@ class shift {
         'weekRangeEndsAt',
       ]);
       if (requiredResult.status === false) {
+        logError(`shift\delete API, Required fields missing `, requiredResult.missingFields);
+        logError(`shift\delete API, request payload `, req.body);
         __.out(res, 400, requiredResult.missingFields);
       } else {
         /*compose the date variables */
@@ -2673,6 +2689,7 @@ class shift {
         __.out(res, 201, result);
       }
     } catch (err) {
+      logError(`shift\delete API, There is an error `, err.toString());
       __.log(err);
       __.out(res, 500);
     }
@@ -4654,6 +4671,7 @@ class shift {
   async adjust(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
+        logError(`shift\adjust API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       if (!req.body.isSplitShift) {
@@ -4663,6 +4681,8 @@ class shift {
             'staffNeedCount',
           ]);
           if (requiredResult.status === false) {
+            logError(`shift\adjust API, Required fields missing `, requiredResult.missingFields);
+            logError(`shift\adjust API, request payload `, req.body);
             __.out(res, 400, requiredResult.missingFields);
           } else {
             if (mongoose.Types.ObjectId.isValid(req.body.shiftDetailsId)) {
@@ -4720,6 +4740,7 @@ class shift {
                   shiftDetails.activeStatus &&
                   shiftDetails.activeStatus === true
                 ) {
+                  logError(`shift\adjust API, Previous Request Change is in process `, req.body);
                   return __.out(
                     res,
                     300,
@@ -4783,6 +4804,7 @@ class shift {
                     },
                   ]);
                   if (!splitShift) {
+                    logError(`shift\adjust API, Invalid Shift / Shift expired `, req.body);
                     return __.out(res, 300, 'Invalid Shift / Shift expired');
                   }
                   currentConfirmedStaffsCount =
@@ -5104,16 +5126,20 @@ class shift {
                   /*for mobile */ else
                     __.out(res, 201, 'Shift has been updated successfully');
                 } else {
+                  logError(`shift\adjust API, Invalid Staff Adjusted Count `, req.body);
                   __.out(res, 300, 'Invalid Staff Adjusted Count');
                 }
               } else {
+                logError(`shift\adjust API, Invalid Shift / Shift expired `, req.body);
                 __.out(res, 300, 'Invalid Shift / Shift expired');
               }
             } else {
+              logError(`shift\adjust API, Invalid Shift Id `, req.body);
               __.out(res, 300, 'Invalid Shift Id');
             }
           }
         } catch (err) {
+          logError(`shift\adjust API, there is an error `, err.toString());
           __.log(err);
           __.out(res, 500);
         }
@@ -5121,6 +5147,7 @@ class shift {
         try {
           await this.adjustSplitShift(req, res);
         } catch (err) {
+          logError(`shift\adjust API, there is an error `, err.toString());
           __.log(err);
           __.out(res, 500);
         }
@@ -5700,6 +5727,7 @@ class shift {
   async requestChange(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
+        logError(`shift\requestChange API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       __.log(req.body, 'requestChange');
@@ -5716,6 +5744,8 @@ class shift {
         'shiftDetailsId',
       ]);
       if (requiredResult1.status === false) {
+        logError(`shift\requestChange API, Required fields missing `, requiredResult.missingFields);
+        logError(`shift\requestChange API, request payload `, req.body);
         return __.out(res, 400, requiredResult1.missingFields);
       }
       // Get Confirmed/ Backup Users of this shift
@@ -5735,13 +5765,16 @@ class shift {
         });
 
       if (!shiftDetailsData) {
+        logError(`shift\requestChange API, Invalid Shift Id/Shift Expired `, req.body);
         return __.out(res, 300, 'Invalid Shift Id/Shift Expired');
       }
       const redisBuId = shiftDetailsData.shiftId.businessUnitId;
       if (shiftDetailsData.activeStatus === true) {
+        logError(`shift\requestChange API, Previous Request Change is in process `, req.body);
         return __.out(res, 300, 'Previous Request Change is in process');
       }
       if (req.body.staffNeedCount < 1) {
+        logError(`shift\requestChange API, Staff need Count Should be greater than 0 `, req.body);
         return __.out(res, 300, 'Staff need Count Should be greater than 0');
       }
       const startTimeInSeconds = moment(
@@ -5880,6 +5913,7 @@ class shift {
       // await this.updateRedis(redisBuId);
       return __.out(res, 201, 'Requested Shift Changed sucessfully');
     } catch (err) {
+      logError(`shift\requestChange API, there is an error `, err.toString());
       __.log(err);
       __.out(res, 500);
     }
@@ -5931,6 +5965,7 @@ class shift {
   async cancel(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
+        logError(`shift\cancel API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       __.log(req.body);
@@ -5939,6 +5974,8 @@ class shift {
         'shiftDetailsId',
       ]);
       if (requiredResult.status === false) {
+        logError(`shift\cancel API, Required fields missing `, requiredResult.missingFields);
+        logError(`shift\cancel API, request payload `, req.body);
         return __.out(res, 400, requiredResult.missingFields);
       }
 
@@ -5970,18 +6007,22 @@ class shift {
         });
 
       if (!shiftDetailsData) {
+        logError(`shift\cancel API, Invalid Shift/Shift Expired `, req.body);
         return __.out(res, 300, 'Invalid Shift/Shift Expired');
       }
       if (shiftDetailsData.shiftId == null) {
+        logError(`shift\cancel API, Invalid Shift Id `, req.body);
         return __.out(res, 300, 'Invalid Shift Id');
       }
       if (
         !shiftDetailsData.shiftId.businessUnitId ||
         shiftDetailsData.shiftId.businessUnitId.cancelShiftPermission == false
       ) {
+        logError(`shift\cancel API, Permission Denied to cancel shift `, req.body);
         return __.out(res, 300, 'Permission Denied to cancel shift');
       }
       if (shiftDetailsData.activeStatus === true) {
+        logError(`shift\cancel API, Previous Request Change is in process `, req.body);
         return __.out(res, 300, 'Previous Request Change is in process');
       }
       // return res.json({shiftDetailsData})
@@ -6044,6 +6085,7 @@ class shift {
       // await this.updateRedis(logMetaData.businessUnitId);
       return __.out(res, 201, 'Shift Cancelled Successfully');
     } catch (err) {
+      logError(`shift\cancel API, there is an error `, err.toString());
       __.log(err);
       __.out(res, 500);
     }
@@ -6052,6 +6094,7 @@ class shift {
   async cancelIndividualShift(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
+        logError(`shift\cancelIndividualShift API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       __.log(req.body);
@@ -6065,6 +6108,8 @@ class shift {
         req.body.userId === undefined ||
         req.body.userId === null
       ) {
+        logError(`shift\cancelIndividualShift API, Required fields missing `, requiredResult.missingFields);
+        logError(`shift\cancelIndividualShift API, request payload `, req.body);
         return __.out(res, 400, requiredResult.missingFields);
       }
 
@@ -6091,22 +6136,27 @@ class shift {
       }
 
       if (!staffInfo) {
+        logError(`shift\cancelIndividualShift API,Staff not found `, req.body);
         return __.out(res, 300, 'Staff not found');
       }
       if (shiftDetails.shiftId == null) {
+        logError(`shift\cancelIndividualShift API, Invalid Shift Id `, req.body);
         return __.out(res, 300, 'Invalid Shift Id');
       }
       if (
         !shiftDetails.shiftId.businessUnitId ||
         shiftDetails.shiftId.businessUnitId.cancelShiftPermission == false
       ) {
+        logError(`shift\cancelIndividualShift API, Permission Denied to cancel shift `, req.body);
         return __.out(res, 300, 'Permission Denied to cancel shift');
       }
       // why this required?
       if (shiftDetails.activeStatus === true) {
+        logError(`shift\cancelIndividualShift API, Previous Request Change is in process `, req.body);
         return __.out(res, 300, 'Previous Request Change is in process');
       }
       if (!shiftDetails.confirmedStaffs.length) {
+        logError(`shift\cancelIndividualShift API, No confirmed staff `, req.body);
         return __.out(res, 300, 'No confirmed staff');
       }
 
@@ -6120,6 +6170,7 @@ class shift {
           },
         });
         if (!splitShift) {
+          logError(`shift\cancelIndividualShift API, Invalid Shift/Shift Expired `, req.body);
           return __.out(res, 300, 'Invalid Shift/Shift Expired');
         }
       }
@@ -6136,6 +6187,7 @@ class shift {
         }
       });
       if (!actualConfirmedStaffs) {
+        logError(`shift\cancelIndividualShift API, confirmed staff not found `, req.body);
         return __.out(res, 300, 'confirmed staff not found');
       }
       shiftDetails.confirmedStaffs = filteredConfirmedStaffs;
@@ -6195,7 +6247,7 @@ class shift {
         'The Confimed Booking of this User has been Cancelled Successfully.',
       );
     } catch (err) {
-      console.log('errerr', err);
+      logError(`shift\cancelIndividualShift API, there is an error `, err.toString());
       __.log(err);
       return __.out(res, 500);
     }
@@ -6873,6 +6925,7 @@ class shift {
   async shiftExtension(req, res) {
     try {
       if (!__.checkHtmlContent(req.body)) {
+        logError(`shift\shiftExtension API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       console.log('shift extension');
@@ -7014,6 +7067,7 @@ class shift {
                 isLimit: limit,
               });
             } else {
+              logError(`shift\shiftExtension API, Shift Not Found `, req.body);
               return res.json({
                 status: false,
                 message: 'Shift Not Found',
@@ -7022,6 +7076,7 @@ class shift {
             }
           })
           .catch((err) => {
+            logError(`shift\shiftExtension API, Something went wrong `, err.toString());
             return res.json({
               status: false,
               message: 'Something went wrong',
@@ -7030,6 +7085,7 @@ class shift {
             });
           });
       } else {
+        logError(`shift\shiftExtension API, there is an limit issue `, limitData.message);
         return res.json({
           status: false,
           message: limitData.message,
@@ -7037,6 +7093,7 @@ class shift {
         });
       }
     } catch (err) {
+      logError(`shift\shiftExtension API, caught an error `, err.toString());
       __.log(err);
       __.out(res, 500, err);
     }
