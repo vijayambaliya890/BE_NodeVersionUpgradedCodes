@@ -7,27 +7,30 @@ class subSkillSet {
 
     async create(req, res) {
         try {
+            logInfo(`subskillset/create API Start!`, { name: req.user.name, staffId: req.user.staffId });
             if (!__.checkHtmlContent(req.body)) {
+                logError(`subskillset/create API, You've entered malicious input `, req.body);
                 return __.out(res, 300, `You've entered malicious input`);
             }
             let requiredResult = await __.checkRequiredFields(req, ['name', 'status', 'skillSetId']);
             if (requiredResult.status === false) {
+                logError(`subskillset/create API, Required fields missing `, requiredResult.missingFields);
+                logError(`subskillset/create API, request payload `, req.body);
                 __.out(res, 400, requiredResult.missingFields);
             } else {
                 let insert = req.body;
-                //create new model
                 let insertedSubSkillSet = await new SubSkillSet(insert).save();
-                //save model to MongoDB
                 req.body.subSkillSetId = insertedSubSkillSet._id;
                 let params = {
                     "subSkillSetId": insertedSubSkillSet._id,
                     "skillSetId": req.body.skillSetId
                 };
                 skillSetController.push(params, res); /* push generated city id in state table (field name : subSkillSetIds)*/
+                logInfo(`subskillset/create API ends here!`, { name: req.user.name, staffId: req.user.staffId });
                 this.read(req, res); /*calling read fn with subSkillSetId(last insert id). it calls findOne fn in read */
             }
         } catch (err) {
-            __.log(err);
+            logError(`subskillset/create API, there is an error`, err.toString());
             __.out(res, 500);
         }
     }
@@ -68,11 +71,15 @@ class subSkillSet {
 
     async update(req, res) {
         try {
+            logInfo(`subskillset/update API Start!`, { name: req.user.name, staffId: req.user.staffId });
             if (!__.checkHtmlContent(req.body)) {
+                logError(`subskillset/update API, You've entered malicious input `, req.body);
                 return __.out(res, 300, `You've entered malicious input`);
             }
             let requiredResult = await __.checkRequiredFields(req, ['subSkillSetId']);
             if (requiredResult.status === false) {
+                logError(`subskillset/update API, Required fields missing `, requiredResult.missingFields);
+                logError(`subskillset/update API, request payload `, req.body);
                 __.out(res, 400, requiredResult.missingFields);
             } else {
                 let doc = await SubSkillSet.findOne({
@@ -82,6 +89,7 @@ class subSkillSet {
                     }
                 });
                 if (doc === null) {
+                    logError(`subskillset/update API, there is an error`, 'Invalid subSkillSetId');
                     __.out(res, 300, 'Invalid subSkillSetId');
                 } else {
                     let isSkillSetEdited = false;
@@ -96,6 +104,7 @@ class subSkillSet {
                     Object.assign(doc, req.body);
                     let result = await doc.save();
                     if (result === null) {
+                        logError(`subskillset/update API, there is an error`, 'Something went wrong');
                         __.out(res, 300, 'Something went wrong');
                     } else {
                         if (isSkillSetEdited) {
@@ -105,23 +114,27 @@ class subSkillSet {
                             };
                             skillSetController.push(params, res); /* push generated city id in state table (field name : subSkillSetIds)*/
                         }
+                        logInfo(`subskillset/update API ends here!`, { name: req.user.name, staffId: req.user.staffId });
                         this.read(req, res);
                     }
                 }
             }
         } catch (err) {
-            __.log(err);
+            logError(`subskillset/update API, there is an error`, err.toString());
             __.out(res, 500);
         }
     }
 
     async delete(req, res) {
         try {
+            logInfo(`subskillset/delete API Start!`, { name: req.user.name, staffId: req.user.staffId });
             if (!__.checkHtmlContent(req.body)) {
                 return __.out(res, 300, `You've entered malicious input`);
             }
             let requiredResult = await __.checkRequiredFields(req, ['subSkillSetId']);
             if (requiredResult.status === false) {
+                logError(`subskillset/delete API, Required fields missing `, requiredResult1.missingFields);
+                logError(`subskillset/delete API, request payload `, req.body);
                 __.out(res, 400, requiredResult.missingFields);
             } else {
                 let doc = await SubSkillSet.findOne({
@@ -131,19 +144,22 @@ class subSkillSet {
                     }
                 });
                 if (doc === null) {
+                    logError(`subskillset/delete API, there is an error`, 'Invalid subSkillSetId');
                     __.out(res, 300, 'Invalid subSkillSetId');
                 } else {
                     doc.status = 3;
                     let result = await doc.save();
                     if (result === null) {
+                        logError(`subskillset/delete API, there is an error`, 'Something went wrong');
                         __.out(res, 300, 'Something went wrong');
                     } else {
+                        logInfo(`subskillset/delete API ends here!`, { name: req.user.name, staffId: req.user.staffId });
                         __.out(res, 200);
                     }
                 }
             }
         } catch (err) {
-            __.log(err);
+            logError(`subskillset/delete API, there is an error`, err.toString());
             __.out(res, 500);
         }
     }

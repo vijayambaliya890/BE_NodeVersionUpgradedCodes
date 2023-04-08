@@ -14,13 +14,13 @@ const mongoose = require('mongoose'),
 var fsS = require('fs');
 const path = require('path');
 const ObjectsToCsv = require('objects-to-csv');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class reports {
   getMondayDate(date) {
     if (date) {
       var curr = new Date(date);
       var firstday = new Date(curr.setDate(curr.getDate() - curr.getDay()));
-      console.log('firstday', firstday);
       return firstday;
     }
     return null;
@@ -51,9 +51,7 @@ class reports {
         weekStartDate = new Date(weekStartDate);
         weekStartDate.setDate(weekStartDate.getDate() - 1);
       }
-      console.log('weekStartDate', weekStartDate);
       var weekEndDate = this.getSundayDate(req.body.endDate);
-      //return res.json({weekStartDate, weekEndDate})
       let query = {
         businessUnitId: {
           $in: req.body.businessUnitId,
@@ -114,17 +112,12 @@ class reports {
         ) {
           delete where.date;
         }
-        // return res.json({where})
-        console.log(where);
         var shifts = await ShiftDetails.find(where)
           .select('appliedStaffs')
           .lean();
-        console.log('shifts: ', shifts);
         var appliedStaffsArray = shifts.map(plucker('appliedStaffs'));
         appliedStaffsArray = _.flatten(appliedStaffsArray);
         appliedStaffsArray = Array.from(new Set(appliedStaffsArray));
-        //return res.json({appliedStaffsArray})
-        console.log('appliedStaffsArray: ', appliedStaffsArray);
         if (appliedStaffsArray.length == 0) {
           this.generateCsv('', [], [], res);
         } else {
@@ -242,7 +235,6 @@ class reports {
                 element.shiftDetailsId.isExtendedShift &&
                 element.shiftDetailsId.extendedStaff.length > 0
               ) {
-                console.log(element.shiftDetailsId.extendedStaff.length);
                 var extenedStaff = element.shiftDetailsId.extendedStaff.filter(
                   (ele) => {
                     return (
@@ -292,7 +284,7 @@ class reports {
 
               json['submittedType'] =
                 element.shiftDetailsId.adjustedBy &&
-                element.shiftDetailsId.adjustedBy.length > 0
+                  element.shiftDetailsId.adjustedBy.length > 0
                   ? 'Adjust Shift'
                   : 'Plan Shift';
               json['BookedByUserName'] = element.flexiStaff.name;
@@ -360,9 +352,7 @@ class reports {
         weekStartDate = new Date(weekStartDate);
         weekStartDate.setDate(weekStartDate.getDate() - 1);
       }
-      console.log('weekStartDate', weekStartDate);
       var weekEndDate = this.getSundayDate(req.body.endDate);
-      //return res.json({weekStartDate, weekEndDate})
       let query = {
         businessUnitId: {
           $in: req.body.businessUnitId,
@@ -426,9 +416,6 @@ class reports {
         ) {
           delete where.date;
         }
-        // return res.json({where})
-
-        //console.log(where)
         var findOrFindOne = ShiftDetails.find(where);
         let staffsShifts = await findOrFindOne
           .populate([
@@ -646,7 +633,6 @@ class reports {
             var et = element.endTime;
             var isExtendedShift = 'No';
             if (element.isExtendedShift && element.extendedStaff.length > 0) {
-              console.log(element.extendedStaff.length);
               var extenedStaff = element.extendedStaff.filter((ele) => {
                 return (
                   ele.userId.toString() == element.flexiStaff._id.toString()
@@ -694,7 +680,7 @@ class reports {
 
             json['submittedType'] =
               element.shiftDetailsId.adjustedBy &&
-              element.shiftDetailsId.adjustedBy.length > 0
+                element.shiftDetailsId.adjustedBy.length > 0
                 ? 'Adjust Shift'
                 : 'Plan Shift';
             json['BookedByUserName'] = element.flexiStaff.name;
@@ -707,15 +693,15 @@ class reports {
               .format('DD-MM-YYYY HH:mm');
             json['BookedDate'] = element.appliedstaffs
               ? moment
-                  .utc(element.appliedstaffs.createdAt)
-                  .utcOffset(`${timeZone}`)
-                  .format('DD-MM-YYYY')
+                .utc(element.appliedstaffs.createdAt)
+                .utcOffset(`${timeZone}`)
+                .format('DD-MM-YYYY')
               : '';
             json['BookedTime'] = element.appliedstaffs
               ? moment
-                  .utc(element.appliedstaffs.createdAt)
-                  .utcOffset(`${timeZone}`)
-                  .format('HH:mm:ss')
+                .utc(element.appliedstaffs.createdAt)
+                .utcOffset(`${timeZone}`)
+                .format('HH:mm:ss')
               : '';
             jsonArray.push(json);
           }
@@ -750,7 +736,9 @@ class reports {
   }
   async bookings(req, res) {
     try {
+      logInfo(`reports/bookings API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`reports/bookings API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let requiredResult = await __.checkRequiredFields(req, [
@@ -766,9 +754,7 @@ class reports {
         weekStartDate = new Date(weekStartDate);
         weekStartDate.setDate(weekStartDate.getDate() - 1);
       }
-      console.log('weekStartDate', weekStartDate);
       var weekEndDate = this.getSundayDate(req.body.endDate);
-      //return res.json({weekStartDate, weekEndDate})
       let query = {
         businessUnitId: {
           $in: req.body.businessUnitId,
@@ -785,7 +771,6 @@ class reports {
           .format();
       }
       var shift = await Shift.find(query).select('shiftDetails').lean();
-      console.log('SHIFT HERE IS:', shift);
 
       function plucker(prop) {
         return function (o) {
@@ -808,13 +793,6 @@ class reports {
           },
         };
 
-        // if (req.body.startDate) {
-        //   where.date['$gte'] = moment(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z').utc().format();
-        // }
-        // if (req.body.endDate) {
-        //   where.date['$lte'] = moment(req.body.endDate, 'MM-DD-YYYY HH:mm:ss Z').utc().format();
-        // }
-
         if (
           !(
             req.body.hasOwnProperty('startDate') ||
@@ -823,8 +801,6 @@ class reports {
         ) {
           delete where.date;
         }
-        // return res.json({where})
-        console.log(where);
         var shifts = await ShiftDetails.find(where)
           .populate([
             {
@@ -907,10 +883,8 @@ class reports {
           .sort({
             startTime: 1,
           });
-        // return res.json({ shifts })
         var result = [];
         shifts = JSON.parse(JSON.stringify(shifts));
-        console.log('hereeeee', shifts.length);
         for (let i = 0; i < shifts.length; i++) {
           var totalConfirm = shifts[i].confirmedStaffs.length;
           var totalCan = shifts[i].cancelledBy.length;
@@ -936,31 +910,8 @@ class reports {
             result.push(shiftC);
           }
         }
-        // return res.json({ result })
         var total = result.length;
         let jsonArray = [];
-        // let fieldsArray = [
-        //   'createdAt',
-        //   'shiftId',
-        //   'shiftDetailsId',
-        //   'businessUnit',
-        //   'weekRangeStart',
-        //   'weekRangeEnd',
-        //   'dateOfShift',
-        //   'startTime',
-        //   'endTime',
-        //   'totalStaffNeedCount',
-        //   'backUpStaffNeedCount',
-        //   'totalApplied',
-        //   'totalConfirmed',
-        //   'skillSets',
-        //   'reportTo',
-        //   'BookedByUserName',
-        //   'BookedByStaffId',
-        //   'BookingStatus',
-        //   'BookedDate',
-        //   'BookedTime'
-        // ];
         let fieldsArray = [
           'businessUnit',
           'dateOfShift',
@@ -988,7 +939,7 @@ class reports {
             element.shiftId.businessUnitId &&
             element.shiftId.businessUnitId.sectionId &&
             element.shiftId.businessUnitId.sectionId.departmentId &&
-            element.shiftId.businessUnitId.sectionId.departmentId.companyId && element.isParent !==2
+            element.shiftId.businessUnitId.sectionId.departmentId.companyId && element.isParent !== 2
           ) {
             var json = {};
             json['createdAt'] = moment
@@ -1036,47 +987,46 @@ class reports {
             }
             json['startTime'] = st
               ? moment
-                  .utc(st)
-                  .utcOffset(`${timeZone}`)
-                  .format('DD-MM-YYYY HH:mm')
+                .utc(st)
+                .utcOffset(`${timeZone}`)
+                .format('DD-MM-YYYY HH:mm')
               : '';
 
             json['endTime'] = et
               ? moment
-                  .utc(et)
-                  .utcOffset(`${timeZone}`)
-                  .format('DD-MM-YYYY HH:mm')
+                .utc(et)
+                .utcOffset(`${timeZone}`)
+                .format('DD-MM-YYYY HH:mm')
               : '';
 
             json['SplitStartTime'] = '';
             json['SplitEndTime'] = '';
             json['durationInMinutes'] = element.duration
-                ? (element.duration * 60).toFixed(2)
-                : 0;
-              if (element.isSplitShift) {
-                const splitShiftSecond = result.filter(
-                  (record) =>
+              ? (element.duration * 60).toFixed(2)
+              : 0;
+            if (element.isSplitShift) {
+              const splitShiftSecond = result.filter(
+                (record) =>
                   record.randomShiftId && record?.randomShiftId?.toString() === element?.randomShiftId?.toString() &&
-                    record.isParent === 2,
-                );
-                if (splitShiftSecond.length) {
-                  json['SplitStartTime'] = moment
-                    .utc(splitShiftSecond[0].startTime)
-                    .utcOffset(`${timeZone}`)
-                    .format('DD-MM-YYYY HH:mm');
-                  json['SplitEndTime'] = moment
-                    .utc(splitShiftSecond[0].endTime)
-                    .utcOffset(`${timeZone}`)
-                    .format('DD-MM-YYYY HH:mm');
-                  json['durationInMinutes'] = parseFloat(json['durationInMinutes']) + parseFloat((splitShiftSecond[0].duration
-                      ? (splitShiftSecond[0].duration * 60).toFixed(2)
-                      : 0));
-                } else {
-                  json['SplitStartTime'] = 'Some Error';
-                  json['SplitEndTime'] = 'Some Error';
-                }
+                  record.isParent === 2,
+              );
+              if (splitShiftSecond.length) {
+                json['SplitStartTime'] = moment
+                  .utc(splitShiftSecond[0].startTime)
+                  .utcOffset(`${timeZone}`)
+                  .format('DD-MM-YYYY HH:mm');
+                json['SplitEndTime'] = moment
+                  .utc(splitShiftSecond[0].endTime)
+                  .utcOffset(`${timeZone}`)
+                  .format('DD-MM-YYYY HH:mm');
+                json['durationInMinutes'] = parseFloat(json['durationInMinutes']) + parseFloat((splitShiftSecond[0].duration
+                  ? (splitShiftSecond[0].duration * 60).toFixed(2)
+                  : 0));
+              } else {
+                json['SplitStartTime'] = 'Some Error';
+                json['SplitEndTime'] = 'Some Error';
               }
-            // json['durationInMinutes'] = (element.duration * 60).toFixed(2);
+            }
             json['isExtendedShift'] = isExtendedShift;
             json['totalStaffNeedCount'] = element.totalStaffNeedCount;
             json['backUpStaffNeedCount'] = element.backUpStaffNeedCount;
@@ -1105,7 +1055,6 @@ class reports {
               json['BookedByUserName'] = element.flexiStaff.name;
               json['BookedByStaffId'] = element.flexiStaff.staffId;
             } else {
-              console.log('element', element);
               json['BookedByUserName'] = element.flexiStaff.name;
               json['BookedByStaffId'] = element.flexiStaff.staffId;
             }
@@ -1114,43 +1063,37 @@ class reports {
               element.isConfirmed == true ? 'Confirmed' : 'Cancelled';
             json['BookedDate'] = element.bookedAt
               ? moment
-                  .utc(element.bookedAt)
-                  .utcOffset(`${timeZone}`)
-                  .format('DD-MM-YYYY')
+                .utc(element.bookedAt)
+                .utcOffset(`${timeZone}`)
+                .format('DD-MM-YYYY')
               : '';
             json['BookedTime'] = element.bookedAt
               ? moment
-                  .utc(element.bookedAt)
-                  .utcOffset(`${timeZone}`)
-                  .format('HH:mm:ss')
+                .utc(element.bookedAt)
+                .utcOffset(`${timeZone}`)
+                .format('HH:mm:ss')
               : '';
             jsonArray.push(json);
           }
         }
-        console.log('herttt');
-        // return res.json({jsonArray})
-        // console.log("shifts: ", shifts);
-        //var appliedStaffsArray = shifts.map(plucker('appliedStaffs'));
 
-        // appliedStaffsArray = _.flatten(appliedStaffsArray);
-        // appliedStaffsArray = Array.from(new Set(appliedStaffsArray));
-        //return res.json({appliedStaffsArray})
-        // console.log("appliedStaffsArray: ", appliedStaffsArray);
+        logInfo(`reports/bookings API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         if (jsonArray.length == 0) {
           this.generateCsv('', [], [], res);
         } else {
-          //__.out(res, 201 , jsonArray)
           this.generateCsv('bookings_report', jsonArray, fieldsArray, res);
         }
       }
     } catch (err) {
-      __.log(err);
+      logError(`reports/bookings API, there is an error`, err.toString());
       __.out(res, 500);
     }
   }
   async listOfShifts(req, res) {
     try {
+      logInfo(`reports/listofshifts API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`reports/listofshifts API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let requiredResult = await __.checkRequiredFields(req, [
@@ -1159,6 +1102,8 @@ class reports {
       ]);
 
       if (requiredResult.status === false) {
+        logError(`reports/listofshifts API, Required fields missing `, requiredResult.missingFields);
+        logError(`reports/listofshifts API, request payload `, req.body);
         __.out(res, 400, requiredResult.missingFields);
       } else {
         var timeZone = moment
@@ -1172,7 +1117,6 @@ class reports {
           status: 1,
           date: {},
         };
-        __.log('shiftResult', match);
         if (req.body.startDate) {
           match.date['$gte'] = moment(
             req.body.startDate,
@@ -1208,7 +1152,7 @@ class reports {
             element.shiftId.businessUnitId.sectionId &&
             element.shiftId.businessUnitId.sectionId.departmentId &&
             element.shiftId.businessUnitId.sectionId.departmentId.companyId &&
-            element.isParent !==2
+            element.isParent !== 2
           ) {
             var json = {};
             json[
@@ -1219,21 +1163,6 @@ class reports {
               .utcOffset(`${timeZone}`)
               .format('DD-MM-YYYY');
 
-            // var st = element.shiftDetailsId.startTime;
-            // var et = element.shiftDetailsId.endTime;
-            // var isExtendedShift = 'No';
-            // if(element.shiftDetailsId.isExtendedShift && element.shiftDetailsId.extendedStaff.length>0){
-            //   console.log(element.shiftDetailsId.extendedStaff.length)
-            //   var extenedStaff = element.shiftDetailsId.extendedStaff.filter((ele)=>{
-            //       return ele.userId.toString() == element.flexiStaff._id.toString();
-            //   });
-            //   if(extenedStaff && extenedStaff.length>0){
-            //     isExtendedShift = 'Yes'
-            //     extenedStaff = extenedStaff[0];
-            //     st = extenedStaff.startDateTime;
-            //     et = extenedStaff.endDateTime
-            //   }
-            // }
             json['startTime'] = moment
               .utc(element.startTime)
               .utcOffset(`${timeZone}`)
@@ -1247,31 +1176,30 @@ class reports {
             json['durationInMinutes'] = element.duration
               ? (element.duration * 60).toFixed(2)
               : 0;
-            
-              if (element.isSplitShift) {
-                console.log('elementelement', element._id, element.randomShiftId, element.isParent)
-                const splitShiftSecond = shiftResult.filter(
-                  (record) =>
+
+            if (element.isSplitShift) {
+              const splitShiftSecond = shiftResult.filter(
+                (record) =>
                   record.randomShiftId && record?.randomShiftId?.toString() === element?.randomShiftId?.toString() &&
-                    record.isParent === 2,
-                );
-                if (splitShiftSecond.length) {
-                  json['SplitStartTime'] = moment
-                    .utc(splitShiftSecond[0].startTime)
-                    .utcOffset(`${timeZone}`)
-                    .format('DD-MM-YYYY HH:mm');
-                  json['SplitEndTime'] = moment
-                    .utc(splitShiftSecond[0].endTime)
-                    .utcOffset(`${timeZone}`)
-                    .format('DD-MM-YYYY HH:mm');
-                  json['durationInMinutes'] = parseFloat(json['durationInMinutes']) + parseFloat((splitShiftSecond[0].duration
-                    ? (splitShiftSecond[0].duration * 60).toFixed(2)
-                    : 0));
-                } else {
-                  json['SplitStartTime'] = 'Some Error';
-                  json['SplitEndTime'] = 'Some Error';
-                }
-              }  
+                  record.isParent === 2,
+              );
+              if (splitShiftSecond.length) {
+                json['SplitStartTime'] = moment
+                  .utc(splitShiftSecond[0].startTime)
+                  .utcOffset(`${timeZone}`)
+                  .format('DD-MM-YYYY HH:mm');
+                json['SplitEndTime'] = moment
+                  .utc(splitShiftSecond[0].endTime)
+                  .utcOffset(`${timeZone}`)
+                  .format('DD-MM-YYYY HH:mm');
+                json['durationInMinutes'] = parseFloat(json['durationInMinutes']) + parseFloat((splitShiftSecond[0].duration
+                  ? (splitShiftSecond[0].duration * 60).toFixed(2)
+                  : 0));
+              } else {
+                json['SplitStartTime'] = 'Some Error';
+                json['SplitEndTime'] = 'Some Error';
+              }
+            }
 
             var skills = [];
             for (let subSkill of element.subSkillSets) {
@@ -1364,17 +1292,19 @@ class reports {
           'reportGeneratedByStaffId',
           'reportGeneratedByDateTime',
         ];
-        //__.out (res, 201, jsonArray);
+        logInfo(`reports/listofshifts API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         this.generateCsv('shifts_list', jsonArray, fieldsArray, res);
       }
     } catch (err) {
-      __.log(err);
+      logError(`reports/listofshifts API, there is an error`, err.toString());
       __.out(res, 500);
     }
   }
   async listOfCancellations(req, res) {
     try {
+      logInfo(`reports/listofcancellations API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`reports/listofcancellations API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       __.log(req.body, 'listOfCancellations');
@@ -1383,6 +1313,8 @@ class reports {
         'date',
       ]);
       if (requiredResult.status === false) {
+        logError(`reports/listofcancellations API, Required fields missing `, requiredResult.missingFields);
+        logError(`reports/listofcancellations API, request payload `, req.body);
         __.out(res, 400, requiredResult.missingFields);
       } else {
         var timeZone = moment
@@ -1398,9 +1330,6 @@ class reports {
             $gt: [],
           },
           date: {},
-          // "cancelledBy.minutesToShiftStartTime": {
-          //   $gt: 350,
-          // },
         };
 
         var cancelMinutes = 0;
@@ -1442,8 +1371,8 @@ class reports {
             element.shiftId.businessUnitId &&
             element.shiftId.businessUnitId.sectionId &&
             element.shiftId.businessUnitId.sectionId.departmentId &&
-            element.shiftId.businessUnitId.sectionId.departmentId.companyId && 
-            element.isParent !==2
+            element.shiftId.businessUnitId.sectionId.departmentId.companyId &&
+            element.isParent !== 2
           ) {
             var json = {};
             json[
@@ -1464,9 +1393,6 @@ class reports {
               .utcOffset(`${timeZone}`)
               .format('DD-MM-YYYY HH:mm');
 
-            // json['durationInMinutes'] = element.duration
-            //   ? (element.duration * 60).toFixed(2)
-            //   : 0;
             json['SplitStartTime'] = '';
             json['SplitEndTime'] = '';
             json['durationInMinutes'] = element.duration
@@ -1475,7 +1401,7 @@ class reports {
             if (element.isSplitShift) {
               const splitShiftSecond = shiftResult.filter(
                 (record) =>
-                record.randomShiftId && record?.randomShiftId?.toString() === element?.randomShiftId?.toString() &&
+                  record.randomShiftId && record?.randomShiftId?.toString() === element?.randomShiftId?.toString() &&
                   record.isParent === 2,
               );
               if (splitShiftSecond.length) {
@@ -1488,8 +1414,8 @@ class reports {
                   .utcOffset(`${timeZone}`)
                   .format('DD-MM-YYYY HH:mm');
                 json['durationInMinutes'] = parseFloat(json['durationInMinutes']) + parseFloat((splitShiftSecond[0].duration
-                    ? (splitShiftSecond[0].duration * 60).toFixed(2)
-                    : 0));
+                  ? (splitShiftSecond[0].duration * 60).toFixed(2)
+                  : 0));
               } else {
                 json['SplitStartTime'] = 'Some Error';
                 json['SplitEndTime'] = 'Some Error';
@@ -1497,10 +1423,6 @@ class reports {
             }
 
             var skills = [];
-            // for (let subSkill of element.subSkillSets) {
-            //   skills.push(`${subSkill.skillSetId.name} >> ${subSkill.name}`);
-            // }
-            // json['skillSets'] = skills.join(' , ');
             json['reportTo'] = element.reportLocationId
               ? element.reportLocationId.name
               : '';
@@ -1525,13 +1447,13 @@ class reports {
                 : 'Plan Shift';
             if (req.body.cancelHours) {
               element.cancelledBy.map(eachCancel => {
-              // Check Below the Given Hours 
+                // Check Below the Given Hours 
                 if (eachCancel.minutesToShiftStartTime <= cancelMinutes) {
                   json['cancellationDateTime'] = moment
                     .utc(eachCancel.createdAt)
                     .utcOffset(`${timeZone}`)
                     .format('DD-MM-YYYY HH:mm');
-                  json['bookingMadeByStaffId'] = eachCancel.cancelledUserId 
+                  json['bookingMadeByStaffId'] = eachCancel.cancelledUserId
                     ? eachCancel.cancelledUserId.staffId
                     : '';
                   json['bookingMadeByName'] = eachCancel.cancelledUserId
@@ -1543,12 +1465,12 @@ class reports {
               });
             } else {
               element.cancelledBy.map(eachCancel => {
-              // Check Below the Given Hours 
+                // Check Below the Given Hours 
                 json['cancellationDateTime'] = moment
                   .utc(eachCancel.createdAt)
                   .utcOffset(`${timeZone}`)
                   .format('DD-MM-YYYY HH:mm');
-                json['bookingMadeByStaffId'] = eachCancel.cancelledUserId 
+                json['bookingMadeByStaffId'] = eachCancel.cancelledUserId
                   ? eachCancel.cancelledUserId.staffId
                   : '';
                 json['bookingMadeByName'] = eachCancel.cancelledUserId
@@ -1568,7 +1490,6 @@ class reports {
           'SplitStartTime',
           'SplitEndTime',
           'durationInMinutes',
-          // 'skillSets',
           'reportTo',
           'submittedByStaffName',
           'submittedByStaffId',
@@ -1579,10 +1500,11 @@ class reports {
           'cancellationDateTime',
           'durationToShiftStartTime',
         ];
+        logInfo(`reports/listofcancellations API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         this.generateCsv('cancelled_shifts', jsonArray, fieldsArray, res);
       }
     } catch (err) {
-      __.log(err);
+      logError(`reports/listofcancellations API, there is an error`, err.toString());
       __.out(res, 500);
     }
   }
@@ -1770,117 +1692,7 @@ class reports {
       }
       var isDataLarge = false;
       let users = [];
-      /* function getUsers(match){
-        console.log('calledd')
-        return new Promise((resolve,reject)=>{
-           User.find(match,{staffPassExpiryDate:0,deviceToken:0,isBallotAdmin:0,isUserInOpsViewOnly:0,isUsedInOpsGroup:0,pwdManage:0,
-            loginAttempt:0,tokenList:0,otp:0,profilePicture:0,password:0})
-          .populate([{
-            path: 'parentBussinessUnitId',
-            select: 'name status',
-            match: {
-              status: 1,
-            },
-            populate: {
-              path: 'sectionId',
-              match: {
-                status: 1
-              },
-              select: 'name',
-              populate: {
-                path: 'departmentId',
-                match: {
-                  status: 1
-                },
-                select: 'name',
-                populate: {
-                  path: 'companyId',
-                  match: {
-                    status: 1
-                  },
-                  select: 'name',
-                }
-              }
-            }
-          },
-          {
-            path: 'subSkillSets',
-            select: 'name status',
-            match: {
-              status: 1,
-            },
-            populate: {
-              path: 'skillSetId',
-              select: 'name status',
-              match: {
-                status: 1,
-              },
-            },
-          },
-          {
-            path: 'role',
-            select: 'name status',
-            match: {
-              status: 1,
-            },
-          },
-          {
-            path: 'appointmentId',
-            select: 'name status',
-            match: {
-              status: 1,
-            },
-          },
-          {
-            path: 'viewBussinessUnitId',
-            select: 'name status',
-            match: {
-              status: 1,
-            },
-          },
-          {
-            path: 'planBussinessUnitId',
-            select: 'name status',
-            match: {
-              status: 1,
-            },
-          },
-          ]).then((user)=>{
-            resolve(user)
-        }).catch((err)=>{
-          resolve([])
-        });
-        })
-      }
-      if(req.body.businessUnitId && req.body.businessUnitId.length>420){
-        isDataLarge = true;
-        var total = parseInt(req.body.businessUnitId.length/4)
-        var array = JSON.parse(JSON.stringify(match.parentBussinessUnitId['$in']));
-       // var indexToSplit = arr.indexOf('c');
-        var first = array.slice(0, total); // 0-200
-        var second = array.slice(total,total+total);//201 -400
-        var secondTotal = total+total; //400
-        var third = array.slice(secondTotal,secondTotal+total);// 401 - 600
-        var thirdTotal = secondTotal+total;
-        var fourth = array.slice(thirdTotal);//601 - to end
-       // var promises = [];
-        match.parentBussinessUnitId['$in'] = first
-        //promises.push(getUsers(match));
-      var match1 = JSON.parse(JSON.stringify(match))
-      var match2 = JSON.parse(JSON.stringify(match))
-      var match3 = JSON.parse(JSON.stringify(match))
-      match1.parentBussinessUnitId['$in'] = [];
-      match1.parentBussinessUnitId['$in'] = second
-      match2.parentBussinessUnitId['$in'] = [];
-      match2.parentBussinessUnitId['$in'] = third
-      match3.parentBussinessUnitId['$in'] = [];
-      match3.parentBussinessUnitId['$in'] = fourth
-       // promises.push(getUsers(match));
-        var useA = await Promise.all([getUsers(match),getUsers(match1),getUsers(match2),getUsers(match3)])
-        users = users.concat(useA[0],useA[2],useA[2],useA[3])
-        //return res.json({users})
-      } */
-      // console.log('i AM in',users.length)
+      
       if (!isDataLarge) {
         users = await User.find(match)
           .populate([
@@ -1982,7 +1794,6 @@ class reports {
           ])
           .lean();
       }
-      console.log('hereee reporttt');
       let jsonArray = [];
       let timeZone = moment
         .parseZone(req.body.date, 'MM-DD-YYYY HH:mm:ss Z')
@@ -1996,13 +1807,6 @@ class reports {
       ];
       var tt = 0;
       for (let v of users) {
-        // if(tt==10000){
-        //   console.log('userss 10000', v);
-        // }
-        // tt++;
-        //console.log('tt',tt)
-        //if(v.name && v.appointmentId && v.dateOfJoin && v.contactNumber && v.email
-        //&& v.role && v.businessUnitId && v.skillSets && v.businessUnitPlan && v.businessUnitView){
         let json = {};
         json['staffName'] = v.name;
         json['staffId'] = v.staffId;
@@ -2011,26 +1815,12 @@ class reports {
         json['contact'] = v.contactNumber;
         json['email'] = v.email;
         json['role'] = v.role ? v.role.name : '';
-        // json['businessUnitParent'] = v.parentBussinessUnitId ?
-        //   await getName({
-        //     businessUnitId: v.parentBussinessUnitId._id
-        //   }, res) :
-        //   '';
         json['skillSets'] = v.subSkillSets
           .reduce((acc, x) => {
             acc.push(`${x.skillSetId.name} >> ${x.name}`);
             return acc;
           }, [])
           .join(' , ');
-        // let businessUnitPlanPromises = v.planBussinessUnitId.length ?
-        //   v.planBussinessUnitId
-        //     .map(async x => {
-        //       return getName({
-        //         businessUnitId: x._id
-        //       }, res);
-        //     })
-        // :
-        // '';
         json['All BU Access'] = v.allBUAccess ? 'Has Access' : 'No Access';
         json['Company'] = v.parentBussinessUnitId
           ? v.parentBussinessUnitId.sectionId.departmentId.companyId.name
@@ -2051,27 +1841,15 @@ class reports {
           : '';
         json['businessUnitPlan'] =
           v.planBussinessUnitId &&
-          Array.isArray(v.planBussinessUnitId) &&
-          v.planBussinessUnitId.length
+            Array.isArray(v.planBussinessUnitId) &&
+            v.planBussinessUnitId.length
             ? v.planBussinessUnitId.map(getFullBU).join(',')
             : '';
 
-        // json[loggedData[0]] = v.otpSetup ? v.otpSetup.mobileVerified ? 1 : 0 : 0;
         json[loggedData[0]] = v.loggedIn ? 1 : 0;
         json[loggedData[1]] = !!json[loggedData[0]] ? 0 : 1;
         json[loggedData[2]] = v.countryCode || '';
         json[loggedData[3]] = v.primaryMobileNumber || '';
-        //json['businessUnitPlan'] = (await Promise.all(businessUnitPlanPromises)).join(' , ');
-        // let businessUnitViewPromises = v.viewBussinessUnitId.length ?
-        //   v.viewBussinessUnitId
-        //     .map(async x => {
-        //       return getName({
-        //         businessUnitId: x._id
-        //       }, res);
-        //     }) :
-        //   '';
-        // json['businessUnitView'] = (await Promise.all(businessUnitViewPromises)).join(' , ');
-        // Custom Fields
         for (let elem of customFields) {
           json[elem.fieldName] = '';
           v.otherFields = v.otherFields || [];
@@ -2108,11 +1886,9 @@ class reports {
         fieldsArray.push(elem.fieldName);
       }
       fieldsArray.push(...loggedData);
-      //console.log(fieldsArray)
       var dir = path.join(
         __dirname + '/../../../public/uploads/reportsDownloads/',
       );
-      console.log('dir', dir);
       if (!fsS.existsSync(dir)) {
         fsS.mkdirSync(dir, { recursive: true });
       }
@@ -2120,26 +1896,11 @@ class reports {
         .toString(36)
         .substr(2, 10)}.csv`;
       dir = dir + fileName;
-      console.log('dirdir', dir);
       const csv = new ObjectsToCsv(jsonArray);
       await csv.toDisk(dir);
       return __.out(res, 201, {
         csvLink: `/uploads/reportsDownloads/${fileName}`,
       });
-      //   const csv = await json2csv({
-      //     data: jsonArray,
-      //     fields: fieldsArray
-      //   });
-      //   let fileName = `users_list_${Math.random ().toString (36).substr (2, 10)}`;
-      //   fs.writeFile(`./public/uploads/reportsDownloads/${fileName}.csv`, csv, (err) => {
-      //     if (err) {
-      //         return __.out(res, 300, 'Something went wrong try later');
-      //     } else {
-      //         return __.out(res, 201, { csvLink: `/uploads/reportsDownloads/${fileName}.csv` });
-      //     }
-      // });
-      //__.out(res ,201 , jsonArray)
-      //this.generateCsv('users_list', jsonArray, fieldsArray, res);
     } catch (err) {
       __.log(err);
       __.out(res, 500);

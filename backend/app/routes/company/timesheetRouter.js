@@ -17,14 +17,6 @@ timeSheetRouter.use(passport.authenticate('jwt', {
             return res.status(402).send('This account is not permitted to access');
     });
 
-// timeSheetRouter.post('/create', (req, res) => {
-//     timeSheetController.create(req, res)
-// });
-//
-// timeSheetRouter.post('/update', (req, res) => {
-//     timeSheetController.update(req, res)
-// });
-
 timeSheetRouter.get('/read/:businessUnitId', (req, res) => {
     timeSheetController.read(req, res)
 });
@@ -82,8 +74,5 @@ timeSheetRouter.post('/lockall', (req, res) => {
     timeSheetController.lockAllAtOnce(req, res);
 });
 
-// userFieldRouter.get('/remove/:fieldId', (req, res) => {
-//     userFieldController.remove(req, res)
-// });
 
 module.exports = timeSheetRouter;

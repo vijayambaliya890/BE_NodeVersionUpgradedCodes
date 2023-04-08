@@ -20,17 +20,10 @@ const mongoose = require('mongoose'),
 const async = require('async');
 const AssignShift = require('../../models/assignShift');
 const ObjectId = require('mongoose').Types.ObjectId;
-// const redisClient = require('../../../helpers/redis.js');
-// const redisData = require('../../../helpers/redisDataGenerator');
 const ShiftHelper = require('../../../helpers/shiftHelper');
 const AgendaCron = require('../../../helpers/agendaEventHandler');
 const { logInfo, logError } = require('../../../helpers/logger.helper');
 class shift {
-  // async updateRedis(businessUnitId) {
-  //   console.log('before seting redis');
-  //   const r = await redisData.readNewNextPromise(businessUnitId);
-  //   return r;
-  // }
   getTimeZone() {
     return new Date().toString().match(/([A-Z]+[\+-][0-9]+)/)[1];
   }
@@ -39,14 +32,10 @@ class shift {
     let dateSplit = date.split('-');
     date = dateSplit[1] + '-' + dateSplit[0] + '-' + dateSplit[2];
     const dateTime = `${date} ${time} ${timeZone}`;
-    console.log('DateTime', dateTime);
     return moment(dateTime, 'DD-MM-YYYY HH:mm:ss Z').utc().format();
   }
 
   async createStaff(res, userObj, req) {
-    console.log(
-      '--------------- INSIDE CREATE DAFF FUNCTION -------------------------------',
-    );
     return new Promise(async (resolve, reject) => {
       try {
         const { shift, user } = userObj;
@@ -66,7 +55,6 @@ class shift {
           shift.plannedBy = req.user._id;
           for (let userDetail of user) {
             const { staffId, dayDate } = userDetail;
-            console.log(dayDate);
             try {
               let userInfo = await User.findOne(
                 { staffId },
@@ -136,7 +124,6 @@ class shift {
                   shiftObj.isProximityEnabled = body.isProximityEnabled
                   shiftObj.isCheckInEnabled = body.isCheckInEnabled
                   shiftObj.proximity = body.proximity
-                  //     console.log('shiftObj.endTime', shiftObj.endTime, moment(new Date(shiftObj.endTime), 'MM-DD-YYYY HH:mm:ss Z').utc().unix());
                   shiftObj.startTimeInSeconds = moment(
                     new Date(shiftObj.startTime),
                     'MM-DD-YYYY HH:mm:ss Z',
@@ -207,7 +194,6 @@ class shift {
           resolve({ code: 0, message: 'User details not found' });
         }
       } catch (e) {
-        console.log('Inside catch', e);
         reject(e);
       }
     });
@@ -240,9 +226,6 @@ class shift {
                   date: item.shiftObj.date,
                 });
                 if (shiftResult && shiftResult.length) {
-                  console.log(
-                    '-------------------------------INSIDE IF---------------------------',
-                  );
                   const shiftAlreadyPresent = shiftResult.filter((shiftAl) => {
                     return (
                       new Date(shiftAl.startTime).getTime() ===
@@ -275,9 +258,6 @@ class shift {
                     shiftOverlapping.length === 0 &&
                     shiftAlreadyPresent.length === 0
                   ) {
-                    console.log(
-                      '===================Validation successfull=======================',
-                    );
                     const isLimit = await assignShiftController.checkLimit(
                       item.shiftObj,
                     );
@@ -295,9 +275,6 @@ class shift {
                     }
                     if (isSave) {
                       delete item.shiftObj.shiftScheme;
-                      console.log(
-                        '---------------------------SAVING ASSINGED SHIFT----------------------------',
-                      );
                       await new AssignShift(item.shiftObj).save();
                       counter++;
                     } else {
@@ -310,9 +287,6 @@ class shift {
                     });
                   }
                 } else {
-                  console.log(
-                    '-------------------------------INSIDE ELSE---------------------------',
-                  );
                   const isLimit = await assignShiftController.checkLimit(
                     item.shiftObj,
                   );
@@ -321,22 +295,14 @@ class shift {
                     if (isLimit.details.disallow) {
                       isSave = false;
                     } else if (isLimit.details.alert) {
-                      console.log('line248');
                       item.shiftObj.isLimit = true;
                     }
                   }
                   if (isSave) {
-                    console.log('SAVING ASSIGN SHIFT');
                     delete item.shiftObj.shiftScheme;
-                    console.log('LINE NO 277 SAVING ASSINGED SHIFT');
                     counter++;
                     await new AssignShift(item.shiftObj).save();
-                    console.log(
-                      '-----------------SAVED SUCCESSFULLY----------------',
-                      item.shiftObj.date,
-                    );
                   } else {
-                    console.log('line265');
                     resolve({ code: 0, message: 'Shift is already present.' });
                   }
                 }
@@ -363,8 +329,9 @@ class shift {
 
   async create(req, res) {
     try {
+      logInfo('shift/create api Start!', { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
-        logError(`shift\create API, You've entered malicious input `, req.body);
+        logError(`shift/create API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let staffDetail = [];
@@ -394,9 +361,7 @@ class shift {
         };
         try {
           const response = await this.createStaff(res, finalObj, req);
-          // console.log(response.shiftDetails)
           if (response.code) {
-            //calling other to insert user details
             const response2 = await this.insertStaffDetail(
               res,
               response.shiftDetails,
@@ -420,26 +385,20 @@ class shift {
                 shiftExecution = true;
               }
             } else {
-              // await this.updateRedis(businessUnitId);
-              logError(`shift\create API, there is an error`, response2.toString());
+              logError(`shift/create API, there is an error`, response2.toString());
               return __.out(res, 300, response2.message);
             }
           } else {
-            // await this.updateRedis(businessUnitId);
-            logError(`shift\create API, there is an error`, response.toString());
+            logError(`shift/create API, there is an error`, response.toString());
             return __.out(res, 300, response.message);
           }
         } catch (e) {
-          logError(`shift\create API, there is an error`, e.toString());
-          // await this.updateRedis(businessUnitId);
+          logError(`shift/create API, there is an error`, e.toString());
           return __.out(res, 500, e.message);
         }
       }
 
       if (shiftExecution) {
-        console.log(
-          '---------------------Finally create shift-------------------',
-        );
         let requiredResult1 = await __.checkRequiredFields(
           req,
           [
@@ -452,18 +411,15 @@ class shift {
           'shift',
         );
         if (requiredResult1.status === false) {
-          logError(`shift\create API, Required fields missing `, requiredResult1.missingFields);
-          logError(`shift\create API, request payload `, req.body);
+          logError(`shift/create API, Required fields missing `, requiredResult1.missingFields);
+          logError(`shift/create API, request payload `, req.body);
           __.out(res, 400, requiredResult1.missingFields);
         } else {
-          // Formatting Shift based on below functionalities
           let shiftsNewFormat = [];
           let isSplitShift = false;
           let separateShiftPerDay = function () {
             for (let elementData of req.body.shifts) {
-              console.log('-------- elementData ----------- ', elementData)
               for (let elem of elementData.dayDate) {
-                console.log('--------elem----------- ', elem)
                 const randomShiftId = new mongoose.Types.ObjectId();
                 let shiftSeparated = {
                   subSkillSets: elementData.subSkillSets,
@@ -514,14 +470,11 @@ class shift {
                 }
               }
             }
-            // hello
-            //  return res.json({shiftsNewFormat})
             req.body.shifts = shiftsNewFormat;
           };
           if (req.body.platform && req.body.platform == 'web') {
             separateShiftPerDay();
           }
-          __.log(req.body.shifts, 'req.body.shifts');
           // End Formatting Shift based on below functionalities
           /*check required fields in shifts array of objects */
           let requiredResult2;
@@ -554,10 +507,9 @@ class shift {
               'shiftDetails',
             );
           }
-          // 'backUpStaffNeedCount',
           if (requiredResult2.status === false) {
-            logError(`shift\create API, Required fields missing `, requiredResult1.missingFields);
-            logError(`shift\create API, request payload `, req.body);
+            logError(`shift/create API, Required fields missing `, requiredResult2.missingFields);
+            logError(`shift/create API, request payload `, req.body);
             __.out(res, 400, requiredResult2.missingFields);
           } else {
             /* Validate start and end time of shifts */
@@ -567,7 +519,7 @@ class shift {
                   moment(thisShift.startTime, 'MM-DD-YYYY HH:mm:ss Z'),
                 )
               ) {
-                logError(`shift\create API, there is some wrong `, 'Invalid startTime or endTime');
+                logError(`shift/create API, there is some wrong `, 'Invalid startTime or endTime');
                 __.out(res, 300, 'Invalid startTime or endTime');
                 return;
               }
@@ -635,23 +587,18 @@ class shift {
                 .unix();
               const start = shiftObj.date;
               let formDate = start.split('-');
-              console.log('date  ', start, formDate);
               const month = formDate[0];
               const day = formDate[1];
               const year = formDate[2].split(' ')[0];
               const dayfull = `${year}-${month}-${day}`;
-              console.log('dayfull', dayfull);
               shiftObj.day = dayfull;
               let timeZoneArr = shiftObj.date.split('+');
-              console.log('timeZoneArr', timeZoneArr);
               if (timeZoneArr.length === 2) {
                 shiftObj.timeZone = '+' + timeZoneArr[1];
               } else {
                 timeZoneArr = shiftObj.date.split('-')[1];
-                console.log('timeZoneArr--', timeZoneArr);
                 shiftObj.timeZone = '-' + timeZoneArr;
               }
-              console.log(' shiftObj.timeZone', shiftObj.timeZone);
               shiftObj.date = moment(shiftObj.date, 'MM-DD-YYYY HH:mm:ss Z')
                 .utc()
                 .format();
@@ -667,26 +614,6 @@ class shift {
               )
                 .utc()
                 .format();
-              //shiftObj.day = `${new Date(shiftObj.startTime}`
-              // const start = shiftObj.startTime;
-              // let formDate = start.split('-');
-              // console.log(start, formDate);
-              // const year= formDate[0];
-              // const month= formDate[1];
-              // const day = formDate[2].split('T')[0];
-              // const dayfull= `${year}-${month}-${day}`;
-              // console.log(dayfull);
-              // shiftObj.day = dayfull;
-              // console.log(shiftObj.date, moment(shiftObj.startTime).format('HH:mm:ss Z'));
-              // console.log('tome', shiftObj.startTime);
-              // shiftObj.day = __.getDay(shiftObj.date);
-              //const startTime = shiftObj.startTime.split('T')[1];
-              // let d = moment.utc(shiftObj.date, "YYYY-MM-DD");
-              // shiftObj.date = d.format("YYYY-MM-DD");
-              // shiftObj.day = d.format("YYYY-MM-DD");
-              //shiftObj.date = `${shiftObj.date}T${startTime}`;
-              //shiftObj.date = moment(shiftObj.date, 'MM-DD-YYYY HH:mm:ss Z');
-              //   console.log('shiftObj.dayshiftObj.day', shiftObj.date);
               shiftObj.duration = __.getDurationInHours(
                 shiftObj.startTime,
                 shiftObj.endTime,
@@ -701,12 +628,10 @@ class shift {
                 req.body.shiftType === 'Assign Shift' ? true : false;
               shiftObj.confirmedStaffs =
                 req.body.shiftType === 'Assign Shift' ? staffDetail : [];
-              console.log(shiftObj);
               let insertedShiftDetails = await new ShiftDetails(
                 shiftObj,
               ).save(),
                 insertedShiftDetailsId = insertedShiftDetails._id;
-              console.log('_____________________________ insertedShiftDetailsId ________ ', insertedShiftDetailsId)
               insertedShiftDetailsIdArray.push(
                 mongoose.Types.ObjectId(insertedShiftDetailsId),
               );
@@ -762,21 +687,23 @@ class shift {
                   insertedShiftId; /*unique id for this particular shift */
               FCM.push(usersDeviceTokens, pushData, collapseKey);
             }
-            // this.updateRedis(businessUnitId);
             await shiftLogController.create(statusLogData, res);
+            logInfo(`shift/create api end 'Shift created sucessfully'`, { name: req.user.name, staffId: req.user.staffId });
             __.out(res, 201, 'Shift created sucessfully');
           }
         }
       }
     } catch (err) {
-      logError(`shift\create API, there is something wrong `, err.toString());
+      logError(`shift/create API, there is something wrong `, { error: err.toString(), name: req.user.name, staffId: req.user.staffId });
       __.log(err);
       __.out(res, 500);
     }
   }
   async createRestOff(req, res) {
+    logInfo('shift/create/restoff API Start!', { name: req.user.name, staffId: req.user.staffId });
     try {
       if (!__.checkHtmlContent(req.body)) {
+        logError(`shift/create/restoff API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let requiredResult1 = await __.checkRequiredFields(
@@ -792,6 +719,8 @@ class shift {
         'shift',
       );
       if (requiredResult1.status === false) {
+        logError(`shift/create/restoff API, Required fields missing `, requiredResult1.missingFields);
+        logError(`shift/create/restoff API, request payload `, req.body);
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         let shiftObj = req.body;
@@ -844,6 +773,7 @@ class shift {
           );
         }
         if (new Date().getTime() > new Date(shiftObj.startTime)) {
+          logError(`shift/create/restoff API, 'You can not create past date time shift' `, shiftObj);
           return res.json({
             success: false,
             message: 'You can not create past date time shift',
@@ -852,12 +782,6 @@ class shift {
         var shiftDetail = await ShiftDetails.findOne({
           _id: req.body.shiftDetailId,
         });
-        // var isCross = await this.checkTimingCross(res, shiftDetail,shiftObj.startTime,shiftObj.endTime,shiftObj.userId);
-        // if(isCross){
-        //     return res.json({success: false,message:'Shift is overlapping'});
-        // }
-        // starttime, endtime,shiftDetails,userid
-        console.log('shiftObj.startTime', shiftObj.startTime);
         shiftObj.duration = __.getDurationInHours(
           shiftObj.startTime,
           shiftObj.endTime,
@@ -880,7 +804,6 @@ class shift {
           },
           { new: true },
         );
-        console.log('old data', data.startTime);
         if (req.body.isSplitShift) {
           data = JSON.parse(JSON.stringify(data));
           delete data._id;
@@ -889,13 +812,11 @@ class shift {
           data.duration = shiftObj.durationSplit;
           data.startTimeInSeconds = shiftObj.startTimeInSecondsSplit;
           data.endTimeInSeconds = shiftObj.endTimeInSecondsSplit;
-          console.log('data', data.startTime);
           const splitData = await ShiftDetails.create(data);
           const shiftUpdate = await Shift.findOneAndUpdate(
             { _id: splitData.shiftId },
             { $push: { shiftDetails: splitData._id } },
           );
-          console.log('splitData', splitData._id);
         }
         var assignUpdate = await AssignShift.findOneAndUpdate(
           { _id: req.body.assignShiftId },
@@ -930,13 +851,11 @@ class shift {
           );
         }
         if (data) {
-          // await this.updateRedis(assignUpdate.businessUnitId);
           var deviceToken = await User.findOne(
             { _id: req.body.userId },
             { _id: 0, deviceToken: 1 },
           );
           var arrDeviceToken = [deviceToken.deviceToken];
-          console.log('arrDeviceToken', arrDeviceToken);
           var text = 'Off';
           if (data.isRest) {
             text = 'Rest';
@@ -952,7 +871,6 @@ class shift {
               req.body.shiftDetailId; /*unique id for this particular shift */
           FCM.push(arrDeviceToken, pushData, collapseKey);
           Shift.findById(data.shiftId).then((shiftInfo) => {
-            console.log('shiftInfo', shiftInfo);
             let statusLogData = {
               userId: req.body.userId,
               status: 15,
@@ -972,16 +890,19 @@ class shift {
             };
             shiftLogController.create(statusLogData, res);
           });
+          logInfo(`'Shift Created Successfully' shift/create/restoff API ends here!`, { name: req.user.name, staffId: req.user.staffId });
           return res.json({
             success: true,
             message: 'Shift Created Successfully',
             data,
           });
         } else {
+          logError(`shift/create/restoff API, 'Shift Not Found' `, req.body);
           return res.json({ success: false, message: 'Shift Not Found' });
         }
       }
     } catch (err) {
+      logError(`shift/create/restoff API, 'Caught an error'`, err.toString());
       __.log(err);
       __.out(res, 500);
     }
@@ -1011,7 +932,6 @@ class shift {
         let separateShiftPerDay = function () {
           for (let elementData of req.body.shifts) {
             for (let elem of elementData.dayDate) {
-              console.log('ddddare', elem.date);
               let shiftSeparated = {
                 subSkillSets: elementData.subSkillSets,
                 staffNeedCount: elementData.staffNeedCount,
@@ -1107,7 +1027,6 @@ class shift {
           let insertedShift = await new Shift(insert).save(),
             insertedShiftId = insertedShift._id,
             insertedShiftDetailsIdArray = [];
-          //console.log('req.body.shiftsreq.body.shifts', req.body.shifts);
           for (let shiftObj of req.body.shifts) {
             //iteration function
             /*converting to utc time */
@@ -1136,17 +1055,12 @@ class shift {
             shiftObj.endTime = moment(shiftObj.endTime, 'MM-DD-YYYY HH:mm:ss Z')
               .utc()
               .format();
-            // console.log(shiftObj.date, moment(shiftObj.startTime).format('HH:mm:ss Z'));
-            // console.log('tome', shiftObj.startTime);
-            // shiftObj.day = __.getDay(shiftObj.date);
+
             const startTime = shiftObj.startTime.split('T')[1];
             let d = moment.utc(shiftObj.date, 'YYYY-MM-DD');
             shiftObj.date = d.format('YYYY-MM-DD');
             shiftObj.day = d.format('YYYY-MM-DD');
-            //shiftObj.date = `${shiftObj.date}T${startTime}`;
-            console.log('shiftObj.dayshiftObj.day', shiftObj.date);
-            //shiftObj.date = moment(shiftObj.date, 'MM-DD-YYYY HH:mm:ss Z');
-            //   console.log('shiftObj.dayshiftObj.day', shiftObj.date);
+
             shiftObj.duration = __.getDurationInHours(
               shiftObj.startTime,
               shiftObj.endTime,
@@ -1472,7 +1386,6 @@ class shift {
                 /*if date already keyed in array */
                 listData[key].push(element);
                 // Add Hours in calculation only it is active shift
-                console.log('element.isAssignShift', element.isAssignShift);
                 if (element.status == 1 && !element.isAssignShift) {
                   graphData[key].totalHours +=
                     element.duration * element.staffNeedCount;
@@ -1508,7 +1421,6 @@ class shift {
                   },
                 };
                 // Add Hours in calculation only it is active shift
-                console.log('element.isAssignShift', element.isAssignShift);
                 if (element.status == 1 && !element.isAssignShift) {
                   graphData[key].totalHours =
                     element.duration * element.staffNeedCount;
@@ -1642,12 +1554,10 @@ class shift {
           for (let date in listData) {
             listData[date].forEach((item, index) => {
               if (item.isExtendedShift) {
-                //console.log('present');
                 if (item.extendedStaff) {
                   item.extendedStaff.forEach((extendedStaffItem) => {
                     if (item.confirmedStaffs) {
                       item.confirmedStaffs.forEach((confirmedStaffsItem) => {
-                        // console.log(typeof confirmedStaffs._id, confirmedStaffs._id,extendedStaff.userId )
                         if (
                           confirmedStaffsItem._id.toString() ===
                           extendedStaffItem.userId.toString()
@@ -1658,7 +1568,6 @@ class shift {
                             extendedStaffItem.endDateTime;
                           confirmedStaffsItem.startDateTime =
                             extendedStaffItem.startDateTime;
-                          console.log('match');
                         }
                       });
                     }
@@ -1703,41 +1612,28 @@ class shift {
     }
   }
 
-  // setRedisData(key, data) {
-  //   redisClient.set(key, JSON.stringify(data), 'EX', 10 * 60, (err) => {
-  //     //cache for 10mins
-  //     //other operations will go here
-  //     //probably respond back to the request
-  //   });
-  // }
   async readNew(req, res) {
     try {
+      logInfo('shift/read api Start!', { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
-        logError(`shift\read API, You've entered malicious input`, req.body);
+        logError(`shift/read API, You've entered malicious input`, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
-      console.log('callee');
       let requiredResult1 = await __.checkRequiredFields(req, [
         'businessUnitId',
         'startDate',
       ]);
       if (requiredResult1.status === false) {
-        logError(`shift\read API, There is something wrong `, requiredResult1.missingFields);
+        logError(`shift/read API, field missing `, requiredResult1.missingFields);
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         var where = {
           status: 1,
         },
           findOrFindOne;
-        console.log(req.body);
         const currentDateR = req.body.startDate.split(' ')[0];
         const redisKey = `shiftR${req.body.businessUnitId}${currentDateR}`;
-        console.log('read API KEY redisKey', redisKey);
-        // const redisData = await redisClient.get(`${redisKey}`);
-        // if (redisData) {
-        //     console.log("DATATATATATA Present")
-        //     return __.out(res, 201, JSON.parse(redisData));
-        // }
+
         var timeZone = moment
           .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
           .format('Z'),
@@ -1751,15 +1647,12 @@ class shift {
             .add(59, 'seconds')
             .utc()
             .format(); //86399 => add 23:59:59
-        console.log('startDate11', startDate);
-        console.log('endsdhhd', endDate);
-        console.log('timeZonetimeZone', timeZone);
+
         const aa = new Date(startDate).setUTCHours(0, 0, 0, 0);
         const bb = new Date(endDate).setUTCHours(24, 0, 0, 0);
         startDate = new Date(aa);
         endDate = new Date(bb);
-        console.log('startDate', startDate);
-        console.log('endddd', endDate);
+
         var startUnixDateTime = moment(startDate).unix(),
           endUnixDateTime = moment(endDate).unix();
         const ddd = moment(new Date(req.body.startDate))
@@ -1768,7 +1661,6 @@ class shift {
         const year = new Date(ddd).getFullYear();
         const month = new Date(ddd).getMonth() + 1;
         const day = new Date(ddd).getDate(); //-1; // remove comment for local
-        console.log('yy', year, month, day);
         const whereShift = {
           //  staff_id:{$in: usersOfBu},
           businessUnitId: req.body.businessUnitId,
@@ -1780,7 +1672,6 @@ class shift {
           ],
         };
         var shift = await Shift.find(whereShift).select('shiftDetails').lean();
-        console.log('shofttttt', shift.length);
         function plucker(prop) {
           return function (o) {
             return o[prop];
@@ -1789,7 +1680,6 @@ class shift {
         var shiftDetailsArray = shift.map(plucker('shiftDetails'));
         shiftDetailsArray = _.flatten(shiftDetailsArray);
         shiftDetailsArray = Array.from(new Set(shiftDetailsArray));
-        // return res.json({shiftDetailsArray})
         var weekNumber = await __.weekNoStartWithMonday(startDate);
         where = {
           status: 1,
@@ -1801,7 +1691,6 @@ class shift {
           $gte: startDate,
           $lte: endDate,
         };
-        //where.weekNumber = weekNumber;
         // Show Cancelled Shifts Also
         if (req.body.cancelledShifts && req.body.cancelledShifts === true) {
           where.status = {
@@ -1812,8 +1701,6 @@ class shift {
           where._id = req.body.shiftDetailsId;
           findOrFindOne = ShiftDetails.findOne(where);
         } else findOrFindOne = ShiftDetails.find(where);
-        // console.log(findOrFindOne)
-        // return res.send(findOrFindOne)
         let shifts = await findOrFindOne
           .populate([
             { path: 'appliedStaffs' },
@@ -2017,7 +1904,6 @@ class shift {
           .sort({
             startTime: -1,
           });
-        console.log(' req.body.from', req.body.from);
         if (!req.body.shiftDetailsId) {
           var listData = {},
             graphData = {},
@@ -2035,10 +1921,8 @@ class shift {
           shifts = shifts.filter((iii) => {
             return iii.shiftId;
           });
-          //return res.json({shifts});
           await shifts.forEach((element) => {
             element = JSON.parse(JSON.stringify(element));
-            //console.log('element', element.isAssignShift)
             let totalExtension = 0;
             let totalExtensionHrs = 0;
             if ((element.shiftId && element.shiftId.businessUnitId) || element.isAssignShift) {
@@ -2048,7 +1932,6 @@ class shift {
               }
               var key = __.getDateStringFormat(element.date, tz);
               for (let ki = 0; ki < element.confirmedStaffs.length; ki++) {
-                // console.log("I am here in comfired")
                 const uCI = element.confirmedStaffs[ki];
                 let startDI = element.startTime;
                 let endDI = element.endTime;
@@ -2085,7 +1968,6 @@ class shift {
               }
               if (element.status == 1) {
                 /*dashboard graph data starts*/
-                //console.log('element.isAssignShift', element.isAssignShift)
                 if (!element.isAssignShift) {
                   var confirmedStaffsCount = element.confirmedStaffs.length;
                   dashboardGraphData.plannedFlexiHours +=
@@ -2133,7 +2015,6 @@ class shift {
                 listData[key].push(element);
                 // Add Hours in calculation only it is active shift
                 if (element.status == 1 && !element.isAssignShift) {
-                  //console.log('1', key);
                   graphData[key].totalHours +=
                     element.duration *
                     (element.staffNeedCount - totalExtension) +
@@ -2165,7 +2046,6 @@ class shift {
                         (isRecalled && element.isRecallAccepted == 2)) &&
                       req.body.from != 'viewbooking'
                     ) {
-                      console.log('11', key);
                       graphData[key].totalHoursAssign +=
                         element.duration * element.staffNeedCount;
                       graphData[key].totalShiftsAssign +=
@@ -2243,8 +2123,6 @@ class shift {
                       (isRecalled && element.isRecallAccepted == 2)) &&
                     req.body.from != 'viewbooking'
                   ) {
-                    console.log('all here');
-                    console.log('11**************', JSON.stringify(element));
                     graphData[key].totalHoursAssign =
                       element.duration * element.staffNeedCount;
                     graphData[key].totalShiftsAssign = element.staffNeedCount;
@@ -2310,21 +2188,12 @@ class shift {
                 appliedStaffCount = 0,
                 staffNeedCountAssign = 0,
                 appliedStaffCountAssing = 0;
-              // if(element.isAssignShift){
-              //     console.log('aaaaaaaaaa');
-              //     console.log(i, element.startTimeInSeconds)
-              //     element.startTimeInSeconds = element.startTimeInSeconds/1000;
-              //     element.endTimeInSeconds = element.endTimeInSeconds/1000;
-              //     console.log(i, element.startTimeInSeconds)
-              // }
-              //   console.log(i, element.startTimeInSeconds)
               if (
                 i >= element.startTimeInSeconds &&
                 i <= element.endTimeInSeconds
               ) {
                 /*shift matches the time then it will take the count else it will assign 0 by default */
                 if (!element.isAssignShift) {
-                  // console.log('inthis')
                   staffNeedCount = element.staffNeedCount;
                   appliedStaffCount = element.confirmedStaffs.length;
                 } else {
@@ -2361,8 +2230,7 @@ class shift {
                 staffAppliedWeekdaysObj[weekDay][dateTimeUnix] =
                   appliedStaffCount;
               }
-              // }else {
-              // assign code
+
               if (
                 typeof staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] !=
                 'undefined'
@@ -2385,7 +2253,6 @@ class shift {
                 staffAppliedWeekdaysObjAssign[weekDay][dateTimeUnix] =
                   appliedStaffCountAssing;
               }
-              // }
             });
           }
 
@@ -2476,14 +2343,11 @@ class shift {
             updatedDashboardGraphData[each] =
               dashboardGraphData[each].toFixed(2);
           }
-          __.log(req.body, 'shift/read params');
-          // __.log(listData)
+
           var templistData = JSON.stringify(listData);
           listData = JSON.parse(templistData);
-          console.log('________________ item ______________ ', listData)
           for (let date in listData) {
             listData[date].forEach((item, index) => {
-              // console.log('________________ item ______________ ',item)
               if (item.isLimit) {
                 const isLimitedStaff = item.appliedStaffs.filter((limit) => {
                   return limit.status == 1 && limit.isLimit;
@@ -2501,12 +2365,10 @@ class shift {
                 }
               }
               if (item.isExtendedShift) {
-                //console.log('present');
                 if (item.extendedStaff) {
                   item.extendedStaff.forEach((extendedStaffItem) => {
                     if (item.confirmedStaffs) {
                       item.confirmedStaffs.forEach((confirmedStaffsItem) => {
-                        // console.log(typeof confirmedStaffs._id, confirmedStaffs._id,extendedStaff.userId )
                         if (
                           confirmedStaffsItem._id.toString() ===
                           extendedStaffItem.userId.toString()
@@ -2519,7 +2381,6 @@ class shift {
                             extendedStaffItem.startDateTime;
                           confirmedStaffsItem.isLimit =
                             extendedStaffItem.isLimit;
-                          console.log('match');
                         }
                       });
                     }
@@ -2617,7 +2478,7 @@ class shift {
             dashboardGraphData: updatedDashboardGraphData,
             weeklyStaffGraphData: weeklyStaffGraphData,
           };
-          // this.setRedisData(redisKey, finalDataResult);
+          logInfo('shift/read api end!', { name: req.user.name, staffId: req.user.staffId });
           __.out(res, 201, {
             list: listData,
             graph: graphData,
@@ -2626,21 +2487,20 @@ class shift {
             weeklyStaffGraphData: weeklyStaffGraphData,
           });
         } else {
-          __.out(res, 201, {
-            shifts: shifts,
-          });
+          logInfo('shift/read api end!', { name: req.user.name, staffId: req.user.staffId });
+          __.out(res, 201, { shifts: shifts });
         }
       }
     } catch (err) {
-      logError(`shift\read API is getting fail `, err.toString());
+      logError(`shift/read API is getting fail `, err.toString());
       __.log(err);
       __.out(res, 500);
     }
   }
 
-  //------------------------------------ END READ SHIFT ------------------------------------------------
   async delete(req, res) {
     try {
+      logInfo('shift/delete api Start!', { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
         logError(`shift\delete API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
@@ -2655,7 +2515,6 @@ class shift {
         logError(`shift\delete API, request payload `, req.body);
         __.out(res, 400, requiredResult.missingFields);
       } else {
-        /*compose the date variables */
         const buIdRedis = req.body.businessUnitId;
         var weekRangeStartsAt = moment(
           req.body.weekRangeStartsAt,
@@ -2686,6 +2545,7 @@ class shift {
           businessUnitId: req.body.businessUnitId,
         };
         var result = await this.log(statusLogData, res);
+        logInfo('shift/delete api end!', { name: req.user.name, staffId: req.user.staffId });
         __.out(res, 201, result);
       }
     } catch (err) {
@@ -2739,13 +2599,10 @@ class shift {
           .startOf('day')
           .utc()
           .format();
-        console.log('req.body.weekRangeStartsAt', req.body.weekRangeStartsAt);
         const yearOfWeek = new Date(req.body.weekRangeStartsAt).getFullYear();
-        console.log('eeee', yearOfWeek);
         var weekNumber = await __.weekNoStartWithMonday(
           req.body.weekRangeStartsAt,
         );
-        //"$expr": { "$eq": [{ "$year": "$weekRangeStartsAt" }, yearOfWeek] }
         findOrFindOne = ShiftLog.find({
           businessUnitId: req.body.businessUnitId,
           weekNumber: weekNumber,
@@ -2840,19 +2697,14 @@ class shift {
             .utc()
             .format(),
           weekNumber = await __.weekNoStartWithMonday(startDate);
-        console.log('weekNumber', weekNumber, startDate, endDate);
-        __.log(timeZone, req.body, startDate, 'timeZone');
 
-        //use in future if giving problem
         const ddd = moment(new Date(req.body.startDate))
           .utc()
           .format('MM-DD-YYYY HH:mm:ss Z');
         const year = new Date(ddd).getFullYear();
         const month = new Date(ddd).getMonth() + 1;
         const day = new Date(ddd).getDate(); //-1; // remove comment for local
-        console.log('yy', year, month, day);
         const whereShift = {
-          //  staff_id:{$in: usersOfBu},
           businessUnitId: req.body.businessUnitId,
           status: 1,
           $and: [
@@ -2862,7 +2714,6 @@ class shift {
           ],
         };
         var shift = await Shift.find(whereShift).select('shiftDetails').lean();
-        console.log('shofttttt', shift.length);
         function plucker(prop) {
           return function (o) {
             return o[prop];
@@ -2897,9 +2748,7 @@ class shift {
           }
           var shifts = await ShiftDetails.find(where).select('appliedStaffs');
           var appliedStaffsArray = shifts.map(plucker('appliedStaffs'));
-          console.log('appliedStaffsArray', appliedStaffsArray);
           appliedStaffsArray = _.flatten(appliedStaffsArray);
-          console.log('appliedStaffsArray fff', appliedStaffsArray);
           appliedStaffsArray = Array.from(new Set(appliedStaffsArray));
           if (appliedStaffsArray.length == 0) {
             __.out(res, 201, appliedStaffsArray);
@@ -3002,7 +2851,6 @@ class shift {
                 ],
               })
               .lean();
-            //   console.log('staffsShifts', staffsShifts);
             staffsShifts = await _.orderBy(
               staffsShifts,
               ['shiftDetailsId.startTime'],
@@ -3012,7 +2860,6 @@ class shift {
             var listData = {},
               graphData = {};
             staffsShifts.forEach((element) => {
-              // console.log('daaaa',element.shiftDetailsId.date, element.shiftDetailsId.timeZone)
               var key = __.getDateStringFormat(
                 element.shiftDetailsId.date,
                 element.shiftDetailsId.timeZone,
@@ -3061,7 +2908,6 @@ class shift {
             for (let date in newListData) {
               newListData[date].forEach((item, index) => {
                 if (item.shiftDetailsId.isExtendedShift) {
-                  // console.log('aaa');
                   if (item.flexiStaff) {
                     if (item.shiftDetailsId.extendedStaff) {
                       const flexId = item.flexiStaff._id.toString();
@@ -3071,11 +2917,9 @@ class shift {
                         });
                       if (extendObj.length > 0) {
                         item.shiftDetailsId.extendedStaff = extendObj;
-                        // console.log(extendObj)
                         item.flexiStaff.confirmStatus =
                           extendObj[0].confirmStatus;
                         if (extendObj[0].confirmStatus == 2) {
-                          console.log('I am here');
                           item.flexiStaff.startDateTime =
                             extendObj[0].startDateTime;
                           item.flexiStaff.endDateTime =
@@ -3086,10 +2930,8 @@ class shift {
                   }
                 }
                 if (item.shiftDetailsId.isSplitShift) {
-                  console.log('aaaa');
                   newListData[date].forEach((splitItem, splitIndex) => {
                     if (splitIndex !== index) {
-                      console.log('aabb');
                       if (
                         splitItem.shiftDetailsId.isSplitShift &&
                         new Date(splitItem.shiftDetailsId.date).getTime() ===
@@ -3124,26 +2966,22 @@ class shift {
   }
   async viewBookings(req, res) {
     try {
+      logInfo(`shift/viewbookings API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`shift/viewbookings API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
-      console.log('heheheh');
-      __.log(req.body, 'shift/viewBooking params');
       let requiredResult1 = await __.checkRequiredFields(req, [
         'businessUnitId',
         'startDate',
       ]);
       if (requiredResult1.status === false) {
+        logError(`shift/viewbookings API, Required fields missing `, requiredResult1.missingFields);
+        logError(`shift/viewbookings API, request payload `, req.body);
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         const currentDateR = req.body.startDate.split(' ')[0];
         const redisKey = `ViewBooking${req.body.businessUnitId}${currentDateR}`;
-        console.log('read API KEY redisKey', redisKey);
-        // const redisData = await redisClient.get(`${redisKey}`);
-        // if (redisData) {
-        //   console.log('DATATATATATA Present');
-        //   return __.out(res, 201, JSON.parse(redisData));
-        // }
         var timeZone = moment
           .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
           .format('Z'),
@@ -3158,8 +2996,6 @@ class shift {
             .utc()
             .format(),
           weekNumber = await __.weekNoStartWithMonday(startDate);
-        console.log('weekNumber', weekNumber, startDate, endDate);
-        __.log(timeZone, req.body, startDate, 'timeZone');
         var startUnixDateTime = moment(startDate).unix(),
           endUnixDateTime = moment(endDate).unix();
         //use in future if giving problem
@@ -3169,7 +3005,6 @@ class shift {
         const year = new Date(ddd).getFullYear();
         const month = new Date(ddd).getMonth() + 1;
         const day = new Date(ddd).getDate(); //-1; // remove comment for local
-        console.log('yy', year, month, day);
         const whereShift = {
           //  staff_id:{$in: usersOfBu},
           businessUnitId: req.body.businessUnitId,
@@ -3181,7 +3016,6 @@ class shift {
           ],
         };
         var shift = await Shift.find(whereShift).select('shiftDetails').lean();
-        console.log('shofttttt', shift.length);
         function plucker(prop) {
           return function (o) {
             return o[prop];
@@ -3190,7 +3024,6 @@ class shift {
         var shiftDetailsArray = shift.map(plucker('shiftDetails'));
         shiftDetailsArray = _.flatten(shiftDetailsArray);
         shiftDetailsArray = Array.from(new Set(shiftDetailsArray));
-        //  return res.json({shiftDetailsArray})
         if (shiftDetailsArray.length == 0) {
           __.out(res, 201, shiftDetailsArray);
         } else {
@@ -3208,7 +3041,6 @@ class shift {
             $gte: startDate,
             $lte: endDate,
           };
-          // __.log(moment(endDate).endOf('day').utc().format(), moment(startDate).startOf('day').utc().format(), 'formatIssues')
           // Show Cancelled Shifts Also
           if (req.body.cancelledShifts && req.body.cancelledShifts === true) {
             where.status = {
@@ -3413,8 +3245,6 @@ class shift {
             .sort({
               startTime: 1,
             });
-          //  return res.json({shifts})
-          console.log(' req.body.from', req.body.from);
           if (!req.body.shiftDetailsId) {
             var listData = {},
               graphData = {},
@@ -3432,9 +3262,7 @@ class shift {
             shifts = shifts.filter((iii) => {
               return iii.shiftId;
             });
-            //return res.json({shifts});
             await shifts.forEach((element) => {
-              console.log('element', element.isAssignShift);
               if (
                 (((element.mainSkillSets && element.mainSkillSets.length) ||
                   (element.subSkillSets && element.subSkillSets.length)) &&
@@ -3451,14 +3279,12 @@ class shift {
                 // Remove Cancelled Shifts on Calculation
                 if (element.status == 1) {
                   /*dashboard graph data starts*/
-                  console.log('element.isAssignShift', element.isAssignShift);
                   if (!element.isAssignShift) {
                     var confirmedStaffsCount = element.confirmedStaffs.length;
                     dashboardGraphData.plannedFlexiHours +=
                       element.staffNeedCount * element.duration;
                     dashboardGraphData.plannedFlexiShifts +=
                       element.staffNeedCount;
-                    //backUpStaffs.length
                     dashboardGraphData.bookedFlexiHours +=
                       confirmedStaffsCount * element.duration;
                     dashboardGraphData.bookedFlexiShifts +=
@@ -3498,7 +3324,6 @@ class shift {
                   listData[key].push(element);
                   // Add Hours in calculation only it is active shift
                   if (element.status == 1 && !element.isAssignShift) {
-                    console.log('1', key);
                     graphData[key].totalHours +=
                       element.duration * element.staffNeedCount;
                     graphData[key].confirmedHours +=
@@ -3528,7 +3353,6 @@ class shift {
                           (isRecalled && element.isRecallAccepted == 2)) &&
                         req.body.from != 'viewbooking'
                       ) {
-                        console.log('11', key);
                         graphData[key].totalHoursAssign +=
                           element.duration * element.staffNeedCount;
                         graphData[key].totalShiftsAssign +=
@@ -3600,14 +3424,12 @@ class shift {
                   } else {
                     var isRecalled =
                       element.isRest || element.isOff ? true : false;
-                    console.log('isRecalled', isRecalled, req.body.from);
                     if (
                       element.status == 1 &&
                       (!isRecalled ||
                         (isRecalled && element.isRecallAccepted == 2)) &&
                       req.body.from != 'viewbooking'
                     ) {
-                      console.log('all here');
                       graphData[key].totalHoursAssign =
                         element.duration * element.staffNeedCount;
                       graphData[key].totalShiftsAssign = element.staffNeedCount;
@@ -3661,7 +3483,6 @@ class shift {
               staffAppliedWeekdaysObjAssign = _.cloneDeep(
                 staffNeedWeekdaysObjAssign,
               );
-            //return res.json({staffAppliedWeekdaysObj,customShiftDetails })
             for (var i = startUnixDateTime; i <= endUnixDateTime; i += 1800) {
               var dateTimeUnix = i * 1000;
               customShiftDetails = JSON.parse(
@@ -3673,21 +3494,10 @@ class shift {
                   appliedStaffCount = 0,
                   staffNeedCountAssign = 0,
                   appliedStaffCountAssing = 0;
-                // if(element.isAssignShift){
-                //     console.log('aaaaaaaaaa');
-                //     console.log(i, element.startTimeInSeconds)
-                //     element.startTimeInSeconds = element.startTimeInSeconds/1000;
-                //     element.endTimeInSeconds = element.endTimeInSeconds/1000;
-                //     console.log(i, element.startTimeInSeconds)
-                // }
-                //   console.log(i, element.startTimeInSeconds)
-                if (
-                  i >= element.startTimeInSeconds &&
-                  i <= element.endTimeInSeconds
-                ) {
+                if (i >= element.startTimeInSeconds && i <= element.endTimeInSeconds) {
                   /*shift matches the time then it will take the count else it will assign 0 by default */
                   if (!element.isAssignShift) {
-                    // console.log('inthis')
+
                     staffNeedCount = element.staffNeedCount;
                     appliedStaffCount = element.confirmedStaffs.length;
                   } else {
@@ -3703,54 +3513,32 @@ class shift {
                     }
                   }
                 }
-                //if(!element.isAssignShift){
-                if (
-                  typeof staffNeedWeekdaysObj[weekDay][dateTimeUnix] !=
-                  'undefined'
-                ) {
+                if (typeof staffNeedWeekdaysObj[weekDay][dateTimeUnix] != 'undefined') {
                   /*dont change to if condition bcoz it may be zero so it fails in it*/
                   staffNeedWeekdaysObj[weekDay][dateTimeUnix] += staffNeedCount;
                 } else {
                   staffNeedWeekdaysObj[weekDay][dateTimeUnix] = staffNeedCount;
                 }
 
-                if (
-                  typeof staffAppliedWeekdaysObj[weekDay][dateTimeUnix] !=
-                  'undefined'
-                ) {
-                  /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObj[
-                    weekDay
-                  ][dateTimeUnix] += appliedStaffCount;
-                } else {
-                  staffAppliedWeekdaysObj[weekDay][dateTimeUnix] =
-                    appliedStaffCount;
-                }
-                // }else {
-                // assign code
-                if (
-                  typeof staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] !=
-                  'undefined'
-                ) {
+                if (typeof staffAppliedWeekdaysObj[weekDay][dateTimeUnix] != 'undefined') {
                   /*dont change to if condition bcoz it may be zero so it fails in it*/
-                  staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] +=
-                    staffNeedCountAssign;
+                  staffAppliedWeekdaysObj[weekDay][dateTimeUnix] += appliedStaffCount;
                 } else {
-                  staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] =
-                    staffNeedCountAssign;
+                  staffAppliedWeekdaysObj[weekDay][dateTimeUnix] = appliedStaffCount;
+                }
+                if (typeof staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] != 'undefined') {
+                  /*dont change to if condition bcoz it may be zero so it fails in it*/
+                  staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] += staffNeedCountAssign;
+                } else {
+                  staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] = staffNeedCountAssign;
                 }
 
-                if (
-                  typeof staffAppliedWeekdaysObjAssign[weekDay][dateTimeUnix] !=
-                  'undefined'
-                ) {
-                  /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObjAssign[
-                    weekDay
-                  ][dateTimeUnix] += appliedStaffCountAssing;
+                if (typeof staffAppliedWeekdaysObjAssign[weekDay][dateTimeUnix] != 'undefined') {
+                  /*dont change to if condition bcoz it may be zero so it fails in it*/
+                  staffAppliedWeekdaysObjAssign[weekDay][dateTimeUnix] += appliedStaffCountAssing;
                 } else {
-                  staffAppliedWeekdaysObjAssign[weekDay][dateTimeUnix] =
-                    appliedStaffCountAssing;
+                  staffAppliedWeekdaysObjAssign[weekDay][dateTimeUnix] = appliedStaffCountAssing;
                 }
-                // }
               });
             }
 
@@ -3835,8 +3623,6 @@ class shift {
               updatedDashboardGraphData[each] =
                 dashboardGraphData[each].toFixed(2);
             }
-            __.log(req.body, 'shift/read params');
-            // __.log(listData)
             var templistData = JSON.stringify(listData);
             listData = JSON.parse(templistData);
             for (let date in listData) {
@@ -3858,25 +3644,15 @@ class shift {
                   }
                 }
                 if (item.isExtendedShift) {
-                  //console.log('present');
                   if (item.extendedStaff) {
                     item.extendedStaff.forEach((extendedStaffItem) => {
                       if (item.confirmedStaffs) {
                         item.confirmedStaffs.forEach((confirmedStaffsItem) => {
-                          // console.log(typeof confirmedStaffs._id, confirmedStaffs._id,extendedStaff.userId )
-                          if (
-                            confirmedStaffsItem._id.toString() ===
-                            extendedStaffItem.userId.toString()
-                          ) {
-                            confirmedStaffsItem.confirmStatus =
-                              extendedStaffItem.confirmStatus;
-                            confirmedStaffsItem.endDateTime =
-                              extendedStaffItem.endDateTime;
-                            confirmedStaffsItem.startDateTime =
-                              extendedStaffItem.startDateTime;
-                            confirmedStaffsItem.isLimit =
-                              extendedStaffItem.isLimit;
-                            console.log('match');
+                          if (confirmedStaffsItem._id.toString() === extendedStaffItem.userId.toString()) {
+                            confirmedStaffsItem.confirmStatus = extendedStaffItem.confirmStatus;
+                            confirmedStaffsItem.endDateTime = extendedStaffItem.endDateTime;
+                            confirmedStaffsItem.startDateTime = extendedStaffItem.startDateTime;
+                            confirmedStaffsItem.isLimit = extendedStaffItem.isLimit;
                           }
                         });
                       }
@@ -3905,7 +3681,6 @@ class shift {
 
             for (var prop in graphData) {
               if (Object.prototype.hasOwnProperty.call(graphData, prop)) {
-                // do stuff
                 if (
                   graphData[prop].totalHours % 1 != 0 &&
                   graphData[prop].totalHours > 0
@@ -3917,7 +3692,6 @@ class shift {
             }
             for (var prop in graphDataWeb) {
               if (Object.prototype.hasOwnProperty.call(graphDataWeb, prop)) {
-                // do stuff
                 if (
                   graphDataWeb[prop].totalHours.need % 1 != 0 &&
                   graphDataWeb[prop].totalHours.need
@@ -3957,19 +3731,19 @@ class shift {
                 });
               });
             }
+            logInfo(`shift/viewbookings API ends here!`, { name: req.user.name, staffId: req.user.staffId });
             __.out(res, 201, {
               list: newListData,
               graph: graphData,
             });
           } else {
-            __.out(res, 201, {
-              shifts: shifts,
-            });
+            logInfo(`shift/viewbookings API ends here!`, { name: req.user.name, staffId: req.user.staffId });
+            __.out(res, 201, { shifts: shifts, });
           }
         }
       }
     } catch (err) {
-      __.log(err);
+      logError(`shift/viewbookings API, there is an error`, err.toString());
       __.out(res, 500);
     }
   }
@@ -4001,8 +3775,6 @@ class shift {
             .utc()
             .format(), //86399 => add 23:59:59
           weekNumber = await __.weekNoStartWithMonday(startDate);
-        console.log('startDate11', startDate);
-        console.log('endsdhhd', endDate);
         const aa = new Date(startDate).setUTCHours(0, 0, 0, 0);
         const bb = new Date(endDate).setUTCHours(24, 0, 0, 0);
         startDate = new Date(aa);
@@ -4041,8 +3813,6 @@ class shift {
             $gte: startDate,
             $lte: endDate,
           };
-          // __.log(moment(endDate).endOf('day').utc().format(), moment(startDate).startOf('day').utc().format(), 'formatIssues')
-          // Show Cancelled Shifts Also
           if (req.body.cancelledShifts && req.body.cancelledShifts === true) {
             where.status = {
               $in: [1, 2],
@@ -4052,9 +3822,7 @@ class shift {
             .select('appliedStaffs')
             .lean();
           var appliedStaffsArray = shifts.map(plucker('appliedStaffs'));
-          console.log('appliedStaffsArray', appliedStaffsArray);
           appliedStaffsArray = _.flatten(appliedStaffsArray);
-          console.log('appliedStaffsArray fff', appliedStaffsArray);
           appliedStaffsArray = Array.from(new Set(appliedStaffsArray));
           if (appliedStaffsArray.length == 0) {
             __.out(res, 201, appliedStaffsArray);
@@ -4147,7 +3915,6 @@ class shift {
                 ],
               })
               .lean();
-            //   console.log('staffsShifts', staffsShifts);
             staffsShifts = await _.orderBy(
               staffsShifts,
               ['shiftDetailsId.startTime'],
@@ -4155,7 +3922,6 @@ class shift {
             );
             var listData = {},
               graphData = {};
-            //return res.json({staffsShifts})
             staffsShifts.forEach((element) => {
               var key = __.getDateStringFormat(
                 element.shiftDetailsId.date,
@@ -4205,7 +3971,6 @@ class shift {
             for (let date in newListData) {
               newListData[date].forEach((item, index) => {
                 if (item.shiftDetailsId.isExtendedShift) {
-                  // console.log('aaa');
                   if (item.flexiStaff) {
                     if (item.shiftDetailsId.extendedStaff) {
                       const flexId = item.flexiStaff._id.toString();
@@ -4214,7 +3979,6 @@ class shift {
                           return extendS.userId.toString() === flexId;
                         });
                       if (extendObj.length > 0) {
-                        // console.log(extendObj)
                         item.shiftDetailsId.extendedStaff = extendObj;
                         item.flexiStaff.confirmStatus =
                           extendObj[0].confirmStatus;
@@ -4226,10 +3990,8 @@ class shift {
                   }
                 }
                 if (item.shiftDetailsId.isSplitShift) {
-                  console.log('aaaa');
                   newListData[date].forEach((splitItem, splitIndex) => {
                     if (splitIndex !== index) {
-                      console.log('aabb');
                       if (
                         splitItem.shiftDetailsId.isSplitShift &&
                         new Date(splitItem.shiftDetailsId.date).getTime() ===
@@ -4289,8 +4051,7 @@ class shift {
             .utc()
             .format(), //86399 => add 23:59:59
           weekNumber = await __.weekNoStartWithMonday(startDate);
-        console.log('startDate11', startDate);
-        console.log('endsdhhd', endDate);
+
         const aa = new Date(startDate).setUTCHours(0, 0, 0, 0);
         const bb = new Date(endDate).setUTCHours(24, 0, 0, 0);
         startDate = new Date(aa);
@@ -4303,7 +4064,6 @@ class shift {
         })
           .select('shiftDetails')
           .lean();
-        //return res.json({weekNumber})
         function plucker(prop) {
           return function (o) {
             return o[prop];
@@ -4330,8 +4090,6 @@ class shift {
             $lte: endDate,
           };
 
-          // __.log(moment(endDate).endOf('day').utc().format(), moment(startDate).startOf('day').utc().format(), 'formatIssues')
-          // Show Cancelled Shifts Also
           if (req.body.cancelledShifts && req.body.cancelledShifts === true) {
             where.status = {
               $in: [1, 2],
@@ -4340,11 +4098,8 @@ class shift {
           var shifts = await ShiftDetails.find(where)
             .select('appliedStaffs')
             .lean();
-          //return res.json({shifts})
           var appliedStaffsArray = shifts.map(plucker('appliedStaffs'));
-          //console.log('appliedStaffsArray', appliedStaffsArray);
           appliedStaffsArray = _.flatten(appliedStaffsArray);
-          // console.log('appliedStaffsArray fff', appliedStaffsArray);
           appliedStaffsArray = Array.from(new Set(appliedStaffsArray));
           if (appliedStaffsArray.length == 0) {
             __.out(res, 201, appliedStaffsArray);
@@ -4437,7 +4192,6 @@ class shift {
                 ],
               })
               .lean();
-            //   console.log('staffsShifts', staffsShifts);
             staffsShifts = await _.orderBy(
               staffsShifts,
               ['shiftDetailsId.startTime'],
@@ -4445,7 +4199,6 @@ class shift {
             );
             var listData = {},
               graphData = {};
-            //return res.json({staffsShifts})
             staffsShifts.forEach((element) => {
               var key = __.getDateStringFormat(
                 element.shiftDetailsId.date,
@@ -4489,13 +4242,11 @@ class shift {
                 }
               }
             });
-            // __.log(graphData, "graphData");
             let newListData = JSON.stringify(listData);
             newListData = JSON.parse(newListData);
             for (let date in newListData) {
               newListData[date].forEach((item, index) => {
                 if (item.shiftDetailsId.isExtendedShift) {
-                  // console.log('aaa');
                   if (item.flexiStaff) {
                     if (item.shiftDetailsId.extendedStaff) {
                       const flexId = item.flexiStaff._id.toString();
@@ -4504,7 +4255,6 @@ class shift {
                           return extendS.userId.toString() === flexId;
                         });
                       if (extendObj.length > 0) {
-                        // console.log(extendObj)
                         item.shiftDetailsId.extendedStaff = extendObj;
                         item.flexiStaff.confirmStatus =
                           extendObj[0].confirmStatus;
@@ -4516,10 +4266,8 @@ class shift {
                   }
                 }
                 if (item.shiftDetailsId.isSplitShift) {
-                  console.log('aaaa');
                   newListData[date].forEach((splitItem, splitIndex) => {
                     if (splitIndex !== index) {
-                      console.log('aabb');
                       if (
                         splitItem.shiftDetailsId.isSplitShift &&
                         new Date(splitItem.shiftDetailsId.date).getTime() ===
@@ -4611,7 +4359,6 @@ class shift {
         shiftDetails = [shiftDetails];
       }
       shiftDetails.forEach((shift) => {
-        console.log('shift.skillSetTierType', shift.skillSetTierType);
         /*or condition for any of the shift skill set matches the user */
         if (shift.skillSetTierType != 1) {
           orArray.push({
@@ -4670,8 +4417,9 @@ class shift {
   }
   async adjust(req, res) {
     try {
+      logInfo('shift/adjust API Start!', { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
-        logError(`shift\adjust API, You've entered malicious input `, req.body);
+        logError(`shift/adjust API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       if (!req.body.isSplitShift) {
@@ -4681,8 +4429,8 @@ class shift {
             'staffNeedCount',
           ]);
           if (requiredResult.status === false) {
-            logError(`shift\adjust API, Required fields missing `, requiredResult.missingFields);
-            logError(`shift\adjust API, request payload `, req.body);
+            logError(`shift/adjust API, Required fields missing `, requiredResult.missingFields);
+            logError(`shift/adjust API, request payload `, req.body);
             __.out(res, 400, requiredResult.missingFields);
           } else {
             if (mongoose.Types.ObjectId.isValid(req.body.shiftDetailsId)) {
@@ -4718,14 +4466,6 @@ class shift {
                       select:
                         'businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
                     },
-                    // ,
-                    // {
-                    //     path: 'shiftId',
-                    //     select: 'businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
-                    //     populate: {
-                    //         path: 'businessUnitId',
-                    //     }
-                    // }
                   ],
                 },
               ]);
@@ -4734,13 +4474,12 @@ class shift {
                 shiftDetails.shiftId &&
                 shiftDetails.shiftId.businessUnitId
               ) {
-                // return res.json({ shiftDetails })
                 const redisBuId = shiftDetails.shiftId.businessUnitId;
                 if (
                   shiftDetails.activeStatus &&
                   shiftDetails.activeStatus === true
                 ) {
-                  logError(`shift\adjust API, Previous Request Change is in process `, req.body);
+                  logError(`shift/adjust API, Previous Request Change is in process `, req.body);
                   return __.out(
                     res,
                     300,
@@ -4757,7 +4496,6 @@ class shift {
                     path: 'businessUnitId',
                   })
                   .lean();
-                // __.log(shiftMainDetails, "shiftDetails.shiftId")
 
                 var clonedShiftDetails = _.cloneDeep(shiftDetails);
                 let splitShift = null;
@@ -4791,20 +4529,12 @@ class shift {
                           path: 'shiftId',
                           select:
                             'businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
-                        },
-                        // ,
-                        // {
-                        //     path: 'shiftId',
-                        //     select: 'businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
-                        //     populate: {
-                        //         path: 'businessUnitId',
-                        //     }
-                        // }
+                        }
                       ],
                     },
                   ]);
                   if (!splitShift) {
-                    logError(`shift\adjust API, Invalid Shift / Shift expired `, req.body);
+                    logError(`shift/adjust API, Invalid Shift / Shift expired `, req.body);
                     return __.out(res, 300, 'Invalid Shift / Shift expired');
                   }
                   currentConfirmedStaffsCount =
@@ -4836,7 +4566,6 @@ class shift {
                   ).unix();
                   var weeksEndsAtForPush = moment(shiftDetails.endTime).unix(),
                     toConfirmDeviceTokens = [];
-                  // delete req.body.shiftDetailsId;
                   var shiftStartsWithIn = await __.getDurationInHours(
                     moment().utc().format(),
                     shiftDetails.startTime,
@@ -5114,32 +4843,26 @@ class shift {
                   const callTwoAtaTime = await Promise.all([
                     shiftLogController.create(statusLogData, res),
                   ]);
-                  // this.updateRedis(redisBuId).then((redisResult) => {
-                  //   console.log('redis update', redisResult)
-                  // })
-                  console.log('callTwoAtaTime', callTwoAtaTime);
-                  // await shiftLogController.create(statusLogData, res);
-                  // await this.updateRedis(redisBuId)
-                  console.log('In adjust after setting');
+                  logInfo(`'Shift has been updated successfully' shift/adjust API ends here!`, { name: req.user.name, staffId: req.user.staffId });
                   if (req.body.businessUnitId && req.body.startDate)
                     return this.readNew(req, res); /*for web */
                   /*for mobile */ else
                     __.out(res, 201, 'Shift has been updated successfully');
                 } else {
-                  logError(`shift\adjust API, Invalid Staff Adjusted Count `, req.body);
+                  logError(`shift/adjust API, Invalid Staff Adjusted Count `, req.body);
                   __.out(res, 300, 'Invalid Staff Adjusted Count');
                 }
               } else {
-                logError(`shift\adjust API, Invalid Shift / Shift expired `, req.body);
+                logError(`shift/adjust API, Invalid Shift / Shift expired `, req.body);
                 __.out(res, 300, 'Invalid Shift / Shift expired');
               }
             } else {
-              logError(`shift\adjust API, Invalid Shift Id `, req.body);
+              logError(`shift/adjust API, Invalid Shift Id `, req.body);
               __.out(res, 300, 'Invalid Shift Id');
             }
           }
         } catch (err) {
-          logError(`shift\adjust API, there is an error `, err.toString());
+          logError(`shift/adjust API, there is an error `, err.toString());
           __.log(err);
           __.out(res, 500);
         }
@@ -5147,7 +4870,7 @@ class shift {
         try {
           await this.adjustSplitShift(req, res);
         } catch (err) {
-          logError(`shift\adjust API, there is an error `, err.toString());
+          logError(`shift/adjust API, there is an error `, err.toString());
           __.log(err);
           __.out(res, 500);
         }
@@ -5726,19 +5449,11 @@ class shift {
    */
   async requestChange(req, res) {
     try {
+      logInfo('shift/requestChange API Start!', { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
         logError(`shift\requestChange API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
-      __.log(req.body, 'requestChange');
-      __.log(
-        moment(req.body.startTime, 'MM-DD-YYYY HH:mm:ss Z').utc().format(),
-        'asdasd',
-      );
-      __.log(
-        moment(req.body.endTime, 'MM-DD-YYYY HH:mm:ss Z').utc().format(),
-        'end',
-      );
       let requiredResult1 = await __.checkRequiredFields(req, [
         'shiftId',
         'shiftDetailsId',
@@ -5872,7 +5587,6 @@ class shift {
       }
 
       /* Insert New Shift Details in Shift */
-      // console.log(newShiftData, 'newShiftData')
       await Shift.findOneAndUpdate(
         {
           _id: shiftDetailsData.shiftId,
@@ -5910,7 +5624,7 @@ class shift {
         existingShift: shiftDetailsData._id,
       };
       shiftLogController.create(statusLogData, res);
-      // await this.updateRedis(redisBuId);
+      logInfo(`'Requested Shift Changed sucessfully', shift/requestChange API end here`, { name: req.user.name, staffId: req.user.staffId });
       return __.out(res, 201, 'Requested Shift Changed sucessfully');
     } catch (err) {
       logError(`shift\requestChange API, there is an error `, err.toString());
@@ -5948,14 +5662,11 @@ class shift {
       } else {
         otDuration = -1 * shiftDetails.duration;
       }
-      console.log('aaaaa', normalDuration, otDuration);
-      console.log('aaaaa is spilit', shiftDetails.isSplitShift);
-      console.log('shiftDetails._id', shiftDetails._id);
+
       const value = await StaffLimit.update(
         { userId: userId, shiftDetailId: shiftDetails._id },
         { $set: { normalDuration: 0, otDuration: otDuration } },
       );
-      console.log('valuevalue', value);
       return value;
     } catch (err) {
       __.log(err);
@@ -5964,11 +5675,11 @@ class shift {
   }
   async cancel(req, res) {
     try {
+      logInfo('shift/cancel API Start!', { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
         logError(`shift\cancel API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
-      __.log(req.body);
       let requiredResult = await __.checkRequiredFields(req, [
         'shiftId',
         'shiftDetailsId',
@@ -6025,7 +5736,6 @@ class shift {
         logError(`shift\cancel API, Previous Request Change is in process `, req.body);
         return __.out(res, 300, 'Previous Request Change is in process');
       }
-      // return res.json({shiftDetailsData})
       shiftDetailsData.status = 2;
       await shiftDetailsData.save();
 
@@ -6049,7 +5759,7 @@ class shift {
           usersDeviceTokens.push(elemBackup.deviceToken);
         }
       }
-      __.log(usersDeviceTokens, 'usersDeviceTokens');
+
       if (usersDeviceTokens.length > 0) {
         var pushData = {
           title: 'Shift Cancelled',
@@ -6082,7 +5792,7 @@ class shift {
         existingShift: shiftDetailsData._id,
       };
       await shiftLogController.create(statusLogData, res);
-      // await this.updateRedis(logMetaData.businessUnitId);
+      logInfo('shift/cancel API ends here!', { name: req.user.name, staffId: req.user.staffId });
       return __.out(res, 201, 'Shift Cancelled Successfully');
     } catch (err) {
       logError(`shift\cancel API, there is an error `, err.toString());
@@ -6093,8 +5803,9 @@ class shift {
 
   async cancelIndividualShift(req, res) {
     try {
+      logInfo('shift/cancelIndividualShift API Start!', { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
-        logError(`shift\cancelIndividualShift API, You've entered malicious input `, req.body);
+        logError(`shift/cancelIndividualShift API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       __.log(req.body);
@@ -6108,8 +5819,8 @@ class shift {
         req.body.userId === undefined ||
         req.body.userId === null
       ) {
-        logError(`shift\cancelIndividualShift API, Required fields missing `, requiredResult.missingFields);
-        logError(`shift\cancelIndividualShift API, request payload `, req.body);
+        logError(`shift/cancelIndividualShift API, Required fields missing `, requiredResult.missingFields);
+        logError(`shift/cancelIndividualShift API, request payload `, req.body);
         return __.out(res, 400, requiredResult.missingFields);
       }
 
@@ -6136,27 +5847,26 @@ class shift {
       }
 
       if (!staffInfo) {
-        logError(`shift\cancelIndividualShift API,Staff not found `, req.body);
+        logError(`shift/cancelIndividualShift API,Staff not found `, req.body);
         return __.out(res, 300, 'Staff not found');
       }
       if (shiftDetails.shiftId == null) {
-        logError(`shift\cancelIndividualShift API, Invalid Shift Id `, req.body);
+        logError(`shift/cancelIndividualShift API, Invalid Shift Id `, req.body);
         return __.out(res, 300, 'Invalid Shift Id');
       }
       if (
         !shiftDetails.shiftId.businessUnitId ||
         shiftDetails.shiftId.businessUnitId.cancelShiftPermission == false
       ) {
-        logError(`shift\cancelIndividualShift API, Permission Denied to cancel shift `, req.body);
+        logError(`shift/cancelIndividualShift API, Permission Denied to cancel shift `, req.body);
         return __.out(res, 300, 'Permission Denied to cancel shift');
       }
-      // why this required?
       if (shiftDetails.activeStatus === true) {
-        logError(`shift\cancelIndividualShift API, Previous Request Change is in process `, req.body);
+        logError(`shift/cancelIndividualShift API, Previous Request Change is in process `, req.body);
         return __.out(res, 300, 'Previous Request Change is in process');
       }
       if (!shiftDetails.confirmedStaffs.length) {
-        logError(`shift\cancelIndividualShift API, No confirmed staff `, req.body);
+        logError(`shift/cancelIndividualShift API, No confirmed staff `, req.body);
         return __.out(res, 300, 'No confirmed staff');
       }
 
@@ -6170,7 +5880,7 @@ class shift {
           },
         });
         if (!splitShift) {
-          logError(`shift\cancelIndividualShift API, Invalid Shift/Shift Expired `, req.body);
+          logError(`shift/cancelIndividualShift API, Invalid Shift/Shift Expired `, req.body);
           return __.out(res, 300, 'Invalid Shift/Shift Expired');
         }
       }
@@ -6187,7 +5897,7 @@ class shift {
         }
       });
       if (!actualConfirmedStaffs) {
-        logError(`shift\cancelIndividualShift API, confirmed staff not found `, req.body);
+        logError(`shift/cancelIndividualShift API, confirmed staff not found `, req.body);
         return __.out(res, 300, 'confirmed staff not found');
       }
       shiftDetails.confirmedStaffs = filteredConfirmedStaffs;
@@ -6234,20 +5944,10 @@ class shift {
       };
       operation.push(shiftLogController.create(statusLogData, res));
       await Promise.all(operation);
-      // this.updateRedis(statusLogData.businessUnitId)
-      //   .then((redisRes) => {
-      //     console.log('redis result', redisRes);
-      //   })
-      //   .catch((er) => {
-      //     console.log('redis error', er);
-      //   });
-      return __.out(
-        res,
-        201,
-        'The Confimed Booking of this User has been Cancelled Successfully.',
-      );
+      logInfo(`'The Confimed Booking of this User has been Cancelled Successfully.' shift/cancelIndividualShift API Start!`, { name: req.user.name, staffId: req.user.staffId });
+      return __.out(res, 201, 'The Confimed Booking of this User has been Cancelled Successfully.');
     } catch (err) {
-      logError(`shift\cancelIndividualShift API, there is an error `, err.toString());
+      logError(`shift/cancelIndividualShift API, there is an error `, err.toString());
       __.log(err);
       return __.out(res, 500);
     }
@@ -6491,7 +6191,6 @@ class shift {
         }
         return { valid: false };
       } else {
-        //console.log('schemeDetails',schemeDetails);
         if (
           schemeDetails.shiftSchemeType == 1 ||
           schemeDetails.shiftSchemeType == 3
@@ -6544,8 +6243,6 @@ class shift {
           shiftDetails,
           isShiftExtented,
         );
-        console.log('hourTypeData', hourTypeData);
-        console.log('shiftDetails.duration', shiftDetails.duration);
         if (hourTypeData.valid) {
           let otDuration = 0;
           let normalDuration = 0;
@@ -6555,7 +6252,6 @@ class shift {
           } else {
             otDuration = shiftDetails.duration;
           }
-          console.log('otDuration', otDuration);
           if (shiftDetails.isExtendedShift) {
             let extendedStaff = shiftDetails.extendedStaff.filter((item) => {
               return item.userId.toString() == userId.toString();
@@ -6577,8 +6273,6 @@ class shift {
             m = date.getMonth();
           var firstDay = new Date(y, m, 1);
           var lastDay = new Date(y, m + 1, 0);
-          //console.log('fir', firstDay, lastDay)
-          //console.log('date', new Date(date))
           const data = await StaffLimit.find({
             userId: userId,
             shiftDetailId: { $exists: true },
@@ -6587,7 +6281,6 @@ class shift {
               $gte: new Date(new Date(firstDay).toISOString()),
             },
           }).lean();
-          // console.log('data', data);
           let dailyDuration = shiftDetails.duration;
           let weeklyDuration = shiftDetails.duration;
           let monthlyDuration = shiftDetails.duration;
@@ -6595,13 +6288,10 @@ class shift {
           let dailyOverall = dailyDuration;
           let weekLlyOverall = dailyDuration;
           let monthlyOverall = dailyDuration;
-          // console.log('data', data.length)
           let isPresent = false;
-          console.log('firstt after', dailyDuration);
           let staffLimitPresentData = {};
           if (!hourTypeData.isOtHour) {
             data.forEach((item) => {
-              // console.log('new Date(item.date)', new Date(item.date))
               if (new Date(item.date).getDate() == new Date(date).getDate()) {
                 if (
                   item.shiftDetailId.toString() == shiftDetails._id.toString()
@@ -6609,7 +6299,6 @@ class shift {
                   isPresent = true;
                   staffLimitPresentData = item;
                 }
-                //  console.log('item.normalDuration', item.normalDuration)
                 dailyDuration += item.normalDuration;
                 dailyOverall += item.normalDuration;
                 dailyOverall += item.otDuration;
@@ -6619,8 +6308,7 @@ class shift {
                 monthlyOverall += item.normalDuration;
                 monthlyOverall += item.otDuration;
               }
-              //     console.log('item.weekNo', item.weekNumber);
-              //    console.log('sss', weekNumber)
+
               if (item.weekNumber == weekNumber) {
                 weeklyDuration += item.normalDuration;
                 weekLlyOverall += item.normalDuration;
@@ -6628,8 +6316,6 @@ class shift {
               }
             });
           } else {
-            // ot hr
-            console.log('dailyOverall', data);
             data.forEach((item) => {
               // console.log('new Date(item.date)', new Date(item.date))
               if (new Date(item.date).getDate() == new Date(date).getDate()) {
@@ -6674,29 +6360,18 @@ class shift {
           let monthOverallLimit = schemeDetails.shiftSetup.limits.monthOverall;
           let isAllow = dayLimit.alert;
           let disallow = dayLimit.disallow;
-          console.log('shiftDetails.isAssignShift', shiftDetails.isAssignShift);
           if (shiftDetails.isAssignShift) {
             isAllow = !schemeDetails.shiftSetup.limits.otHr.day.alert;
             disallow = !schemeDetails.shiftSetup.limits.otHr.day.disallow;
-            // if(schemeDetails.shiftSchemeType == 3){
-            //     disallow = !disallow;
-            //     isAllow = !isAllow;
-            // }
           }
-          console.log('isAllow', isAllow);
           if (hourTypeData.isOtHour) {
             dayLimit = schemeDetails.shiftSetup.limits.otHr.day;
-            console.log('dayLimit1111', dayLimit);
             weekLimit = schemeDetails.shiftSetup.limits.otHr.week;
             monthLimit = schemeDetails.shiftSetup.limits.otHr.month;
           }
-          //let isAllow = false;
-          // if(isAllow){
-          console.log('isPresent', isPresent);
-          console.log('aaaaaaaaaaaaaaaaaaaaa', normalDuration, otDuration);
+
           // add data to staff Limit
           if (!isPresent) {
-            console.log('aaaaaaaaaaaaaaaaaaaaa', normalDuration, otDuration);
             const obj = {
               userId: userId,
               shiftId: shiftDetails.shiftId._id,
@@ -6708,11 +6383,9 @@ class shift {
               businessUnitId: shiftDetails.shiftId.businessUnitId,
             };
             var insertAppliedStaffs = await new StaffLimit(obj).save();
-            //console.log('dddd', insertAppliedStaffs)
             // add new
           } else {
             // update
-            console.log('staffLimitPresentData._id', staffLimitPresentData._id);
             const upppp = await StaffLimit.findByIdAndUpdate(
               staffLimitPresentData._id,
               {
@@ -6722,25 +6395,8 @@ class shift {
                 },
               },
             );
-            console.log('upppp', upppp);
           }
-          // }
-          console.log('shift extension');
-          console.log('dayLimit', dayLimit.value, dailyDuration);
-          console.log(
-            'dayLimit',
-            typeof parseInt(dayLimit.value),
-            typeof dailyDuration,
-          );
-          console.log('weekLimit', weekLimit.value, weeklyDuration);
-          console.log('monthLimit', monthLimit.value, monthlyDuration);
-          console.log('dayOverallLimit', dayOverallLimit, dailyOverall);
-          console.log('weekOverallLimit', weekOverallLimit, weekLlyOverall);
-          console.log(
-            'monthOverallLimit',
-            monthOverallLimit,
-            monthOverallLimit,
-          );
+
           if (
             parseInt(dayLimit.value) &&
             parseInt(dayLimit.value) < parseInt(dailyDuration)
@@ -6884,13 +6540,11 @@ class shift {
   }
   async checkTimingCross(res, shiftDetails, startTime, endTime, userId) {
     try {
-      console.log('shiftDetails', shiftDetails);
       const shiftData = await ShiftDetails.findOne({
         confirmedStaffs: userId,
         date: shiftDetails.date,
         _id: { $ne: shiftDetails._id },
       });
-      console.log('shiftData', shiftData);
       if (shiftData) {
         if (
           new Date(startTime).getTime() <
@@ -6923,20 +6577,17 @@ class shift {
     }
   }
   async shiftExtension(req, res) {
+    logInfo('shift/shiftExtension API Start!', { name: req.user.name, staffId: req.user.staffId });
     try {
       if (!__.checkHtmlContent(req.body)) {
-        logError(`shift\shiftExtension API, You've entered malicious input `, req.body);
+        logError(`shift/shiftExtension API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
-      console.log('shift extension');
-      //console.log(req.body);
       var shiftDetailId = req.body.shiftDetailId;
       if (!shiftDetailId) {
         shiftDetailId = req.body.shiftDetailsId;
       }
       delete req.body.shiftDetailsId;
-      console.log('shiftDetailId', shiftDetailId);
-      //req.user._id = mongoose.Types.ObjectId("5a99737036ab4f444b42718a");
       const userId = req.body.userId;
       const shiftDetailsData = await ShiftDetails.findOne({
         _id: mongoose.Types.ObjectId(shiftDetailId),
@@ -6947,7 +6598,6 @@ class shift {
         },
       ]);
 
-      console.log('req.body.startDateTime', req.body.startDateTime);
       req.body.startDateTime = moment(
         req.body.startDateTime,
         'MM-DD-YYYY HH:mm:ss Z',
@@ -6960,23 +6610,16 @@ class shift {
       )
         .utc()
         .format();
-      console.log('req.body.startDateTime', req.body.startDateTime);
       var duration = __.getDurationInHours(
         req.body.startDateTime,
         req.body.endDateTime,
       );
-      console.log('duration', duration);
-      // console.log('req.body.startDateTime', new Date(req.body.startDateTime));
-      // console.log('endTIme', new Date(req.body.endDateTime));
       var limitData = {
         status: 1,
         isLimit: false,
       };
-      console.log('shiftDetailsData.duration', shiftDetailsData.duration);
       var aaa = duration - shiftDetailsData.duration;
-      console.log('aaa', aaa);
       shiftDetailsData.duration = aaa;
-      //limitData = await this.checkLimit(userId,shiftDetailsData,true);
       if (limitData.status == 1) {
         var limit = shiftDetailsData.isLimit;
         if (limitData.limit) {
@@ -7007,12 +6650,10 @@ class shift {
           { new: true },
         )
           .then(async (result) => {
-            console.log('updated result', result);
             if (result) {
               const obj = {
                 confirmStatus: 1,
               };
-              // await this.updateRedis(shiftDetailsData.shiftId.businessUnitId);
               User.findById(mongoose.Types.ObjectId(req.body.userId), {
                 deviceToken: 1,
                 _id: 0,
@@ -7020,7 +6661,6 @@ class shift {
                 if (userInfo) {
                   let deviceTokens = [];
                   deviceTokens.push(userInfo.deviceToken);
-                  //  console.log('dee', deviceTokens);
                   if (deviceTokens && deviceTokens.length > 0) {
                     var pushData = {
                       title: 'Shift extension Request',
@@ -7035,13 +6675,10 @@ class shift {
                       collapseKey =
                         result._id; /*unique id for this particular shift */
                     FCM.push(deviceTokens, pushData, collapseKey);
-                    console.log('SENT');
                   }
                 }
               });
-              // add to log
               Shift.findById(result.shiftId).then((shiftInfo) => {
-                console.log('shiftInfo', shiftInfo);
                 let statusLogData = {
                   userId: req.body.userId,
                   status: 12,
@@ -7059,6 +6696,7 @@ class shift {
                 };
                 shiftLogController.create(statusLogData, res);
               });
+              logInfo('shift/shiftExtension API ends here!', { name: req.user.name, staffId: req.user.staffId });
               return res.json({
                 status: true,
                 message: 'Shift Extended Successfully',
@@ -7067,7 +6705,7 @@ class shift {
                 isLimit: limit,
               });
             } else {
-              logError(`shift\shiftExtension API, Shift Not Found `, req.body);
+              logError(`shift/shiftExtension API, Shift Not Found `, req.body);
               return res.json({
                 status: false,
                 message: 'Shift Not Found',
@@ -7076,7 +6714,7 @@ class shift {
             }
           })
           .catch((err) => {
-            logError(`shift\shiftExtension API, Something went wrong `, err.toString());
+            logError(`shift/shiftExtension API, Something went wrong `, err.toString());
             return res.json({
               status: false,
               message: 'Something went wrong',
@@ -7085,7 +6723,7 @@ class shift {
             });
           });
       } else {
-        logError(`shift\shiftExtension API, there is an limit issue `, limitData.message);
+        logError(`shift/shiftExtension API, there is an limit issue `, limitData.message);
         return res.json({
           status: false,
           message: limitData.message,
@@ -7093,7 +6731,7 @@ class shift {
         });
       }
     } catch (err) {
-      logError(`shift\shiftExtension API, caught an error `, err.toString());
+      logError(`shift/shiftExtension API, caught an error `, err.toString());
       __.log(err);
       __.out(res, 500, err);
     }
@@ -7103,15 +6741,11 @@ class shift {
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      console.log('shift extension again');
-      //console.log(req.body);
       var shiftDetailId = req.body.shiftDetailId;
       if (!shiftDetailId) {
         shiftDetailId = req.body.shiftDetailsId;
       }
       delete req.body.shiftDetailsId;
-      console.log('shiftDetailId', shiftDetailId);
-      //req.user._id = mongoose.Types.ObjectId("5a99737036ab4f444b42718a");
       const userId = req.body.userId;
       const shiftDetailsData = await ShiftDetails.findOne({
         _id: mongoose.Types.ObjectId(shiftDetailId),
@@ -7142,7 +6776,6 @@ class shift {
         },
       );
       const updatedShiftExtension = await shiftDetailsData.save();
-      console.log('req.body.startDateTime', req.body.startDateTime);
       req.body.startDateTime = moment(
         req.body.startDateTime,
         'MM-DD-YYYY HH:mm:ss Z',
@@ -7156,23 +6789,16 @@ class shift {
         .utc()
         .format();
 
-      console.log('req.body.startDateTime', req.body.startDateTime);
       var duration = __.getDurationInHours(
         req.body.startDateTime,
         req.body.endDateTime,
       );
-      console.log('duration', duration);
-      // console.log('req.body.startDateTime', new Date(req.body.startDateTime));
-      // console.log('endTIme', new Date(req.body.endDateTime));
       var limitData = {
         status: 1,
         isLimit: false,
       };
-      console.log('shiftDetailsData.duration', shiftDetailsData.duration);
       var aaa = duration - shiftDetailsData.duration;
-      console.log('aaa', aaa);
       shiftDetailsData.duration = aaa;
-      //limitData = await this.checkLimit(userId,shiftDetailsData,true);
       if (limitData.status == 1) {
         var limit = shiftDetailsData.isLimit;
         if (limitData.limit) {
@@ -7203,12 +6829,10 @@ class shift {
           { new: true },
         )
           .then(async (result) => {
-            console.log('updated result', result);
             if (result) {
               const obj = {
                 confirmStatus: 1,
               };
-              // await this.updateRedis(shiftDetailsData.shiftId.businessUnitId);
               User.findById(mongoose.Types.ObjectId(req.body.userId), {
                 deviceToken: 1,
                 _id: 0,
@@ -7216,7 +6840,6 @@ class shift {
                 if (userInfo) {
                   let deviceTokens = [];
                   deviceTokens.push(userInfo.deviceToken);
-                  //  console.log('dee', deviceTokens);
                   if (deviceTokens && deviceTokens.length > 0) {
                     var pushData = {
                       title: 'Shift extension Request',
@@ -7231,13 +6854,11 @@ class shift {
                       collapseKey =
                         result._id; /*unique id for this particular shift */
                     FCM.push(deviceTokens, pushData, collapseKey);
-                    console.log('SENT');
                   }
                 }
               });
               // add to log
               Shift.findById(result.shiftId).then((shiftInfo) => {
-                console.log('shiftInfo', shiftInfo);
                 let statusLogData = {
                   userId: req.body.userId,
                   status: 12,
@@ -7333,9 +6954,7 @@ class shift {
         shiftDetailsData.isExtendedShift = false;
       }
       const shNew = await shiftDetailsData.save();
-      // const udateRedis = await this.updateRedis(
-      //   shiftDetailsData.shiftId.businessUnitId,
-      // );
+
       return res.json({
         status: true,
         message: 'Shift Extension Request is successfully stopped',
@@ -7348,19 +6967,13 @@ class shift {
   }
   async shiftConfirmation(req, res) {
     try {
-      // console.log(req.body);
+      logInfo('shift/shiftExtension/confirmation API Start!', { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`shift/shiftExtension/confirmation API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       const shiftDetailId = req.body.shiftDetailId;
       delete req.body.shiftDetailId;
-      //    const shiftDetailsData = await ShiftDetails.findOne({_id: mongoose.Types.ObjectId(shiftDetailId),
-      //         "extendedStaff.userId":mongoose.Types.ObjectId(req.body.userId)
-      //     }).populate([{
-      //         path:'shiftId',
-      //         select:'businessUnitId weekNumber'
-      //     }]);
-      // req.user._id = mongoose.Types.ObjectId("5a99737036ab4f444b42718a");
       const userId = req.body.userId;
       let limitData = { status: 1 };
       if (req.body.status == 2) {
@@ -7382,6 +6995,7 @@ class shift {
             'extendedStaff.userId': mongoose.Types.ObjectId(req.body.userId),
           });
           if (!shiftDetail) {
+            logError(`shift/shiftExtension/confirmation API, 'Shift extension not found'`, req.body);
             return __.out(res, 300, 'Shift extension not found');
           }
           const shiftExtensionInfo = shiftDetail.extendedStaff.filter((ii) => {
@@ -7396,6 +7010,7 @@ class shift {
             shiftDetailId,
           );
           if (intervalResult) {
+            logError(`shift/shiftExtension/confirmation API, 'Minimum interval between shift is not met. Kindly choose another shift with required interval.'`, req.body);
             return __.out(
               res,
               300,
@@ -7403,10 +7018,7 @@ class shift {
             );
           }
         }
-        //    limitData = await this.checkLimit(userId, shiftDetailsData);
       }
-      console.log('isLimit', limitData);
-      //return res.json({limitData});
       if (limitData.status == 1) {
         var isLimit = false;
         if (limitData.limit) {
@@ -7435,10 +7047,7 @@ class shift {
               const shiftExtensionObj = result.extendedStaff.filter((ii) => {
                 return ii.userId.toString() == req.body.userId.toString();
               })[0];
-              console.log('shiftExtensionObj', shiftExtensionObj);
               const shiftInfo = await Shift.findById(result.shiftId);
-              //console.log('shiftInfo', shiftInfo);
-              // await this.updateRedis(shiftInfo.businessUnitId);
               let statusLogData = {
                 userId: req.body.userId,
                 status: req.body.status == 2 ? 13 : 14,
@@ -7456,12 +7065,14 @@ class shift {
                 existingShift: result._id,
               };
               await shiftLogController.create(statusLogData, res);
+              logInfo(`'Shift Extended Successfully', shift/shiftExtension/confirmation API api end!`, { name: req.user.name, staffId: req.user.staffId });
               return res.json({
                 status: 1,
                 message: 'Shift Extended Successfully',
                 data: result,
               });
             } else {
+              logInfo(`shift/shiftExtension/confirmation API api end!, 'Shift Not Found'`, { name: req.user.name, staffId: req.user.staffId });
               return res.json({
                 status: 2,
                 message: 'Shift Not Found',
@@ -7470,6 +7081,7 @@ class shift {
             }
           })
           .catch((err) => {
+            logError(`shift/shiftExtension/confirmation API, there is an error`, err.toString());
             return res.json({
               status: 3,
               message: 'Something went wrong',
@@ -7478,9 +7090,11 @@ class shift {
             });
           });
       } else {
+        logInfo(`shift/shiftExtension/confirmation API api end!`, { name: req.user.name, staffId: req.user.staffId });
         return res.json({ status: 2, message: limitData.message, data: null });
       }
     } catch (err) {
+      logError(`shift/shiftExtension/confirmation API, there is an error`, err.toString());
       __.log(err);
       __.out(res, 500, err);
     }
@@ -7492,11 +7106,8 @@ class shift {
         userId = req.body.userId;
       } else {
         userId = req.user._id;
-      } //req.user._id;
-      // var from  = req.url;
-      // console.log('from', from);
+      }
       let shiftDetailId = req.body.shiftDetailsId;
-      //let isConfirmed = req.body.isConfirmed;
       let isOt = false;
       let shiftDetails = await ShiftDetails.findOne({ _id: shiftDetailId })
         .populate([
@@ -7506,10 +7117,6 @@ class shift {
           },
         ])
         .lean();
-      // let schemeDetails = await User.findById(userId,{schemeId:1, _id:0}).populate([{
-      //     path : 'schemeId'
-      // }
-      // ]);
       if (req.body.from.toLowerCase() == 'shiftextension') {
         var startDateTimeA = moment(
           req.body.startDateTime,
@@ -7542,7 +7149,6 @@ class shift {
         req.body.startDateTime,
         req.body.endDateTime,
       );
-      //console.log('shiftDetailsData.duration', shiftDetails.duration);
       var aaa = parseInt(duration) - shiftDetails.duration;
       shiftDetails.duration = aaa;
       limitData = await this.checkLimit(res, userId, shiftDetails, true);
@@ -7648,7 +7254,6 @@ class shift {
       } else {
         otDuration = -1 * shiftDetails.duration;
       }
-      console.log('aaaaa', normalDuration, otDuration);
       const value = await StaffLimit.update(
         { userId: userId, shiftDetailId: shiftDetails._id },
         { $inc: { normalDuration: normalDuration, otDuration: otDuration } },
@@ -7674,20 +7279,12 @@ class shift {
         },
       ]);
       schemeDetails = schemeDetails.schemeId;
-      //schemeDetails = schemeDetails.schemeId;
       var hourTypeData = await this.getHourType(
         res,
         schemeDetails,
         shiftDetails,
         isShiftExtented,
       );
-      console.log('hourTypeData', hourTypeData);
-      // if(!from){
-      //     shiftDetails = await ShiftDetails.findOne({_id:shiftDetails}).populate([{
-      //         path:'shiftId',
-      //         select:'weekNumber businessUnitId'
-      //     }]).lean();
-      // }
       var extendedDuration = 0;
       if (shiftDetails.isExtendedShift) {
         let extendedStaff = shiftDetails.extendedStaff.filter((item) => {
@@ -7703,18 +7300,15 @@ class shift {
       }
       let otDuration = 0;
       let normalDuration = 0;
-      // !hourTypeData.isOtHour
       if (!hourTypeData.isOtHour) {
         normalDuration = -1 * extendedDuration;
       } else {
         otDuration = -1 * extendedDuration;
       }
-      console.log('aaaaa', normalDuration, otDuration);
       const value = await StaffLimit.update(
         { userId: userId, shiftDetailId: shiftDetails._id },
         { $inc: { normalDuration: normalDuration, otDuration: otDuration } },
       );
-      console.log('valuevalue', value);
       return value;
     } catch (err) {
       __.log(err);
@@ -7778,11 +7372,7 @@ class shift {
       weekStartDate = new Date(weekStartDate);
       var weekEndDate = new Date(weekStartDate);
       weekEndDate = new Date(weekEndDate.setDate(weekEndDate.getDate() + 6));
-      console.log('weekStartDate', weekStartDate, weekEndDate);
-      // Each shift limit entry = 1 row.
-      // Fields required = Shift BU, Shift date, Shift Start time, Shift End time, Shift type: Confirm or Standby, Staff ID, Shift limit duration
-      // If possible, shift date, shift time are to be based in UTC+8.
-      // We need to ensure ALL shift limits of the staff within the date range is extracted.
+
       const data = await StaffLimit.aggregate([
         {
           $match: {
@@ -7912,62 +7502,9 @@ class shift {
       });
       return res.json(data);
     } catch (e) {
-      console.log('staffLimit as error', e);
-      console.log('staffLimit as error', e.stack);
       return res.send('Something went wrong');
     }
   }
 }
-// setInterval(async () => {
-//   try {
-//     console.log('caled');
-//     // const shiftDetailsData = await ShiftDetails.find({ $where: 'this.backUpStaffs.length > 0', startTime: { $lte: new Date().toISOString() } });
-//     let lastTime = new Date();
-//     lastTime.setHours(lastTime.getHours() - 1);
-//     lastTime = new Date(lastTime);
-//     const shiftDetailsData = await ShiftDetails.find({
-//       $where: 'this.backUpStaffs.length > 0',
-
-//       $and: [
-//         { startTime: { $lte: new Date().toISOString() } },
-//         { startTime: { $gt: new Date(lastTime).toISOString() } },
-//       ],
-//     });
-//     console.log('shiftDetailsData', shiftDetailsData.length);
-//     for (let i = 0; i < shiftDetailsData.length; i++) {
-//       console.log('_iddd', shiftDetailsData[i]._id);
-//       if (shiftDetailsData[i].backUpStaffs.length > 0) {
-//         const update = await ShiftDetails.findOneAndUpdate(
-//           {
-//             _id: shiftDetailsData[i]._id,
-//             $where: 'this.backUpStaffs.length > 0',
-//           },
-//           {
-//             $set: {
-//               backUpStaffs: [],
-//               backUpStaffsLog: shiftDetailsData[i].backUpStaffs,
-//               backUpStaffNeedCountLog: shiftDetailsData[i].backUpStaffNeedCount,
-//               backUpStaffNeedCount: 0,
-//             },
-//           },
-//         );
-//         const backupStaff = shiftDetailsData[i].backUpStaffs;
-//         const shiftDetailIdId = shiftDetailsData[i]._id;
-//         for (let j = 0; j < backupStaff.length; j++) {
-//           const userId = backupStaff[j];
-//           const appliedUpdate = await AppliedStaffs.findOneAndUpdate(
-//             { flexiStaff: userId, shiftDetailsId: shiftDetailIdId },
-//             { status: 0 },
-//           );
-//         }
-//         console.log('update', update._id);
-//       }
-//     }
-//   } catch (err) {
-//     __.log(err);
-//     __.out(res, 500, err);
-//   }
-//   // console.log('called after 1 min', shiftDetailsData.length)
-// }, 60000);
 
 module.exports = new shift();
