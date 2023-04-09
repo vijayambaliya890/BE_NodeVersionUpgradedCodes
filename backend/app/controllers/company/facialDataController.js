@@ -2,7 +2,7 @@ const mongoose = require('mongoose'),
     FacialData = require("../../models/facialData"),
     User = require('../../models/user'),
     __ = require('../../../helpers/globalFunctions');
-
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class facialDataController {
 
@@ -27,6 +27,7 @@ class facialDataController {
 
     async create(data, res) {
         try {
+            logInfo(`facial/create API Start!`, { name: req.user.name, staffId: req.user.staffId });
             let doc = await FacialData.findOne({
                 userId: data.body.userId,
             });
@@ -37,18 +38,17 @@ class facialDataController {
                     descriptor: data.body.descriptor
                 };
                 var result = await new FacialData(insert).save();
-                console.log('facilid', result._id)
                 const userUpdate = await User.findOneAndUpdate({ _id: insert.userId }, { $set: { facialId: result._id } })
-                __.log('Log created successfully');
             } else {
                 doc.facialInfo = data.body.facialInfo;
                 doc.descriptor = data.body.descriptor
                 let result = await doc.save();
                 const userUpdate = await User.findOneAndUpdate({ _id: doc.userId }, { $set: { facialId: doc._id } })
-                __.log('Log updated successfully');
             }
+            logInfo(`facial/create API ends here!`, { name: req.user.name, staffId: req.user.staffId });
             __.out(res, 200);
         } catch (err) {
+            logError(`facial/create API, there is an error`, err.toString());
             __.log(err)
             __.out(res, 500);
         }

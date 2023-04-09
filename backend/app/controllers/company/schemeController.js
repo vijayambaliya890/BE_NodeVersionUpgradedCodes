@@ -4,25 +4,28 @@ const mongoose = require('mongoose'),
   UserLog = require('../../models/userLog'),
   __ = require('../../../helpers/globalFunctions');
 var mime = require('mime-types');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class scheme {
   async create(req, res) {
     try {
-      console.log(req.body);
+      logInfo(`scheme API Start!`, { name: req.user.name, staffId: req.user.staffId });
       let requiredResult1 = await __.checkRequiredFields(req, [
         'schemeName',
         'schemeDesc',
       ]);
       if (requiredResult1.status === false) {
+        logError(`scheme API, Required fields missing `, requiredResult1.missingFields);
+        logError(`scheme API, request payload `, req.body);
         return res.json({
           status: 3,
           result: null,
           msg: 'Please fill the empty fields',
         });
-        //__.out(res, 400, requiredResult1.missingFields);
       } else {
         let schemeIs = req.body;
         if (!schemeIs.schemeName.trim() || !schemeIs.schemeDesc.trim()) {
+          logError(`scheme API, there is an error`, 'Please fill the empty fields');
           return res.json({
             status: 3,
             result: null,
@@ -35,6 +38,7 @@ class scheme {
         schemeIs.createdBy = req.user._id;
         if (schemeIs.isShiftInterval) {
           if (!(schemeIs.shiftIntervalHour || schemeIs.shiftIntervalMins)) {
+            logError(`scheme API, there is an error`, 'Interval is missing');
             return res.json({
               status: 3,
               result: null,
@@ -49,6 +53,7 @@ class scheme {
             (schemeIs.shiftIntervalMins !== 0 &&
               ![15, 30, 45].includes(schemeIs.shiftIntervalMins))
           ) {
+            logError(`scheme API, there is an error`, 'Interval contain wrong value');
             return res.json({
               status: 3,
               result: null,
@@ -58,7 +63,6 @@ class scheme {
           schemeIs.shiftIntervalTotal =
             schemeIs.shiftIntervalHour * 60 + schemeIs.shiftIntervalMins;
         }
-        console.log('To create scheme: ', schemeIs);
         schemeIs.noOfWeek = req.body.noOfWeek;
         const scheme = new Scheme(schemeIs);
         scheme.save((err, result) => {
@@ -69,6 +73,7 @@ class scheme {
               msg: 'something went wrong',
             });
           }
+          logInfo(`scheme API ends here!`, { name: req.user.name, staffId: req.user.staffId });
           return res.json({
             status: 1,
             data: result,
@@ -77,7 +82,7 @@ class scheme {
         });
       }
     } catch (err) {
-      __.log(err);
+      logError(`scheme API, there is an error`, err.toString());
       __.out(res, 500);
     }
   }
@@ -185,6 +190,7 @@ class scheme {
   }
   async update(req, res) {
     try {
+      logInfo(`scheme/update API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!req.body.status) {
         const idd = req.body._id;
         var isdelete = await Scheme.findByIdAndUpdate(
@@ -193,12 +199,14 @@ class scheme {
           { new: true },
         );
         if (isdelete) {
+          logInfo(`scheme/update API ends here!`, { name: req.user.name, staffId: req.user.staffId });
           return res.json({
             status: 1,
             message: 'Scheme Deleted Successfully',
             result: isdelete,
           });
         }
+        logInfo(`scheme/update API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         return res.json({
           status: 2,
           data: isdelete,
@@ -210,12 +218,13 @@ class scheme {
         'schemeDesc',
       ]);
       if (requiredResult1.status === false) {
+        logError(`scheme/update API, Required fields missing `, requiredResult1.missingFields);
+        logError(`scheme/update API, request payload `, req.body);
         return res.json({
           status: 3,
           result: null,
           msg: 'Please fill the empty fields',
         });
-        //__.out(res, 400, requiredResult1.missingFields);
       } else {
         const id = req.body._id;
         const schemeIs = req.body;
@@ -223,15 +232,15 @@ class scheme {
           schemeIs.companyID = req.user.companyId;
         }
         if (!req.body.schemeName.trim() || !req.body.schemeDesc.trim()) {
+          logError(`scheme/update API, there is an error`, 'Please fill the empty fields');
           return res.json({
             status: 3,
             result: null,
             msg: 'Please fill the empty fields',
           });
         }
-        //console.log(req.body)
-        //return res.json({status: 2, message: "Scheme Not Found"});
         if (schemeIs.isShiftInterval) {
+          logError(`scheme/update API, there is an error`, 'Interval is missing');
           if (!(schemeIs.shiftIntervalHour || schemeIs.shiftIntervalMins)) {
             return res.json({
               status: 3,
@@ -247,6 +256,7 @@ class scheme {
             (schemeIs.shiftIntervalMins !== 0 &&
               ![15, 30, 45].includes(schemeIs.shiftIntervalMins))
           ) {
+            logError(`scheme/update API, there is an error`, 'Interval contain wrong value');
             return res.json({
               status: 3,
               result: null,
@@ -269,6 +279,7 @@ class scheme {
           )
             .then((result) => {
               if (result) {
+                logInfo(`scheme/update API ends here!`, { name: req.user.name, staffId: req.user.staffId });
                 return res.json({
                   status: 1,
                   data: result,
@@ -282,6 +293,7 @@ class scheme {
               });
             })
             .catch((err) => {
+              logError(`scheme/update API, there is an error`, err.toString());
               return res.json({ status: 3, message: 'Something Went Wrong' });
             });
         } else {
@@ -291,6 +303,7 @@ class scheme {
             { new: true },
           )
             .then((result) => {
+              logInfo(`scheme/update API ends here!`, { name: req.user.name, staffId: req.user.staffId });
               if (result) {
                 return res.json({
                   status: 1,
@@ -298,6 +311,7 @@ class scheme {
                   result,
                 });
               }
+              logError(`scheme/update API, there is an error`, 'Scheme Not Found');
               return res.json({
                 status: 2,
                 data: result,
@@ -305,17 +319,19 @@ class scheme {
               });
             })
             .catch((err) => {
+              logError(`scheme/update API, there is an error`, err.toString());
               return res.json({ status: 3, message: 'Something Went Wrong' });
             });
         }
       }
     } catch (err) {
-      __.log(err);
+      logError(`scheme/update API, there is an error`, err.toString());
       __.out(res, 500);
     }
   }
   async readUserLog(req, res) {
     try {
+      logInfo(`scheme/userlog API Start!`, { name: req.user.name, staffId: req.user.staffId });
       var data = await UserLog.find({
         type: req.body.type,
         businessUnitId: req.body.businessUnitId,
@@ -337,20 +353,21 @@ class scheme {
           select: 'staffId name',
         },
       ]);
+      logInfo(`scheme/userlog API ends here!`, { name: req.user.name, staffId: req.user.staffId });
       return res.json({ data });
     } catch (err) {
-      __.log(err);
+      logError(`scheme/userlog API, there is an error`, err.toString());
       __.out(res, 500);
     }
   }
   async getNumberOfWeekForSchemeId(req, res) {
     try {
-      const weekNumber =  await Scheme.findOne({ _id: req.user.schemeId, status: true }).select('noOfWeek').lean();
+      const weekNumber = await Scheme.findOne({ _id: req.user.schemeId, status: true }).select('noOfWeek').lean();
       if (weekNumber) {
         return res.json({
           data: weekNumber,
           msg: 'Record fetched successfully'
-        });  
+        });
       }
       return res.json({ data: null, msg: 'Record Not Found' });
     } catch (err) {

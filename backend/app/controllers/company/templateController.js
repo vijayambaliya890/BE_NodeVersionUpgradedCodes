@@ -12,6 +12,7 @@ const mongoose = require('mongoose'),
 class template {
   async createOrUpdate(req, res) {
     try {
+      logInfo('template/create api Start!', { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
         logError(`template/create API, there is something wrong in request payload`, req.body);
         return __.out(res, 300, `You've entered malicious input`);
@@ -30,7 +31,6 @@ class template {
         let shiftsNewFormat = [];
         let isSplitShift = false;
         let separateShiftPerDay = function () {
-          console.log('issp');
           for (let elementData of req.body.shifts) {
             const uniqueId = new mongoose.Types.ObjectId();
             for (let elem of elementData.dayDate) {
@@ -121,7 +121,6 @@ class template {
             let composedShiftsArray = [];
             for (let shiftObj of shifts) {
               /*converting to utc time */
-              console.log('shiftObj.date', shiftObj.date);
               shiftObj.date = moment(shiftObj.date, 'MM-DD-YYYY HH:mm:ss Z')
                 .utc()
                 .format();
@@ -143,8 +142,6 @@ class template {
                 Number(shiftObj.staffNeedCount) +
                 Number(shiftObj.backUpStaffNeedCount);
               shiftObj.isSplitShift = shiftObj.isSplitShift;
-              //  __.log(shiftObj, "shiftObj------>")
-              console.log('shiftObj.dateshiftObj.date', shiftObj.date);
               composedShiftsArray.push(shiftObj);
             }
             return composedShiftsArray;
@@ -166,11 +163,9 @@ class template {
             weekNumber: weekNumber,
             weekRangeStartsAt: weekRangeStartsAt,
             weekRangeEndsAt: weekRangeEndsAt,
-            /*template edited */
             businessUnitId: req.body.businessUnitId,
           };
           if (req.body.templateId) {
-            /*update */
             var templateId = {
               _id: req.body.templateId,
             };
@@ -226,6 +221,7 @@ class template {
             statusLogData.status = 3; /*tempalte created */
           }
           shiftLogController.create(statusLogData, res); /* log insert*/
+          logInfo('template/create api ends!', { name: req.user.name, staffId: req.user.staffId });
           __.out(res, 201, 'Template created successfully');
         }
       }
@@ -248,9 +244,6 @@ class template {
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         /*compose the date variables */
-        //var weekRangeStartsAt = moment(req.body.weekRangeStartsAt, 'MM-DD-YYYY HH:mm:ss Z').utc().format(),
-        //   weekNumber = await __.weekNoStartWithMonday(weekRangeStartsAt);
-        //console.log(weekNumber);
         var where = {
           status: 1,
           businessUnitId: req.body.businessUnitId,
@@ -380,7 +373,6 @@ class template {
               customShiftDetails.push(customElement);
             }
           });
-          console.log(customShiftDetails);
           /*weeklyGraph starts */
           var staffNeedWeekdaysObj = {
             monday: {},
@@ -467,7 +459,6 @@ class template {
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      console.log('heheheheh');
       let requiredResult1 = await __.checkRequiredFields(req, [
         'businessUnitId',
         'date',
@@ -476,10 +467,6 @@ class template {
       if (requiredResult1.status === false) {
         __.out(res, 400, requiredResult1.missingFields);
       } else {
-        /*compose the date variables */
-        //var weekRangeStartsAt = moment(req.body.weekRangeStartsAt, 'MM-DD-YYYY HH:mm:ss Z').utc().format(),
-        //   weekNumber = await __.weekNoStartWithMonday(weekRangeStartsAt);
-        //console.log(weekNumber);
         var where = {
           status: 1,
           businessUnitId: req.body.businessUnitId,
@@ -607,7 +594,6 @@ class template {
               customShiftDetails.push(customElement);
             }
           });
-          console.log(customShiftDetails);
           /*weeklyGraph starts */
           var staffNeedWeekdaysObj = {
             monday: {},
@@ -737,10 +723,6 @@ class template {
                   subSkillSetsList[x].name,
               });
             }
-            console.log(
-              '$scope.selectTemplate[index].shifts[a]',
-              $scope.selectTemplate[index].shifts[a],
-            );
             ShiftData.push({
               subSkillSets: subSkillSets,
               mainSkillSets: mainSkillSets,
@@ -819,7 +801,6 @@ class template {
                                 y.subSkillSets,
                                 x.subSkillSets,
                               );
-                              console.log('isSame', isSame);
                               if (isSame) return (isDuplicate = true);
                               else return (isDuplicate = false);
                             } else {

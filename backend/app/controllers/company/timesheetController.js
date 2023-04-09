@@ -14,75 +14,37 @@ var moment = require('moment');
 let striptags = require('striptags');
 const async = require('async');
 const __ = require('../../../helpers/globalFunctions');
-// const redisClient = require('../../../helpers/redis.js');
-// const redisData = require('../../../helpers/redisDataGenerator');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class timeSheetController {
-  // async updateRedis(businessUnitId, from) {
-  //   if (from !== 'add') {
-  //     redisData.history(businessUnitId);
-  //     redisData.readModifyAshish(businessUnitId);
-  //     redisData.timesheetData(businessUnitId);
-  //   }
-  // }
-  // async updateRedisSingle(businessUnitId, shiftDetailId) {
-  //   // redisData.history(businessUnitId)
-  //   console.log('before redis setting data');
-  //   const ree = await Promise.all([
-  //     redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId),
-  //     redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId),
-  //     redisData.historySingle(businessUnitId, shiftDetailId),
-  //   ]);
-  //   // const r = await redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId);
-  //   // const p = await redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId);
-  //   console.log('after redis setting data', ree);
-  //   return ree;
-  //   // redisData.timesheetData(businessUnitId)
-  // }
   async read(req, res) {
+    logInfo(`attendance/breakTime API Start!`, { name: req.user.name, staffId: req.user.staffId });
     if (!__.checkHtmlContent(req.params)) {
+      logError(`attendance/breakTime API, You've entered malicious input `, req.body);
       return __.out(res, 300, `You've entered malicious input`);
     }
-    // console.log('in read dashbaor', moment.utc().format());
     let date = new Date(moment.utc().format());
     let currentDateTime = new Date(moment.utc().format());
     let timeZone = req.body.timeZone;
     if (!timeZone) {
       timeZone = '+0800';
     }
-    console.log(timeZone, 'aaaa', date);
-    //  moment(date).utcOffset(timeZone).format('MM/DD/YYYY HH:mm');
     date = new Date(
       moment(date).utcOffset(timeZone).format('MM/DD/YYYY HH:mm'),
     );
     currentDateTime = new Date(
       moment(currentDateTime).utcOffset(timeZone).format('MM/DD/YYYY HH:mm'),
     );
-    console.log('aaaaaaa', date);
     date = new Date(date.setHours(0, 0, 0, 0));
-    console.log('ddddd', date);
-    //  const startDate = new Date(moment.utc().format());
-    //  const endDate = new Date(moment.utc().format());
     let startDateTime = new Date(
       new Date(date).getTime() - 7 * 24 * 60 * 60 * 1000,
     );
     startDateTime = new Date(startDateTime).toUTCString();
     date = new Date(moment.utc().format());
     date = new Date(date.setHours(0, 0, 0, 0));
-    // console.log('date',)
     let endDateTime = currentDateTime.setHours(currentDateTime.getHours() + 12);
     endDateTime = new Date(endDateTime).toUTCString();
-    console.log(
-      'start',
-      new Date(startDateTime).toISOString(),
-      new Date(endDateTime),
-    );
-    //  console.log('isoss', new Date().toISOString());
-    // return res.json({j:'a'})
-    // const datett = new Date();
-    // ,
-    //     weekRangeStartsAt: { $lte: new Date() },
-    //     weekRangeEndsAt: {$gte: new Date()}
+
     Shift.aggregate([
       {
         $match: {
@@ -171,26 +133,7 @@ class timeSheetController {
       },
     ])
       .then((results) => {
-        // const dummyData = JSON.stringify(results);
-        // results = JSON.parse(dummyData);
-        // return res.json(results);
-        // console.log('aaaaa',results.length);
         if (results.length > 0) {
-          // async.eachSeries(
-          //     results, (item, next) => {
-          //         if (item.userInfo) {
-          //             FacialData.find({ userId: item.userInfo._id }, { _id: 1, facialInfo: 1 }).then((facialInfo) => {
-          //                 if (facialInfo.length > 0) {
-          //                     //item.userInfo.facialInfo = facialInfo[0].facialInfo;
-          //                     item.isFacial = true;
-          //                 } else {
-          //                     item.isFacial = false;
-          //                     item.userInfo.facialInfo = null;
-          //                 }
-          //                 next();
-          //             });
-          //         }
-          //     });
           async.eachSeries(results, (item, next) => {
             const index = results.indexOf(item);
             if (item.userInfo) {
@@ -203,12 +146,10 @@ class timeSheetController {
                 shiftDetailId: item.shiftDetails._id,
               })
                 .then((attendance) => {
-                  //if(attendance.status !== 4){
                   item.attendance = attendance;
                   if (!attendance) {
                     delete item.attendance;
                   }
-                  //  }
                   if (index === results.length - 1) {
                     const result = this.filterData(
                       results,
@@ -216,9 +157,6 @@ class timeSheetController {
                       endDateTime,
                       res,
                     );
-                    //   console.log('result2', result);
-                    // return res.json({status: 1, message: 'Data Found', data: result});
-                    //__.out(res, 200, results);
                   }
                   next();
                 })
@@ -230,9 +168,6 @@ class timeSheetController {
                       endDateTime,
                       res,
                     );
-                    //  console.log('result1', result);
-                    // return res.json({status: 1, message: 'Data Found', data: result});
-                    //  __.out(res, 200, results);
                   }
                   next();
                 });
@@ -244,29 +179,26 @@ class timeSheetController {
                   endDateTime,
                   res,
                 );
-                // console.log('result', result);
-                //return res.json({status: 1, message: 'Data Found', data: result});
-                //__.out(res, 200, results);
               }
               next();
             }
           });
         } else {
+          logInfo(`attendance/breakTime API  'No Data Found 1' ends here!`, { name: req.user.name, staffId: req.user.staffId });
           return res.json({
             status: 2,
             message: 'No Data Found 1',
             data: null,
           });
-          //__.out(res,200,"No Data Found");
         }
       })
       .catch((err) => {
+        logError(`attendance/breakTime API, there is an error`, err.toString());
         return res.json({
           status: 3,
           message: 'Something Went wrong',
           data: null,
         });
-        // __.out(res,500,err);
       });
   }
   async readModifyAshish(req, res) {
@@ -1804,10 +1736,11 @@ class timeSheetController {
 
   async approval(req, res) {
     try {
+      logInfo(`timesheet/approval API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`timesheet/approval API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
-      console.log(req.body);
       let limitData = {
         status: 1,
       };
@@ -1820,7 +1753,6 @@ class timeSheetController {
       let isShiftExtentend = false;
       if (req.body.userInfo) {
         const body = req.body;
-        //  if(body.isOt) {
         if (body.shift) {
           isShiftExtentend = true;
           const normalHr =
@@ -1834,7 +1766,6 @@ class timeSheetController {
               )) /
             (1000 * 60 * 60);
           otHr = normalHrOT - normalHr;
-          console.log(normalHr, normalHrOT, otHr);
         } else if (body.clocked) {
           const normalHr =
             (new Date(body.userInfo.shiftDetails.endTime) -
@@ -1899,7 +1830,6 @@ class timeSheetController {
         req.body.approveClockInTime = '';
         req.body.approveClockOutTime = '';
       }
-      console.log('durrr', duration);
       const shiftDetails = await ShiftDetails.findOne({
         _id: req.body.shiftDetailId,
       }).populate([
@@ -1908,20 +1838,15 @@ class timeSheetController {
           select: 'businessUnitId',
         },
       ]);
-      // const redisBuId = shiftDetails.shiftId.businessUnitId;
       if (req.body._id) {
         let btObj = [];
         let totalBT = 0;
         if (req.body.breakTime && req.body.breakTime.length > 0) {
           const btObjTemp = JSON.parse(JSON.stringify(req.body.breakTime));
           breakTimeForLimit = [];
-          console.log('btObjTemp', btObjTemp);
           btObjTemp.forEach((btItem) => {
-            // const startTimeDate = moment(btItem.startTime, 'MM-DD-YYYY HH:mm:ss Z').utc().format(),
-            //     endTimeDate = moment(btItem.endTime, 'MM-DD-YYYY HH:mm:ss Z').utc().format();
             const startTimeDate = btItem.startTime;
             const endTimeDate = btItem.endTime;
-            console.log(startTimeDate, endTimeDate);
             var diff = Math.abs(
               new Date(startTimeDate) - new Date(endTimeDate),
             );
@@ -1929,7 +1854,6 @@ class timeSheetController {
             const duration =
               (new Date(btItem.endTime) - new Date(btItem.startTime)) /
               (60 * 60 * 1000);
-            console.log('min', min);
             totalBT = totalBT + min;
             const obj = {
               startTime: new Date(startTimeDate),
@@ -1941,8 +1865,6 @@ class timeSheetController {
             btObj.push(obj);
           });
         }
-        console.log('btObjbtObj', btObj);
-        // check here
         const attendanceObj = {
           shift: req.body.shift,
           clocked: req.body.clocked,
@@ -1987,36 +1909,29 @@ class timeSheetController {
         )
           .then(async (result) => {
             if (result) {
-              // const rR = await this.updateRedisSingle(
-              //   result.businessUnitId,
-              //   result.shiftDetailId,
-              // );
-              // console.log('rR', rR);
-              // this.updateRedis(result.businessUnitId, 'add');
+              logInfo(`timesheet/approval API ends here! 'Successfully Updated'`, { name: req.user.name, staffId: req.user.staffId });
               return res.json({
                 status: 1,
                 message: 'Successfully Updated',
                 data: result,
               });
-              //__.out(res,200,result);
             } else {
+              logInfo(`timesheet/approval API ends here! 'No attendance Found'`, { name: req.user.name, staffId: req.user.staffId });
               return res.json({
                 status: 2,
                 message: 'No attendance Found',
                 data: null,
               });
-              //__.out(res,200,'No attendance found');
             }
           })
           .catch((err) => {
-            console.log(err);
+            logError(`timesheet/approval API, there is an error`, err.toString());
             return res.json({
               status: 3,
               message: 'Something went wrong',
               data: null,
               err,
             });
-            //__.out(res,500,'something went wrong');
           });
       } else {
         if (!isAbsent) {
@@ -2037,7 +1952,6 @@ class timeSheetController {
         req.body.status = status;
         req.body.otDuration = otHr;
         req.body.isAbsent = isAbsent;
-        // check here
         const attendanceObj = {
           shift: req.body.shift,
           clocked: req.body.clocked,
@@ -2061,12 +1975,7 @@ class timeSheetController {
         new Attendance(req.body)
           .save()
           .then(async (re) => {
-            // const rR = await this.updateRedisSingle(
-            //   re.businessUnitId,
-            //   re.shiftDetailId,
-            // );
-            // console.log('rR', rR);
-            // this.updateRedis(re.businessUnitId, 'add');
+            logInfo(`timesheet/approval API ends here, 'Successfully Added'`, { name: req.user.name, staffId: req.user.staffId });
             return res.json({
               status: 1,
               message: 'Successfully Added',
@@ -2074,6 +1983,7 @@ class timeSheetController {
             });
           })
           .catch((e) => {
+            logError(`timesheet/approval API, there is an error`, e.toString());
             return res.json({
               status: 3,
               message: 'Something went wrong',
@@ -2083,7 +1993,7 @@ class timeSheetController {
           });
       }
     } catch (err) {
-      __.log(err);
+      logError(`timesheet/approval API, there is an error`, err.toString());
       __.out(res, 500, err);
     }
   }
@@ -2180,38 +2090,24 @@ class timeSheetController {
   }
   async history(req, res) {
     try {
+      logInfo(`timesheet/history/5bd723a8c1e35a7a250d562a  API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`timesheet/history/5bd723a8c1e35a7a250d562a  API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
-      // 5cda857e94827c2775164834+his+2020-12-31+2021-01-06
-      // {"startDate":"2020-12-31","endDate":"2021-01-06"}
       const redisKey = `${req.params.businessUnitId
         }his${req.body.startDate.replace(/-/g, '_')}${req.body.endDate.replace(
           /-/g,
           '_',
         )}`;
-      // const redisData = await redisClient.get(`${redisKey}`);
-      // if (redisData && req.body.isDefault) {
-      //   console.log('DATATATATATA Present');
-      //   return res.json({
-      //     status: 1,
-      //     message: 'Data Found',
-      //     data: JSON.parse(redisData),
-      //   });
-      // }
+
       let startDateTime = new Date(req.body.startDate);
       startDateTime = startDateTime.setDate(startDateTime.getDate() - 1);
       startDateTime = new Date(startDateTime);
       let endDateTime = new Date(req.body.endDate);
       endDateTime = endDateTime.setDate(endDateTime.getDate());
       endDateTime = new Date(endDateTime);
-      console.log('eee');
-      console.log('endDateTime', startDateTime, endDateTime);
-      console.log(
-        'ISO ',
-        new Date(new Date(endDateTime).toISOString()),
-        new Date(new Date(startDateTime).toISOString()),
-      );
+      
       if (req.body.userId) {
         getDataAsPerUser(this);
       } else {
@@ -2306,20 +2202,17 @@ class timeSheetController {
           },
         ]);
         const len = results.length;
-        console.log('len', len);
         const getAllData = [];
         if (len > 0) {
           for (let i = 0; i < len; i++) {
             getAllData.push(this.getAttendanceDataTimeSheet(results[i]));
           }
           const resultAll = await Promise.all(getAllData);
-          //return res.json({ resultAll })
           this.sendTimesheetData(resultAll, res, redisKey);
         } else {
         }
       }
       function getDataAsPerUser(useThis) {
-        console.log('insideuser');
         Shift.aggregate([
           {
             $match: {
@@ -2420,7 +2313,6 @@ class timeSheetController {
           .then((results) => {
             if (results.length > 0) {
               async.eachSeries(results, (item, next) => {
-                //console.log('index', results.indexOf(item));
                 const index = results.indexOf(item);
                 if (item.userInfo) {
                   Attendance.findOne({
@@ -2440,78 +2332,44 @@ class timeSheetController {
                           item.attendance.approval.breakTime = null;
                         }
                       }
-                      console.log('1');
                       if (index === results.length - 1) {
-                        console.log('ressss', results.length);
-                        // for(let i=results.length-1; i>=0; i--){
-                        //    // console.log('infor loop', results[i].attendance);
-                        //     console.log('iiii', i, results[i].attendance._id);
-                        //     if(!results[i].attendance) {
-                        //         console.log('ii', i)
-                        //         results.splice(i, 1);
-                        //     }
-                        //
-                        // }
                         return useThis.sendTimesheetData(results, res);
-                        //results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-                        //  return res.json({status: 1, message: 'Data Found', data: results});
-                        // __.out(res, 200, results);
                       }
                       next();
                     })
                     .catch((err) => {
                       if (index === results.length - 1) {
-                        // for(let i=results.length-1; i>=0; i--){
-                        //   //  console.log('infor loop', results[i].attendance);
-                        //     if(!results[i].attendance) {
-                        //         results.splice(i, 1);
-                        //     }
-                        //
-                        // }
                         return useThis.sendTimesheetData(results, res);
-                        // results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-                        // return res.json({status: 1, message: 'Data Found', data: results});
-                        //__.out(res, 200, results);
                       }
                       next();
                     });
                 } else {
                   if (index === results.length - 1) {
-                    // for(let i=results.length-1; i>=0; i--){
-                    //    // console.log('infor loop', results[i].attendance);
-                    //     if(!results[i].attendance) {
-                    //         results.splice(i, 1);
-                    //     }
-                    // }
                     return useThis.sendTimesheetData(results, res);
-                    // results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-                    //return res.json({status: 1, message: 'Data Found', data: results});
-                    //__.out(res, 200, results);
                   }
                   next();
                 }
               });
-              console.log('2');
             } else {
+              logInfo(`timesheet/history/5bd723a8c1e35a7a250d562a API 'No Data Found' ends here!`, { name: req.user.name, staffId: req.user.staffId });
               return res.json({
                 status: 2,
                 message: 'No Data Found',
                 data: null,
               });
-              // __.out(res,200,"No Data Found");
             }
           })
           .catch((err) => {
+            logError(`timesheet/history/5bd723a8c1e35a7a250d562a  API, there is an error`, err.toString());
             return res.json({
               status: 3,
               message: 'Something Went Wrong',
               data: null,
             });
-            // __.out(res,500,err);
           });
       }
     } catch (err) {
-      __.log(err);
+      logError(`timesheet/history/5bd723a8c1e35a7a250d562a  API, there is an error`, err.toString());
       __.out(res, 500, err);
     }
   }

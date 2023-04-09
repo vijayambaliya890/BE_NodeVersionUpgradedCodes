@@ -2,7 +2,7 @@
 const mongoose = require('mongoose'),
     ReportingLocation = require('../../models/reportingLocation'),
     __ = require('../../../helpers/globalFunctions');
-
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 class reportingLocation {
 
     async create(req, res) {
@@ -29,15 +29,17 @@ class reportingLocation {
 
     async read(req, res) {
         try {
+            logInfo(`repotinglocation/read API Start!`, { name: req.user.name, staffId: req.user.staffId });
             if (!__.checkHtmlContent(req.body)) {
+                logError(`repotinglocation/read API, You've entered malicious input `, req.body);
                 return __.out(res, 300, `You've entered malicious input`);
             }
             let where = {
-                    "companyId": req.user.companyId,
-                    'status': {
-                        $ne: 3 /* $ne => not equal*/
-                    }
-                },
+                "companyId": req.user.companyId,
+                'status': {
+                    $ne: 3 /* $ne => not equal*/
+                }
+            },
                 findOrFindOne;
             /*if ID given then it acts as findOne which gives object else find which gives array of object*/
             if (req.body.reportingLocationId) {
@@ -47,11 +49,12 @@ class reportingLocation {
                 findOrFindOne = ReportingLocation.find(where);
 
             let reportingLocations = await findOrFindOne.lean();
+            logInfo(`repotinglocation/read API ends here!`, { name: req.user.name, staffId: req.user.staffId });
             __.out(res, 201, {
                 reportingLocations: reportingLocations
             });
         } catch (err) {
-            __.log(err);
+            logError(`repotinglocation/read API, there is an error`, err.toString());
             __.out(res, 500);
         }
     }
