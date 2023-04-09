@@ -5755,6 +5755,7 @@ class shift {
         }
       }
       for (let elemBackup of shiftDetailsData.backUpStaffs) {
+        await this.reduceLimitCancel(res, elemConfirm._id, shiftDetailsData);
         if (elemBackup.deviceToken != null) {
           usersDeviceTokens.push(elemBackup.deviceToken);
         }
