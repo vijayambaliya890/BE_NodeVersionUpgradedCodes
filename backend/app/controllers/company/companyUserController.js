@@ -463,38 +463,11 @@ class user {
         },
         {
           path: 'parentBussinessUnitId',
-          select: 'name _id',
+          select: 'name _id orgName',
           match: {
             status: 1,
             sectionId: {
               $exists: true,
-            },
-          },
-          populate: {
-            path: 'sectionId',
-            select: 'name _id',
-            match: {
-              status: 1,
-              departmentId: {
-                $exists: true,
-              },
-            },
-            populate: {
-              path: 'departmentId',
-              select: 'name _id',
-              match: {
-                status: 1,
-                companyId: {
-                  $exists: true,
-                },
-              },
-              populate: {
-                path: 'companyId',
-                select: 'name _id',
-                match: {
-                  status: 1,
-                },
-              },
             },
           },
         },
@@ -515,28 +488,9 @@ class user {
         .sort(sort)
         .skip(skip)
         .limit(limit);
-
+  
       data = data.map((v) => {
-        let bu = '';
-        if (!!v.parentBussinessUnitId) {
-          bu = v.parentBussinessUnitId.name;
-          if (!!v.parentBussinessUnitId.sectionId) {
-            bu = v.parentBussinessUnitId.sectionId.name + ' > ' + bu;
-            if (!!v.parentBussinessUnitId.sectionId.departmentId) {
-              bu =
-                v.parentBussinessUnitId.sectionId.departmentId.name +
-                ' > ' +
-                bu;
-              if (!!v.parentBussinessUnitId.sectionId.departmentId.companyId) {
-                bu =
-                  v.parentBussinessUnitId.sectionId.departmentId.companyId
-                    .name +
-                  ' > ' +
-                  bu;
-              }
-            }
-          }
-        }
+        let bu = v.parentBussinessUnitId.orgName;
         let obj = {
           _id: v._id,
           name: v.name,

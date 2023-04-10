@@ -4572,18 +4572,18 @@ class assignShift {
         },
         {
           _id: 1,
-          role: 1,
-          appointmentId: 1,
+          // role: 1,
+          // appointmentId: 1,
           mainSkillSets: 1,
           subSkillSets: 1,
-          schemeId: 1,
+          // schemeId: 1,
         },
       ).populate([
-        {
-          path: 'role',
-          select: 'name',
-        },
-        { path: 'appointmentId', select: 'name' },
+        // {
+        //   path: 'role',
+        //   select: 'name',
+        // },
+        // { path: 'appointmentId', select: 'name' },
         { path: 'mainSkillSets', select: 'name' },
         {
           path: 'subSkillSets',
@@ -4599,10 +4599,10 @@ class assignShift {
             },
           },
         },
-        {
-          path: 'schemeId',
-          select: 'shiftSchemeType shiftSetup',
-        },
+        // {
+        //   path: 'schemeId',
+        //   select: 'shiftSchemeType shiftSetup',
+        // },
       ]);
       const companySetup = await pageSetting.findOne(
         { companyId: req.user.companyId },
@@ -4616,95 +4616,101 @@ class assignShift {
         delete user.mainSkillSets;
       }
       console.log('user------one------', user);
-      if (
-        user.schemeId &&
-        (user.schemeId.shiftSchemeType == 2 ||
-          user.schemeId.shiftSchemeType == 3)
-      ) {
-        let assignShift = AssignShift.findOne({ staff_id: user._id });
-        let shifts1 = await assignShift
-          .select('staff_id startTime endTime ')
-          .populate([
-            {
-              path: 'staff_id',
-              select:
-                'name contactNumber email profilePicture staffId schemeId subSkillSets',
-              populate: [
-                {
-                  path: 'role',
-                  select: 'name',
-                },
-                { path: 'appointmentId', select: 'name' },
+      // if (
+      //   user.schemeId &&
+      //   (user.schemeId.shiftSchemeType == 2 ||
+      //     user.schemeId.shiftSchemeType == 3)
+      // ) {
+      //   let assignShift = AssignShift.findOne({ staff_id: user._id });
+      //   let shifts1 = await assignShift
+      //     .select('staff_id startTime endTime ')
+      //     .populate([
+      //       {
+      //         path: 'staff_id',
+      //         select:
+      //           'name contactNumber email profilePicture staffId schemeId subSkillSets',
+      //         populate: [
+      //           {
+      //             path: 'role',
+      //             select: 'name',
+      //           },
+      //           { path: 'appointmentId', select: 'name' },
 
-                { path: 'mainSkillSets', select: 'name' },
-                {
-                  path: 'subSkillSets',
-                  select: 'name status',
-                  match: {
-                    status: 1,
-                  },
-                  populate: {
-                    path: 'skillSetId',
-                    select: 'name status',
-                    match: {
-                      status: 1,
-                    },
-                  },
-                },
-                {
-                  path: 'schemeId',
-                  select: 'shiftSchemeType shiftSetup',
-                },
-              ],
-            },
-          ]);
+      //           { path: 'mainSkillSets', select: 'name' },
+      //           {
+      //             path: 'subSkillSets',
+      //             select: 'name status',
+      //             match: {
+      //               status: 1,
+      //             },
+      //             populate: {
+      //               path: 'skillSetId',
+      //               select: 'name status',
+      //               match: {
+      //                 status: 1,
+      //               },
+      //             },
+      //           },
+      //           {
+      //             path: 'schemeId',
+      //             select: 'shiftSchemeType shiftSetup',
+      //           },
+      //         ],
+      //       },
+      //     ]);
 
-        let shifts = JSON.stringify(shifts1);
-        shifts = JSON.parse(shifts);
-        if (shifts && shifts.length > 0) {
-          var days = [
-            'Sunday',
-            'Monday',
-            'Tuesday',
-            'Wednesday',
-            'Thursday',
-            'Friday',
-            'Saturday',
-          ];
-          for (let i = 0; i <= shifts.length - 1; i++) {
-            let item = shifts[i];
-            console.log('item------------', item);
-          }
-        }
+      //   let shifts = JSON.stringify(shifts1);
+      //   shifts = JSON.parse(shifts);
+      //   if (shifts && shifts.length > 0) {
+      //     var days = [
+      //       'Sunday',
+      //       'Monday',
+      //       'Tuesday',
+      //       'Wednesday',
+      //       'Thursday',
+      //       'Friday',
+      //       'Saturday',
+      //     ];
+      //     for (let i = 0; i <= shifts.length - 1; i++) {
+      //       let item = shifts[i];
+      //       console.log('item------------', item);
+      //     }
+      //   }
 
-        console.log('assignShift-----------------', shifts);
-        if (true || shifts) {
-          if (!shifts) {
-            shifts = {
-              user: user,
-              staff_id: user,
-            };
-          } else {
-            shifts.user = user;
-          }
-          res.json({
+      //   console.log('assignShift-----------------', shifts);
+      //   if (true || shifts) {
+      //     if (!shifts) {
+      //       shifts = {
+      //         user: user,
+      //         staff_id: user,
+      //       };
+      //     } else {
+      //       shifts.user = user;
+      //     }
+      //     res.json({
+      //       status: true,
+      //       isScheme: true,
+      //       user,
+      //       shifts,
+      //       message: 'Week Data',
+      //     });
+      //     console.log('user------------------------', user);
+      //   } else {
+      //   }
+      // } else {
+      //   res.json({
+      //     status: false,
+      //     isScheme: false,
+      //     shifts: [],
+      //     message: 'Assign Shift Scheme not assigned',
+      //   });
+      // }
+      res.json({
             status: true,
             isScheme: true,
             user,
-            shifts,
             message: 'Week Data',
           });
-          console.log('user------------------------', user);
-        } else {
-        }
-      } else {
-        res.json({
-          status: false,
-          isScheme: false,
-          shifts: [],
-          message: 'Assign Shift Scheme not assigned',
-        });
-      }
     } catch (err) {
       __.log(err);
       __.out(res, 500, err);
