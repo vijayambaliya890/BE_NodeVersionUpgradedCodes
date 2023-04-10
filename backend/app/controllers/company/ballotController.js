@@ -3547,19 +3547,7 @@ class ballot {
                 select: "_id parentBussinessUnitId name staffId contactNumber email",
                 populate: [{
                   path: "parentBussinessUnitId",
-                  select: "name",
-                  populate: {
-                    path: "sectionId",
-                    select: "name",
-                    populate: {
-                      path: "departmentId",
-                      select: "name status",
-                      populate: {
-                        path: "companyId",
-                        select: "name status",
-                      },
-                    },
-                  }
+                  select: "orgName"
                 }]
               },
             ])
@@ -3613,19 +3601,7 @@ class ballot {
             .populate([
               {
                 path: "parentBussinessUnitId",
-                select: "sectionId name",
-                populate: {
-                  path: "sectionId",
-                  select: "name departmentId adminEmail techEmail shiftCancelHours cancelShiftPermission standByShiftPermission status",
-                  populate: {
-                    path: "departmentId",
-                    select: "name status companyId",
-                    populate: {
-                      path: "companyId",
-                      select: "name",
-                    },
-                  },
-                },
+                select: "orgName"
               },
             ])
             .lean();

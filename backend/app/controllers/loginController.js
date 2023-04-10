@@ -108,86 +108,23 @@ class nativeAuth {
           },
           {
             path: "parentBussinessUnitId",
-            select: "name",
+            select: "orgName",
             match: {
               status: 1,
-            },
-            populate: {
-              path: "sectionId",
-              match: {
-                status: 1,
-              },
-              select: "name",
-              populate: {
-                path: "departmentId",
-                match: {
-                  status: 1,
-                },
-                select: "name",
-                populate: {
-                  path: "companyId",
-                  match: {
-                    status: 1,
-                  },
-                  select: "name",
-                },
-              },
             },
           },
           {
             path: "planBussinessUnitId",
-            select: "name",
+            select: "orgName",
             match: {
               status: 1,
-            },
-            populate: {
-              path: "sectionId",
-              match: {
-                status: 1,
-              },
-              select: "name",
-              populate: {
-                path: "departmentId",
-                match: {
-                  status: 1,
-                },
-                select: "name",
-                populate: {
-                  path: "companyId",
-                  match: {
-                    status: 1,
-                  },
-                  select: "name",
-                },
-              },
-            },
+            },         
           },
           {
             path: "viewBussinessUnitId",
-            select: "name",
+            select: "orgName",
             match: {
               status: 1,
-            },
-            populate: {
-              path: "sectionId",
-              match: {
-                status: 1,
-              },
-              select: "name",
-              populate: {
-                path: "departmentId",
-                match: {
-                  status: 1,
-                },
-                select: "name",
-                populate: {
-                  path: "companyId",
-                  match: {
-                    status: 1,
-                  },
-                  select: "name",
-                },
-              },
             },
           },
           {
