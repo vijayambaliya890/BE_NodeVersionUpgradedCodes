@@ -1607,6 +1607,38 @@ class staffShift {
         );
       }
 
+      var shiftLogStatus = 0;
+      if(req.body.isConfirmed === 1){
+        shiftLogStatus = 18    
+      } else {
+        shiftLogStatus = 19
+      }
+    
+      /* Create Shift Log */
+      let logMetaData = await Shift.findOne({
+        _id: currentShiftDetails.shiftId,
+      })
+        .select(
+          'shiftId businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
+        )
+        .lean();
+
+      /* Add to log */
+      let statusLogData = {
+        userId: req.user._id,
+        status: shiftLogStatus,
+        /* shift created */
+        shiftId: currentShiftDetails.shiftId,
+        weekRangeStartsAt: logMetaData.weekRangeStartsAt,
+        weekRangeEndsAt: logMetaData.weekRangeEndsAt,
+        weekNumber: logMetaData.weekNumber,
+        businessUnitId: logMetaData.businessUnitId,
+        existingShift: currentShiftDetails._id,
+      };
+      console.log("statusLogData",statusLogData)
+      await shiftLogController.create(statusLogData, res);
+
+
       logInfo('staffshift/checklimit API ends here!', { name: req.user.name, staffId: req.user.staffId });
       return __.out(res, 201, statusString);
     } catch (err) {
@@ -2900,6 +2932,28 @@ class staffShift {
           },
         },
       };
+
+      let logMetaData = await Shift.findOne({
+        _id: shiftDetails.shiftId,
+      })
+        .select(
+          'shiftId businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
+        )
+        .lean();
+      console.log("logMetaData",logMetaData);
+      /* Add to log */
+      let statusLogData = {
+        userId: req.user._id,
+        status :0,
+        /* shift created */
+        shiftId: shiftDetails.shiftId,
+        weekRangeStartsAt: logMetaData.weekRangeStartsAt,
+        weekRangeEndsAt: logMetaData.weekRangeEndsAt,
+        weekNumber: logMetaData.weekNumber,
+        businessUnitId: logMetaData.businessUnitId,
+        existingShift: shiftDetails._id,
+      };
+
       if (
         shiftDetails.confirmedStaffs.some((x) => x == req.user._id.toString())
       ) {
@@ -3064,6 +3118,9 @@ class staffShift {
           { _id: req.body.shiftDetailsId },
           updateJson,
         );
+         /* Create Shift Log */  
+      statusLogData.status = 20
+      await shiftLogController.create(statusLogData, res);
         logInfo(`staffshift/cancel API 'Booking (confirmed) has been cancelled successfully' api ends here!`, { name: req.user.name, staffId: req.user.staffId });
         __.out(res, 201, 'Booking (confirmed) has been cancelled successfully');
       } else if (
@@ -3087,6 +3144,8 @@ class staffShift {
           { _id: req.body.shiftDetailsId },
           updateJson,
         );
+        statusLogData.status = 21;
+        await shiftLogController.create(statusLogData, res);
         logInfo(`staffshift/cancel API 'Booking (standby) has been cancelled successfully' api ends here!`, { name: req.user.name, staffId: req.user.staffId });
         return __.out(
           res,

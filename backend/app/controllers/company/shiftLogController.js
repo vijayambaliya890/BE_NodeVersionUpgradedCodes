@@ -127,7 +127,7 @@ class shiftLog {
       if (data.status === 12) {
         insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         //insert.existingShift = await this.getStringifiedShiftData(data.existingShift, false);
-        insert.description = `Shift Extended`;
+        insert.description = `Shift Extension Request sent successfully`;
         insert.existingShift = await this.getStringifiedShiftData(
           res,
           data.existingShift,
@@ -189,6 +189,51 @@ class shiftLog {
           isAs = 'declined';
         }
         insert.description = `Recall request ${isAs} - ${st} `;
+        insert.existingShift = await this.getStringifiedShiftData(
+          res,
+          data.existingShift,
+          false,
+        );
+      }
+      if (data.status === 17) {
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
+        insert.description = `Shift Extention Request Stopped`;
+        insert.existingShift = await this.getStringifiedShiftData(
+          res,
+          data.existingShift,
+          false,
+        );
+      }
+      if (data.status === 18) {
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
+        insert.description = `This user has booked a confirmed shift successfully`;
+        insert.existingShift = await this.getStringifiedShiftData(
+          res,
+          data.existingShift,
+          false,
+        );
+      }
+      if (data.status === 19) {
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
+        insert.description = `This user has booked a StandBy shift successfully`;
+        insert.existingShift = await this.getStringifiedShiftData(
+          res,
+          data.existingShift,
+          false,
+        );
+      }
+      if (data.status === 20) {
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
+        insert.description = `This user has cancelled his confirmed booked shift successfully`;
+        insert.existingShift = await this.getStringifiedShiftData(
+          res,
+          data.existingShift,
+          false,
+        );
+      }
+      if (data.status === 21) {
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
+        insert.description = `This user has cancelled his Standby booked shift successfully`;
         insert.existingShift = await this.getStringifiedShiftData(
           res,
           data.existingShift,
