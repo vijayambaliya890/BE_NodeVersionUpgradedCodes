@@ -7587,7 +7587,7 @@ class shift {
               logInfo('shift/shiftExtension API ends here!', { name: req.user.name, staffId: req.user.staffId });
               return res.json({
                 status: true,
-                message: 'Shift Extended Successfully',
+                message: 'Shift Extension Request sent successfully',
                 data: obj,
                 result,
                 isLimit: limit,
@@ -7842,6 +7842,24 @@ class shift {
         shiftDetailsData.isExtendedShift = false;
       }
       const shNew = await shiftDetailsData.save();
+      Shift.findById(shiftDetailsData.shiftId).then((shiftInfo) => {
+        let statusLogData = {
+          userId: req.body.userId,
+          status: 17,
+          /* shift created */
+          shiftId: shiftDetailsData.shiftId,
+          weekRangeStartsAt: shiftInfo.weekRangeStartsAt,
+          weekRangeEndsAt: shiftInfo.weekRangeEndsAt,
+          weekNumber: shiftInfo.weekNumber,
+          newTiming: {
+            start: oldShift[0].startDateTime,
+            end: oldShift[0].endDateTime,
+          },
+          businessUnitId: shiftInfo.businessUnitId,
+          existingShift: shiftDetailsData._id,
+        };
+        shiftLogController.create(statusLogData, res);
+      });
 
       return res.json({
         status: true,
