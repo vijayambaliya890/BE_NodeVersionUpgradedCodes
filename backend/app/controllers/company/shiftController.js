@@ -2498,6 +2498,893 @@ class shift {
     }
   }
 
+  async graphData(req, res) {
+    try {
+      logInfo('shift/graphData api Start!', { name: req.user.name, staffId: req.user.staffId });
+      if (!__.checkHtmlContent(req.body)) {
+        logError(`shift/graphData API, You've entered malicious input`, req.body);
+        return __.out(res, 300, `You've entered malicious input`);
+      }
+      let requiredResult1 = await __.checkRequiredFields(req, [
+        'businessUnitId',
+        'startDate',
+      ]);
+      if (requiredResult1.status === false) {
+        logError(`shift/graphData API, field missing `, requiredResult1.missingFields);
+        __.out(res, 400, requiredResult1.missingFields);
+      } else {
+        var where = {
+          status: 1,
+        },
+          findOrFindOne;
+        const currentDateR = req.body.startDate.split(' ')[0];
+        const redisKey = `shiftR${req.body.businessUnitId}${currentDateR}`;
+
+        var timeZone = moment
+          .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
+          .format('Z'),
+          startDate = moment(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
+            .utc()
+            .format(), //.add(1,'days') remove to get monday shift
+          endDate = moment(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
+            .add(5, 'days')
+            .add(23, 'hours')
+            .add(60, 'minutes')
+            .add(59, 'seconds')
+            .utc()
+            .format(); //86399 => add 23:59:59
+
+        const aa = new Date(startDate).setUTCHours(0, 0, 0, 0);
+        const bb = new Date(endDate).setUTCHours(24, 0, 0, 0);
+        startDate = new Date(aa);
+        endDate = new Date(bb);
+
+        var startUnixDateTime = moment(startDate).unix(),
+          endUnixDateTime = moment(endDate).unix();
+        const ddd = moment(new Date(req.body.startDate))
+          .utc()
+          .format('MM-DD-YYYY HH:mm:ss Z');
+        const year = new Date(ddd).getFullYear();
+        const month = new Date(ddd).getMonth() + 1;
+        const day = new Date(ddd).getDate() -1; // remove comment for local
+        const whereShift = {
+          //  staff_id:{$in: usersOfBu},
+          businessUnitId: req.body.businessUnitId,
+          status: 1,
+          $and: [
+            { $expr: { $eq: [{ $year: '$weekRangeStartsAt' }, year] } },
+            { $expr: { $eq: [{ $month: '$weekRangeStartsAt' }, month] } },
+            { $expr: { $eq: [{ $dayOfMonth: '$weekRangeStartsAt' }, day] } },
+          ],
+        };
+        var shift = await Shift.find(whereShift).select('shiftDetails').lean();
+        function plucker(prop) {
+          return function (o) {
+            return o[prop];
+          };
+        }
+        var shiftDetailsArray = shift.map(plucker('shiftDetails'));
+        shiftDetailsArray = _.flatten(shiftDetailsArray);
+        shiftDetailsArray = Array.from(new Set(shiftDetailsArray));
+        var weekNumber = await __.weekNoStartWithMonday(startDate);
+        where = {
+          status: 1,
+          _id: {
+            $in: shiftDetailsArray,
+          },
+        };
+        where.date = {
+          $gte: startDate,
+          $lte: endDate,
+        };
+        // Show Cancelled Shifts Also
+        if (req.body.cancelledShifts && req.body.cancelledShifts === true) {
+          where.status = {
+            $in: [1, 2],
+          };
+        }
+        if (req.body.shiftDetailsId) {
+          where._id = req.body.shiftDetailsId;
+          findOrFindOne = ShiftDetails.findOne(where);
+        } else findOrFindOne = ShiftDetails.find(where);
+        let shifts = await findOrFindOne
+          .populate([
+            { path: 'appliedStaffs' },
+            {
+              path: 'draftId',
+              select:
+                'shiftRead shiftChangeRequestStatus shiftChangeRequestMessage',
+            },
+            {
+              path: 'shiftId',
+              select: '-shiftDetails',
+              match: {
+                businessUnitId: mongoose.Types.ObjectId(
+                  req.body.businessUnitId,
+                ),
+              },
+              populate: [
+                {
+                  path: 'plannedBy',
+                  select: 'name staffId',
+                },
+                {
+                  path: 'businessUnitId',
+                  select:
+                    'name adminEmail techEmail shiftCancelHours cancelShiftPermission standByShiftPermission status',
+                  match: {
+                    status: 1,
+                  },
+                  populate: {
+                    path: 'sectionId',
+                    select: 'name status',
+                    match: {
+                      status: 1,
+                    },
+                    populate: {
+                      path: 'departmentId',
+                      select: 'name status',
+                      match: {
+                        status: 1,
+                      },
+                      populate: {
+                        path: 'companyId',
+                        select: 'name status',
+                        match: {
+                          status: 1,
+                        },
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+            {
+              path: 'reportLocationId',
+              select: 'name status',
+              match: {
+                status: 1,
+              },
+            },
+            {
+              path: 'geoReportingLocation',
+              select: 'name status',
+              match: {
+                status: 'active',
+              },
+            },
+            {
+              path: 'subSkillSets',
+              select: 'name status',
+              match: {
+                status: 1,
+              },
+              populate: {
+                path: 'skillSetId',
+                select: 'name status',
+                match: {
+                  status: 1,
+                },
+              },
+            },
+            {
+              path: 'mainSkillSets',
+              select: 'name status',
+              match: {
+                status: 1,
+              },
+            },
+            {
+              path: 'confirmedStaffs',
+              select:
+                'name email contactNumber profilePicture subSkillSets mainSkillSets status,schemeId staffId',
+              populate: [
+                {
+                  path: 'subSkillSets',
+                  select: 'name status',
+                  match: {
+                    status: 1,
+                  },
+                  populate: {
+                    path: 'skillSetId',
+                    select: 'name status',
+                    match: {
+                      status: 1,
+                    },
+                  },
+                },
+                {
+                  path: 'mainSkillSets',
+                  select: 'name status',
+                  match: {
+                    status: 1,
+                  },
+                },
+                {
+                  path: 'schemeId',
+                  select: 'shiftSetup ',
+                  match: {
+                    status: true,
+                  },
+                },
+              ],
+            },
+            {
+              path: 'backUpStaffs',
+              select:
+                'name email contactNumber profilePicture mainSkillSets subSkillSets status,schemeId staffId',
+              populate: [
+                {
+                  path: 'subSkillSets',
+                  select: 'name status',
+                  match: {
+                    status: 1,
+                  },
+                  populate: {
+                    path: 'skillSetId',
+                    select: 'name status',
+                    match: {
+                      status: 1,
+                    },
+                  },
+                },
+                {
+                  path: 'mainSkillSets',
+                  select: 'name status',
+                  match: {
+                    status: 1,
+                  },
+                },
+                {
+                  path: 'schemeId',
+                  select: 'shiftSetup',
+                  match: {
+                    status: true,
+                  },
+                },
+              ],
+            },
+            {
+              path: 'requestedShifts',
+            },
+            {
+              path: 'currentReqShift',
+              populate: {
+                path: 'reportLocationId',
+                select: 'name status',
+                match: {
+                  status: 1,
+                },
+              },
+            },
+            {
+              path: 'requestedUsers.userId',
+              match: {
+                status: 1,
+              },
+              populate: [
+                {
+                  path: 'subSkillSets',
+                  select: 'name status',
+                  match: {
+                    status: 1,
+                  },
+                  populate: {
+                    path: 'skillSetId',
+                    select: 'name status',
+                    match: {
+                      status: 1,
+                    },
+                  },
+                },
+                {
+                  path: 'mainSkillSets',
+                  select: 'name status',
+                  match: {
+                    status: 1,
+                  },
+                },
+              ],
+            },
+          ])
+          .sort({
+            startTime: -1,
+          });
+        if (!req.body.shiftDetailsId) {
+          // var listData = {},
+           var graphData = {},
+            graphDataWeb = {},
+            dashboardGraphData = {
+              plannedFlexiHours: 0,
+              plannedFlexiShifts: 0,
+              bookedFlexiHours: 0,
+              bookedFlexiShifts: 0,
+              assignFlexiHours: 0,
+              assignFlexiShifts: 0,
+              assignFlexiStaff: 0,
+            },
+            customShiftDetails = [];
+          shifts = shifts.filter((iii) => {
+            return iii.shiftId;
+          });
+          await shifts.forEach((element) => {
+            element = JSON.parse(JSON.stringify(element));
+            let totalExtension = 0;
+            let totalExtensionHrs = 0;
+            if ((element.shiftId && element.shiftId.businessUnitId) || element.isAssignShift) {
+              let tz = element.timeZone;
+              if (!tz) {
+                tz = '+0800';
+              }
+              var key = __.getDateStringFormat(element.date, tz);
+              console.log("Key======",key);
+              for (let ki = 0; ki < element.confirmedStaffs.length; ki++) {
+                const uCI = element.confirmedStaffs[ki];
+                let startDI = element.startTime;
+                let endDI = element.endTime;
+                if (element.isExtendedShift) {
+                  const uCIResult = element.extendedStaff.filter((uI) => {
+                    return uI.userId.toString() == uCI._id;
+                  });
+                  if (uCIResult.length > 0) {
+                    if (uCIResult[0]) {
+                      totalExtension = totalExtension + 1;
+                      totalExtensionHrs =
+                        totalExtensionHrs + uCIResult[0].duration;
+                    }
+                    startDI = uCIResult[0].startDateTime;
+                    endDI = uCIResult[0].endDateTime;
+                  }
+                }
+                element.confirmedStaffs[ki].startTime = moment(
+                  new Date(startDI),
+                )
+                  .utcOffset(timeZone)
+                  .format('HH:mm');
+                element.confirmedStaffs[ki].endTime = moment(new Date(endDI))
+                  .utcOffset(timeZone)
+                  .format('HH:mm');
+                element.confirmedStaffs[ki].startDate = moment(
+                  new Date(startDI),
+                )
+                  .utcOffset(timeZone)
+                  .format('DD-MM-YYYY');
+                element.confirmedStaffs[ki].endDate = moment(new Date(endDI))
+                  .utcOffset(timeZone)
+                  .format('DD-MM-YYYY');
+              }
+              if (element.status == 1) {
+                /*dashboard graph data starts*/
+                if (!element.isAssignShift) {
+                  var confirmedStaffsCount = element.confirmedStaffs.length;
+                  dashboardGraphData.plannedFlexiHours +=
+                    (element.staffNeedCount - totalExtension) *
+                    element.duration +
+                    totalExtensionHrs;
+                  dashboardGraphData.plannedFlexiShifts +=
+                    element.staffNeedCount;
+                  dashboardGraphData.bookedFlexiHours +=
+                    (confirmedStaffsCount - totalExtension) * element.duration +
+                    totalExtensionHrs;
+                  dashboardGraphData.bookedFlexiShifts += confirmedStaffsCount;
+                } else {
+                  var isRecalled =
+                    element.isRest || element.isOff ? true : false;
+                  if (
+                    (!isRecalled ||
+                      (isRecalled && element.isRecallAccepted == 2)) &&
+                    req.body.from != 'viewbooking'
+                  ) {
+                    var confirmedStaffsCount = element.confirmedStaffs.length;
+                    if (element.isExtendedShift) {
+                      const extendStaff = element.extendedStaff[0];
+                      var hours =
+                        Math.abs(
+                          new Date(extendStaff.startDateTime).getTime() -
+                          new Date(extendStaff.endDateTime).getTime(),
+                        ) / 36e5;
+                      dashboardGraphData.assignFlexiHours += hours;
+                    } else {
+                      dashboardGraphData.assignFlexiHours +=
+                        element.staffNeedCount * element.duration;
+                    }
+                    dashboardGraphData.assignFlexiShifts +=
+                      element.staffNeedCount;
+                    dashboardGraphData.assignFlexiStaff +=
+                      element.staffNeedCount;
+                  }
+                }
+              }
+              /*dashboard graph data ends */
+              // Remove Cancelled Shifts on Calculation
+              if (graphData[key]) {
+                /*if date already keyed in array */
+                // listData[key].push(element);
+                // Add Hours in calculation only it is active shift
+                if (element.status == 1 && !element.isAssignShift) {
+                  graphData[key].totalHours +=
+                    element.duration *
+                    (element.staffNeedCount - totalExtension) +
+                    totalExtensionHrs;
+                  graphData[key].totalShifts += element.staffNeedCount;
+                  graphDataWeb[key].totalHours.need +=
+                    element.duration *
+                    (element.staffNeedCount - totalExtension) +
+                    totalExtensionHrs;
+                  graphDataWeb[key].totalHours.booked +=
+                    element.duration *
+                    (element.confirmedStaffs.length - totalExtension) +
+                    totalExtensionHrs;
+                  graphDataWeb[key].numberOfShifts.need +=
+                    element.staffNeedCount;
+                  graphDataWeb[key].numberOfShifts.booked +=
+                    element.confirmedStaffs.length;
+                  graphDataWeb[key].totalHours.needAssign += 0;
+                  graphDataWeb[key].numberOfShifts.needAssign += 0;
+                  graphData[key].totalHoursAssign += 0;
+                  graphData[key].totalShiftsAssign += 0;
+                  graphData[key].assignFlexiStaff += 0;
+                } else {
+                  if (element.status == 1) {
+                    var isRecalled =
+                      element.isRest || element.isOff ? true : false;
+                    if (
+                      (!isRecalled ||
+                        (isRecalled && element.isRecallAccepted == 2)) &&
+                      req.body.from != 'viewbooking'
+                    ) {
+                      graphData[key].totalHoursAssign +=
+                        element.duration * element.staffNeedCount;
+                      graphData[key].totalShiftsAssign +=
+                        element.staffNeedCount;
+                      graphData[key].assignFlexiStaff += element.staffNeedCount;
+                      graphDataWeb[key].totalHours.needAssign +=
+                        element.duration * element.staffNeedCount;
+                      graphDataWeb[key].numberOfShifts.needAssign +=
+                        element.staffNeedCount;
+                      graphData[key].totalHours += 0;
+                      graphData[key].totalShifts += 0;
+                      graphDataWeb[key].totalHours.need += 0;
+                      graphDataWeb[key].totalHours.booked += 0;
+                      graphDataWeb[key].numberOfShifts.need += 0;
+                      graphDataWeb[key].numberOfShifts.booked += 0;
+                    }
+                  }
+                }
+              } else {
+                /*else create a new key by date in array */
+                // listData[key] = [];
+                // listData[key].push(element);
+                graphData[key] = {};
+                graphData[key].totalHours = 0;
+                graphData[key].totalShifts = 0;
+                graphData[key].totalHoursAssign = 0;
+                graphData[key].totalShiftsAssign = 0;
+                graphData[key].assignFlexiStaff = 0;
+                graphDataWeb[key] = {
+                  totalHours: {
+                    need: 0,
+                    booked: 0,
+                    needAssign: 0,
+                  },
+                  numberOfShifts: {
+                    need: 0,
+                    booked: 0,
+                    needAssign: 0,
+                  },
+                };
+                // Add Hours in calculation only it is active shift
+                if (element.status == 1 && !element.isAssignShift) {
+                  graphData[key].totalHours =
+                    element.duration *
+                    (element.staffNeedCount - totalExtension) +
+                    totalExtensionHrs;
+                  graphData[key].totalShifts = element.staffNeedCount;
+                  graphDataWeb[key] = {
+                    totalHours: {
+                      need:
+                        element.duration *
+                        (element.staffNeedCount - totalExtension) +
+                        totalExtensionHrs,
+                      booked:
+                        element.duration *
+                        (element.confirmedStaffs.length - totalExtension) +
+                        totalExtensionHrs,
+                      needAssign: 0,
+                    },
+                    numberOfShifts: {
+                      need: element.staffNeedCount,
+                      booked: element.confirmedStaffs.length,
+                      needAssign: 0,
+                    },
+                  };
+                  graphData[key].totalHoursAssign = 0;
+                  graphData[key].totalShiftsAssign = 0;
+                  graphData[key].assignFlexiStaff = 0;
+                } else {
+                  var isRecalled =
+                    element.isRest || element.isOff ? true : false;
+                  if (
+                    element.status == 1 &&
+                    (!isRecalled ||
+                      (isRecalled && element.isRecallAccepted == 2)) &&
+                    req.body.from != 'viewbooking'
+                  ) {
+                    graphData[key].totalHoursAssign =
+                      element.duration * element.staffNeedCount;
+                    graphData[key].totalShiftsAssign = element.staffNeedCount;
+                    graphData[key].assignFlexiStaff = element.staffNeedCount;
+                    graphDataWeb[key] = {
+                      totalHours: {
+                        needAssign: element.duration * element.staffNeedCount,
+                      },
+                      numberOfShifts: {
+                        needAssign: element.staffNeedCount,
+                      },
+                    };
+                    graphData[key].totalHours = 0;
+                    graphData[key].totalShifts = 0;
+                    graphDataWeb[key].totalHours.need = 0;
+                    graphDataWeb[key].totalHours.booked = 0;
+                    graphDataWeb[key].numberOfShifts.need = 0;
+                    graphDataWeb[key].numberOfShifts.booked = 0;
+                  }
+                }
+              }
+              var customElement = _.omit(element, [
+                'shiftId',
+                'reportLocationId',
+                'subSkillSets',
+                'mainSkillSets',
+              ]);
+              customShiftDetails.push(customElement);
+            }
+          });
+          /*weeklyGraph starts */
+          var staffNeedWeekdaysObj = {
+            monday: {},
+            tuesday: {},
+            wednesday: {},
+            thursday: {},
+            friday: {},
+            saturday: {},
+            sunday: {},
+          },
+            staffAppliedWeekdaysObj = _.cloneDeep(staffNeedWeekdaysObj);
+          var staffNeedWeekdaysObjAssign = {
+            monday: {},
+            tuesday: {},
+            wednesday: {},
+            thursday: {},
+            friday: {},
+            saturday: {},
+            sunday: {},
+          },
+            staffAppliedWeekdaysObjAssign = _.cloneDeep(
+              staffNeedWeekdaysObjAssign,
+            );
+
+          startUnixDateTime += 86400;
+          endUnixDateTime += 86400;
+          for (var i = startUnixDateTime; i < endUnixDateTime; i += 1800) {
+            var dateTimeUnix = i * 1000;
+            customShiftDetails = JSON.parse(JSON.stringify(customShiftDetails));
+            await customShiftDetails.forEach(async (element) => {
+              var weekDay = __.getDayStringFormatFromUnix(i, 'GMT+0000'),
+                staffNeedCount = 0,
+                appliedStaffCount = 0,
+                staffNeedCountAssign = 0,
+                appliedStaffCountAssing = 0;
+              if (
+                i >= element.startTimeInSeconds &&
+                i <= element.endTimeInSeconds
+              ) {
+                /*shift matches the time then it will take the count else it will assign 0 by default */
+                if (!element.isAssignShift) {
+                  staffNeedCount = element.staffNeedCount;
+                  appliedStaffCount = element.confirmedStaffs.length;
+                } else {
+                  var isRecalled =
+                    element.isRest || element.isOff ? true : false;
+                  if (
+                    (!isRecalled ||
+                      (isRecalled && element.isRecallAccepted == 2)) &&
+                    req.body.from != 'viewbooking'
+                  ) {
+                    staffNeedCountAssign = element.staffNeedCount;
+                    appliedStaffCountAssing = element.confirmedStaffs.length;
+                  }
+                }
+              }
+              //if(!element.isAssignShift){
+              if (
+                typeof staffNeedWeekdaysObj[weekDay][dateTimeUnix] !=
+                'undefined'
+              ) {
+                /*dont change to if condition bcoz it may be zero so it fails in it*/
+                staffNeedWeekdaysObj[weekDay][dateTimeUnix] += staffNeedCount;
+              } else {
+                staffNeedWeekdaysObj[weekDay][dateTimeUnix] = staffNeedCount;
+              }
+              if (
+                typeof staffAppliedWeekdaysObj[weekDay][dateTimeUnix] !=
+                'undefined'
+              ) {
+                /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObj[
+                  weekDay
+                ][dateTimeUnix] += appliedStaffCount;
+              } else {
+                staffAppliedWeekdaysObj[weekDay][dateTimeUnix] =
+                  appliedStaffCount;
+              }
+
+              if (
+                typeof staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] !=
+                'undefined'
+              ) {
+                /*dont change to if condition bcoz it may be zero so it fails in it*/
+                staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] +=
+                  staffNeedCountAssign;
+              } else {
+                staffNeedWeekdaysObjAssign[weekDay][dateTimeUnix] =
+                  staffNeedCountAssign;
+              }
+              if (
+                typeof staffAppliedWeekdaysObjAssign[weekDay][dateTimeUnix] !=
+                'undefined'
+              ) {
+                /*dont change to if condition bcoz it may be zero so it fails in it*/ staffAppliedWeekdaysObjAssign[
+                  weekDay
+                ][dateTimeUnix] += appliedStaffCountAssing;
+              } else {
+                staffAppliedWeekdaysObjAssign[weekDay][dateTimeUnix] =
+                  appliedStaffCountAssing;
+              }
+            });
+          }
+
+          // deleteMany
+          /*FORMAT THE RESPONSE (for both need and applied datas) AS {'monday':[[1514223000000,2],[1514223000000,2]],'tuesday':[[1514223000000,2],[1514223000000,2]],....} */
+          var formattedAppliedStaffData = {},
+            formattedNeedStaffData = {};
+          var formattedAppliedStaffDataAssign = {},
+            formattedNeedStaffDataAssing = {};
+          for (var appliedElement in staffAppliedWeekdaysObj) {
+            formattedAppliedStaffData[appliedElement] = [];
+            for (var time in staffAppliedWeekdaysObj[appliedElement]) {
+              var array = [
+                Number(time),
+                Number(staffAppliedWeekdaysObj[appliedElement][time]),
+              ];
+              if (formattedAppliedStaffData[appliedElement].length < 48) {
+                formattedAppliedStaffData[appliedElement].push(array);
+              }
+            }
+          }
+          for (var needElement in staffNeedWeekdaysObj) {
+            formattedNeedStaffData[needElement] = [];
+            for (var time in staffNeedWeekdaysObj[needElement]) {
+              var array = [
+                Number(time),
+                Number(staffNeedWeekdaysObj[needElement][time]),
+              ];
+              if (formattedNeedStaffData[needElement].length < 48) {
+                formattedNeedStaffData[needElement].push(array);
+              }
+            }
+          }
+          // assign code
+          for (var appliedElement in staffAppliedWeekdaysObjAssign) {
+            formattedAppliedStaffDataAssign[appliedElement] = [];
+            for (var time in staffAppliedWeekdaysObjAssign[appliedElement]) {
+              var array = [
+                Number(time),
+                Number(staffAppliedWeekdaysObjAssign[appliedElement][time]),
+              ];
+              if (formattedAppliedStaffDataAssign[appliedElement].length < 48) {
+                formattedAppliedStaffDataAssign[appliedElement].push(array);
+              }
+            }
+          }
+          for (var needElement in staffNeedWeekdaysObjAssign) {
+            formattedNeedStaffDataAssing[needElement] = [];
+            for (var time in staffNeedWeekdaysObjAssign[needElement]) {
+              var array = [
+                Number(time),
+                Number(staffNeedWeekdaysObjAssign[needElement][time]),
+              ];
+              if (formattedNeedStaffDataAssing[needElement].length < 48) {
+                formattedNeedStaffDataAssing[needElement].push(array);
+              }
+            }
+          }
+
+          var data = {
+            businessUnitId: req.body.businessUnitId,
+            weekNumber: weekNumber,
+          },
+            clientWeeklyStaffData = await WeeklyStaffData.weeklyStaffingData(
+              data,
+              res,
+            ),
+            weeklyStaffGraphData = {
+              clientFlexiStaffData: {},
+              clientStaffData: {},
+              staffNeedData: formattedNeedStaffData,
+              staffAppliedData: formattedAppliedStaffData,
+              staffNeedDataAssing: formattedNeedStaffDataAssing,
+              staffAppliedDataAssing: formattedAppliedStaffDataAssign,
+            };
+          if (clientWeeklyStaffData) {
+            if (clientWeeklyStaffData.flexiStaffData)
+              weeklyStaffGraphData.clientFlexiStaffData =
+                clientWeeklyStaffData.flexiStaffData;
+
+            if (clientWeeklyStaffData.staffData)
+              weeklyStaffGraphData.clientStaffData =
+                clientWeeklyStaffData.staffData;
+          }
+          /*weeklyGraph ends */
+          var updatedDashboardGraphData = {};
+          for (let each in dashboardGraphData) {
+            updatedDashboardGraphData[each] =
+              dashboardGraphData[each].toFixed(2);
+          }
+
+          // var templistData = JSON.stringify(listData);
+          // listData = JSON.parse(templistData);
+          // for (let date in listData) {
+          //   listData[date].forEach((item, index) => {
+          //     if (item.isLimit) {
+          //       const isLimitedStaff = item.appliedStaffs.filter((limit) => {
+          //         return limit.status == 1 && limit.isLimit;
+          //       });
+          //       if (isLimitedStaff.length > 0) {
+          //         for (let kk = 0; kk < item.confirmedStaffs.length; kk++) {
+          //           const staffCheck = item.confirmedStaffs[kk];
+          //           let isLimitStaffId = isLimitedStaff.filter((limit) => {
+          //             return limit.flexiStaff == staffCheck._id;
+          //           });
+          //           if (isLimitStaffId.length > 0) {
+          //             item.confirmedStaffs[kk].isLimit = true;
+          //           }
+          //         }
+          //       }
+          //     }
+          //     if (item.isExtendedShift) {
+          //       if (item.extendedStaff) {
+          //         item.extendedStaff.forEach((extendedStaffItem) => {
+          //           if (item.confirmedStaffs) {
+          //             item.confirmedStaffs.forEach((confirmedStaffsItem) => {
+          //               if (
+          //                 confirmedStaffsItem._id.toString() ===
+          //                 extendedStaffItem.userId.toString()
+          //               ) {
+          //                 confirmedStaffsItem.confirmStatus =
+          //                   extendedStaffItem.confirmStatus;
+          //                 confirmedStaffsItem.endDateTime =
+          //                   extendedStaffItem.endDateTime;
+          //                 confirmedStaffsItem.startDateTime =
+          //                   extendedStaffItem.startDateTime;
+          //                 confirmedStaffsItem.isLimit =
+          //                   extendedStaffItem.isLimit;
+          //               }
+          //             });
+          //           }
+          //         });
+          //       }
+          //     }
+          //     if (item.isSplitShift) {
+          //       listData[date].forEach((splitItem, splitIndex) => {
+          //         if (splitIndex !== index) {
+          //           if (
+          //             item.randomShiftId &&
+          //             splitItem.randomShiftId &&
+          //             splitItem.isSplitShift &&
+          //             new Date(splitItem.date).getTime() ===
+          //             new Date(item.date).getTime() &&
+          //             splitItem.randomShiftId.toString() ===
+          //             item.randomShiftId.toString()
+          //           ) {
+          //             if (splitItem.isParent === 2) {
+          //               item.splitShiftStartTime = splitItem.startTime;
+          //               item.splitShiftEndTime = splitItem.endTime;
+          //               item.splitShiftId = splitItem._id;
+          //               listData[date].splice(splitIndex, 1);
+          //             } else {
+          //               const splitShiftStartTime = item.startTime;
+          //               const splitShiftEndTime = item.endTime;
+          //               const splitShiftId = item._id;
+          //               item.startTime = splitItem.startTime;
+          //               item.endTime = splitItem.endTime;
+          //               item._id = splitItem._id;
+          //               item.splitShiftStartTime = splitShiftStartTime;
+          //               item.splitShiftEndTime = splitShiftEndTime;
+          //               item.splitShiftId = splitShiftId;
+          //               listData[date].splice(splitIndex, 1);
+          //             }
+          //           }
+          //         }
+          //       });
+          //     }
+          //   });
+          // }
+          for (var prop in graphData) {
+            if (Object.prototype.hasOwnProperty.call(graphData, prop)) {
+              // do stuff
+              if (
+                graphData[prop].totalHours % 1 != 0 &&
+                graphData[prop].totalHours > 0
+              )
+                graphData[prop].totalHours = parseFloat(
+                  graphData[prop].totalHours.toFixed(2),
+                );
+            }
+          }
+          for (var prop in graphDataWeb) {
+            if (Object.prototype.hasOwnProperty.call(graphDataWeb, prop)) {
+              // do stuff
+              if (
+                graphDataWeb[prop].totalHours.need % 1 != 0 &&
+                graphDataWeb[prop].totalHours.need
+              )
+                graphDataWeb[prop].totalHours.need = parseFloat(
+                  graphDataWeb[prop].totalHours.need.toFixed(2),
+                );
+              if (
+                graphDataWeb[prop].totalHours.booked % 1 != 0 &&
+                graphDataWeb[prop].totalHours.booked
+              )
+                graphDataWeb[prop].totalHours.booked = parseFloat(
+                  graphDataWeb[prop].totalHours.booked.toFixed(2),
+                );
+            }
+          }
+
+          function sortObject(obj) {
+            return Object.keys(obj)
+              .sort(function (a, b) {
+                obj[a].sort((firstItem, secondItem) => moment(firstItem.startTime) - moment(secondItem.startTime));
+                obj[b].sort((firstItem, secondItem) => moment(firstItem.startTime) - moment(secondItem.startTime));
+                return (
+                  moment(a, 'DD/MM/YYYY').toDate() -
+                  moment(b, 'DD/MM/YYYY').toDate()
+                );
+              })
+              .reduce(function (result, key) {
+                result[key] = obj[key];
+                return result;
+              }, {});
+          }
+
+          // listData = sortObject(listData);
+          const finalDataResult = {
+            // list: listData,
+            graph: graphData,
+            graphDataWeb: graphDataWeb,
+            dashboardGraphData: updatedDashboardGraphData,
+            weeklyStaffGraphData: weeklyStaffGraphData,
+          };
+          logInfo('shift/graphData api end!', { name: req.user.name, staffId: req.user.staffId });
+          __.out(res, 201, {
+            // list: listData,
+            graph: graphData,
+            graphDataWeb: graphDataWeb,
+            dashboardGraphData: updatedDashboardGraphData,
+            weeklyStaffGraphData: weeklyStaffGraphData,
+          });
+        } else {
+          logInfo('shift/graphData api end!', { name: req.user.name, staffId: req.user.staffId });
+          __.out(res, 201, { shifts: shifts });
+        }
+      }
+    } catch (err) {
+      logError(`shift/graphData API is getting fail `, err.toString());
+      __.log(err);
+      __.out(res, 500);
+    }
+  }
+
   async delete(req, res) {
     try {
       logInfo('shift/delete api Start!', { name: req.user.name, staffId: req.user.staffId });
