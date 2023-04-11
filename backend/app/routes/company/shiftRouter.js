@@ -23,6 +23,9 @@ shiftRouter.post('/create', (req, res) => {
 shiftRouter.post('/create/restoff', (req, res) => {
   shiftController.createRestOff(req, res);
 });
+shiftRouter.post('/graphData', (req, res) => {
+  shiftController.graphData(req, res);
+});
 shiftRouter.post('/read', (req, res) => {
   shiftController.readNew(req, res);
 });

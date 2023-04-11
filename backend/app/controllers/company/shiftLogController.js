@@ -27,7 +27,7 @@ class shiftLog {
         newTiming: data.newTiming,
       };
       if (data.status === 1) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         insert.description = `Planning`;
       }
       if (data.status === 3) {
@@ -37,112 +37,128 @@ class shiftLog {
         insert.description = `Template Edited`;
       }
       if (data.status === 5) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         insert.adjustedShift = await this.getStringifiedShiftData(
+          res,
           data.adjustedShift,
           false,
         );
         insert.description = `${data.oldCount} adjusted to ${data.newCount}`;
       }
       if (data.status === 6) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         insert.pendingShift = await this.getStringifiedShiftData(
+          res,
           data.pendingShift,
           false,
         );
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
         insert.description = `Pending Acceptance`;
       }
       if (data.status === 7) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         insert.acceptedShift = await this.getStringifiedShiftData(
+          res,
           data.acceptedShift,
           false,
         );
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
         insert.description = `Request change - Accepted`;
       }
       if (data.status === 8) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         insert.rejectedShift = await this.getStringifiedShiftData(
+          res,
           data.rejectedShift,
           false,
         );
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
         insert.description = `Request change - Rejected`;
       }
       if (data.status === 9) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         insert.requestedShift = await this.getStringifiedShiftData(
+          res,
           data.requestedShift,
           false,
         );
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
         insert.description = `Shift Request change`;
       }
       if (data.status === 10) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         insert.requestedShift = await this.getStringifiedShiftData(
+          res,
           data.requestedShift,
           false,
         );
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
         insert.description = `Shift Request change Stopped`;
       }
       if (data.status === 11) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res,data.shiftId, true);
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
         insert.description = `Shift Cancelled`;
       }
       if (data.status === 12) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         //insert.existingShift = await this.getStringifiedShiftData(data.existingShift, false);
         insert.description = `Shift Extended`;
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
       }
       if (data.status === 13) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         //insert.existingShift = await this.getStringifiedShiftData(data.existingShift, false);
         insert.description = `Shift Extension - Accepted`;
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
       }
       if (data.status === 14) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         //insert.existingShift = await this.getStringifiedShiftData(data.existingShift, false);
         insert.description = `Shift Extension - Declined`;
 
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
       }
       if (data.status === 15) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
@@ -152,13 +168,15 @@ class shiftLog {
         }
         insert.description = `Recall request sent - ${st}`;
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
       }
       if (data.status === 16) {
-        insert.shiftId = await this.getStringifiedShiftData(data.shiftId, true);
+        insert.shiftId = await this.getStringifiedShiftData(res, data.shiftId, true);
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
@@ -172,6 +190,7 @@ class shiftLog {
         }
         insert.description = `Recall request ${isAs} - ${st} `;
         insert.existingShift = await this.getStringifiedShiftData(
+          res,
           data.existingShift,
           false,
         );
@@ -184,7 +203,7 @@ class shiftLog {
     }
   }
   /* Returns stringified shift data for logs */
-  async getStringifiedShiftData(id, list) {
+  async getStringifiedShiftData(res ,id, list) {
     /* True for shiftList and false for shiftDetails */
     try {
       if (list) {
@@ -285,7 +304,7 @@ class shiftLog {
             },
           ])
           .lean();
-        logInfo('shiftLog/read API ends here!', { name: req.user.name, staffId: req.user.staffId });
+        logInfo('shiftLog/read API ends here!');
         return JSON.stringify(data);
       }
     } catch (err) {
