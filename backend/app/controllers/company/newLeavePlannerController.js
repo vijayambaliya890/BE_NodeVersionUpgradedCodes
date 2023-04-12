@@ -197,7 +197,7 @@ class newLeavePlannerController {
         }).populate([
           {
             path: "userId",
-            select: "name staffId parentBussinessUnitId email contactNumber appointmentId",
+            select: "name staffId parentBussinessUnitId email contactNumber appointmentId profilePicture",
             populate: [
               {
                 path: "appointmentId",
@@ -298,10 +298,12 @@ class newLeavePlannerController {
       const date111 = moment(new Date(body.date)).utc(body.timeZone).toISOString();
       console.log("date111", date111);
       console.log("date11111", new Date(date111).toISOString());
-      const opsGroupData = await OpsGroup.find({ userId: { $in: userIdArr }, isDelete: false, isDraft: false }, { opsGroupName: 1, userId: 1 }).sort({
-        updatedAt: -1,
-      });
-      console.log("=================",opsGroupData);
+      const opsGroupData = await OpsGroup.find({ userId: { $in: userIdArr }, isDelete: false, isDraft: false }, { opsGroupName: 1, userId: 1, opsTeamId : 1 }).populate([
+        {  path: "opsTeamId",
+          select: "name userId"
+        }]).sort({
+           updatedAt: -1,
+         });
       let leaveApplied = await LeaveApplied.find({
         userId: { $in: userIdArr },
         startDate: { $lte: date },
@@ -365,6 +367,13 @@ class newLeavePlannerController {
         let aa = op.userId.map(String);
         return aa.includes(item.userId._id.toString());
       });
+      opsGroupData.forEach((data) =>{
+        data.opsTeamId.forEach((team) => {
+          if (team.userId.includes(leaveApplied[i].userId._id)){
+            leaveApplied[i].opsTeam = team.name;
+          }
+        })
+      })
       if (opsG && opsG.length > 0) {
         leaveApplied[i].opsGroup = {
           name: opsG[0].opsGroupName,
