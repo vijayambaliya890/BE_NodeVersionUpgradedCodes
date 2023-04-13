@@ -1168,7 +1168,7 @@ class ballot {
           status: 4,
           submittedFrom: 4,
         };
-        const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $push: { staffLeave: obj } });
+        const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $set: { staffLeave: obj } });
         //finalLeave.push(obj);
         //const saveLeave = new LeaveApplied(obj).save();
       } else {
@@ -2117,7 +2117,7 @@ class ballot {
           userSlotOps = [];
           userTierOps = [];
           if (opsGroupList && opsGroupList.opsTeamId.length > 0) {
-            let teamIndex = slotRange.opsTeam.findIndex((tttt) =>  tttt && tttt._d && tttt._id.toString() === opsTeamList._id.toString());
+            let teamIndex = slotRange.opsTeam.findIndex((tttt) =>  tttt && tttt._id && tttt._id.toString() === opsTeamList._id.toString());
             // //console.logs("TEAMINDEX: ",teamIndex);
             slotRange.arr.forEach((ii, indexArr) => {
               const key = 'OG' + indexArr + 'OT' + teamIndex;
@@ -3544,7 +3544,7 @@ class ballot {
               },
               {
                 path: "userId",
-                select: "_id parentBussinessUnitId name staffId contactNumber email",
+                select: "_id parentBussinessUnitId name staffId contactNumber email profilePicture",
                 populate: [{
                   path: "parentBussinessUnitId",
                   select: "orgName"
@@ -3597,7 +3597,7 @@ class ballot {
             parentBussinessUnitId: { $in: req.body.buId },
             status: 1,
           })
-            .select("_id parentBussinessUnitId name staffId email contactNumber")
+            .select("_id parentBussinessUnitId name staffId email contactNumber profilePicture")
             .populate([
               {
                 path: "parentBussinessUnitId",
@@ -3610,8 +3610,17 @@ class ballot {
             const uid = userInfo[i]._id;
             let opsGroupInfo = await OpsGroup.findOne({
               userId: uid, isDelete: false
-            }).select("opsGroupName")
+            }).select("opsGroupName opsTeamId").populate([
+              {
+                path: "opsTeamId",
+                select: "name userId",
+              }]);
             userInfo[i].opsGroupName = opsGroupInfo ? opsGroupInfo.opsGroupName : "";
+            opsGroupInfo?.opsTeamId.forEach((element) => {
+              if(element.userId.includes(uid)){
+                userInfo[i].opsTeam = element.name;
+              }
+            })
           }
           return res.status(201).json({
             success: true,
@@ -4188,7 +4197,7 @@ class ballot {
           status: 4,
           submittedFrom: 4,
         };
-        const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $push: { staffLeave: obj } });
+        const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $set: { staffLeave: obj } });
         //const saveLeave = new LeaveApplied(obj).save();
       } else {
         // failed to won as anuual leave is not present
@@ -9596,7 +9605,7 @@ async function insertStaffLeaveForBallot(finalWinStaff, ballot, totalDeducated) 
         status: 4,
         submittedFrom: 4,
       };
-      const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $push: { staffLeave: obj } });
+      const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $set: { staffLeave: obj } });
       //finalLeave.push(obj);
       //const saveLeave = new LeaveApplied(obj).save();
     } else {
