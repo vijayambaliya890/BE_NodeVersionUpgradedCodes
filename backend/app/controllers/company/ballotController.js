@@ -9605,7 +9605,7 @@ async function insertStaffLeaveForBallot(finalWinStaff, ballot, totalDeducated) 
         status: 4,
         submittedFrom: 4,
       };
-      const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $set: { staffLeave: obj } });
+      const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $push: { staffLeave: obj } });
       //finalLeave.push(obj);
       //const saveLeave = new LeaveApplied(obj).save();
     } else {
