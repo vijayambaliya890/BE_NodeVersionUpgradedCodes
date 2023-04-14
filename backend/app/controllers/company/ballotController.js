@@ -40,7 +40,7 @@ class ballot {
         type: 'notificationBefore2Days',
       };
       const applicationCloseDate = new Date(data.applicationCloseDateTime);
-      applicationCloseDate.setHours(0, 0, 0, 0);
+      // applicationCloseDate.setHours(0, 0, 0, 0);
       const twoDayBeforeDate = moment(applicationCloseDate).add(-2, 'd').toDate();
       const oneDayBeforeDate = moment(applicationCloseDate).add(-1, 'd').toDate();
       // notification 1 day before
@@ -1168,7 +1168,7 @@ class ballot {
           status: 4,
           submittedFrom: 4,
         };
-        const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $set: { staffLeave: obj } });
+        const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $push: { staffLeave: obj } });
         //finalLeave.push(obj);
         //const saveLeave = new LeaveApplied(obj).save();
       } else {
@@ -4197,7 +4197,7 @@ class ballot {
           status: 4,
           submittedFrom: 4,
         };
-        const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $set: { staffLeave: obj } });
+        const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $push: { staffLeave: obj } });
         //const saveLeave = new LeaveApplied(obj).save();
       } else {
         // failed to won as anuual leave is not present
