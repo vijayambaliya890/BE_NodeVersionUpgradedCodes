@@ -40,7 +40,7 @@ class ballot {
         type: 'notificationBefore2Days',
       };
       const applicationCloseDate = new Date(data.applicationCloseDateTime);
-      applicationCloseDate.setHours(0, 0, 0, 0);
+      // applicationCloseDate.setHours(0, 0, 0, 0);
       const twoDayBeforeDate = moment(applicationCloseDate).add(-2, 'd').toDate();
       const oneDayBeforeDate = moment(applicationCloseDate).add(-1, 'd').toDate();
       // notification 1 day before
@@ -2117,7 +2117,7 @@ class ballot {
           userSlotOps = [];
           userTierOps = [];
           if (opsGroupList && opsGroupList.opsTeamId.length > 0) {
-            let teamIndex = slotRange.opsTeam.findIndex((tttt) =>  tttt && tttt._d && tttt._id.toString() === opsTeamList._id.toString());
+            let teamIndex = slotRange.opsTeam.findIndex((tttt) =>  tttt && tttt._id && tttt._id.toString() === opsTeamList._id.toString());
             // //console.logs("TEAMINDEX: ",teamIndex);
             slotRange.arr.forEach((ii, indexArr) => {
               const key = 'OG' + indexArr + 'OT' + teamIndex;
@@ -3544,22 +3544,10 @@ class ballot {
               },
               {
                 path: "userId",
-                select: "_id parentBussinessUnitId name staffId contactNumber email",
+                select: "_id parentBussinessUnitId name staffId contactNumber email profilePicture",
                 populate: [{
                   path: "parentBussinessUnitId",
-                  select: "name",
-                  populate: {
-                    path: "sectionId",
-                    select: "name",
-                    populate: {
-                      path: "departmentId",
-                      select: "name status",
-                      populate: {
-                        path: "companyId",
-                        select: "name status",
-                      },
-                    },
-                  }
+                  select: "orgName"
                 }]
               },
             ])
@@ -3609,23 +3597,11 @@ class ballot {
             parentBussinessUnitId: { $in: req.body.buId },
             status: 1,
           })
-            .select("_id parentBussinessUnitId name staffId email contactNumber")
+            .select("_id parentBussinessUnitId name staffId email contactNumber profilePicture")
             .populate([
               {
                 path: "parentBussinessUnitId",
-                select: "sectionId name",
-                populate: {
-                  path: "sectionId",
-                  select: "name departmentId adminEmail techEmail shiftCancelHours cancelShiftPermission standByShiftPermission status",
-                  populate: {
-                    path: "departmentId",
-                    select: "name status companyId",
-                    populate: {
-                      path: "companyId",
-                      select: "name",
-                    },
-                  },
-                },
+                select: "orgName"
               },
             ])
             .lean();
@@ -3634,8 +3610,17 @@ class ballot {
             const uid = userInfo[i]._id;
             let opsGroupInfo = await OpsGroup.findOne({
               userId: uid, isDelete: false
-            }).select("opsGroupName")
+            }).select("opsGroupName opsTeamId").populate([
+              {
+                path: "opsTeamId",
+                select: "name userId",
+              }]);
             userInfo[i].opsGroupName = opsGroupInfo ? opsGroupInfo.opsGroupName : "";
+            opsGroupInfo?.opsTeamId.forEach((element) => {
+              if(element.userId.includes(uid)){
+                userInfo[i].opsTeam = element.name;
+              }
+            })
           }
           return res.status(201).json({
             success: true,

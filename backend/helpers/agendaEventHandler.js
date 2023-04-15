@@ -229,6 +229,7 @@ agendaNormal.define(
             .catch((err) => {
               logError('BackupStaffRemoval has error', err);
             });
+          break;
         case 'conductBallot':
           conductBallot(data.ballotId)
             .then((result) => {

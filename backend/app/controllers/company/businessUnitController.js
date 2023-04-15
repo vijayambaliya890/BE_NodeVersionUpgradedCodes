@@ -242,118 +242,9 @@ class businessUnit {
     }
   }
 
-  // async updateSkillSetAndLocation(req, res) {
-  //     try {
-  //         if (!__.checkHtmlContent(req.body)) {
-  //             return __.out(res, 300, `You've entered malicious input`);
-  //         }
-  //         let requiredResult
-  //         console.log('req.body.skillSetTierType', req.body.skillSetTierType)
-  //         // if(req.body.skillSetTierType != 1){
-  //         //  requiredResult = await __.checkRequiredFields(req, ['businessUnitId', 'subSkillSets', 'locations', 'subCategories', 'status', 'adminEmail', 'techEmail', 'notificRemindHours', 'notificRemindDays'], 'updateSkillSetAndLocation');
-  //         // }else {
-  //         //     requiredResult = await __.checkRequiredFields(req, ['businessUnitId', 'mainSkillSets', 'locations', 'subCategories', 'status', 'adminEmail', 'techEmail', 'notificRemindHours', 'notificRemindDays'], 'updateSkillSetAndLocation');
-  //         // }
-  //         if (!__.checkSpecialCharacters(req.body)) {
-  //           return __.out(res, 300, `You've entered some excluded special characters`);
-  //         }
-  //         if (false && requiredResult.status === false) {
-  //             __.out(res, 400, requiredResult.missingFields);
-  //         } else {
-  //             __.log(req.body, 'updateSkillSetAndLocation')
-  //             if (!req.body.noOfWeek) {
-  //                 req.body.noOfWeek = 0;
-  //             }
-  //             let updateData = {
-  //                 'subSkillSets': req.body.subSkillSets,
-  //                 mainSkillSets: req.body.mainSkillSets,
-  //                 skillSetTierType: req.body.skillSetTierType,
-  //                 'reportingLocation': req.body.locations,
-  //                 'subCategories': req.body.subCategories,
-  //                 'adminEmail': req.body.adminEmail,
-  //                 'techEmail': req.body.techEmail,
-  //                 'shiftCancelHours': process.env.CANCELLATION_SHIFT_CHECK_HOURS,
-  //                 'notificRemindHours': req.body.notificRemindHours,
-  //                 'notificRemindDays': req.body.notificRemindDays,
-  //                 'cancelShiftPermission': req.body.cancelShiftPermission,
-  //                 'standByShiftPermission': req.body.standByShiftPermission,
-  //                 'status': req.body.status,
-  //                 'scheme': req.body.scheme,
-  //                 'noOfWeek': req.body.noOfWeek
-  //             };
-  //             //START -Dipali adding new keys in subSection for locking timesheet in that time
-  //             if(req.body.breakInMinutes){
-  //                 updateData.breakInMinutes = req.body.breakInMinutes;
-  //             }
-  //             if(req.body.shiftTimeInMinutes){
-  //                 updateData.shiftTimeInMinutes = req.body.shiftTimeInMinutes;
-  //             }
-  //             if(req.body.isBreakTime){
-  //                 updateData.isBreakTime = req.body.isBreakTime;
-  //             }
-  //             if(req.body.shiftBreak){
-  //                 updateData.shiftBreak = req.body.shiftBreak;
-  //             }
-  //              //END -Dipali adding new keys in subSection for locking timesheet in that time
-  //             if (req.body.shiftCancelHours) {
-  //                 updateData.shiftCancelHours = req.body.shiftCancelHours;
-  //             }
-  //             if (req.body.notificRemindHours) {
-  //                 updateData.notificRemindHours = req.body.notificRemindHours;
-  //             }
-  //             if (req.body.appointments) {
-  //                 updateData.appointments = req.body.appointments;
-  //             }
-  //             let result = await SubSection.findOneAndUpdate({
-  //                 '_id': req.body.businessUnitId,
-  //                 'status': {
-  //                     $ne: 3
-  //                 }
-  //             }, {
-  //                 $set: updateData
-  //             }, {
-  //                 new: true
-  //             });
-  //             /* add created business unit to System admin's plan business unit */
-  //             /*let categoryData = await PrivilegeCategory.findOne({
-  //                 name: "System Admin"
-  //             }).select('privileges').lean();
-  //             let {
-  //                 privileges
-  //             } = categoryData;*/
-  //             let systemAdminRoles = await Role.find({
-  //                 companyId: req.user.companyId,
-  //                 name: "System Admin"
-  //                 /*: {
-  //                     $all: privileges
-  //                 }*/
-  //             }).lean();
-  //             let systemAdminRolesId = systemAdminRoles.map(x => x._id);
-  //             let businessUnitObjectID = mongoose.Types.ObjectId(req.body.businessUnitId);
-  //             await User.update({
-  //                 role: {
-  //                     $in: systemAdminRolesId
-  //                 },
-  //                 companyId: req.user.companyId
-  //             }, {
-  //                 $addToSet: {
-  //                     planBussinessUnitId: businessUnitObjectID,
-  //                     viewBussinessUnitId: businessUnitObjectID
-  //                 }
-  //             }, {
-  //                 multi: true
-  //             });
-  //             delete req.body.businessUnitId;
-  //             this.read(req, res);
-  //         }
-  //     } catch (err) {
-  //         __.log(err);
-  //         __.out(res, 500);
-  //     }
-  // }
-
   async skillSetsAndLocations(req, res) {
     try {
+      logInfo('businessunit/skillsetsandlocations API api Start!', { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
         logError(`businessunit/skillsetsandlocations API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
@@ -383,7 +274,6 @@ class businessUnit {
             status: 1,
           },
         });
-        //return res.json({businessUnitDetails})
         if (businessUnitDetails === null) {
           logError(`businessunit/skillsetsandlocations API, Invalid businessUnitId `, req.body);
           __.out(res, 300, 'Invalid businessUnitId');
@@ -409,6 +299,7 @@ class businessUnit {
             })[0];
             mainSkillSets.push(main);
           });
+          logInfo('businessunit/skillsetsandlocations API api end!', { name: req.user.name, staffId: req.user.staffId });
           __.out(res, 201, {
             skillSets: skillSetsResult,
             mainSkillSets: mainSkillSets,
@@ -741,10 +632,14 @@ class businessUnit {
   }
   async readSingleBu(req, res) {
     try {
+      logInfo(`businessunit/read/singlebu API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`businessunit/read/singlebu API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       if (!req.body.businessUnitId) {
+        logError(`businessunit/read/singlebu API, Required fields missing `, requiredResult1.missingFields);
+        logError(`businessunit/read/singlebu API, request payload `, req.body);
         return __.out(res, 300, `businessUnitId is missing`);
       }
       let where = {};
@@ -755,83 +650,7 @@ class businessUnit {
           where.status = 1;
         }
       }
-      // const companySetup = await pageSetting.findOne({ companyId: req.user.companyId }, { opsGroup: 1 });
-      // let businessUnitList = await SubSection.findOne(where).select('_id name status cancelShiftPermission standByShiftPermission shiftCancelHours techEmail adminEmail notificRemindHours notificRemindDays appointments sectionId noOfWeek breakInMinutes shiftTimeInMinutes isBreakTime shiftBreak mainSkillSets skillSetTierType plannedHours').populate([{
-      //     path: 'reportingLocation',
-      //     select: 'name',
-      //     match: {
-      //         status: 1
-      //     }
-      // }, {
-      //     path: 'subCategories',
-      //     select: 'name status',
-      //     match: {
-      //         status: 1
-      //     },
-      //     populate: {
-      //         path: 'categoryId',
-      //         select: 'name status',
-      //         match: {
-      //             status: 1
-      //         }
-      //     }
-      // }, {
-      //     path: 'subSkillSets',
-      //     select: 'name status',
-      //     match: {
-      //         status: 1
-      //     },
-      //     populate: {
-      //         path: 'skillSetId',
-      //         select: 'name status',
-      //         match: {
-      //             status: 1
-      //         }
-      //     }
-      // },
-      // {
-      //     path: 'mainSkillSets',
-      //     select: 'name',
-      //     match: {
-      //         status: 1
-      //     }
-      // }, {
-      //     path: 'reportingLocation',
-      //     select: 'name',
-      //     match: {
-      //         status: 1
-      //     }
-      // }, {
-      //     path: 'sectionId',
-      //     select: 'name departmentId adminEmail techEmail shiftCancelHours cancelShiftPermission standByShiftPermission status',
-      //     populate: {
-      //         path: 'departmentId',
-      //         select: 'name status companyId',
-      //         populate: {
-      //             path: 'companyId',
-      //             select: 'name'
-      //         }
-      //     }
-      // }, {
-      //     path: "appointments",
-      //     select: "name status"
-      // }, {
-      //     path: "scheme",
-      //     select: "schemeName status",
-      //     match: {
-      //         status: true
-      //     }
-      // }]).lean();
-      // businessUnitList = businessUnitList.filter(bu => !!bu.sectionId && !!bu.sectionId.departmentId && !!bu.sectionId.departmentId.companyId && bu.sectionId.departmentId.companyId._id.toString() == req.user.companyId);
-      // let appointmentIds = await User.find({ parentBussinessUnitId: { $in: req.body.businessUnitId } })
-      //     .select("appointmentId").populate([{
-      //         path: "appointmentId",
-      //         select: "name status"
-      //     }, {
-      //         path: "parentBussinessUnitId",
-      //         select: "status"
-      //     }]).lean();
-      //businessUnitList = JSON.parse(JSON.stringify(businessUnitList))
+
       const promiseResult = await Promise.all([
         this.getCompanySetup(req.user.companyId),
         this.getSingleBu(where),
@@ -860,12 +679,13 @@ class businessUnit {
         ),
       );
 
+      logInfo(`businessunit/read/singlebu API ends here!`, { name: req.user.name, staffId: req.user.staffId });
       return __.out(res, 201, {
         businessUnitList: businessUnitList != null ? businessUnitList : [],
         parentBussinessUnitId: req.user.parentBussinessUnitId,
       });
     } catch (err) {
-      __.log(err);
+      logError(`businessunit/read/singlebu API, there is an error`, err.toString());
       __.out(res, 300, 'Something went wrong try later');
     }
   }
@@ -989,7 +809,9 @@ class businessUnit {
   }
   async readNew(req, res) {
     try {
+      logInfo(`businessunit/read/new API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`businessunit/read/new API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let allBus = [
@@ -1031,8 +853,6 @@ class businessUnit {
           where.status = 1;
         }
       }
-      // const companySetup = await pageSetting.findOne({ companyId: req.user.companyId }, { opsGroup: 1 });
-      // const tierSetup = companySetup.opsGroup.tierType;
       let businessUnitList = await SubSection.find(where)
         .select(
           '_id name status cancelShiftPermission standByShiftPermission shiftCancelHours techEmail adminEmail notificRemindHours notificRemindDays appointments sectionId orgName noOfWeek breakInMinutes shiftTimeInMinutes isBreakTime shiftBreak mainSkillSets skillSetTierType plannedHours',
@@ -1061,53 +881,10 @@ class businessUnit {
           bu.sectionId.departmentId.companyId._id.toString() ==
           req.user.companyId,
       );
-      // let appointmentIds = await User.find({ parentBussinessUnitId: { $in: businessUnitList.map(b => b._id) } })
-      //     .select("appointmentId").populate([{
-      //         path: "appointmentId",
-      //         select: "name status"
-      //     }, {
-      //         path: "parentBussinessUnitId",
-      //         select: "status"
-      //     }]).lean();
-      //businessUnitList = JSON.parse(JSON.stringify(businessUnitList))
-      // businessUnitList.forEach((bu, index) => {
-      //     businessUnitList[index].skillSetTierType = tierSetup ? tierSetup : 2;
-      //     bu.appointments = bu.appointments ? bu.appointments : [];
-      //     const buaps = JSON.parse(JSON.stringify(bu.appointments)),
-      //         allaps = appointmentIds.filter(aps => aps.parentBussinessUnitId._id.toString() === bu._id.toString()).map(aps => aps.appointmentId);
-      //     bu.appointments.push(...allaps.filter(aaps => !buaps.find(bap => bap._id.toString() === aaps._id.toString())))
-      // })
+
       var userPlanBussinessUnitIds = [],
         userViewBussinessUnitIds = [];
-      // if (!req.body.businessUnitId) {
-      //     /*To remove null parents (since parents may get disabled) */
-      //     businessUnitList = await _.filter(businessUnitList, async function (o) {
-      //         /*check the BU Id is valid */
-      //         if (o.sectionId != null && o.sectionId.departmentId != null) {
-      //             /*filter valid BU id from user plan bu ids*/
-      //             if (req.user.planBussinessUnitId.findIndex(x => _.isEqual(x, o._id)) != -1) {
-      //                 userPlanBussinessUnitIds.push(o._id);
-      //             }
-      //             /*filter valid BU id from user view bu ids*/
-      //             if (req.user.viewBussinessUnitId.findIndex(x => _.isEqual(x, o._id)) != -1) {
-      //                 userViewBussinessUnitIds.push(o._id);
-      //             }
-      //             return o;
-      //         }
-      //     });
-      // }
-      // const sortBu = userPlanBussinessUnitIds => {
-      //     userPlanBussinessUnitIds = userPlanBussinessUnitIds || [];
-      //     return userPlanBussinessUnitIds.map(elem => {
-      //         if (!!elem.sectionId) {
-      //             if (!!elem.sectionId.departmentId) {
-      //                 elem.fullName = `${elem.sectionId.departmentId.name}>${elem.sectionId.name}>${elem.name}`;
-      //             }
-      //         }
-      //         return elem;
-      //     }).sort((a, b) => !!a.fullName ? a.fullName.localeCompare(b.fullName) : '');
-      // }
-
+      logInfo(`businessunit/read/new API ends here!`, { name: req.user.name, staffId: req.user.staffId });
       return __.out(res, 201, {
         businessUnitList: businessUnitList != null ? businessUnitList : [],
         parentBussinessUnitId: req.user.parentBussinessUnitId,
@@ -1115,7 +892,7 @@ class businessUnit {
         viewBussinessUnitId: [],
       });
     } catch (err) {
-      __.log(err);
+      logError(`businessunit/read/new API, there is an error`, err.toString());
       __.out(res, 300, 'Something went wrong try later');
     }
   }
@@ -1995,16 +1772,19 @@ class businessUnit {
   // Added by TJ
   async updateBuShiftScheme(req, res) {
     try {
+      logInfo(`businessunit/updateBuShiftScheme  API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`businessunit/updateBuShiftScheme  API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let requiredResult = await __.checkRequiredFields(req, [
         'businessUnitId',
       ]);
       if (requiredResult.status === false) {
+        logError(`businessunit/updateBuShiftScheme  API, Required fields missing `, requiredResult.missingFields);
+        logError(`businessunit/updateBuShiftScheme  API, request payload `, req.body);
         __.out(res, 400, requiredResult.missingFields);
       } else {
-        __.log(req.body, 'updateBuShiftScheme');
         if (!req.body.noOfWeek) {
           req.body.noOfWeek = 0;
         }
@@ -2015,20 +1795,14 @@ class businessUnit {
           reportingLocation: req.body.locations,
           subCategories: req.body.subCategories,
           originalSchemeEdit: req.body.originalSchemeEdit,
-          // 'scheme': req.body.scheme,
           noOfWeek: req.body.noOfWeek,
           plannedHours: req.body.plannedHours,
           standByShiftPermission: req.body.standByShiftPermission,
-          // 'shiftCancelHours': process.env.CANCELLATION_SHIFT_CHECK_HOURS,
           shiftCancelHours: req.body.shiftCancelHours || 0,
           cancelShiftPermission: req.body.cancelShiftPermission,
           status: req.body.status,
           cutOffDaysForBookingAndCancelling:
-            req.body.cutOffDaysForBookingAndCancelling || '',
-          // 'adminEmail': req.body.adminEmail,
-          // 'techEmail': req.body.techEmail,
-          // 'notificRemindHours': req.body.notificRemindHours,
-          // 'notificRemindDays': req.body.notificRemindDays,
+            req.body.cutOffDaysForBookingAndCancelling || ''
         };
         //START -Dipali adding new keys in subSection for locking timesheet in that time
         if (req.body.breakInMinutes) {
@@ -2081,9 +1855,6 @@ class businessUnit {
           updateData.geoReportingLocation = reportLocationId;
         }
 
-        // if (req.body.cutOffDaysForBookingAndCancelling) {
-        //     updateData.cutOffDaysForBookingAndCancelling = req.body.cutOffDaysForBookingAndCancelling;
-        // }
         let result = await SubSection.findOneAndUpdate(
           {
             _id: req.body.businessUnitId,
@@ -2099,21 +1870,9 @@ class businessUnit {
           },
         );
 
-        /* add created business unit to System admin's plan business unit */
-        /*let categoryData = await PrivilegeCategory.findOne({
-                    name: "System Admin"
-                }).select('privileges').lean();
-    
-                let {
-                    privileges
-                } = categoryData;*/
-
         let systemAdminRoles = await Role.find({
           companyId: req.user.companyId,
           name: 'System Admin',
-          /*: {
-                        $all: privileges
-                    }*/
         }).lean();
 
         let systemAdminRolesId = systemAdminRoles.map((x) => x._id);
@@ -2139,10 +1898,11 @@ class businessUnit {
         );
 
         delete req.body.businessUnitId;
+        logInfo(`businessunit/updateBuShiftScheme  API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         this.read(req, res);
       }
     } catch (err) {
-      __.log(err);
+      logError(`businessunit/updateBuShiftScheme  API, there is an error`, err.toString());
       __.out(res, 500);
     }
   }

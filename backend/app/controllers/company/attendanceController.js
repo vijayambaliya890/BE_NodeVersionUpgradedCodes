@@ -11,6 +11,8 @@ const mongoose = require('mongoose'),
 var moment = require('moment');
 // const redisData = require('../../../helpers/redisDataGenerator');
 const __ = require('../../../helpers/globalFunctions');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
+
 class attendanceController {
   // async updateRedis(businessUnitId, from) {
   //   if (from !== 'add') {
@@ -345,8 +347,7 @@ class attendanceController {
   }
 
   async addAttendance(req, res) {
-    console.log("===========  In this api is used for add attendance ============")
-
+    logInfo(`attendance/add  API Start!`, { name: req.user.name, staffId: req.user.staffId });
     let { shiftId, shiftDetailId, userId, attandanceTakenBy, businessUnitId, status, clockInDateTime, clockOutDateTime = "", attendanceMode = "", checkInLocation = "", checkOutLocation = "", checkedInDistanceInMeters = 0 } = req.body
 
     let endDate = new Date();
@@ -356,9 +357,6 @@ class attendanceController {
     startDate = startDate.setHours(startDate.getHours() - 12);
     startDate = new Date(startDate);
     try {
-
-      console.log(userId, shiftDetailId, shiftId)
-
       const shiftData = await Shift.findOne({ _id: req.body.shiftId });
       let shiftDetail = await ShiftDetails.findOne(
         {
@@ -386,7 +384,6 @@ class attendanceController {
             min = Math.floor(diff / 1000 / 60);
           }
         }
-        //min < 60
         if (true) {
           try {
             const attendanceResult = await Attendance.find({
@@ -406,7 +403,6 @@ class attendanceController {
             }
             let attend = (status === 1) ? { clockInDateTime } : { clockOutDateTime }
             if (attendanceResult && attendanceResult.length) {
-              console.log("========== INSIDE FOR UPDATE ========");
               let attendanceResponse;
               try {
                 attendanceResponse = await Attendance.findOneAndUpdate({
@@ -425,7 +421,7 @@ class attendanceController {
                   $set: { ... { attendanceMode, status, checkOutLocation }, attend },
                 }, { new: true });
               } catch (e) {
-                console.log("eeee", e);
+                logError(`timesheet/history/5bd723a8c1e35a7a250d562a  API, there is an error`, e.toString());
               }
               if (status === 4) {
                 return res.json({
@@ -441,34 +437,20 @@ class attendanceController {
                 message,
               });
             } else {
-              console.log("========== INSIDE FOR Create ========");
               try {
-
-                // await AttendanceLog(req.body).save();
-                // new AttendanceLog(req.body)
-                //   .save()
-                //   .then((log) => {})
-                //   .catch((e) => {
-                //     console.log('eeee', e);
-                //   });
-                // const result = await Attendance(req.body).save();
-
-
                 if (status === 2) {
+                  logError(`timesheet/history/5bd723a8c1e35a7a250d562a  API, 'First you have to Clockin.' `, req.body);
                   return res.send({ status: 5, message: "First you have to Clockin." })
                 }
-                console.log("<=== NOW SAVING ATTENDANCE ===>")
-                console.log({ userId, shiftId, shiftDetailId, status, clockInDateTime, attandanceTakenBy, businessUnitId, attendanceMode, checkInLocation, checkOutLocation, checkedInDistanceInMeters, checkedInDistanceInMeters })
                 const result = await Attendance({ userId, shiftId, shiftDetailId, status, attandanceTakenBy, clockInDateTime, businessUnitId, attendanceMode, checkInLocation, checkOutLocation, checkedInDistanceInMeters }).save();
                 let logs = JSON.parse(JSON.stringify(result));
                 delete logs._id;
-                console.log("NOW CREATING LOGS")
-                console.log(logs)
                 try {
                   const attendanceLog = await AttendanceLog(logs).save();
                 } catch (e) {
-                  console.log("eeee", e);
+                  logError(`timesheet/history/5bd723a8c1e35a7a250d562a API, there is an error`, e.toString());
                 }
+                logInfo(`timesheet/history/5bd723a8c1e35a7a250d562a API ends here!`, { name: req.user.name, staffId: req.user.staffId });
                 if (status === 4) {
                   return res.json({
                     status: 4,
@@ -489,7 +471,7 @@ class attendanceController {
                   message,
                 });
               } catch (err) {
-                console.log(err)
+                logError(`timesheet/history/5bd723a8c1e35a7a250d562a  API, there is an error`, err.toString());
                 return res.json({
                   status: 3,
                   data: null,
@@ -499,6 +481,7 @@ class attendanceController {
               }
             }
           } catch (err) {
+            logError(`timesheet/history/5bd723a8c1e35a7a250d562a  API, there is an error`, err.toString());
             console.log(err)
             return res.json({
               status: 3,
@@ -509,6 +492,7 @@ class attendanceController {
           }
         }
       } else {
+        logError(`timesheet/history/5bd723a8c1e35a7a250d562a  API ends here!`, 'Shift Not found');
         return res.json({
           status: 2,
           data: null,
@@ -516,7 +500,7 @@ class attendanceController {
         });
       }
     } catch (err) {
-      console.log(err)
+      logError(`timesheet/history/5bd723a8c1e35a7a250d562a  API, there is an error`, err.toString());
       return res.json({
         status: 3,
         data: null,
@@ -778,12 +762,8 @@ class attendanceController {
   }
   async updateBreakTime(req, res) {
     try {
-      //console.log(req.body);
+      logInfo('attendance/breakTime API Start!', { name: req.user.name, staffId: req.user.staffId });
       const obj = req.body;
-      // let currentDate = new Date();
-      // const enddd = new Date();
-      // const startTime = obj.startTime.split(':');
-      // const endTime = obj.endTime.split(':');
       var timeZone = moment
         .parseZone(req.body.startTime, 'MM-DD-YYYY HH:mm:ss Z')
         .format('Z'),
@@ -793,10 +773,8 @@ class attendanceController {
         endTimeDate = moment(req.body.endTime, 'MM-DD-YYYY HH:mm:ss Z')
           .utc()
           .format();
-      console.log(startTimeDate, endTimeDate);
       var diff = Math.abs(new Date(startTimeDate) - new Date(endTimeDate));
       const min = Math.floor(diff / 1000 / 60);
-      console.log('min', min);
       ShiftDetails.findById(mongoose.Types.ObjectId(req.body.shiftDetailId), {
         extendedStaff: 1,
         isExtendedShift: 1,
@@ -805,24 +783,14 @@ class attendanceController {
         endTime: 1,
       })
         .then((shiftInfo) => {
-          // console.log(shiftInfo);
           let shfitEndTime = new Date(shiftInfo.endTime);
           shfitEndTime = shfitEndTime.setDate(new Date(shfitEndTime).getDate());
-          console.log('shfitEndTime', new Date(shfitEndTime));
-          // shfitEndTime = shfitEndTime.getTime();
-          //const shfitStartTime = new Date(shiftInfo.startTime).getTime();
           let shfitStartTime = new Date(shiftInfo.startTime);
           shfitStartTime = shfitStartTime.setDate(
             new Date(shfitStartTime).getDate() - 1,
           );
-          //  shfitStartTime = shfitStartTime.getTime();
-          console.log('shfitStartTime', shfitStartTime);
           const shiftBreakStartTime = new Date(startTimeDate).getTime();
           const shiftBreakEndTime = new Date(endTimeDate).getTime();
-          console.log('shfitEndTime', new Date(shfitEndTime));
-          console.log('shiftBreakStartTime', new Date(shiftBreakStartTime));
-          console.log('shiftBreakEndTime', new Date(shiftBreakEndTime));
-          console.log('shfitStartTime', new Date(shfitStartTime));
           if (shiftInfo.isExtendedShift) {
             const shiftExtendedObj = shiftInfo.extendedStaff.filter((i) => {
               return (
@@ -831,18 +799,12 @@ class attendanceController {
             });
             if (shiftExtendedObj.length > 0) {
               let exshfitEndTime = new Date(shiftExtendedObj[0].endDateTime);
-              //  exshfitEndTime = exshfitEndTime.setDate(new Date(exshfitEndTime).getDate()-1);
               exshfitEndTime = new Date(exshfitEndTime).getTime();
               let exshfitStartTime = new Date(
                 shiftExtendedObj[0].startDateTime,
               ).getTime();
 
-              //  exshfitStartTime = exshfitStartTime.setDate(new Date(exshfitStartTime).getDate()-1);
               exshfitStartTime = new Date(exshfitStartTime).getTime();
-              console.log('exshfitEndTime', exshfitEndTime);
-              console.log('shiftBreakStartTime', shiftBreakStartTime);
-              console.log('exshfitStartTime', exshfitStartTime);
-              console.log('shiftBreakEndTime', shiftBreakEndTime);
               if (
                 minutesOfDay(exshfitEndTime) >=
                 minutesOfDay(shiftBreakStartTime) &&
@@ -855,7 +817,7 @@ class attendanceController {
               ) {
                 markBreakTime();
               } else {
-                // markBreakTime()
+                logInfo(`attendance/breakTime API 'Break Time should be between shift time' ends here!`, { name: req.user.name, staffId: req.user.staffId });
                 res.json({
                   status: 4,
                   message: 'Break Time should be between shift time',
@@ -863,12 +825,6 @@ class attendanceController {
                 });
               }
             } else {
-              console.log('aaa');
-              console.log('shfitEndTime', new Date(shfitEndTime));
-              console.log('shiftBreakStartTime', new Date(shiftBreakStartTime));
-              console.log('shiftBreakEndTime', new Date(shiftBreakEndTime));
-              console.log('shfitStartTime', new Date(shfitStartTime));
-              //return res.json({a:new Date(shfitEndTime), b:new Date(shiftBreakStartTime),c:new Date(shfitStartTime),d:new Date(shiftBreakEndTime) })
               if (
                 minutesOfDay(shfitEndTime) >=
                 minutesOfDay(shiftBreakStartTime) &&
@@ -877,11 +833,9 @@ class attendanceController {
                 minutesOfDay(shfitEndTime) >= minutesOfDay(shiftBreakEndTime) &&
                 minutesOfDay(shiftBreakEndTime) >= minutesOfDay(shfitStartTime)
               ) {
-                // return res.send('hey');
                 markBreakTime();
               } else {
-                //return res.send('hey1');
-                //markBreakTime();
+                logInfo(`attendance/breakTime API 'Break Time should be between shift time' ends here!`, { name: req.user.name, staffId: req.user.staffId });
                 res.json({
                   status: 4,
                   message: 'Break Time should be between shift time',
@@ -890,14 +844,6 @@ class attendanceController {
               }
             }
           } else {
-            console.log('bbbb');
-            console.log('shfitEndTime', minutesOfDay(shfitEndTime));
-            console.log(
-              'shiftBreakStartTime',
-              minutesOfDay(shiftBreakStartTime),
-            );
-            console.log('shiftBreakEndTime', minutesOfDay(shiftBreakEndTime));
-            console.log('shfitStartTime', minutesOfDay(shfitStartTime));
             if (
               minutesOfDay(shfitEndTime) >= minutesOfDay(shiftBreakStartTime) &&
               minutesOfDay(shiftBreakStartTime) >=
@@ -907,7 +853,7 @@ class attendanceController {
             ) {
               markBreakTime();
             } else {
-              //markBreakTime()
+              logInfo(`attendance/breakTime API 'Break Time should be between shift time' ends here!`, { name: req.user.name, staffId: req.user.staffId });
               res.json({
                 status: 4,
                 message: 'Break Time should be between shift time',
@@ -917,16 +863,14 @@ class attendanceController {
           }
         })
         .catch((err) => {
+          logError(`attendance/breakTime API, there is an error`, err.toString());
           res.send(err);
         });
 
       function minutesOfDay(m) {
-        //console.log(m);
         return new Date(m).getMinutes() + new Date(m).getHours() * 60;
       }
       function markBreakTime() {
-        //        ,
-        //         status: {$in:[1,3,4]}
         Attendance.findOne({
           userId: mongoose.Types.ObjectId(req.body.userId),
           shiftDetailId: mongoose.Types.ObjectId(req.body.shiftDetailId),
@@ -974,20 +918,7 @@ class attendanceController {
                   { new: true },
                 )
                   .then(async (result) => {
-                    //console.log('result', result);
                     if (!result) {
-                      // await updateRedisSingle(
-                      //   res,
-                      //   result.businessUnitId,
-                      //   result.shiftDetailId,
-                      // );
-                      // updateRedis(attendanceData.businessUnitId, 'add');
-                      // return res.json({
-                      //   status: 1,
-                      //   data: result,
-                      //   message: 'Break Time Updated successfully',
-                      // });
-                      // } else
                       return res.json({
                         status: 2,
                         data: null,
@@ -1024,36 +955,7 @@ class attendanceController {
               message: 'something went wrong',
             });
           });
-        console.log('startTimeDate', startTimeDate, endTimeDate);
       }
-      // async function updateRedis(businessUnitId, from) {
-      //   redisData.history(businessUnitId);
-      //   if (from !== 'add') {
-      //     redisData.readModifyAshish(businessUnitId);
-      //     redisData.timesheetData(businessUnitId);
-      //   }
-      // }
-      // async function updateRedisSingle(res, businessUnitId, shiftDetailId) {
-      //   try {
-      //     // redisData.history(businessUnitId)
-      //     console.log('before redis setting data');
-      //     const ree = await Promise.all([
-      //       redisData.readModifyAshishSingleShift(
-      //         businessUnitId,
-      //         shiftDetailId,
-      //       ),
-      //       redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId),
-      //     ]);
-      //     // const r = await redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId);
-      //     // const p = await redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId);
-      //     console.log('after redis setting data', ree);
-      //     return ree;
-      //     // redisData.timesheetData(businessUnitId)
-      //   } catch (err) {
-      //     __.log(err);
-      //     __.out(res, 500);
-      //   }
-      // }
     } catch (err) {
       __.log(err);
       __.out(res, 500);

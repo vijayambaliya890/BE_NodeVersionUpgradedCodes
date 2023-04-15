@@ -2,6 +2,7 @@
 const mongoose = require('mongoose'),
     Role = require('../../models/role'),
     __ = require('../../../helpers/globalFunctions');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class role {
 
@@ -31,7 +32,9 @@ class role {
 
     async read(req, res) {
         try {
+            logInfo(`role/read API Start!`, { name: req.user.name, staffId: req.user.staffId });
             if (!__.checkHtmlContent(req.body)) {
+                logError(`role/read API, You've entered malicious input `, req.body);
                 return __.out(res, 300, `You've entered malicious input`);
             }
             let where = {
@@ -49,12 +52,10 @@ class role {
                 findOrFindOne = Role.find(where);
 
             let roles = await findOrFindOne.lean();
-
-            __.out(res, 201, {
-                roles: roles
-            });
+            logInfo(`role/read API ends here!`, { name: req.user.name, staffId: req.user.staffId });
+            __.out(res, 201, { roles: roles });
         } catch (err) {
-            __.log(err);
+            logError(`role/read API, there is an error`, err.toString());
             __.out(res, 500, err);
         }
     }

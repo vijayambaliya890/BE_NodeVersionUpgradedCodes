@@ -34,6 +34,7 @@ const User = require('../../models/user'),
   LeaveGroup = require('../../models/leaveGroup'),
   StaffLeave = require('../../models/staffLeave'),
   Scheme = require('../../models/scheme');
+  const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 /* Email Credentials */
 const transporter = nodemailer.createTransport(
@@ -212,7 +213,6 @@ class user {
   }
 
   async createStaffLeave(data, req) {
-    console.log('Uppppppppp', data.userId);
     const leaveGroupData = await LeaveGroup.findOne({
       _id: data.leaveGroupId,
     }).populate([
@@ -233,7 +233,6 @@ class user {
       diff /= 60 * 60 * 24;
       return Math.abs(Math.round(diff / 365.25));
     }
-    console.log('data.doj', data.doj);
     const currentYear = new Date().getFullYear();
     const nextYear = currentYear + 1;
     const prevYear = currentYear - 1;
@@ -254,7 +253,6 @@ class user {
           new Date(new Date().setFullYear(yearValue)),
         );
       }
-      console.log('year', year, month);
       leaveGroupData.leaveType.forEach((leave) => {
         if (leave.leaveTypeId) {
           let quota = leave.quota;
@@ -265,7 +263,6 @@ class user {
                 mo.toMonth >= month &&
                 quota < mo.quota
               ) {
-                console.log('in Month', mo.quota);
                 quota = mo.quota;
               }
             });
@@ -277,7 +274,6 @@ class user {
               }
             });
           }
-          console.log('quota', quota);
           let leaveObj = {
             leaveTypeId: leave.leaveTypeId._id,
             quota,
@@ -352,7 +348,6 @@ class user {
                 mo.toMonth >= month &&
                 quota < mo.quota
               ) {
-                console.log('in Month', mo.quota);
                 quota = mo.quota;
               }
             });
@@ -468,38 +463,11 @@ class user {
         },
         {
           path: 'parentBussinessUnitId',
-          select: 'name _id',
+          select: 'name _id orgName',
           match: {
             status: 1,
             sectionId: {
               $exists: true,
-            },
-          },
-          populate: {
-            path: 'sectionId',
-            select: 'name _id',
-            match: {
-              status: 1,
-              departmentId: {
-                $exists: true,
-              },
-            },
-            populate: {
-              path: 'departmentId',
-              select: 'name _id',
-              match: {
-                status: 1,
-                companyId: {
-                  $exists: true,
-                },
-              },
-              populate: {
-                path: 'companyId',
-                select: 'name _id',
-                match: {
-                  status: 1,
-                },
-              },
             },
           },
         },
@@ -520,28 +488,9 @@ class user {
         .sort(sort)
         .skip(skip)
         .limit(limit);
-
+  
       data = data.map((v) => {
-        let bu = '';
-        if (!!v.parentBussinessUnitId) {
-          bu = v.parentBussinessUnitId.name;
-          if (!!v.parentBussinessUnitId.sectionId) {
-            bu = v.parentBussinessUnitId.sectionId.name + ' > ' + bu;
-            if (!!v.parentBussinessUnitId.sectionId.departmentId) {
-              bu =
-                v.parentBussinessUnitId.sectionId.departmentId.name +
-                ' > ' +
-                bu;
-              if (!!v.parentBussinessUnitId.sectionId.departmentId.companyId) {
-                bu =
-                  v.parentBussinessUnitId.sectionId.departmentId.companyId
-                    .name +
-                  ' > ' +
-                  bu;
-              }
-            }
-          }
-        }
+        let bu = v.parentBussinessUnitId.orgName;
         let obj = {
           _id: v._id,
           name: v.name,
@@ -734,7 +683,6 @@ class user {
       } else {
         return __.out(res, 201, { items: [], count_filtered: 0 });
       }
-      console.log('req.body.q', req.body.q);
       if (req.body.q !== undefined && req.body.q.trim()) {
         query = {
           $or: [
@@ -834,14 +782,11 @@ class user {
       if (!users) {
         return __.out(res, 300, 'No users Found');
       }
-      //
-      //var users = count_filtered[0].users;
       if (count_filtered[0].users.length > 0) {
         count_filtered = count_filtered[0].totalCount[0].count;
       } else {
         count_filtered = 0;
       }
-      // console.log('count_filtered', count_filtered[0].totalCount[0].count)
       return __.out(res, 201, { items: users, count_filtered });
     } catch (error) {
       __.log(error);
@@ -850,7 +795,6 @@ class user {
   }
   async read(req, res) {
     try {
-      console.log("=========================================")
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -921,39 +865,39 @@ class user {
               status: 1,
             },
             // populate: [
-              // {
-              //   path: 'sectionId',
-              //   select: 'name',
-              //   populate: {
-              //     path: 'departmentId',
-              //     select: 'name',
-              //     populate: {
-              //       path: 'companyId',
-              //       select: 'name',
-              //     },
-              //   },
-              // },
-              // {
-              //   path: 'appointments',
-              //   select: 'name status',
-              //   match: {
-              //     status: 1,
-              //   },
-              // },
-              // {
-              //   path: 'subSkillSets',
-              //   select: 'name status',
-              //   match: {
-              //     status: 1,
-              //   },
-              //   populate: {
-              //     path: 'skillSetId',
-              //     select: 'name status',
-              //     match: {
-              //       status: 1,
-              //     },
-              //   },
-              // },
+            // {
+            //   path: 'sectionId',
+            //   select: 'name',
+            //   populate: {
+            //     path: 'departmentId',
+            //     select: 'name',
+            //     populate: {
+            //       path: 'companyId',
+            //       select: 'name',
+            //     },
+            //   },
+            // },
+            // {
+            //   path: 'appointments',
+            //   select: 'name status',
+            //   match: {
+            //     status: 1,
+            //   },
+            // },
+            // {
+            //   path: 'subSkillSets',
+            //   select: 'name status',
+            //   match: {
+            //     status: 1,
+            //   },
+            //   populate: {
+            //     path: 'skillSetId',
+            //     select: 'name status',
+            //     match: {
+            //       status: 1,
+            //     },
+            //   },
+            // },
             // ],
           },
           {
@@ -1100,10 +1044,7 @@ class user {
           return prev.concat(curr);
         }, []);
       };
-      console.log('=========== here  ==========>', req.body.userId);
       if (req.body.userId) {
-        console.log('Inside if');
-        //return res.json({ users })
         let appointmentIds = await User.find({
           parentBussinessUnitId: {
             $in: users.planBussinessUnitId
@@ -1160,18 +1101,11 @@ class user {
           { userId: { $in: [req.body.userId] }, isDelete: false },
           { opsGroupName: 1 },
         );
-        console.log('==================== OPS GROUP ===================');
-        console.log(opsGroup);
-        console.log(
-          '===========================================================',
-        );
         if (opsGroup && Object.keys(opsGroup).length) {
           users['opsGroupName'] = opsGroup.opsGroupName;
         } else users['opsGroupName'] = '-';
 
-        __.out(res, 201, {
-          data: users,
-        });
+        __.out(res, 201, { data: users });
       } else {
         /*find */
         users = users.map((u) => {
@@ -1229,9 +1163,6 @@ class user {
           schemeId: 1,
         },
       );
-
-      // console.log("=======  USER DATA =========")
-      // console.log(user)
 
       let userFields = await UserField.find({
         status: 1,
@@ -1294,7 +1225,9 @@ class user {
 
   async readSingle(req, res) {
     try {
+      logInfo(`companyUser/read/single API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`companyUser/read/single API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let where = {};
@@ -1331,18 +1264,6 @@ class user {
           {
             path: 'parentBussinessUnitId',
             select: 'name orgName',
-            // populate: {
-            //   path: 'sectionId',
-            //   select: 'name',
-            //   populate: {
-            //     path: 'departmentId',
-            //     select: 'name',
-            //     populate: {
-            //       path: 'companyId',
-            //       select: 'name',
-            //     },
-            //   },
-            // },
           },
           {
             path: 'planBussinessUnitId',
@@ -1350,41 +1271,6 @@ class user {
             match: {
               status: 1,
             },
-            // populate: [
-              // {
-              //   path: 'sectionId',
-              //   select: 'name orgName',
-              //   populate: {
-              //     path: 'departmentId',
-              //     select: 'name',
-              //     populate: {
-              //       path: 'companyId',
-              //       select: 'name',
-              //     },
-              //   },
-              // },
-              // {
-              //   path: 'appointments',
-              //   select: 'name status',
-              //   match: {
-              //     status: 1,
-              //   },
-              // },
-            //   {
-            //     path: 'subSkillSets',
-            //     select: 'name status',
-            //     match: {
-            //       status: 1,
-            //     },
-            //     populate: {
-            //       path: 'skillSetId',
-            //       select: 'name status',
-            //       match: {
-            //         status: 1,
-            //       },
-            //     },
-            //   },
-            // ],
           },
           {
             path: 'viewBussinessUnitId',
@@ -1392,18 +1278,6 @@ class user {
             match: {
               status: 1,
             },
-            // populate: {
-            //   path: 'sectionId',
-            //   select: 'name',
-            //   populate: {
-            //     path: 'departmentId',
-            //     select: 'name',
-            //     populate: {
-            //       path: 'companyId',
-            //       select: 'name',
-            //     },
-            //   },
-            // },
           },
         ],
         users = null;
@@ -1430,10 +1304,6 @@ class user {
           ])
           .lean();
       }
-      /*let users = await findOrFindOne
-              .select("-password -pwdManage")
-              .populate(populateArray)
-              .lean();*/
       const sortBu = (user) => {
         let plan = user.planBussinessUnitId || [];
         user.planBussinessUnitId = plan
@@ -1454,65 +1324,23 @@ class user {
       };
 
       users = sortBu(users);
-      // const userFields = await UserField.find({
-      //   companyId: req.user.companyId,
-      //   status: 1,
-      // })
-      //   .sort({
-      //     indexNum: 1,
-      //   })
-      //   .lean();
-      // const userFieldsUpdate = (otherFields) => {
-      //   otherFields = otherFields || [];
-      //   return userFields.reduce((prev, curr, i) => {
-      //     curr.value = curr.value || "";
-      //     const field = otherFields.find((o) => __.isEqualObjectIds(o.fieldId, curr._id));
-      //     if (!!field) {
-      //       curr.value = field.value || "";
-      //     }
-      //     return prev.concat(curr);
-      //   }, []);
-      // };
+      logInfo(`companyUser/read/single API ends here!`, { name: req.user.name, staffId: req.user.staffId });
       if (req.body.userId) {
-        //return res.json({ users })
-        // let appointmentIds = await User.find({ parentBussinessUnitId: { $in: users.planBussinessUnitId ? users.planBussinessUnitId.map(b => b._id) : [] } })
-        //   .select("appointmentId").populate([{
-        //     path: "appointmentId",
-        //     select: "name status"
-        //   }, {
-        //     path: "parentBussinessUnitId",
-        //     select: "status"
-        //   }]).lean();
-        // if (users.planBussinessUnitId) {
-        //   users.planBussinessUnitId.forEach(bu => {
-        //     bu.appointments = bu.appointments ? bu.appointments : [];
-        //     const buaps = JSON.parse(JSON.stringify(bu.appointments)),
-        //       allaps = appointmentIds.filter(aps => aps.parentBussinessUnitId._id.toString() === bu._id.toString()).map(aps => aps.appointmentId);
-        //     bu.appointments.push(...allaps.filter(aaps => !buaps.find(bap => bap._id.toString() === aaps._id.toString())))
-        //   })
-        // }
-        /*findone*/
-
-        // var privilegeFlags = await __.getUserPrivilegeObject(users.role.privileges);
-        // users.userId = users._id;
-        // users.privilegeFlags = privilegeFlags;
-        // delete users.role.privileges;
-        //  users.otherFields = userFieldsUpdate(users.otherFields);
-        __.out(res, 201, {
-          data: users,
-        });
+        __.out(res, 201, { data: users });
       }
     } catch (err) {
-      __.log(err);
+      logError(`companyUser/read/single API, there is an error`, err.toString());
       __.out(res, 500, err);
     }
   }
   async getSingleUserData(userId) {
-    return new Promise((resolve, reject) => {});
+    return new Promise((resolve, reject) => { });
   }
   async update(req, res) {
     try {
+      logInfo(`companyUser/update API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`companyUser/update API, You've entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let requiredResult = await __.checkRequiredFields(
@@ -1521,13 +1349,12 @@ class user {
         'userUpdate',
       );
       if (!__.checkSpecialCharacters(req.body, 'profile update')) {
-        return __.out(
-          res,
-          300,
-          `You've entered some excluded special characters`,
-        );
+        logError(`companyUser/update API, there is an error`, `You've entered some excluded special characters`);
+        return __.out(res, 300, `You've entered some excluded special characters`);
       }
       if (requiredResult.status === false) {
+        logError(`companyUser/update API, Required fields missing `, requiredResult.missingFields);
+        logError(`companyUser/update API, request payload `, req.body);
         return __.out(res, 400, requiredResult.missingFields);
       } else {
         delete req.body.staffId;
@@ -1536,11 +1363,11 @@ class user {
           status: { $ne: 3 },
         });
         if (doc === null) {
+          logError(`companyUser/update API, there is an error`, 'Invalid userId');
           return __.out(res, 300, 'Invalid userId');
         } else {
           /* old data for comparison */
           let oldData = doc.toObject();
-          console.log('olddate', oldData.schemeId);
           // Reset Login Attempt if user back to active from inactive
           if (doc.status == 2 && req.body.status == 1) {
             doc.loginAttempt = 0;
@@ -1656,17 +1483,14 @@ class user {
           ) {
             if (oldData.leaveGroupId) {
               doc.leaveGroupId = req.body.leaveGroupId;
-              console.log('updated Leave Group');
               await this.updateStaffLeave(doc, req);
               // update old one
             } else {
               // first time
-              console.log('first Leave Group');
               doc.leaveGroupId = req.body.leaveGroupId;
               await this.createStaffLeave(doc, req);
             }
           }
-          console.log('req.headers.platform', req.headers.platform);
           if (req.body.from == 'updateUser' && !req.body.leaveGroupId) {
             doc.leaveGroupId = null;
             const leaveGroupRemoved = await StaffLeave.findOneAndRemove({
@@ -1681,7 +1505,6 @@ class user {
             /*updated successfully */
             /*add user to dynamic notification if BU or sub skill set matched starts */
             if (req.body.schemeId) {
-              console.log('oldddd', oldData.schemeId, req.body.schemeId);
               if (
                 oldData.schemeId &&
                 oldData.schemeId.toString() !== req.body.schemeId.toString()
@@ -1724,9 +1547,9 @@ class user {
               /* push notifications */
               if (doc.deviceToken) {
                 let pushNotificationData = {
-                    title: 'Profile updated',
-                    body: 'Your profile has been updated by the administrator',
-                  },
+                  title: 'Profile updated',
+                  body: 'Your profile has been updated by the administrator',
+                },
                   collapseKey = req.body.userId;
                 let FCMresponse = await FCM.push(
                   [doc.deviceToken],
@@ -1900,8 +1723,8 @@ class user {
             req.url == '/active'
               ? 1
               : req.url == '/inactive'
-              ? 2
-              : 3; /*(3 => delete)*/
+                ? 2
+                : 3; /*(3 => delete)*/
           if (doc.status == 1) {
             doc.loginAttempt = 0;
             doc.status = 1;
@@ -1951,13 +1774,13 @@ class user {
       ];
 
     var pushNotificationData = {
-        title: 'notification title',
-        body: 'notification sample description',
-        bodyText: `Standby shift on XXX to XXX is available for confirmation`,
-        bodyTime: [moment().unix(), moment().unix()],
-        bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
-        //redirect: 'makeBookings'
-      },
+      title: 'notification title',
+      body: 'notification sample description',
+      bodyText: `Standby shift on XXX to XXX is available for confirmation`,
+      bodyTime: [moment().unix(), moment().unix()],
+      bodyTimeFormat: ['dd MMM, HHmm', 'dd MMM, HHmm'],
+      //redirect: 'makeBookings'
+    },
       collapseKey = 'seconds-' + Math.random();
     var response = await FCM.push(
       deviceTokens,
@@ -1969,7 +1792,6 @@ class user {
 
   async readUser(req, res) {
     try {
-      console.log('Inside getting all users');
       req.query.filter = req.query.filter || {};
       if (
         req.query.filter['parentBussinessUnitId'] &&
@@ -2017,14 +1839,10 @@ class user {
       filter,
     );
 
-    // const db = await getDB(this.dbName);
-    // const userModel = await db.getModel(MODELS.USER),
-    //   subSectionModel = await db.getModel(MODELS.SUBSECTION);
     const select = filter.fields.reduce((prev, v) => {
       prev[v] = 1;
       return prev;
     }, {});
-    console.log(filter.status);
     filter.status = Array.isArray(filter.status)
       ? filter.status.map((s) => parseInt(s))
       : null;
@@ -2052,17 +1870,6 @@ class user {
         [v]: reg,
       }));
     }
-    // console.log(
-    //   JSON.stringify({
-    //     ...businessUnitCondtion,
-    //     ...appointmentIdCondition,
-    //     ...searchCondition,
-    //     ...staffIdCondtion,
-    //     status: {
-    //       $in: statusCondtion,
-    //     },
-    //   }),
-    // );
     const count = await User.countDocuments({
       ...businessUnitCondtion,
       ...appointmentIdCondition,
@@ -2344,7 +2151,6 @@ class user {
                 isUser.leaveGroupId.toString() != user.leaveGroupId.toString())
             ) {
               user.userId = isUser._id;
-              console.log('updatettttttttttttttttt');
               this.updateStaffLeave(user, req);
             }
             updatedUserData = await User.findOneAndUpdate(
@@ -2460,7 +2266,7 @@ class user {
             }
           }
         }
-        fs.unlink(req.file.path, (data) => {});
+        fs.unlink(req.file.path, (data) => { });
         // If missing users exists
         // nonUpdatedUser = nonUpdatedUser.filter((user) => user.length);
         if (!!nonUpdatedUser.length) {
@@ -2522,11 +2328,9 @@ class user {
           `public/uploads/bulkUpload/${req.file.filename}`,
         );
         if (!!output) {
-          // return __.out(res, 300, output);
         }
       }
     } catch (error) {
-      console.log(' error : ', error);
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
@@ -2914,98 +2718,12 @@ class user {
           },
           parent_BU: `${opt.parentBussinessUnitId.sectionId.departmentId.companyId.name}>${opt.parentBussinessUnitId.sectionId.departmentId.name}>${opt.parentBussinessUnitId.sectionId.name}>${opt.parentBussinessUnitId.name}`,
           otherFields: opt.otherFields || [],
-          // contactNumber: opt.contactNumber || "--",
           contactNumber: '',
           profilePicture: opt.profilePicture || '--',
           email: opt.email || '--',
           staffId: opt.staffId || '--',
         };
       });
-      /*
-            let query = {
-              $match:{
-                status: {
-                  $in: [1, 2]
-                }
-              }
-            };
-            if(!!req.query.q){
-              query.$match['name']={
-                  '$regex': `${req.query.q}`,
-                  '$options': 'is'
-                }
-            }
-            let lookup=[{
-              $lookup: {
-                from: 'appointments',
-                localField: 'appointmentId',
-                foreignField: '_id',
-                as: 'appointment'
-              }
-            },{
-              $unwind:'$appointment'
-            }];
-            if(!!req.query.appointmentId){
-              lookup = [...lookup, {
-                $match:{
-                  appointmentId:mongoose.Types.ObjectId(req.query.appointmentId)
-                }
-              }]
-            }
-            if(!!req.query.parentBussinessUnitId){
-              lookup = [...lookup, {
-                $match:{
-                  parentBussinessUnitId:mongoose.Types.ObjectId(req.query.parentBussinessUnitId)
-                }
-              }]
-            }
-            console.log(lookup);
-            let aggregate=[query,...lookup,{
-              $project:{
-                staffId: 1,
-                name: 1,
-                'appointment.name':1,
-                //'businessUnit.name':1,
-                'otherFields.fieldId':1,
-                'otherFields.fieldName': 1,
-                'otherFields.value': 1,
-                contactNumber: 1,
-                profilePicture: 1,
-                email: 1
-              }
-            }, {
-              $sort:{
-                id:-1
-              }
-            }, {
-              $skip:skip
-            },{
-              $limit:10
-            }];
-            let result = await User.aggregate(aggregate);*/
-      /*const result = await User.find(query).populate([{
-              path: "appointmentId",
-              select: "name status",
-              match: {
-                status: 1
-              }
-            },
-            {
-              path: "parentBussinessUnitId",
-              select: "name",
-              populate: {
-                path: "sectionId",
-                select: "name",
-                populate: {
-                  path: "departmentId",
-                  select: "name",
-                  populate: {
-                    path: "companyId",
-                    select: "name"
-                  }
-                }
-              }
-            }]).select({ staffId: 1, name: 1, 'appointmentId.name':1, 'parentBussinessUnitId.name':1, otherFields: 1, 'otherFields.fieldName': 1, 'otherFields.value': 1, contactNumber: 1, profilePicture: 1, email: 1 }).sort({ name: 1 }).skip(skip).limit(10).lean();*/
       return __.out(res, 201, result);
     } catch (error) {
       __.log(error);
@@ -3025,28 +2743,28 @@ class user {
 
       if (!!req.query.getPriv) {
         const doc = await User.findOne(searchQuery).populate([
-            {
-              path: 'role',
+          {
+            path: 'role',
+            match: {
+              status: 1,
+            },
+            select: 'privileges',
+            populate: {
+              path: 'privileges',
               match: {
                 status: 1,
               },
-              select: 'privileges',
+              select: 'name description flags privilegeCategoryId',
               populate: {
-                path: 'privileges',
+                path: 'privilegeCategoryId',
                 match: {
                   status: 1,
                 },
-                select: 'name description flags privilegeCategoryId',
-                populate: {
-                  path: 'privilegeCategoryId',
-                  match: {
-                    status: 1,
-                  },
-                  select: 'name',
-                },
+                select: 'name',
               },
             },
-          ]),
+          },
+        ]),
           doc2 = doc.toObject();
         const privilegeFlags = await __.getUserPrivilegeObject(
           doc2.role.privileges,
