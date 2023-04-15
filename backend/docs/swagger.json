@@ -3380,6 +3380,438 @@
                     "url": "https://admin.netroc3.tk"
                 }
             ]
+        },
+        "/assginshift/log": {
+            "post": {
+                "tags": [
+                    "Assign Shifts"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/assginshift_log_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"weekRangeStartsAt\":\"04-10-2023 00:00:00 GMT+0530\",\"weekRangeEndsAt\":\"04-16-2023 00:00:00 GMT+0530\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/assginshift/staff/delete": {
+            "post": {
+                "tags": [
+                    "Assign Shifts"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/staff_delete_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"assignShiftId\":[\"6423023e8a0c519c813f12a5\",\"6423023e8a0c519c813f12a6\",\"6423023e8a0c519c813f12a7\",\"6423023e8a0c519c813f12a8\",\"6423023e8a0c519c813f12a9\",\"6423023e8a0c519c813f12aa\",\"6423023e8a0c519c813f12ab\"],\"userId\":\"5a99737036ab4f444b42718a\"}\r\n"
+                                },
+                                "1": {
+                                    "value": "{\"assignShiftId\":[\"6421c33f8a0c519c813e22c4\"],\"userId\":\"5a99737036ab4f444b42718a\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/assginshift/staff/update": {
+            "post": {
+                "tags": [
+                    "Assign Shifts"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/staff_update_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"user\":[{\"assignShiftId\":\"642d1b453c49444208ab159f\",\"Date\":\"06-04-2023\",\"StartDate\":\"06-04-2023\",\"StartTime\":\"15:00:00\",\"EndDate\":\"06-04-2023\",\"EndTime\":\"16:00:00\",\"timeFormat\":\"GMT+0530\",\"isOff\":false,\"isRest\":false,\"splitStartTime\":\"17:00:00\",\"splitEndTime\":\"18:00:00\",\"isSplitShift\":true,\"isCheckInEnabled\":false,\"isProximityEnabled\":true,\"geoReportingLocation\":null,\"reportLocationId\":\"5a9d171036ab4f444b4271d8\",\"subSkillSets\":[\"5a991ddb36ab4f444b427178\"]}]}\r\n"
+                                },
+                                "2": {
+                                    "value": "{\"user\":[{\"assignShiftId\":\"6421c33f8a0c519c813e22c4\",\"Date\":\"29-03-2023\",\"StartDate\":\"29-03-2023\",\"StartTime\":\"19:00:00\",\"EndDate\":\"29-03-2023\",\"EndTime\":\"21:00:00\",\"timeFormat\":\"GMT+0530\",\"isOff\":false,\"isRest\":false,\"splitStartTime\":\"undefined:00\",\"splitEndTime\":\"undefined:00\",\"isSplitShift\":false,\"isCheckInEnabled\":true,\"isProximityEnabled\":true,\"proximity\":350,\"reportLocationId\":null,\"geoReportingLocation\":\"64156f11e764ec3428518d30\",\"subSkillSets\":[\"633ae0771e18ec42d9a5189a\"]}]}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/companyUser/readUserByPlanBU/assignShift": {
+            "post": {
+                "tags": [
+                    "Assign Shifts"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/readUserByPlanBU_assignShift_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"page\":1,\"parentBussinessUnitId[]\":\"5bd723a8c1e35a7a250d562a\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/assginshift/publishAll": {
+            "post": {
+                "tags": [
+                    "Assign Shifts"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/assginshift_publishAll_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"weekRangeStartsAt\":\"03-27-2023 00:00:00 GMT+0530\",\"weekRangeEndsAt\":\"04-02-2023 00:00:00 GMT+0530\",\"assignShiftIds\":[\"6421c33f8a0c519c813e22c4\"]}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/assginshift/stafflist/test201": {
+            "get": {
+                "tags": [
+                    "Assign Shifts"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/assginshift/alertaction": {
+            "post": {
+                "tags": [
+                    "Assign Shifts"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/assginshift_alertaction_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"assignShiftId\":\"6427d47f2b1b206e4b8c7276\",\"from\":\"yes\"}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/assginshift/stafflisting": {
+            "post": {
+                "tags": [
+                    "Assign Shifts"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/assginshift_stafflisting_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"businessUnitId\":\"5bd723a8c1e35a7a250d562a\",\"plannedBy\":\"5a98fb9536ab4f444b427176\",\"timeFormat\":\"GMT+0530\",\"userId\":\"5c0f2ff2d818ed0513fe47c5\",\"weekNumber\":13,\"weekRangeEndsAt\":\"04-02-2023 00:00:00 GMT+0530\",\"weekRangeStartsAt\":\"03-27-2023 00:00:00 GMT+0530\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/assginshift/read": {
+            "post": {
+                "tags": [
+                    "Assign Shifts"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/assginshift_read_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\r\n    \"businessUnitId\": \"5bd723a8c1e35a7a250d562a\",\r\n    \"weekRangeStartsAt\": \"03-27-2023 00:00:00 GMT+0530\",\r\n    \"weekRangeEndsAt\": \"04-02-2023 00:00:00 GMT+0530\",\r\n    \"timeZone\": 330\r\n}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/shift/create/restoff": {
+            "post": {
+                "tags": [
+                    "Assign Shifts"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/create_restoff_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"shiftDetailId\":\"64228eac8a0c519c813e518a\",\"startTime\":\"04-01-2023 14:30:00 GMT+0530\",\"endTime\":\"04-16-2023 15:30:00 GMT+0530\",\"reportLocationId\":\"5a991df336ab4f444b42717a\",\"mainSkillSets\":[],\"subSkillSets\":[\"5a991ddb36ab4f444b427178\"],\"isOffed\":true,\"isRested\":false,\"userId\":\"5a98fb9536ab4f444b427176\",\"assignShiftId\":\"64219b7628ee65be974249cc\",\"isSplitShift\":false,\"splitStartTime\":\"04-01-2023 undefined:00 GMT+0530\",\"splitEndTime\":\"04-01-2023 undefined:00 GMT+0530\"}\r\n"
+                                },
+                                "1": {
+                                    "value": "{\"shiftDetailId\":\"64228eac8a0c519c813e518a\",\"startTime\":\"04-01-2023 14:30:00 GMT+0530\",\"endTime\":\"04-01-2023 15:30:00 GMT+0530\",\"reportLocationId\":\"5a991df336ab4f444b42717a\",\"mainSkillSets\":[],\"subSkillSets\":[\"5a991ddb36ab4f444b427178\"],\"isOffed\":true,\"isRested\":false,\"userId\":\"5a98fb9536ab4f444b427176\",\"assignShiftId\":\"64219b7628ee65be974249cc\",\"isSplitShift\":false,\"splitStartTime\":\"04-01-2023 undefined:00 GMT+0530\",\"splitEndTime\":\"04-01-2023 undefined:00 GMT+0530\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
         }
     },
     "components": {
@@ -5257,6 +5689,240 @@
                         "type": "string"
                     },
                     "startDate": {
+                        "type": "string"
+                    }
+                }
+            },
+            "create_restoff_body": {
+                "type": "object",
+                "properties": {
+                    "assignShiftId": {
+                        "type": "string"
+                    },
+                    "isRested": {
+                        "type": "boolean"
+                    },
+                    "isSplitShift": {
+                        "type": "boolean"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "isOffed": {
+                        "type": "boolean"
+                    },
+                    "subSkillSets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "splitEndTime": {
+                        "type": "string"
+                    },
+                    "reportLocationId": {
+                        "type": "string"
+                    },
+                    "shiftDetailId": {
+                        "type": "string"
+                    },
+                    "splitStartTime": {
+                        "type": "string"
+                    },
+                    "startTime": {
+                        "type": "string"
+                    },
+                    "endTime": {
+                        "type": "string"
+                    },
+                    "mainSkillSets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "staff_delete_body": {
+                "type": "object",
+                "properties": {
+                    "assignShiftId": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "userId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "assginshift_log_body": {
+                "type": "object",
+                "properties": {
+                    "weekRangeEndsAt": {
+                        "type": "string"
+                    },
+                    "weekRangeStartsAt": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "staff_update_body": {
+                "type": "object",
+                "properties": {
+                    "user": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/assginshiftstaffupdate_user"
+                        }
+                    }
+                }
+            },
+            "assginshift_read_body": {
+                "type": "object",
+                "properties": {
+                    "weekRangeEndsAt": {
+                        "type": "string"
+                    },
+                    "timeZone": {
+                        "type": "integer"
+                    },
+                    "weekRangeStartsAt": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "assginshift_stafflisting_body": {
+                "type": "object",
+                "properties": {
+                    "weekRangeEndsAt": {
+                        "type": "string"
+                    },
+                    "plannedBy": {
+                        "type": "string"
+                    },
+                    "timeFormat": {
+                        "type": "string"
+                    },
+                    "weekRangeStartsAt": {
+                        "type": "string"
+                    },
+                    "userId": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
+                        "type": "string"
+                    },
+                    "weekNumber": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "assginshiftstaffupdate_user": {
+                "type": "object",
+                "properties": {
+                    "assignShiftId": {
+                        "type": "string"
+                    },
+                    "EndTime": {
+                        "type": "string"
+                    },
+                    "StartTime": {
+                        "type": "string"
+                    },
+                    "isSplitShift": {
+                        "type": "boolean"
+                    },
+                    "geoReportingLocation": {
+                        "type": "string"
+                    },
+                    "EndDate": {
+                        "type": "string"
+                    },
+                    "Date": {
+                        "type": "string"
+                    },
+                    "isCheckInEnabled": {
+                        "type": "boolean"
+                    },
+                    "StartDate": {
+                        "type": "string"
+                    },
+                    "subSkillSets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "splitEndTime": {
+                        "type": "string"
+                    },
+                    "isProximityEnabled": {
+                        "type": "boolean"
+                    },
+                    "proximity": {
+                        "type": "integer"
+                    },
+                    "isRest": {
+                        "type": "boolean"
+                    },
+                    "reportLocationId": {},
+                    "timeFormat": {
+                        "type": "string"
+                    },
+                    "splitStartTime": {
+                        "type": "string"
+                    },
+                    "isOff": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "assginshift_alertaction_body": {
+                "type": "object",
+                "properties": {
+                    "assignShiftId": {
+                        "type": "string"
+                    },
+                    "from": {
+                        "type": "string"
+                    }
+                }
+            },
+            "readUserByPlanBU_assignShift_body": {
+                "type": "object",
+                "properties": {
+                    "page": {
+                        "type": "integer"
+                    },
+                    "parentBussinessUnitId[]": {
+                        "type": "string"
+                    }
+                }
+            },
+            "assginshift_publishAll_body": {
+                "type": "object",
+                "properties": {
+                    "weekRangeEndsAt": {
+                        "type": "string"
+                    },
+                    "assignShiftIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "weekRangeStartsAt": {
+                        "type": "string"
+                    },
+                    "businessUnitId": {
                         "type": "string"
                     }
                 }

@@ -1,6 +1,6 @@
 // Controller Code Starts here
 const Shift = require('../../models/shift'),
-mongoose = require('mongoose'),
+  mongoose = require('mongoose'),
   ShiftDetails = require('../../models/shiftDetails'),
   ShiftLog = require('../../models/shiftLog'),
   StaffLimit = require('../../models/staffLimit'),
@@ -27,36 +27,10 @@ const fs = require('fs');
 const csv = require('csvtojson');
 const { isNull } = require('lodash');
 const pageSetting = require('../../models/pageSetting');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
+
 let uploadFilePath = '';
-// const redisClient = require('../../../helpers/redis.js');
-// const redisData = require('../../../helpers/redisDataGenerator');
 class assignShift {
-  // async updateRedis(
-  //   businessUnitId,
-  //   from = false,
-  //   date = null,
-  //   redisTimeZone = 'GMT+0800',
-  // ) {
-  //   console.log('before update assign shift', date);
-  //   await redisData.readAssignShiftNext(
-  //     businessUnitId,
-  //     from,
-  //     date,
-  //     redisTimeZone,
-  //   );
-  //   console.log('after redis update in assingshift');
-  //   // redisData.readNewNext(businessUnitId);
-  //   return true;
-  // }
-  // setRedisData(key, data) {
-  //   redisClient.set(key, JSON.stringify(data), 'EX', 10 * 60, (err) => {
-  //     //cache for 10mins
-  //     if (err) {
-  //     }
-  //     //other operations will go here
-  //     //probably respond back to the request
-  //   });
-  // }
   getDayName(dateString) {
     var days = [
       'Sunday',
@@ -73,8 +47,8 @@ class assignShift {
   }
   async createStaffListing(req, res) {
     try {
+      logInfo(`assginshift/stafflisting API Start!`, { name: req.user.name, staffId: req.user.staffId });
       var bodyData = req.body;
-      // const redisBuId = bodyData.businessUnitId;
       var weekStart = moment(
         bodyData.weekRangeStartsAt,
         'MM-DD-YYYY HH:mm:ss Z',
@@ -86,20 +60,17 @@ class assignShift {
         .format();
       var wholeWeekData = [];
       var weekNumber = __.weekNoStartWithMonday(weekStart);
-      // var assignShiftDataPresent = await AssignShift.find({weekNumber:weekNumber,staffId})
       var userData = await User.findOne({ _id: bodyData.userId });
       const year = new Date(weekStart).getFullYear();
       let redisBuId;
       let mondayDate;
       let redisTimeZone;
-      // var assignShiftDataPresent = await AssignShift.find({ weekNumber: weekNumber, staff_id: userData._id });
       var assignShiftDataPresent = await AssignShift.find({
         weekNumber: weekNumber,
         staff_id: userData._id,
         $expr: { $eq: [{ $year: '$weekRangeStartsAt' }, year] },
       });
 
-      console.log('assignShiftDataPresent', assignShiftDataPresent.length);
       if (assignShiftDataPresent.length == 0) {
         for (var i = 0; i < 7; i++) {
           var date = moment(new Date(weekStart)).add('days', i);
@@ -125,7 +96,6 @@ class assignShift {
           wholeWeekData.push(obj);
         }
         const insert = await AssignShift.insertMany(wholeWeekData);
-        // var insert = []
         var dayWiseData = [];
         for (let i = 0; i < insert.length; i++) {
           var item = insert[i];
@@ -146,7 +116,6 @@ class assignShift {
         for (let i = 0; i < assignShiftDataPresent.length; i++) {
           var item = assignShiftDataPresent[i];
           if (i === 0) {
-            console.log('item', item);
             redisBuId = item.businessUnitId;
             mondayDate = this.getMondayDate(item.weekRangeStartsAt);
             redisTimeZone = item.timeZone ? item.timeZone : 'GMT+0800';
@@ -159,21 +128,17 @@ class assignShift {
           dayWiseData.push(obj);
         }
       }
-      // const updateResult = await this.updateRedis(
-      //   redisBuId,
-      //   true,
-      //   mondayDate,
-      //   redisTimeZone,
-      // );
+      logInfo(`assginshift/stafflisting API ends here!`, { name: req.user.name, staffId: req.user.staffId });
       return res.status(200).json({
         success: true,
         msg: 'shift list created successfully',
         dayWiseData,
       });
-    } catch (e) {
+    } catch (error) {
+      logError(`assginshift/stafflisting API, there is an error`, error.toString());
       return res
         .status(200)
-        .json({ success: false, msg: 'something went wrong', e });
+        .json({ success: false, msg: 'something went wrong', error });
     }
   }
   async createEmptyShift(data, req) {
@@ -1521,7 +1486,7 @@ class assignShift {
             (new Date(item.weekRangeStartsAt).getTime() <=
               new Date(item.date).getTime() &&
               new Date(item.weekRangeEndsAt).getTime() >=
-                new Date(item.date).getTime())
+              new Date(item.date).getTime())
           ) {
             const shiftResult = await AssignShift.find({
               staff_id: item.staff_id,
@@ -1566,18 +1531,18 @@ class assignShift {
               const shiftAlreadyPresent = shiftResult.filter((shiftAl) => {
                 return (
                   new Date(shiftAl.startTime).getTime() ===
-                    new Date(item.startTime).getTime() &&
+                  new Date(item.startTime).getTime() &&
                   new Date(shiftAl.endTime).getTime() ===
-                    new Date(item.endTime).getTime()
+                  new Date(item.endTime).getTime()
                 );
               });
               const shiftAlreadyPresentDetails = shiftDetailsF.filter(
                 (shiftAl) => {
                   return (
                     new Date(shiftAl.startTime).getTime() ===
-                      new Date(item.startTime).getTime() &&
+                    new Date(item.startTime).getTime() &&
                     new Date(shiftAl.endTime).getTime() ===
-                      new Date(item.endTime).getTime()
+                    new Date(item.endTime).getTime()
                   );
                 },
               );
@@ -1601,11 +1566,11 @@ class assignShift {
                     (new Date(shiftOverl.startTime).getTime() <=
                       new Date(item.startTime).getTime() &&
                       new Date(shiftOverl.endTime).getTime() >=
-                        new Date(item.startTime).getTime()) ||
+                      new Date(item.startTime).getTime()) ||
                     (new Date(shiftOverl.startTime).getTime() <=
                       new Date(item.endTime).getTime() &&
                       new Date(shiftOverl.endTime).getTime() >=
-                        new Date(item.endTime).getTime())
+                      new Date(item.endTime).getTime())
                   );
                 });
                 shiftOverlappingDetails = shiftDetailsF.filter((shiftOverl) => {
@@ -1613,11 +1578,11 @@ class assignShift {
                     (new Date(shiftOverl.startTime).getTime() <=
                       new Date(item.startTime).getTime() &&
                       new Date(shiftOverl.endTime).getTime() >=
-                        new Date(item.startTime).getTime()) ||
+                      new Date(item.startTime).getTime()) ||
                     (new Date(shiftOverl.startTime).getTime() <=
                       new Date(item.endTime).getTime() &&
                       new Date(shiftOverl.endTime).getTime() >=
-                        new Date(item.endTime).getTime())
+                      new Date(item.endTime).getTime())
                   );
                 });
                 // console.log('overlap');
@@ -1771,7 +1736,7 @@ class assignShift {
             (new Date(item.weekRangeStartsAt).getTime() <=
               new Date(item.date).getTime() &&
               new Date(item.weekRangeEndsAt).getTime() >=
-                new Date(item.date).getTime())
+              new Date(item.date).getTime())
           ) {
             console.log('hereeee');
             AssignShift.find({
@@ -1819,9 +1784,9 @@ class assignShift {
                   const shiftAlreadyPresent = shiftResult.filter((shiftAl) => {
                     return (
                       new Date(shiftAl.startTime).getTime() ===
-                        new Date(item.startTime).getTime() &&
+                      new Date(item.startTime).getTime() &&
                       new Date(shiftAl.endTime).getTime() ===
-                        new Date(item.endTime).getTime()
+                      new Date(item.endTime).getTime()
                     );
                   });
                   //console.log('filter');
@@ -1837,11 +1802,11 @@ class assignShift {
                         (new Date(shiftOverl.startTime).getTime() <=
                           new Date(item.startTime).getTime() &&
                           new Date(shiftOverl.endTime).getTime() >=
-                            new Date(item.startTime).getTime()) ||
+                          new Date(item.startTime).getTime()) ||
                         (new Date(shiftOverl.startTime).getTime() <=
                           new Date(item.endTime).getTime() &&
                           new Date(shiftOverl.endTime).getTime() >=
-                            new Date(item.endTime).getTime())
+                          new Date(item.endTime).getTime())
                       );
                     });
                     // console.log('overlap');
@@ -2255,7 +2220,7 @@ class assignShift {
             (new Date(item.weekRangeStartsAt).getTime() <=
               new Date(item.date).getTime() &&
               new Date(item.weekRangeEndsAt).getTime() >=
-                new Date(item.date).getTime())
+              new Date(item.date).getTime())
           ) {
             AssignShift.find({ staff_id: item.staff_id, date: item.date })
               .then(async (shiftResult) => {
@@ -2264,9 +2229,9 @@ class assignShift {
                   const shiftAlreadyPresent = shiftResult.filter((shiftAl) => {
                     return (
                       new Date(shiftAl.startTime).getTime() ===
-                        new Date(item.startTime).getTime() &&
+                      new Date(item.startTime).getTime() &&
                       new Date(shiftAl.endTime).getTime() ===
-                        new Date(item.endTime).getTime()
+                      new Date(item.endTime).getTime()
                     );
                   });
                   //console.log('filter');
@@ -2282,11 +2247,11 @@ class assignShift {
                         (new Date(shiftOverl.startTime).getTime() <=
                           new Date(item.startTime).getTime() &&
                           new Date(shiftOverl.endTime).getTime() >=
-                            new Date(item.startTime).getTime()) ||
+                          new Date(item.startTime).getTime()) ||
                         (new Date(shiftOverl.startTime).getTime() <=
                           new Date(item.endTime).getTime() &&
                           new Date(shiftOverl.endTime).getTime() >=
-                            new Date(item.endTime).getTime())
+                          new Date(item.endTime).getTime())
                       );
                     });
                     // console.log('overlap');
@@ -2884,11 +2849,15 @@ class assignShift {
   }
   async updateStaffShift(req, res) {
     try {
+      logInfo(`assginshift/staff/update API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`assginshift/staff/update entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       let requiredResult = await __.checkRequiredFields(req, ['user']);
       if (requiredResult.status === false) {
+        logError(`assginshift/staff/update API, Required fields missing `, requiredResult1.missingFields);
+        logError(`assginshift/staff/update API, request payload `, req.body);
         return res.json({
           success: false,
           msg: 'missing fields ' + requiredResult.missingFields.toString(),
@@ -2908,25 +2877,15 @@ class assignShift {
         }
         const callResult = await Promise.all(callResultArr);
         const obj = callResult[0];
-        // return res.json({ obj })
-        console.log('obj', obj);
         if (obj.success) {
+          logInfo(`assginshift/staff/update API 'Shift is Overlapping' ends here!`, { name: req.user.name, staffId: req.user.staffId });
           return res.json({ success: false, message: 'Shift is Overlapping' });
         }
-        // const updateResult = await this.updateRedis(
-        //   obj.redisBuId,
-        //   true,
-        //   obj.mondayDate,
-        //   obj.redisTimeZone,
-        // );
-        // if (publishArr.length > 0) {
-        //     console.log('hereree in publish')
-        //     await this.publishAllFromMobile(publishArr);
-        // }
+        logInfo(`assginshift/staff/update API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         return res.json({ success: true, msg: 'Assign Shift updated' });
       }
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      logError(`assginshift/staff/update API, there is an error`, err.toString());
       return res.json({ success: false, msg: 'Something went wrong' });
     }
   }
@@ -3043,7 +3002,7 @@ class assignShift {
         if (limitData.status) {
           isAlert = true;
         }
-        console.log("item======",item);
+        console.log("item======", item);
         const data = await AssignShift.findOneAndUpdate(
           { _id: item.assignShiftId },
           {
@@ -3072,10 +3031,10 @@ class assignShift {
               splitEndTime,
               splitStartTimeInSeconds,
               splitEndTimeInSeconds,
-              geoReportingLocation: item.geoReportingLocation ,
+              geoReportingLocation: item.geoReportingLocation,
               isProximityEnabled: item.isProximityEnabled,
-              isCheckInEnabled:item.isCheckInEnabled,
-              proximity : item.proximity
+              isCheckInEnabled: item.isCheckInEnabled,
+              proximity: item.proximity
             },
           },
         );
@@ -3285,8 +3244,7 @@ class assignShift {
   }
   async read(req, res) {
     try {
-      // console.log(req.body);
-      //return res.send('hey');
+      logInfo(`assginshift/read API Start!`, { name: req.user.name, staffId: req.user.staffId });
       const usersOfBu = await User.find(
         {
           $or: [
@@ -3298,41 +3256,16 @@ class assignShift {
         { _id: 1 },
       );
       const currentDateR = req.body.weekRangeStartsAt.split(' ')[0];
-      // const redisKey = `assingShiftR${req.body.businessUnitId}${currentDateR}`;
-      // const redisData = await redisClient.get(`${redisKey}`);
-      // if (redisData) {
-      //   console.log('DATATATATATA Present');
-      //   return res.json(JSON.parse(redisData));
-      // }
-      console.log(
-        'bsadh',
-        moment(req.body.weekRangeStartsAt, 'MM-DD-YYYY HH:mm:ss Z')
-          .utc()
-          .format(),
-      );
-      console.log(
-        'enddd',
-        moment(req.body.weekRangeEndsAt, 'MM-DD-YYYY HH:mm:ss Z')
-          .utc()
-          .format(),
-      );
       const ddd = moment(new Date(req.body.weekRangeStartsAt))
         .utc()
         .format('MM-DD-YYYY HH:mm:ss Z');
       const end = moment(new Date(req.body.weekRangeStartsAt))
         .utcOffset(480)
         .format('MM-DD-YYYY HH:mm:ss Z');
-      console.log('format', ddd);
-      console.log('agian', moment(ddd, 'MM-DD-YYYY HH:mm:ss Z').utc().format());
-      //weekRangeStartsAt:moment(req.body.weekRangeStartsAt, 'MM-DD-YYYY HH:mm:ss Z').utc().format(),
-      // weekRangeEndsAt:moment(req.body.weekRangeEndsAt, 'MM-DD-YYYY HH:mm:ss Z').utc().format()
-      // return res.send('aaaa');
       const year = new Date(ddd).getFullYear();
       const month = new Date(ddd).getMonth() + 1;
-      const day = new Date(ddd).getDate(); // -1; comment out for local
-      console.log('yy', year, month, day);
+      const day = new Date(ddd).getDate() - 1; //comment out for local
       const where = {
-        //  staff_id:{$in: usersOfBu},
         businessUnitId: req.body.businessUnitId,
         $and: [
           { $expr: { $eq: [{ $year: '$weekRangeStartsAt' }, year] } },
@@ -3340,12 +3273,11 @@ class assignShift {
           { $expr: { $eq: [{ $dayOfMonth: '$weekRangeStartsAt' }, day] } },
         ],
       };
-      console.log(JSON.stringify(where));
       const findOrFindOne = AssignShift.find(where);
       let shifts1 = await findOrFindOne
         .select(
           'staffId staff_id staffAppointmentId staffRoleId _id date reportLocationId startTime endTime day status ' +
-            'shiftChangeRequestStatus subSkillSets shiftRead draftStatus shiftChangeRequestMessage duration shiftDetailId schemeDetails alertMessage isLimit isAlert isAllowPublish isOff isRest splitStartTime splitEndTime isSplitShift isRecalled isRecallAccepted isEmpty mainSkillSets skillSetTierType geoReportingLocation proximity isCheckInEnabled isProximityEnabled',
+          'shiftChangeRequestStatus subSkillSets shiftRead draftStatus shiftChangeRequestMessage duration shiftDetailId schemeDetails alertMessage isLimit isAlert isAllowPublish isOff isRest splitStartTime splitEndTime isSplitShift isRecalled isRecallAccepted isEmpty mainSkillSets skillSetTierType geoReportingLocation proximity isCheckInEnabled isProximityEnabled',
         )
         .populate([
           {
@@ -3416,20 +3348,11 @@ class assignShift {
             path: 'geoReportingLocation',
             select: '_id name'
           },
-          
-          // , {
-          //     path: 'staffAppointmentId',
-          //     select: 'name'
-          // },{
-          //     path: 'staffRoleId',
-          //     select: 'name'
-          // }
         ])
         .sort({ staffId: -1 });
 
       let shifts = JSON.stringify(shifts1);
       shifts = JSON.parse(shifts);
-      // console.log("shifts: ", shifts.length);
       if (shifts.length > 0) {
         var days = [
           'Sunday',
@@ -3469,20 +3392,15 @@ class assignShift {
             item.staffAppointmentId = user.appointmentId;
             item.staffRoleId = user.role;
           }
-          //console.log('item.startTime', item.startTime, item._id);
-          console.log('item.date', item.date);
+
           var d = moment(new Date(item.date))
             .utcOffset(req.body.timeZone)
             .format('MM-DD-YYYY'); //new Date(item.startTime);
-          console.log('d', d);
           const date = moment(d, 'MM-DD-YYYY');
           const dow = date.day();
-          console.log(dow);
-          // console.log('item.startTime',d, new Date(d))
           var dayName = days[dow];
           item.dayName = dayName;
           if (item.shiftDetailId && item.shiftDetailId.isExtendedShift) {
-            // console.log('item.shiftDetailId.isExtendedShift', item.shiftDetailId.isExtendedShift);
             item.startTime = item.shiftDetailId.extendedStaff[0].startDateTime;
             item.endTime = item.shiftDetailId.extendedStaff[0].endDateTime;
             item.isExtendedShift = item.shiftDetailId.isExtendedShift;
@@ -3491,7 +3409,6 @@ class assignShift {
           if (ops) {
             item.staff_id['opsGroupName'] = ops.opsGroupName;
           }
-          //   console.log("ITEM IS: ",item);
         }
 
         shifts = _.mapValues(_.groupBy(shifts, 'dayName'));
@@ -3504,23 +3421,14 @@ class assignShift {
           Saturday: shifts.Saturday,
           Sunday: shifts.Sunday,
         };
-        // console.log('shifts', JSON.stringify(shifts))
-        // this.setRedisData(redisKey, {
-        //   status: true,
-        //   shifts: newShifts,
-        //   message: 'Week Data',
-        // });
+        logInfo(`assginshift/read API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         res.json({ status: true, shifts: newShifts, message: 'Week Data' });
       } else {
-        // this.setRedisData(redisKey, {
-        //   status: false,
-        //   shifts: [],
-        //   message: 'No Week Data Found',
-        // });
+        logInfo(`assginshift/read API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         res.json({ status: false, shifts: [], message: 'No Week Data Found' });
       }
     } catch (error) {
-      __.log(error);
+      logError(`assginshift/read API, there is an error`, error.toString());
       return __.out(res, 500, error);
     }
   }
@@ -3644,38 +3552,14 @@ class assignShift {
   }
   async reduceLimitDelete(res, schemeDetails, details) {
     try {
-      // var hourTypeData = await this.getHourType(schemeDetails);
-      // var otDuration = 0;
-      // var normalDuration = 0;
-      // if (from == 0) {
-      //     if (hourTypeData.isOtHour) {
-      //         otDuration = (-1) * details.duration;
-      //     } else {
-      //         normalDuration = (-1) * details.duration;
-      //     }
-      // } else {
-      //     if (hourTypeData.isOtHour) {
-      //         otDuration = (1) * details.duration;
-      //     } else {
-      //         normalDuration = (1) * details.duration;
-      //     }
-      // }
-      // console.log('details.staff_id', details.staff_id, details._id)
       const value = await StaffLimit.deleteMany({
         userId: details.staff_id,
         assignShiftId: details._id,
       });
-      // console.log('value***************', value)
-      // if (value.n == 0 && from == 1 && limitData) {
-      //     console.log('Insert new limit', limitData.staffLimitData)
-      //     let obj = limitData.staffLimitData;
-      //     obj.assignShiftId = details._id;
-      //     await new StaffLimit(obj).save();
-      //     //limitData
-      // }
       return value;
     } catch (error) {
       __.log(error);
+      logError(`reduceLimitDelete function, there is an error`, error.toString());
       return __.out(res, 500, error);
     }
   }
@@ -3715,9 +3599,7 @@ class assignShift {
   }
   async alertAction(req, res) {
     try {
-      // userId
-      // assignShiftId
-      // from
+      logInfo(`assginshift/alertaction API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (req.body.from == 'yes') {
         var aa = await AssignShift.findOneAndUpdate(
           { _id: req.body.assignShiftId },
@@ -3726,13 +3608,7 @@ class assignShift {
         const redisBuId = aa.businessUnitId;
         let mondayDate = this.getMondayDate(new Date(aa.weekRangeStartsAt));
         let redisTimeZone = aa.timeZone;
-        // const updateResult = await this.updateRedis(
-        //   redisBuId,
-        //   true,
-        //   mondayDate,
-        //   redisTimeZone,
-        // );
-        // this.updateRedis(redisBuId)
+        logInfo(`assginshift/alertaction API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         return res.json({
           status: true,
           message: 'You have selected to proceed',
@@ -3750,20 +3626,14 @@ class assignShift {
         const redisBuId = aa.businessUnitId;
         let mondayDate = this.getMondayDate(new Date(aa.weekRangeStartsAt));
         let redisTimeZone = aa.timeZone;
-        // const updateResult = await this.updateRedis(
-        //   redisBuId,
-        //   true,
-        //   mondayDate,
-        //   redisTimeZone,
-        // );
+        logInfo(`assginshift/alertaction API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         return res.json({
           status: true,
           message: 'You have selected not to proceed',
         });
-        //var value await StaffLimit.findByIdAndUpdate({userId: req.body.})
       }
     } catch (error) {
-      __.log(error);
+      logError(`assginshift/alertaction API, there is an error`, error.toString());
       return __.out(res, 500, error);
     }
   }
@@ -3900,7 +3770,7 @@ class assignShift {
   }
   async publishAll(req, res) {
     try {
-      console.log(req.body.assignShiftIds);
+      logInfo(`assginshift/publishAll API Start!`, { name: req.user.name, staffId: req.user.staffId });
       const failPublish = [];
       const insertedShift = [];
       let notificationObj = {};
@@ -3909,7 +3779,6 @@ class assignShift {
       let redisBuId;
       let redisTimeZone;
       const allShifts = await this.getAllDraftShift(req.body.assignShiftIds);
-      console.log('1');
       if (allShifts && allShifts.length > 0) {
         redisBuId = allShifts[0].businessUnitId;
         const weekStart = moment(allShifts[0].weekRangeStartsAt, 'DD MMM')
@@ -3918,11 +3787,9 @@ class assignShift {
         let mondayDate = this.getMondayDate(
           new Date(allShifts[0].weekRangeStartsAt),
         );
-        console.log('weekStart', weekStart);
         const weekEnd = moment(allShifts[0].weekRangeEndsAt, 'DD MMM')
           .utcOffset(allShifts[0].timeZone)
           .format('DD MMMM');
-        console.log('weekStart', weekEnd);
         redisTimeZone = allShifts[0].timeZone;
         notificationObj = {
           body: `Your shifts for ${weekStart} to ${weekEnd} has been updated.`,
@@ -3931,12 +3798,8 @@ class assignShift {
           bodyTimeFormat: ['DD-MMM-YYYY HH:mm'],
         };
         for (let i = 0; i < allShifts.length; i++) {
-          console.log('2');
           const item = allShifts[i];
-          console.log("item=====",item)
           const insertShift = await this.addShift(item);
-          console.log('insertShift=============',insertShift);
-          console.log('3');
           if (insertShift) {
             const randomShiftId = new mongoose.Types.ObjectId();
             item['randomShiftId'] = randomShiftId;
@@ -3944,7 +3807,6 @@ class assignShift {
               item,
               insertShift,
             );
-            console.log("insertShiftDetail",insertShiftDetail);
             let insertShiftDetailSplit;
             if (item.isSplitShift) {
               insertShiftDetailSplit = await this.addShiftDetailSplit(
@@ -3953,8 +3815,6 @@ class assignShift {
               );
             }
             if (insertShiftDetail) {
-              // update shift
-              // applied
               const appliedStaff = await this.addAppliedStaff(
                 insertShift._id,
                 insertShiftDetail._id,
@@ -3969,7 +3829,6 @@ class assignShift {
                 );
               }
               if (appliedStaff) {
-                // updateShift
                 const updateInsertShift = await this.updateShift(
                   insertShift._id,
                   insertShiftDetail._id,
@@ -3982,7 +3841,6 @@ class assignShift {
                     true,
                   );
                 }
-                // updateShiftdetails
                 const updateInsertShiftDetail = await this.updateShiftDetail(
                   appliedStaff._id,
                   insertShiftDetail._id,
@@ -4001,7 +3859,6 @@ class assignShift {
                 insertShiftDetail = JSON.stringify(insertShiftDetail);
                 insertShiftDetail = JSON.parse(insertShiftDetail);
                 insertShiftDetail.status = 1;
-                console.log('itemitemitem', item.reportLocationName);
                 const staffLimitUpdate = await StaffLimit.updateOne(
                   { assignShiftId: item._id },
                   {
@@ -4011,37 +3868,26 @@ class assignShift {
                     },
                   },
                 );
-                console.log('staffLimitUpdate', staffLimitUpdate);
                 insertShiftDetail.reportLocationName = item.reportLocationName;
                 insertShiftDetail.faildMessage = 'Shift Publish Successfully';
-                if (item.isSplitShift) {
-                }
                 colKey = item._id;
                 userIdForNotification.push(item.staff_id);
                 insertedShift.push(insertShiftDetail);
               } else {
+                logError(`assginshift/publishAll API, there is an error`, 'Applying error');
                 item.faildMessage = 'Applying error';
                 item.status = 0;
                 failPublish.push(item);
-                // delete inserted shift addShift
               }
-            } else {
             }
           } else {
+            logError(`assginshift/publishAll API, there is an error`, 'Shift Adding Error');
             item.faildMessage = 'Shift Adding Error';
             item.status = 0;
             failPublish.push(item);
           }
         }
-        console.log('4');
-        // const updateResult = await this.updateRedis(
-        //   redisBuId,
-        //   true,
-        //   mondayDate,
-        //   redisTimeZone,
-        // );
         this.failedShiftInsert(res, failPublish, req, insertedShift, 1);
-        console.log('userIdForNotification', userIdForNotification);
         if (colKey) {
           this.sendNotification(
             res,
@@ -4050,6 +3896,7 @@ class assignShift {
             colKey,
           );
         }
+        logInfo(`assginshift/publishAll API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         res.json({
           status: true,
           message: 'Published Succesfully',
@@ -4058,10 +3905,11 @@ class assignShift {
           insertedShift,
         });
       } else {
+        logError(`assginshift/publishAll API, there is an error`, 'Something went wrong');
         res.json({ status: false, message: 'Something went wrong', code: 0 });
       }
     } catch (err) {
-      __.log(err);
+      logError(`assginshift/publishAll API, there is an error`, err.toString());
       __.out(res, 500, err);
     }
   }
@@ -4319,11 +4167,7 @@ class assignShift {
   }
   async readLog(req, res) {
     try {
-      // const where = {
-      //     businessUnitId: req.body.businessUnitId,
-      //     weekRangeStartsAt: moment(req.body.weekRangeStartsAt, 'MM-DD-YYYY HH:mm:ss Z').utc().format(),
-      //     weekRangeEndsAt: moment(req.body.weekRangeEndsAt, 'MM-DD-YYYY HH:mm:ss Z').utc().format()
-      // };
+      logInfo(`assginshift/log API Start!`, { name: req.user.name, staffId: req.user.staffId });
       const where = {
         businessUnitId: req.body.businessUnitId,
       };
@@ -4335,9 +4179,10 @@ class assignShift {
           },
         ])
         .sort({ _id: -1 });
+      logInfo(`assginshift/log API ends here!`, { name: req.user.name, staffId: req.user.staffId });
       return res.json({ status: true, data });
     } catch (err) {
-      __.log(err);
+      logError(`assginshift/log API, there is an error`, err.toString());
       __.out(res, 500, err);
     }
   }
@@ -4483,10 +4328,10 @@ class assignShift {
         isOff: shiftDetail.isOff,
         isRest: shiftDetail.isRest,
         isSplitShift: shiftDetail.isSplitShift,
-        geoReportingLocation : shiftDetail.geoReportingLocation,
-        proximity :shiftDetail.proximity,
-        isCheckInEnabled : shiftDetail.isCheckInEnabled,
-        isProximityEnabled : shiftDetail.isProximityEnabled,
+        geoReportingLocation: shiftDetail.geoReportingLocation,
+        proximity: shiftDetail.proximity,
+        isCheckInEnabled: shiftDetail.isCheckInEnabled,
+        isProximityEnabled: shiftDetail.isProximityEnabled,
         isParent: shiftDetail.isSplitShift ? 1 : null,
         randomShiftId: shiftDetail.isSplitShift ? shiftDetail.randomShiftId : null,
       };
@@ -4525,8 +4370,8 @@ class assignShift {
         isOff: shiftDetail.isOff,
         isRest: shiftDetail.isRest,
         isSplitShift: true,
-        isParent : 2,
-        randomShiftId : shiftDetail.randomShiftId
+        isParent: 2,
+        randomShiftId: shiftDetail.randomShiftId
       };
       new ShiftDetails(shiftObj)
         .save()
@@ -4563,7 +4408,7 @@ class assignShift {
   }
   async getStaffById(req, res) {
     try {
-      // console.log('req', req.user)
+      logInfo(`assginshift/stafflist/:staffId API Start!`, { name: req.user.name, staffId: req.user.staffId });
       let user = await User.findOne(
         {
           staffId: req.params.staffId,
@@ -4572,18 +4417,10 @@ class assignShift {
         },
         {
           _id: 1,
-          // role: 1,
-          // appointmentId: 1,
           mainSkillSets: 1,
           subSkillSets: 1,
-          // schemeId: 1,
         },
       ).populate([
-        // {
-        //   path: 'role',
-        //   select: 'name',
-        // },
-        // { path: 'appointmentId', select: 'name' },
         { path: 'mainSkillSets', select: 'name' },
         {
           path: 'subSkillSets',
@@ -4599,10 +4436,6 @@ class assignShift {
             },
           },
         },
-        // {
-        //   path: 'schemeId',
-        //   select: 'shiftSchemeType shiftSetup',
-        // },
       ]);
       const companySetup = await pageSetting.findOne(
         { companyId: req.user.companyId },
@@ -4615,114 +4448,26 @@ class assignShift {
       } else {
         delete user.mainSkillSets;
       }
-      console.log('user------one------', user);
-      // if (
-      //   user.schemeId &&
-      //   (user.schemeId.shiftSchemeType == 2 ||
-      //     user.schemeId.shiftSchemeType == 3)
-      // ) {
-      //   let assignShift = AssignShift.findOne({ staff_id: user._id });
-      //   let shifts1 = await assignShift
-      //     .select('staff_id startTime endTime ')
-      //     .populate([
-      //       {
-      //         path: 'staff_id',
-      //         select:
-      //           'name contactNumber email profilePicture staffId schemeId subSkillSets',
-      //         populate: [
-      //           {
-      //             path: 'role',
-      //             select: 'name',
-      //           },
-      //           { path: 'appointmentId', select: 'name' },
 
-      //           { path: 'mainSkillSets', select: 'name' },
-      //           {
-      //             path: 'subSkillSets',
-      //             select: 'name status',
-      //             match: {
-      //               status: 1,
-      //             },
-      //             populate: {
-      //               path: 'skillSetId',
-      //               select: 'name status',
-      //               match: {
-      //                 status: 1,
-      //               },
-      //             },
-      //           },
-      //           {
-      //             path: 'schemeId',
-      //             select: 'shiftSchemeType shiftSetup',
-      //           },
-      //         ],
-      //       },
-      //     ]);
-
-      //   let shifts = JSON.stringify(shifts1);
-      //   shifts = JSON.parse(shifts);
-      //   if (shifts && shifts.length > 0) {
-      //     var days = [
-      //       'Sunday',
-      //       'Monday',
-      //       'Tuesday',
-      //       'Wednesday',
-      //       'Thursday',
-      //       'Friday',
-      //       'Saturday',
-      //     ];
-      //     for (let i = 0; i <= shifts.length - 1; i++) {
-      //       let item = shifts[i];
-      //       console.log('item------------', item);
-      //     }
-      //   }
-
-      //   console.log('assignShift-----------------', shifts);
-      //   if (true || shifts) {
-      //     if (!shifts) {
-      //       shifts = {
-      //         user: user,
-      //         staff_id: user,
-      //       };
-      //     } else {
-      //       shifts.user = user;
-      //     }
-      //     res.json({
-      //       status: true,
-      //       isScheme: true,
-      //       user,
-      //       shifts,
-      //       message: 'Week Data',
-      //     });
-      //     console.log('user------------------------', user);
-      //   } else {
-      //   }
-      // } else {
-      //   res.json({
-      //     status: false,
-      //     isScheme: false,
-      //     shifts: [],
-      //     message: 'Assign Shift Scheme not assigned',
-      //   });
-      // }
+      logInfo(`assginshift/stafflist/:staffId API ends here!`, { name: req.user.name, staffId: req.user.staffId });
       res.json({
-            status: true,
-            isScheme: true,
-            user,
-            message: 'Week Data',
-          });
+        status: true,
+        isScheme: true,
+        user,
+        message: 'Week Data',
+      });
     } catch (err) {
-      __.log(err);
+      logError(`assginshift/stafflist/:staffId API, there is an error`, err.toString());
       __.out(res, 500, err);
     }
   }
   async deleteShift(req, res) {
     try {
+      logInfo(`assginshift/staff/delete API Start!`, { name: req.user.name, staffId: req.user.staffId });
       const assignShiftId = req.body.assignShiftId;
       if (assignShiftId.length == 1) {
         this.deleteShiftSingle(req, res);
       } else {
-        console.log('multiple');
         const userId = req.body.userId;
         let shiftId = [];
         var schemeDetails = await User.findOne({ _id: userId }).populate([
@@ -4731,8 +4476,6 @@ class assignShift {
           },
         ]);
         let shiftDetailsId = [];
-        console.log('schemeDetails');
-        //return res.json({ schemeDetails })
         let redisBuId;
         let mondayDate;
         let redisTimeZone;
@@ -4744,19 +4487,13 @@ class assignShift {
           );
         }
         const deleteResult = await Promise.all(deleleResultArr);
-        // const updateResult = await this.updateRedis(
-        //   deleteResult[0].redisBuId,
-        //   true,
-        //   deleteResult[0].mondayDate,
-        //   deleteResult[0].redisTimeZone,
-        // );
-        console.log('waited', deleteResult[0]);
+        logInfo(`assginshift/staff/delete API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         return res
           .status(200)
           .json({ success: true, msg: 'Deleted Successfully' });
       }
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      logError(`assginshift/staff/delete API, there is an error`, err.toString());
       return res
         .status(500)
         .json({ success: false, msg: 'Something went wrong' });
@@ -4800,14 +4537,11 @@ class assignShift {
         ? assignShiftData.timeZone
         : 'GMT+0800';
       resolve({ redisBuId, mondayDate, redisTimeZone });
-      // } else {
-      //     resolve(true)
-      // }
     });
   }
   async deleteShiftSingle(req, res) {
     try {
-      console.log('signle');
+      logInfo(`assginshift/staff/delete/single API Start!`, { name: req.user.name, staffId: req.user.staffId });
       const assignShiftId = req.body.assignShiftId;
       const userId = req.body.userId;
       var schemeDetails = await User.findOne({ _id: userId }).populate([
@@ -4820,7 +4554,6 @@ class assignShift {
       let redisBuId;
       let mondayDate;
       let redisTimeZone;
-      //for (let i = 0; i < assignShiftId.length; i++) {
       let i = 0;
       const id = assignShiftId[0];
 
@@ -4861,7 +4594,6 @@ class assignShift {
           schemeDetails.schemeId,
           assignShiftData,
         );
-        console.log('reduceData', reduceData);
       }
       if (assignShiftData && assignShiftData.shiftDetailId) {
         const shiftDetailData = await ShiftDetails.findOneAndRemove({
@@ -4873,18 +4605,12 @@ class assignShift {
           });
         }
       }
-      //}
-      // const updateResult = await this.updateRedis(
-      //   redisBuId,
-      //   true,
-      //   mondayDate,
-      //   redisTimeZone,
-      // );
+      logInfo(`assginshift/staff/delete/single API ends here!`, { name: req.user.name, staffId: req.user.staffId });
       return res
         .status(200)
         .json({ success: true, msg: 'Deleted Single Shift Successfully' });
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      logError(`assginshift/staff/delete/single API, there is an error`, err.toString());
       return res
         .status(500)
         .json({ success: false, msg: 'Something went wrong' });
