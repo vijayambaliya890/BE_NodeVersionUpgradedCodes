@@ -3264,7 +3264,7 @@ class assignShift {
         .format('MM-DD-YYYY HH:mm:ss Z');
       const year = new Date(ddd).getFullYear();
       const month = new Date(ddd).getMonth() + 1;
-      const day = new Date(ddd).getDate() - 1; //comment out for local
+      const day = new Date(ddd).getDate(); // - 1; comment out for local
       const where = {
         businessUnitId: req.body.businessUnitId,
         $and: [
