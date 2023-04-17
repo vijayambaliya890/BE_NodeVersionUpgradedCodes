@@ -646,7 +646,9 @@ class user {
   }
   async readUserByPlanBUForAssignShift(req, res) {
     try {
+      logInfo(`companyUser/readUserByPlanBU/assignShift API Start!`, { name: req.user.name, staffId: req.user.staffId });
       if (!__.checkHtmlContent(req.body)) {
+        logError(`companyUser/readUserByPlanBU/assignShift entered malicious input `, req.body);
         return __.out(res, 300, `You've entered malicious input`);
       }
       const page = !!req.body.page ? parseInt(req.body.page) * 10 : 0;
@@ -681,6 +683,7 @@ class user {
           };
         }
       } else {
+        logInfo(`companyUser/readUserByPlanBU/assignShift API ends here!`, { name: req.user.name, staffId: req.user.staffId });
         return __.out(res, 201, { items: [], count_filtered: 0 });
       }
       if (req.body.q !== undefined && req.body.q.trim()) {
@@ -780,6 +783,7 @@ class user {
         },
       ]);
       if (!users) {
+        logInfo(`companyUser/readUserByPlanBU/assignShift API, 'No users Found' ends here!`, { name: req.user.name, staffId: req.user.staffId });
         return __.out(res, 300, 'No users Found');
       }
       if (count_filtered[0].users.length > 0) {
@@ -787,9 +791,10 @@ class user {
       } else {
         count_filtered = 0;
       }
+      logInfo(`companyUser/readUserByPlanBU/assignShift API ends here!`, { name: req.user.name, staffId: req.user.staffId });
       return __.out(res, 201, { items: users, count_filtered });
     } catch (error) {
-      __.log(error);
+      logError(`companyUser/readUserByPlanBU/assignShift API, there is an error`, error.toString());
       return __.out(res, 300, error);
     }
   }
