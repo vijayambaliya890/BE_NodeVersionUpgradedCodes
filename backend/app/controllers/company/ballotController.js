@@ -1281,7 +1281,7 @@ class ballot {
               //console.log('ressasss', ressss);
               // notification for publish ballot
               // this.sendNotification(ressss)
-              this.ballotEvent(ressss, 'createBallot', false)
+              // this.ballotEvent(ressss, 'createBallot', false)
             }
 
             if (data.parentBallot) {
@@ -1366,7 +1366,7 @@ class ballot {
                 if (data.isDraft) {
                   message = "Ballot saved as a draft";
                 } else {
-                  this.ballotEvent(ressss, 'createBallot', false)
+                  // this.ballotEvent(ressss, 'createBallot', false)
                 }
                 if (data.parentBallot) {
                   console.log("Parent Ballot is:", data.parentBallot);
