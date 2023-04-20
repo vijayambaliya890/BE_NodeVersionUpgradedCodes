@@ -361,19 +361,7 @@ module.exports.opsDetails = async (req, res) => {
             },
             {
               path: 'parentBussinessUnitId',
-              select: 'name',
-              populate: {
-                path: 'sectionId',
-                select: 'name',
-                populate: {
-                  path: 'departmentId',
-                  select: 'name status',
-                  populate: {
-                    path: 'companyId',
-                    select: 'name status',
-                  },
-                },
-              },
+              select: 'orgName',
             },
           ],
         },
@@ -397,19 +385,7 @@ module.exports.opsDetails = async (req, res) => {
                 },
                 {
                   path: 'parentBussinessUnitId',
-                  select: 'name',
-                  populate: {
-                    path: 'sectionId',
-                    select: 'name',
-                    populate: {
-                      path: 'departmentId',
-                      select: 'name status',
-                      populate: {
-                        path: 'companyId',
-                        select: 'name status',
-                      },
-                    },
-                  },
+                  select: 'orgName',
                 },
               ],
             },
@@ -2621,7 +2597,6 @@ module.exports.adminListForBu = async (req, res) => {
         { parentBussinessUnitId: { $in: plabBuArr }, status: 1 },
         {
           name: 1,
-          status: 1,
         },
       );
       return res.json({ status: true, data: adminList });
