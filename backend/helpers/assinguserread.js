@@ -93,9 +93,6 @@ class AssignUserRead {
           }
         }
       }
-      if (detail.buFilterType !== 1) {
-        console.log('JSON', JSON.stringify(searchQuery));
-      }
       const users = await User.find(searchQuery, { _id: 1 }).lean();
       return users;
     } catch (e) {
