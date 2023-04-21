@@ -150,34 +150,27 @@ class assignShift {
       var staffId = new Set();
       var weekNumber = __.weekNoStartWithMonday(shift.weekRangeStartsAt);
       const yearE = new Date(shift.weekRangeStartsAt).getFullYear();
-      console.log('weekNumber', weekNumber);
       for (var i = 0; i < shiftDetails.length; i++) {
         if (shiftDetails[i] && shiftDetails[i].staffId)
           staffId.add(shiftDetails[i].staffId);
       }
       staffId = Array.from(staffId);
-      console.log('staffId', staffId);
       for (var j = 0; j < staffId.length; j++) {
         var userData = await User.findOne(
           { staffId: staffId[j], companyId },
           { _id: 1, role: 1, staffId: 1, appointmentId: 1 },
         );
-        console.log('userData', userData._id);
         var isAssignShiftPresent = await AssignShift.deleteMany({
           staff_id: userData._id,
           weekNumber: weekNumber,
           $expr: { $eq: [{ $year: '$weekRangeStartsAt' }, yearE] },
         });
-        console.log('isAssignShiftPresent', isAssignShiftPresent.result.n);
         if (isAssignShiftPresent.length == 0 || true) {
-          console.log('hereeeereetrfyujy');
           for (var i = 0; i < 7; i++) {
             var date = moment(new Date(shift.weekRangeStartsAt)).add('days', i);
-            console.log('date', date);
             var day = moment(new Date(shift.weekRangeStartsAt))
               .utc(shift.timeFormat)
               .add('days', i);
-            console.log('day', day);
             var obj = {
               staffId: userData.staffId,
               businessUnitId: shift.businessUnitId,
@@ -235,7 +228,7 @@ class assignShift {
         },
       );
       // return res.json(bodyData)
-      console.log('here');
+     
       //return res.json(bodyData)
       if (bodyData) {
         //const shiftId = await this.createShift(bodyData.shift);
@@ -266,9 +259,9 @@ class assignShift {
         planBussinessUnitId.planBussinessUnitId.map((planBu) => {
           planBussinessUnitIdArr.push(planBu.toString());
         });
-        console.log('eee', req.user._id);
+      
         await this.createEmptyShift(bodyData, req);
-        console.log('hereee');
+      
         delete bodyData.shift.timeFormat;
         req.body.data = {};
         req.body.data = bodyData.shift;
@@ -320,7 +313,6 @@ class assignShift {
             fail.push(formatDataCreateResult[i].failedShift[0]);
           }
         }
-        console.log('redisObj', redisObj);
         if (valid.length > 0) {
           // const updateResult = await this.updateRedis(
           //   redisObj.redisBuId,
@@ -583,7 +575,7 @@ class assignShift {
                       ? true
                       : false;
                     if (isSplitShift) {
-                      console.log('item.splitEndTime', item.splitEndTime);
+                  
                       bodyDataObj.splitStartTime = this.getDateInUTCFormatNew(
                         item.SplitStartDate,
                         item.SplitStartTime,
@@ -645,7 +637,6 @@ class assignShift {
                     }
                   } else {
                     // skill error
-                    console.log('skill error');
                     item.faildMessage =
                       'Skillsets are not matching, please enter exact  Skillsets of the staff'; //'User Not Belong to Plan Business Unit';
                     item.status = 0;
@@ -720,17 +711,17 @@ class assignShift {
   }
   updateBu(res, locationData, bu) {
     try {
-      console.log('updateBu', locationData, bu);
+      
       SubSection.update(
         { _id: bu },
         { $push: { reportingLocation: locationData } },
       )
         .then((sub) => {
-          console.log('updateBuupdateBu', sub);
+          
           return true;
         })
         .catch((e) => {
-          console.log('updateBu', e);
+          
           return true;
         });
     } catch (error) {
@@ -747,7 +738,7 @@ class assignShift {
         { opsGroup: 1 },
       );
       const tierSetup = companySetup.opsGroup.tierType;
-      console.log('here');
+      
       const isMobile = req.body.shift.isMobile;
       //console.log('req.body', req.body);
       //  const bodyData = [];
@@ -791,7 +782,7 @@ class assignShift {
         let asyncIndex = 0;
         //console.log('b');
         await async.eachSeries(bodyData.shiftDetails, (item, next) => {
-          console.log('a', asyncIndex);
+          
           bodyData.shiftDetails[asyncIndex] = { ...bodyData.shift, ...item };
           item.startTime = this.getDateInUTCFormat(
             item.StartDate,
@@ -884,7 +875,7 @@ class assignShift {
                   bodyData.shiftDetails[asyncIndex].duration =
                     (endSecond - startSecond) / 3600000;
                   if (item.isSplitShift) {
-                    console.log('item.splitEndTime', item.splitEndTime);
+                  
                     bodyData.shiftDetails[asyncIndex].splitStartTime =
                       this.getDateInUTCFormat(
                         item.StartDate,
@@ -897,14 +888,7 @@ class assignShift {
                         item.splitEndTime,
                         timeFormat,
                       );
-                    console.log(
-                      'bodyData.shiftDetails[asyncIndex].splitStartTime',
-                      bodyData.shiftDetails[asyncIndex].splitStartTime,
-                    );
-                    console.log(
-                      'enndd',
-                      bodyData.shiftDetails[asyncIndex].splitEndTime,
-                    );
+                
                     bodyData.shiftDetails[asyncIndex].splitStartTimeInSeconds =
                       moment(
                         new Date(
@@ -1016,7 +1000,6 @@ class assignShift {
                           new ReportingLocation(createLocation)
                             .save()
                             .then((locationCreate) => {
-                              console.log('locationfoundinsert');
                               reportLocation.push(locationCreate);
                               bodyData.shiftDetails[
                                 asyncIndex
@@ -1096,7 +1079,6 @@ class assignShift {
                   next();
                 }
               } else {
-                console.log('usernot');
                 item.faildMessage = 'UserNotfound';
                 item.status = 0;
                 failedShift.push(item);
@@ -1148,8 +1130,6 @@ class assignShift {
     try {
       const bodyData = await this.getBodyDataStaff(res, req);
       //  return res.json({bodyData})
-      console.log('here');
-      //console.log('req.body', req.body);
       //  const bodyData = [];
       const planBussinessUnitId = await User.findOne(
         { _id: req.user._id },
@@ -1191,7 +1171,7 @@ class assignShift {
         let asyncIndex = 0;
         //console.log('b');
         await async.eachSeries(bodyData.shiftDetails, (item, next) => {
-          console.log('a', asyncIndex);
+        
           bodyData.shiftDetails[asyncIndex] = { ...bodyData.shift, ...item };
           // as start
           //   item.startTime = this.getDateInUTCFormat(item.StartDate, item.StartTime, timeFormat);
@@ -1326,7 +1306,7 @@ class assignShift {
                           new ReportingLocation(createLocation)
                             .save()
                             .then((locationCreate) => {
-                              console.log('locationfoundinsert');
+                            
                               reportLocation.push(locationCreate);
                               bodyData.shiftDetails[
                                 asyncIndex
@@ -1406,7 +1386,6 @@ class assignShift {
                   next();
                 }
               } else {
-                console.log('usernot');
                 item.faildMessage = 'UserNotfound';
                 item.status = 0;
                 failedShift.push(item);
@@ -1458,7 +1437,7 @@ class assignShift {
     let dateSplit = date.split('-');
     date = dateSplit[1] + '-' + dateSplit[0] + '-' + dateSplit[2];
     const dateTime = `${date} ${time} ${timeZone}`;
-    console.log('datetime', dateTime);
+    
     return moment(dateTime, 'MM-DD-YYYY HH:mm:ss Z').utc().format();
   }
   async insertSendResponse(res, item) {
@@ -1474,7 +1453,7 @@ class assignShift {
       return new Promise(async (resolve, reject) => {
         if (item && item.staffId) {
           // ignore failed shift
-          console.log(item.date);
+
           item.isLimit = false;
           item.isAlert = false;
           const weekStart = __.weekNoStartWithMonday(item.weekRangeStartsAt);
@@ -1522,7 +1501,7 @@ class assignShift {
               ],
             };
             AssignShift.deleteMany(whereDt).then((de) => {
-              console.log('deeeeeeeee', de.result.n);
+              // console.log('deeeeeeeee', de.result.n);
             });
             if (
               (shiftResult && shiftResult.length > 0) ||
@@ -1602,7 +1581,7 @@ class assignShift {
                 shiftAlreadyPresentDetails.length === 0
               ) {
                 const isLimit = await this.checkLimit(res, item);
-                console.log('isLimit', isLimit);
+               
                 let isSave = true;
                 if (isLimit.limit) {
                   isLimitExceed = true;
@@ -1716,17 +1695,10 @@ class assignShift {
         isAlert = false;
         if (item && item.staffId) {
           // ignore failed shift
-          console.log('item.weekRangeStartsAt', item.weekRangeStartsAt);
-          console.log(item.date);
+        
           item.isLimit = false;
           item.isAlert = false;
-          console.log(item.weekRangeEndsAt);
-          console.log(
-            '#######',
-            __.weekNoStartWithMonday(item.date),
-            __.weekNoStartWithMonday(item.weekRangeStartsAt),
-            __.weekNoStartWithMonday(item.weekRangeEndsAt),
-          );
+        
           const weekStart = __.weekNoStartWithMonday(item.weekRangeStartsAt);
           const weekDate = __.weekNoStartWithMonday(item.date);
           const weekEnd = __.weekNoStartWithMonday(item.weekRangeEndsAt);
@@ -1738,7 +1710,7 @@ class assignShift {
               new Date(item.weekRangeEndsAt).getTime() >=
               new Date(item.date).getTime())
           ) {
-            console.log('hereeee');
+            
             AssignShift.find({
               staff_id: item.staff_id,
               date: item.date,
@@ -1746,16 +1718,8 @@ class assignShift {
             })
               .then(async (shiftResult) => {
                 //console.log('shiftResult', shiftResult.length)
-                console.log('*************************************' + i);
-                console.log(
-                  'item.staffId',
-                  item.date,
-                  item.staffId,
-                  moment(item.date).utcOffset(-330).format(),
-                  item.day,
-                );
                 var dttt = new Date(item.date); //moment(new Date(item.date),'MM-DD-YYYY HH:mm:ss Z').utc(item.timeZone).format();       // moment(item.date).utc(item.timeZone).format();
-                console.log('dttt', dttt);
+               
                 var dtNew = moment(item.date).utcOffset(-330).format();
                 const yearDt = parseInt(
                   moment(item.date).utcOffset(-330).format('YYYY'),
@@ -1766,7 +1730,7 @@ class assignShift {
                 const dayDt = parseInt(
                   moment(item.date).utcOffset(-330).format('DD'),
                 );
-                console.log('yearDt', typeof yearDt, monthDt, dayDt);
+              
                 const whereDt = {
                   //  staff_id:{$in: usersOfBu},
                   staff_id: item.staff_id,
@@ -1778,7 +1742,7 @@ class assignShift {
                   ],
                 };
                 AssignShift.deleteMany(whereDt).then((de) => {
-                  console.log('deeeeeeeee', de.result.n);
+                  // console.log('deeeeeeeee', de.result.n);
                 });
                 if (shiftResult && shiftResult.length > 0) {
                   const shiftAlreadyPresent = shiftResult.filter((shiftAl) => {
@@ -1816,17 +1780,11 @@ class assignShift {
                       failedShift.push(item);
                     }
                   }
-                  console.log(
-                    'shiftOverlapping.length',
-                    shiftOverlapping.length,
-                    shiftAlreadyPresent.length,
-                  );
                   if (
                     shiftOverlapping.length === 0 &&
                     shiftAlreadyPresent.length === 0
                   ) {
                     const isLimit = await this.checkLimit(res, item);
-                    console.log('isLimit', isLimit);
                     let isSave = true;
                     if (isLimit.limit) {
                       isLimitExceed = true;
@@ -1846,7 +1804,6 @@ class assignShift {
                       //     item.schemeDetails = isLimit.details;
                       // }
                     }
-                    console.log('áfteetetetet', item.splitEndTime);
                     if (isSave) {
                       delete item.shiftScheme;
                       item.isMobile = isMobile;
@@ -1862,10 +1819,8 @@ class assignShift {
                         }
                         isLimit.staffLimitData.assignShiftId = saveShift._id;
                         new StaffLimit(isLimit.staffLimitData).save();
-                        console.log('staffLimitData', isLimit.staffLimitData);
                         assignShiftIdArr.push(saveShift._id);
                         validShift.push(item);
-                        console.log('aaaaaaaaa', i, totalShift);
                         if (i === totalShift) {
                           this.failedShiftInsert(
                             res,
@@ -1943,7 +1898,6 @@ class assignShift {
                       //   mondayDate,
                       //   redisTimeZone,
                       // );
-                      console.log('hereeeee', validShift.length);
                       this.failedShiftInsert(
                         res,
                         failedShift,
@@ -1971,7 +1925,6 @@ class assignShift {
                   }
                 } else {
                   const isLimit = await this.checkLimit(res, item);
-                  console.log('else limit', isLimit);
                   let isSave = true;
                   if (isLimit.limit) {
                     isLimitExceed = true;
@@ -1994,11 +1947,6 @@ class assignShift {
                     // }
                   }
                   if (isSave) {
-                    console.log(
-                      'áfteetetetessssssssssst',
-                      item.splitStartTime,
-                      item.splitEndTime,
-                    );
                     delete item.shiftScheme;
                     new AssignShift(item).save().then(async (saveShift) => {
                       if (i == 1) {
@@ -2013,9 +1961,9 @@ class assignShift {
                       isLimit.staffLimitData.assignShiftId = saveShift._id;
                       assignShiftIdArr.push(saveShift._id);
                       new StaffLimit(isLimit.staffLimitData).save();
-                      console.log('staffLimitData', isLimit.staffLimitData);
+                      
                       item.status = 1;
-                      console.log('bbbbbbb', i, totalShift);
+                      
                       validShift.push(item);
                       if (i === totalShift) {
                         // const updateResult = await this.updateRedis(
@@ -2200,17 +2148,14 @@ class assignShift {
         isAlert = false;
         if (item && item.staffId) {
           // ignore failed shift
-          console.log('item.weekRangeStartsAt', item.weekRangeStartsAt);
-          console.log(item.date);
           item.isLimit = false;
           item.isAlert = false;
-          console.log(item.weekRangeEndsAt);
-          console.log(
-            '#######',
-            __.weekNoStartWithMonday(item.date),
-            __.weekNoStartWithMonday(item.weekRangeStartsAt),
-            __.weekNoStartWithMonday(item.weekRangeEndsAt),
-          );
+          // console.log(
+          //   '#######',
+          //   __.weekNoStartWithMonday(item.date),
+          //   __.weekNoStartWithMonday(item.weekRangeStartsAt),
+          //   __.weekNoStartWithMonday(item.weekRangeEndsAt),
+          // );
           const weekStart = __.weekNoStartWithMonday(item.weekRangeStartsAt);
           const weekDate = __.weekNoStartWithMonday(item.date);
           const weekEnd = __.weekNoStartWithMonday(item.weekRangeEndsAt);
@@ -2268,7 +2213,6 @@ class assignShift {
                     //const isLimit = await this.checkLimit(item);
                     // console.log('isLimit', isLimit);
                     let isSave = true;
-                    console.log('áfteetetetet');
                     if (isSave) {
                       delete item.shiftScheme;
                       new AssignShift(item).save().then((saveShift) => {
@@ -2353,7 +2297,7 @@ class assignShift {
                   // console.log('else limit', isLimit);
                   let isSave = true;
                   if (isSave) {
-                    console.log('áfteetetetet');
+        
                     delete item.shiftScheme;
                     //item.isMobile = isMobile;
                     new AssignShift(item).save().then((saveShift) => {
@@ -2545,14 +2489,12 @@ class assignShift {
         });
       } else {
         // ot hr
-        console.log('dailyOverall', dailyOverall);
         data.forEach((item) => {
           // console.log('new Date(item.date)', new Date(item.date))
           if (new Date(item.date).getDate() == new Date(date).getDate()) {
             dailyDuration += item.otDuration;
             dailyOverall += item.otDuration;
             dailyOverall += item.normalDuration;
-            console.log('dailyOverall', dailyOverall);
           }
           if (new Date(item.date).getMonth() == new Date(date).getMonth()) {
             monthlyDuration += item.otDuration;
@@ -2573,11 +2515,6 @@ class assignShift {
       let dayLimit = details.shiftScheme.shiftSetup.limits.normalHr.day;
       let weekLimit = details.shiftScheme.shiftSetup.limits.normalHr.week;
       let monthLimit = details.shiftScheme.shiftSetup.limits.normalHr.month;
-      console.log(details.shiftScheme.shiftSetup.limits.otHr.day);
-      console.log(
-        'details.shiftScheme.shiftSetup.limits.otHr.day.disallow',
-        details.shiftScheme.shiftSetup.limits.otHr.day.disallow,
-      );
       var disallow = !details.shiftScheme.shiftSetup.limits.otHr.day.disallow;
       // if(schemeDetails.shiftSchemeType == 3){
       //     disallow = !disallow;
@@ -2826,11 +2763,11 @@ class assignShift {
         const weekStart = moment(data.weekRangeStartsAt, 'DD MMM')
           .utc(data.timeZone)
           .format('DD MMMM');
-        console.log('weekStart', weekStart);
+  
         const weekEnd = moment(data.weekRangeEndsAt, 'DD MMM')
           .utc(data.timeZone)
           .format('DD MMMM');
-        console.log('weekStart', weekEnd);
+       
         var notificationObj = {
           title: `Hi!`,
           body: ` Your shifts for ${weekStart} to ${weekEnd} has been updated.`,
@@ -2872,7 +2809,6 @@ class assignShift {
         const callResultArr = [];
         for (let i = 0; i < user.length; i++) {
           var item = user[i];
-          console.log('Item is' + item);
           callResultArr.push(this.createDayWiseShift(res, item, tierSetup));
         }
         const callResult = await Promise.all(callResultArr);
@@ -2925,7 +2861,6 @@ class assignShift {
         var splitEndTimeInSeconds = null;
 
         if (item.isSplitShift) {
-          console.log('item.splitEndTime', item.splitEndTime);
           splitStartTime = this.getDateInUTCFormat(
             item.StartDate,
             item.splitStartTime,
@@ -2952,7 +2887,7 @@ class assignShift {
           var endSecondSplit = new Date(splitEndTime).getTime();
           duration += (endSecondSplit - startSecondSplit) / 3600000;
         }
-        console.log('duration', duration);
+       
         const details = await AssignShift.findOne({ _id: item.assignShiftId });
         // console.log("details.date", details.date)
         let b_start = new Date(startTime).getTime();
@@ -3002,7 +2937,6 @@ class assignShift {
         if (limitData.status) {
           isAlert = true;
         }
-        console.log("item======", item);
         const data = await AssignShift.findOneAndUpdate(
           { _id: item.assignShiftId },
           {
@@ -3111,11 +3045,11 @@ class assignShift {
           const weekStart = moment(data.weekRangeStartsAt, 'DD MMM')
             .utc(data.timeZone)
             .format('DD MMMM');
-          console.log('weekStart', weekStart);
+          
           const weekEnd = moment(data.weekRangeEndsAt, 'DD MMM')
             .utc(data.timeZone)
             .format('DD MMMM');
-          console.log('weekStart', weekEnd);
+          
           var notificationObj = {
             title: `Hi! Your shifts for ${weekStart} to ${weekEnd} has been updated.`,
             bodyTime: data.date,
@@ -3130,7 +3064,7 @@ class assignShift {
           // return res.json({success: false,msg:'Assign Shift not found'})
         }
         if (publishArr.length > 0) {
-          console.log('hereree in publish');
+          
           await this.publishAllFromMobile(res, publishArr);
         }
         resolve({ redisBuId, redisTimeZone, mondayDate });
@@ -3182,7 +3116,6 @@ class assignShift {
           .utc()
           .unix();
         var duration = (endTimeInSeconds - startTimeInSeconds) / 3600;
-        console.log('duration', duration);
         const data = await AssignShift.findOneAndUpdate(
           { _id: item.assignShiftId },
           {
@@ -3434,7 +3367,7 @@ class assignShift {
   }
   async shiftView(req, res) {
     try {
-      console.log(req.body);
+      
       const result = await AssignShift.updateMany(
         { _id: { $in: req.body.assignShiftIds } },
         { shiftRead: 1 },
@@ -3447,7 +3380,7 @@ class assignShift {
   }
   async changeRequest(req, res) {
     try {
-      console.log(req.body);
+     
       const result = await AssignShift.updateMany(
         { _id: req.body.assignShiftId },
         {
@@ -3474,7 +3407,6 @@ class assignShift {
   }
   async approveRequest(req, res) {
     try {
-      console.log(req.body);
       if (req.body.isApprove) {
         AssignShift.findOneAndUpdate(
           { _id: req.body.assignShiftId },
@@ -3531,14 +3463,11 @@ class assignShift {
           normalDuration = 1 * details.duration;
         }
       }
-      console.log('details.staff_id', details.staff_id, details._id);
       const value = await StaffLimit.update(
         { userId: details.staff_id, assignShiftId: details._id },
         { $inc: { normalDuration: normalDuration, otDuration: otDuration } },
       );
-      console.log('value***************', value);
       if (value.n == 0 && from == 1 && limitData) {
-        console.log('Insert new limit', limitData.staffLimitData);
         let obj = limitData.staffLimitData;
         obj.assignShiftId = details._id;
         await new StaffLimit(obj).save();
@@ -3577,11 +3506,9 @@ class assignShift {
       // decrease duration to zero
       var reduceData = await this.reduceLimit(res, schemeDetails, details, 0);
       // check limit with this duration
-      console.log('duration change', details.duration, duration);
       details.duration = duration;
       details.shiftScheme = schemeDetails;
       var limitData = await this.checkLimit(res, details);
-      console.log(limitData);
       // add this duration to that
       var addData = await this.reduceLimit(
         res,
@@ -3590,7 +3517,6 @@ class assignShift {
         1,
         limitData,
       );
-      console.log(details.duration, duration);
       return limitData;
     } catch (error) {
       __.log(error);
@@ -3645,12 +3571,9 @@ class assignShift {
       let timeZone = dateSplit[1];
       timeZone = timeZone.substr(1);
       let timeFormatSign = dateSplit[1][0] == '+' ? '-' : '+';
-      console.log('ti', timeFormatSign);
       // dateSplit[1][0] = timeFormatSign;
       let newDate = dateSplit[0] + 'GMT' + timeFormatSign + timeZone;
-      console.log('newww', newDate);
-      console.log(new Date(req.body.startDateTime), new Date());
-
+  
       if (
         new Date(req.body.startDateTime).getTime() >=
         new Date(req.body.endDateTime).getTime()
@@ -3696,12 +3619,12 @@ class assignShift {
           isAlert = false;
           alertMessage = '';
         }
-        console.log('updated', result.startTime, req.body.startDateTime);
-        console.log(
-          'updated date',
-          new Date(result.startTime),
-          new Date(req.body.startDateTime),
-        );
+        // console.log('updated', result.startTime, req.body.startDateTime);
+        // console.log(
+        //   'updated date',
+        //   new Date(result.startTime),
+        //   new Date(req.body.startDateTime),
+        // );
         // if(new Date(result.startTime).getTime()> new Date(req.body.startDateTime).getTime()){
         AssignShift.findOneAndUpdate(
           { _id: req.body.assignShiftId },
@@ -3935,16 +3858,16 @@ class assignShift {
       let notificationObj = {};
       const publishUserId = [];
       const allShifts = await this.getAllDraftShift(assignShiftIds);
-      console.log('1');
+   
       if (allShifts && allShifts.length > 0) {
         const weekStart = moment(allShifts[0].weekRangeStartsAt, 'DD MMM')
           .utcOffset(allShifts[0].timeZone)
           .format('DD MMMM');
-        console.log('weekStart', weekStart);
+        
         const weekEnd = moment(allShifts[0].weekRangeEndsAt, 'DD MMM')
           .utcOffset(allShifts[0].timeZone)
           .format('DD MMMM');
-        console.log('weekStart', weekEnd);
+        
         notificationObj = {
           title: 'Hi!',
           body: `Your shifts for ${weekStart} to ${weekEnd} has been updated.`,
@@ -3952,10 +3875,10 @@ class assignShift {
           bodyTimeFormat: ['DD-MMM-YYYY HH:mm'],
         };
         for (let i = 0; i < allShifts.length; i++) {
-          console.log('2');
+ 
           const item = allShifts[i];
           const insertShift = await this.addShift(item);
-          console.log('3');
+      
           if (insertShift) {
             let insertShiftDetail = await this.addShiftDetail(
               item,
@@ -4017,7 +3940,7 @@ class assignShift {
                 insertShiftDetail = JSON.stringify(insertShiftDetail);
                 insertShiftDetail = JSON.parse(insertShiftDetail);
                 insertShiftDetail.status = 1;
-                console.log('itemitemitem', item.reportLocationName);
+
                 const staffLimitUpdate = await StaffLimit.updateOne(
                   { assignShiftId: item._id },
                   {
@@ -4027,7 +3950,7 @@ class assignShift {
                     },
                   },
                 );
-                console.log('staffLimitUpdate', staffLimitUpdate);
+
                 insertShiftDetail.reportLocationName = item.reportLocationName;
                 insertShiftDetail.faildMessage = 'Shift Published Successfully';
                 publishUserId.push(item.staff_id);
@@ -4046,7 +3969,6 @@ class assignShift {
             failPublish.push(item);
           }
         }
-        console.log('4');
         // newashish
         //this.failedShiftInsert(failPublish, req, insertedShift, 1)
         this.sendNotification(res, publishUserId, notificationObj, 1);
@@ -4073,7 +3995,6 @@ class assignShift {
         }
       }
       let collapseKey = collapsekey;
-      console.log(usersDeviceTokens, collapseKey);
       FCM.push(usersDeviceTokens, obj, collapseKey);
       // let collapseKey = 1; /*unique id for this particular ballot */
     } catch (err) {
@@ -4505,7 +4426,6 @@ class assignShift {
         _id: id,
         staff_id: userId,
       });
-      console.log('assignShiftData', assignShiftData.businessUnitId, i);
       // if (assignShiftData) {
       //     this.updateRedis(assignShiftData.businessUnitId)
       // }
