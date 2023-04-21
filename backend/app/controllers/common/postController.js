@@ -13,6 +13,7 @@ const mongoose = require('mongoose'),
   WallPost = require('../../models/wallPost'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
+const { AssignUserRead } = require('../../../helpers/assinguserread');
 
 class post {
   async readOne(req, res) {
@@ -495,7 +496,8 @@ class post {
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      let channelIds = await __.getUserChannel(req.user);
+      // let channelIds = await __.getUserChannel(req.user);
+      let channelIds = await AssignUserRead.getUserInWhichAssignUser(req.user, Channel);
       var channelList = await Channel.find({
         _id: {
           $in: channelIds,
