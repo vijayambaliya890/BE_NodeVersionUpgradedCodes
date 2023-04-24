@@ -1367,7 +1367,7 @@ class ballot {
                 if (data.isDraft) {
                   message = "Ballot saved as a draft";
                 } else {
-                  // this.ballotEvent(ressss, 'createBallot', false)
+                  this.ballotEvent(ressss, 'createBallot', false)
                 }
                 if (data.parentBallot) {
                   console.log("Parent Ballot is:", data.parentBallot);
@@ -4353,8 +4353,9 @@ class ballot {
           let slot = this.getWeekIndex(item.startDate, ballot.weekRange, "start", ballot.leaveType);
           slot = -1;
           if (slot == -1) {
-            var slotStr = item.slot.split(" ")[0].substring(6);
-            slot = parseInt(slotStr) - 1;
+            // var slotStr = item.slot.split(" ")[0].substring(6);
+            var slotStr = item.slot; 
+            slot = parseInt(slotStr) ;
           }
           staffRestrictionObj.slotNo = slot;
           staffRestriction.push(staffRestrictionObj);
