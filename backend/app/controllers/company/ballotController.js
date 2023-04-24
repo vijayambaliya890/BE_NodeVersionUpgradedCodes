@@ -4355,7 +4355,7 @@ class ballot {
           if (slot == -1) {
             // var slotStr = item.slot.split(" ")[0].substring(6);
             var slotStr = item.slot; 
-            slot = parseInt(slotStr) ;
+            slot = parseInt(slotStr);
           }
           staffRestrictionObj.slotNo = slot;
           staffRestriction.push(staffRestrictionObj);
