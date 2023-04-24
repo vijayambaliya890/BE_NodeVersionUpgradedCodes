@@ -127,12 +127,15 @@ class AssignUserRead {
             'userDetails.admin': { $in: [userData._id] },
           },
           {
-            'userDetails.businessUnits': userData.parentBussinessUnitId,
+            'userDetails.businessUnits': {
+              $in: [userData.parentBussinessUnitId],
+            },
             'userDetails.buFilterType': 1,
-            'userDetails.allBuToken': false,
           },
           {
-            'userDetails.businessUnits': userData.parentBussinessUnitId,
+            'userDetails.businessUnits': {
+              $in: [userData.parentBussinessUnitId],
+            },
             'userDetails.buFilterType': 2,
             $or: [
               { 'userDetails.authors': userData._id },
@@ -172,7 +175,7 @@ class AssignUserRead {
       const result = await Model.aggregate([
         {
           $match: {
-            status: { $in: [1, 2] },
+            status: 1,
             companyId: userData.companyId,
           },
         },
@@ -214,6 +217,7 @@ class AssignUserRead {
         { $project: { userDetails: 0 } },
       ]);
       return result.map((re) => re._id);
+      return result;
     } catch (error) {
       logError('AssignUserRead:: getUserInWhichAssignUser', error.stack);
       return [];
