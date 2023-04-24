@@ -1965,12 +1965,12 @@ class leaveManagementController {
         {
           path: "userId",
           select: "isLeaveSwapAllowed",
-          match: { isLeaveSwapAllowed: { $ne: true } },
+          match: { isLeaveSwapAllowed: { $eq: true } },
         },
       ]);
       console.log('opsGroupData.swopSetup', opsGroupData)
       const userData = await User.findOne({ _id: userId }, { isLeaveSwapAllowed: 1 });
-      if (opsGroupData && opsGroupData.swopSetup != 0 && !userData.isLeaveSwapAllowed) {
+      if (opsGroupData && opsGroupData.swopSetup != 0 && userData.isLeaveSwapAllowed) {
         let opsGroupDetails = {
           opsGroupName: opsGroupData.opsGroupName,
         };
@@ -1989,7 +1989,7 @@ class leaveManagementController {
             {
               path: "userId",
               select: "isLeaveSwapAllowed",
-              match: { isLeaveSwapAllowed: { $ne: true } },
+              match: { isLeaveSwapAllowed: { $eq: true } },
             },
           ]);
           opsGroupDetails.opsTeamName = opsTeamData ? opsTeamData.name : "";
