@@ -4339,8 +4339,7 @@ class ballot {
         let isPresent = false;
         let staffRestrictionObj = {};
         isPresent = item.userList.some((user) => {
-          ////console.logs('user',user)
-          if (user.id.toString() === req.user._id.toString()) {
+          if (user._id.toString() === req.user._id.toString()) {
             staffRestrictionObj = {
               slot: item.slot,
               startDate: item.startDate,
