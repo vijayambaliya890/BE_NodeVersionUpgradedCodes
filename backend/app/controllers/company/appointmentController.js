@@ -2,6 +2,7 @@
 const mongoose = require('mongoose'),
   Appointment = require('../../models/appointment'),
   __ = require('../../../helpers/globalFunctions');
+const User = require('../../models/user');
 
 class appointment {
   async create(req, res) {
@@ -71,6 +72,28 @@ class appointment {
     }
   }
 
+  async getAllAppointmentFromUser(req, res) {
+    try {
+      if (!__.checkHtmlContent(req.body)) {
+        return __.out(res, 300, `You've entered malicious input`);
+      }
+      const { businessUnitId } = req.body;
+      let where = {
+        companyId: req.user.companyId,
+        status: 1,
+      };
+      if (businessUnitId && businessUnitId.length > 0) {
+        where.parentBussinessUnitId = {
+          $in: businessUnitId.map((b) => mongoose.Types.ObjectId(b)),
+        };
+      }
+      const data = await this.findAllUser(where, req.query);
+      return res.json({ data });
+    } catch (err) {
+      __.log(err);
+      __.out(res, 500);
+    }
+  }
   async findAll(where, { page = 1, limit = 10, search, sortBy, sortWith }) {
     let searchCondition = {};
     if (search) {
@@ -81,16 +104,17 @@ class appointment {
     page = Number(page);
     const skip = (page - 1) * limit;
     const searchObj = { ...where, ...searchCondition };
-    console.log(searchObj)
+    console.log(searchObj);
     const sort = {
       [sortWith]: sortBy === 'desc' ? -1 : 1,
-    }
-    console.log(searchObj)
+    };
+    console.log(searchObj);
     const allResult = [
       Appointment.find(searchObj, { _id: 1, name: 1 })
         .sort(sort)
         .skip(skip)
-        .limit(limit).lean(),
+        .limit(limit)
+        .lean(),
     ];
     if (page === 1) {
       allResult.push(Appointment.countDocuments(searchObj));
@@ -99,6 +123,53 @@ class appointment {
     }
     const [data] = await Promise.all(allResult);
     return { data };
+  }
+
+  async findAllUser(where, { search }) {
+    let searchCondition = {};
+    if (search) {
+      searchCondition['name'] = { $regex: search, $options: 'i' };
+    }
+    const sort = {
+      name: 1,
+    };
+
+    const data = await User.aggregate([
+      { $match: where },
+      {
+        $group: {
+          _id: '$appointmentId',
+        },
+      },
+      {
+        $lookup: {
+          from: 'appointments',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'appointment',
+          pipeline: [
+            {
+              $match: searchCondition,
+            },
+            {
+              $project: {
+                name: 1,
+                _id: 0,
+              },
+            },
+          ],
+        },
+      },
+      { $unwind: '$appointment' },
+      {
+        $project: {
+          _id: 1,
+          name: '$appointment.name',
+        },
+      },
+      { $sort: sort },
+    ]);
+    return data;
   }
   async read(req, res) {
     try {
