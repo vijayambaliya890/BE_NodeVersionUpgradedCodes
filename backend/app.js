@@ -64,7 +64,7 @@ logInfo('DATABASE CONNECTED IS: ', db_host);
 /*Express configuration*/
 new ResponseHelper().init(app);
 app.set('port', port);
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: false,}));
 app.use(cors());
 app.use(compression());
 
