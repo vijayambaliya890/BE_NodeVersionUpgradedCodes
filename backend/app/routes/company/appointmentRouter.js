@@ -32,6 +32,10 @@ appointmentRouter.get('/', (req, res) => {
   appointmentController.getAll(req, res);
 });
 
+appointmentRouter.post('/fromuser', (req, res) => {
+  appointmentController.getAllAppointmentFromUser(req, res);
+});
+
 appointmentRouter.post('/readWithPn', (req, res) => {
   appointmentController.readWithPn(req, res);
 });
