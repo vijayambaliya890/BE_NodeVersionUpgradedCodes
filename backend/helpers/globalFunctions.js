@@ -648,10 +648,10 @@ class globalFunctions {
         preference: 'clamscan', // If clamscan is found and active, it will be used by default
       };
       const clamscan = await new NodeClam().init(options);
-      const { fileSelected, is_infected, viruses } = await clamscan.isInfected(
+      const { fileSelected, isInfected, viruses } = await clamscan.isInfected(
         localPath
       );
-      if (is_infected) {
+      if (isInfected) {
         return `${fileSelected} is infected with ${viruses.join(', ')}.`;
       }
       // }
