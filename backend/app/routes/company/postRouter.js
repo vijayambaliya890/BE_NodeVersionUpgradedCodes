@@ -114,7 +114,7 @@ postRouter.get('/getAuthorChannels', (req, res) => {
 });
 
 postRouter.post('/uploadContentFiles', upload.single('file'), (req, res) => {
-  postController.uploadContentFiles(req, res);
+  postController.uploadContentFiles(req, res); 
 });
 
 // postRouter.get('/reportedPosts/:postType', (req, res) => {
