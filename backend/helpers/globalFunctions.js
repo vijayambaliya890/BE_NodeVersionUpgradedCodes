@@ -641,11 +641,15 @@ class globalFunctions {
         scan_log: '../public/filelogs/error.log', // You're a detail-oriented security professional.
         debug_mode: false, // This will put some debug info in your js console
         scan_recursively: true, // Choosing false here will save some CPU cycles
+        // clamdscan: {
+        //   host: "127.0.0.1",
+        //   port: 3001
+        // },
         preference: 'clamscan', // If clamscan is found and active, it will be used by default
       };
       const clamscan = await new NodeClam().init(options);
-      const { fileSelected, is_infected, viruses } = await clamscan.is_infected(
-        localPath,
+      const { fileSelected, is_infected, viruses } = await clamscan.isInfected(
+        localPath
       );
       if (is_infected) {
         return `${fileSelected} is infected with ${viruses.join(', ')}.`;
