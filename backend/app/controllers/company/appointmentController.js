@@ -87,7 +87,7 @@ class appointment {
     }
     console.log(searchObj)
     const allResult = [
-      Appointment.find(searchObj, { _id: 1, name: 1, status: 1 })
+      Appointment.find(searchObj, { _id: 1, name: 1 })
         .sort(sort)
         .skip(skip)
         .limit(limit).lean(),
