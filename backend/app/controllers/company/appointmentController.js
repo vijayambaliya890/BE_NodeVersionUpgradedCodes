@@ -77,7 +77,7 @@ class appointment {
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      const { businessUnitId } = req.body;
+      const { businessUnitId, allBuToken } = req.body;
       let where = {
         companyId: req.user.companyId,
         status: 1,
@@ -86,6 +86,9 @@ class appointment {
         where.parentBussinessUnitId = {
           $in: businessUnitId.map((b) => mongoose.Types.ObjectId(b)),
         };
+      }
+      if (allBuToken) {
+        where.parentBussinessUnitId = { $in: req.user.planBussinessUnitId };
       }
       const data = await this.findAllUser(where, req.query);
       return res.json({ data });
