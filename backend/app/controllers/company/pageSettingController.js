@@ -47,7 +47,7 @@ class PageSetting {
       // let quick link convert to object
       let quickLinkPermissions = {};
       for (let elem of pageSettingData.quickLinks) {
-        quickLinkPermissions[elem.screenName] = elem.status == 1 ? true : false;
+        quickLinkPermissions[elem.screenName] = elem.status == 'active' ? true : false;
       }
       pageSettingData.isTaskViewIncluded = !!pageSettingData.isTaskViewIncluded;
       pageSettingData.isChallengeIncluded =
