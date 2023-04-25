@@ -49,9 +49,7 @@ class appointment {
       }
       let where = {
           companyId: req.user.companyId,
-          status: {
-            $ne: 3 /* $ne => not equal*/,
-          },
+          status: 1,
         },
         findOrFindOne;
       /*if ID given then it acts as findOne which gives object else find which gives array of object*/
@@ -73,49 +71,34 @@ class appointment {
     }
   }
 
-  async findAll(where, { page, limit, search, sortBy, sortWith }) {
+  async findAll(where, { page = 1, limit = 10, search, sortBy, sortWith }) {
     let searchCondition = {};
     if (search) {
       searchCondition['name'] = { $regex: search, $options: 'i' };
     }
-    const [{ metadata, data }] = await Appointment.aggregate([
-      {
-        $match: {
-          ...where,
-          ...searchCondition,
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          status: 1,
-        },
-      },
-      {
-        $sort: {
-          [sortWith]: sortBy === 'desc' ? -1 : 1,
-        },
-      },
-      {
-        $facet: {
-          metadata: [{ $count: 'total' }],
-          data: [
-            {
-              $skip: (Number(page) - 1) * Number(limit),
-            },
-            {
-              $limit: Number(limit),
-            },
-          ],
-        },
-      },
-    ]);
-    if (data.length) {
-      const [{ total: count }] = metadata;
+
+    limit = Number(limit);
+    page = Number(page);
+    const skip = (page - 1) * limit;
+    const searchObj = { ...where, ...searchCondition };
+    console.log(searchObj)
+    const sort = {
+      [sortWith]: sortBy === 'desc' ? -1 : 1,
+    }
+    console.log(searchObj)
+    const allResult = [
+      Appointment.find(searchObj, { _id: 1, name: 1, status: 1 })
+        .sort(sort)
+        .skip(skip)
+        .limit(limit).lean(),
+    ];
+    if (page === 1) {
+      allResult.push(Appointment.countDocuments(searchObj));
+      const [data, count] = await Promise.all(allResult);
       return { count, data };
     }
-    return { count: 0, data: [] };
+    const [data] = await Promise.all(allResult);
+    return { data };
   }
   async read(req, res) {
     try {
