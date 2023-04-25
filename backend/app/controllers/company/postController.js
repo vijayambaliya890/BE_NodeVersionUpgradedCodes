@@ -977,6 +977,10 @@ class post {
       }
       let url = __.serverBaseUrl();
       let filePath = `${url}uploads/posts/${req.file.filename}`;
+      const result = /*await*/ __.scanFile(
+        req.file.filename,
+        `public/uploads/posts/${req.file.filename}`,
+      );
       return res.json({
         link: filePath,
         data: { link: filePath },
