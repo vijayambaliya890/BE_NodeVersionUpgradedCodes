@@ -2048,11 +2048,11 @@ class user {
         for (let elem of userData) {
           // user Data with static fields
           const role = roles.find(
-            (role) => role.name == elem[titleIndex['role']],
+            (role) => role.name == elem[titleIndex['role']]?.trim(),
           );
           const appointment = appointments.find(
             (appointment) =>
-              appointment.name == elem[titleIndex['appointment']],
+              appointment.name == elem[titleIndex['appointment']]?.trim(),
           );
           const LeaveGroup = LeaveGroups.find(
             (LeaveGroupp) => LeaveGroupp.name == elem[titleIndex['leaveGroup']],
