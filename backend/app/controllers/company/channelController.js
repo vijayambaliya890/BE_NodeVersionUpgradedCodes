@@ -381,9 +381,11 @@ class channel {
       if (channelExists) {
         return __.out(res, 300, 'Channel Name Already Exists');
       }
+      let userData = await User.findOne({companyId: req.user.companyId , staffId : 'admin001'}, {_id : 1});
       req.body.assignUsers.forEach((m, index) => {
         req.body.assignUsers[index].authors = [];
         req.body.assignUsers[index].authors = req.body.assignUsers[index].user;
+        req.body.assignUsers[index].admin.push(userData._id);
       });
       let insertChannel = {
         name: req.body.name,
