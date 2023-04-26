@@ -114,7 +114,8 @@ class subSection {
                     }
                 }
                 businessUnitController.masterBUTableUpdate(req.user.companyId);
-                this.read(req, res); /*calling read fn with subSectionId(last insert id). it calls findOne fn in read */
+                // this.read(req, res); /*calling read fn with subSectionId(last insert id). it calls findOne fn in read */
+                return __.out(res, 201, 'Business Unit created successfully');
             }
         } catch (err) {
             __.log(err);
