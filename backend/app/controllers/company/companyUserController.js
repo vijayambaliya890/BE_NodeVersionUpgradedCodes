@@ -1831,13 +1831,13 @@ class user {
         parentBussinessUnitId: [],
         fields: [
           'staffId',
-          '_id',
+          // '_id',
           'name',
-          'appointmentId',
-          'role',
-          'parentBussinessUnitId',
-          'contactNumber',
-          'doj',
+          // 'appointmentId',
+          // 'role',
+          // 'parentBussinessUnitId',
+          // 'contactNumber',
+          // 'doj',
         ],
         searchable: ['staffId', 'name', 'email'],
       },
@@ -1901,30 +1901,30 @@ class user {
     ).sort({
       [sortWith || 'createdAt']: sortBy === 'desc' ? -1 : 1,
     });
-    if (filter.fields.includes('appointmentId')) {
-      model.populate({
-        path: 'appointmentId',
-        select: '_id name',
-      });
-    }
-    if (filter.fields.includes('role')) {
-      model.populate({
-        path: 'role',
-        select: '_id name',
-      });
-    }
-    if (filter.fields.includes('parentBussinessUnitId')) {
-      model.populate({
-        path: 'parentBussinessUnitId',
-        select: '_id orgName',
-      });
-    }
-    if (filter.fields.includes('otherFields')) {
-      model.populate({
-        path: 'otherFields.fieldId',
-        select: '_id fieldName',
-      });
-    }
+    // if (filter.fields.includes('appointmentId')) {
+    //   model.populate({
+    //     path: 'appointmentId',
+    //     select: '_id name',
+    //   });
+    // }
+    // if (filter.fields.includes('role')) {
+    //   model.populate({
+    //     path: 'role',
+    //     select: '_id name',
+    //   });
+    // }
+    // if (filter.fields.includes('parentBussinessUnitId')) {
+    //   model.populate({
+    //     path: 'parentBussinessUnitId',
+    //     select: '_id orgName',
+    //   });
+    // }
+    // if (filter.fields.includes('otherFields')) {
+    //   model.populate({
+    //     path: 'otherFields.fieldId',
+    //     select: '_id fieldName',
+    //   });
+    // }
 
     const users = await model.lean();
     /* if (filter.fields.includes('parentBussinessUnitId')) {
