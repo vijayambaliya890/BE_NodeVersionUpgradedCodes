@@ -203,8 +203,8 @@ class post {
       let createEventWall;
       if (req.body.postType == 'event' && req.body.eventCreation == 1) {
         createEventWall = await createWall(insertPost);
-        if (!createEventWall)
-          return __.out(res, 300, 'Error while creating event wall');
+        // if (!createEventWall)
+        //   return __.out(res, 300, 'Error while creating event wall');
 
         var newPosupdate = await Post.findOneAndUpdate(
           {
@@ -220,8 +220,8 @@ class post {
             setDefaultsOnInsert: true,
           },
         );
-        if (!newPosupdate)
-          return __.out(res, 300, 'Error while creating event wall');
+        // if (!newPosupdate)
+        //   return __.out(res, 300, 'Error while creating event wall');
       }
       let logPost = {
         channelId: req.body.channelId,
