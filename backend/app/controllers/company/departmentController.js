@@ -85,8 +85,8 @@ class department {
             if (!__.checkHtmlContent(req.body)) {
                 return __.out(res, 300, `You've entered malicious input`);
             }
-            let page = !!req.body.page ? parseInt(req.body.page) * 10 : 0; // skip from department dropdown
-            page = page ? page : parseInt(req.body.start); // skip from department table
+            // let page = !!req.body.page ? parseInt(req.body.page) * 10 : 0; // skip from department dropdown
+            // page = page ? page : parseInt(req.body.start); // skip from department table
             let query = {
                 companyId: mongoose.Types.ObjectId(req.user.companyId),
                 status: {
@@ -100,16 +100,16 @@ class department {
                     $options: "i",
                 };
             }
-            const recordsFiltered = await Department.count(query);
-            const departments = await Department.find(query).skip(page).limit(10).populate({
-                path: 'companyId',
-                select: '_id name'
+            // const recordsFiltered = await Department.count(query);
+            const departments = await Department.find(query, {
+              companyId: 0,
+              status: 0,
             }).lean();
             const count_filtered = await Department.count(query);
             if(!!Object.keys(req.body).includes("start")) {
                 departments.forEach((d, i) => d.sno = req.body.start+i+1)
             }
-            return res.status(201).json({ departments, count_filtered, recordsTotal, recordsFiltered });
+            return res.status(201).json({ departments, count_filtered, recordsTotal });
         } catch (error) {
             __.log(error);
             return __.out(res, 300, error);

@@ -4,6 +4,17 @@ let express = require('express'),
   jwt = require('jsonwebtoken'),
   shiftController = require('../../controllers/company/shiftController');
 
+  const rateLimit = require('express-rate-limit');
+  const createShiftLimiter = rateLimit({
+      windowMs: 1 * 60 * 1000,
+      max: 1,
+      handler: function (req, res) {
+          return res.status(200).json({
+            data: 'Please wait for sometime, the shifts are getting published'
+          })
+      }
+  })
+
 //RENDER
 
 shiftRouter.use(
@@ -17,7 +28,7 @@ shiftRouter.use(
   },
 );
 
-shiftRouter.post('/create', (req, res) => {
+shiftRouter.post('/create', createShiftLimiter, (req, res) => {
   shiftController.create(req, res);
 });
 shiftRouter.post('/create/restoff', (req, res) => {

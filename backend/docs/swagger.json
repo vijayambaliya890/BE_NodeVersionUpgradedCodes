@@ -3812,6 +3812,615 @@
                     "url": "https://admin.netroc3.tk"
                 }
             ]
+        },
+        "/companyuser/update": {
+            "post": {
+                "tags": [
+                    "User Shift Setup"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/companyuser_update_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"userId\":\"5a9d1d8f36ab4f444b4271ea\",\"schemeId\":\"5f278f586fe0636108ae4b96\",\"skillSetTierType\":2,\"role\":\"5a9d093736ab4f444b4271c5\",\"subSkillSets\":[\"5c08f01dd818ed0513fe438f\"]}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/scheme/5a9d162b36ab4f444b4271c8": {
+            "get": {
+                "tags": [
+                    "User Shift Setup"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/skillset/read": {
+            "post": {
+                "tags": [
+                    "User Shift Setup"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/skillset_read_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"headers\":{\"normalizedNames\":{},\"lazyUpdate\":null}}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/companyUser/read/single": {
+            "post": {
+                "tags": [
+                    "User Shift Setup"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/read_single_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"userId\":\"5a9d22a736ab4f444b4271f5\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/pageSetting/skillset": {
+            "get": {
+                "tags": [
+                    "User Shift Setup"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/companyuser/editList": {
+            "get": {
+                "tags": [
+                    "User Shift Setup"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "parameters": [
+                    {
+                        "name": "search%5Bregex%5D",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": "false"
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "10"
+                    },
+                    {
+                        "name": "length",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "10"
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "10"
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "sortWith",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "1"
+                    },
+                    {
+                        "name": "draw",
+                        "in": "query",
+                        "required": false,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "1"
+                    },
+                    {
+                        "name": "search%5Bvalue%5D",
+                        "in": "query",
+                        "required": false,
+                        "allowEmptyValue": true,
+                        "style": "form",
+                        "explode": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/role/read": {
+            "post": {
+                "tags": [
+                    "User Shift Setup"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/role_read_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"headers\":{\"normalizedNames\":{},\"lazyUpdate\":null}}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/pageSetting/read/": {
+            "get": {
+                "tags": [
+                    "Company Setup"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/pageSetting/updatePwdManage": {
+            "post": {
+                "tags": [
+                    "Company Setup"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/pageSetting_updatePwdManage_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"pageId\":\"5c247cd1c43bfe04ab26ea8c\",\"pwdSettings\":{\"defaultPassword\":\"Mysats+123\",\"status\":1,\"charTypes\":{\"specialChar\":false,\"numbers\":true,\"upperCase\":false,\"lowerCase\":true},\"pwdReUse\":7,\"maxLoginAttempt\":20,\"charLength\":4,\"pwdDuration\":300,\"otpSentFor\":2,\"passwordType\":2}}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/role/read": {
+            "post": {
+                "tags": [
+                    "Shift Modules"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/role_read_body"
+                            },
+                            "examples": {
+                                "1": {
+                                    "value": "{\"headers\":{\"normalizedNames\":{},\"lazyUpdate\":null}}"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/login/getCompany/sats": {
+            "get": {
+                "tags": [
+                    "Login"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/login": {
+            "post": {
+                "tags": [
+                    "Login"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/login_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": "{\"staffId\":\"admin001\",\"password\":\"Password@123\",\"companyId\":\"5a9d162b36ab4f444b4271c8\"}\r\n"
+                                },
+                                "1": {
+                                    "value": "{\"staffId\":\"admin001\",\"password\":\"Password@123\",\"companyId\":\"5a9d162b36ab4f444b4271c9\"}\r\n"
+                                },
+                                "2": {
+                                    "value": "{\"staffId\":\"admin001\",\"password\":\"Password@13\",\"companyId\":\"5a9d162b36ab4f444b4271c8\"}\r\n"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    },
+                    "300": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/login/getCompany/stlukes": {
+            "get": {
+                "tags": [
+                    "Login"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/companyUser/getUserPrivilege": {
+            "get": {
+                "tags": [
+                    "Menu"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "201": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/businessunit/weekNo/5bd723a8c1e35a7a250d562a": {
+            "get": {
+                "tags": [
+                    "Menu"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "responses": {
+                    "200": {
+                        "description": "Auto generated using Swagger Inspector",
+                        "content": {
+                            "application/json; charset=utf-8": {
+                                "schema": {
+                                    "type": "string"
+                                },
+                                "examples": {}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
         }
     },
     "components": {
@@ -5923,6 +6532,137 @@
                         "type": "string"
                     },
                     "businessUnitId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "skillsetread_headers": {
+                "type": "object",
+                "properties": {
+                    "normalizedNames": {
+                        "type": "object",
+                        "properties": {}
+                    },
+                    "lazyUpdate": {}
+                }
+            },
+            "skillset_read_body": {
+                "type": "object",
+                "properties": {
+                    "headers": {
+                        "$ref": "#/components/schemas/skillsetread_headers"
+                    }
+                }
+            },
+            "read_single_body": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "role_read_body": {
+                "type": "object",
+                "properties": {
+                    "headers": {
+                        "$ref": "#/components/schemas/skillsetread_headers"
+                    }
+                }
+            },
+            "companyuser_update_body": {
+                "type": "object",
+                "properties": {
+                    "subSkillSets": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "role": {
+                        "type": "string"
+                    },
+                    "schemeId": {
+                        "type": "string"
+                    },
+                    "skillSetTierType": {
+                        "type": "integer"
+                    },
+                    "userId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "pageSettingupdatePwdManage_pwdSettings": {
+                "type": "object",
+                "properties": {
+                    "charLength": {
+                        "type": "integer"
+                    },
+                    "otpSentFor": {
+                        "type": "integer"
+                    },
+                    "pwdReUse": {
+                        "type": "integer"
+                    },
+                    "maxLoginAttempt": {
+                        "type": "integer"
+                    },
+                    "passwordType": {
+                        "type": "integer"
+                    },
+                    "pwdDuration": {
+                        "type": "integer"
+                    },
+                    "charTypes": {
+                        "$ref": "#/components/schemas/pageSettingupdatePwdManage_pwdSettings_charTypes"
+                    },
+                    "defaultPassword": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "pageSettingupdatePwdManage_pwdSettings_charTypes": {
+                "type": "object",
+                "properties": {
+                    "upperCase": {
+                        "type": "boolean"
+                    },
+                    "specialChar": {
+                        "type": "boolean"
+                    },
+                    "lowerCase": {
+                        "type": "boolean"
+                    },
+                    "numbers": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "pageSetting_updatePwdManage_body": {
+                "type": "object",
+                "properties": {
+                    "pwdSettings": {
+                        "$ref": "#/components/schemas/pageSettingupdatePwdManage_pwdSettings"
+                    },
+                    "pageId": {
+                        "type": "string"
+                    }
+                }
+            },
+            "login_body": {
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "type": "string"
+                    },
+                    "companyId": {
+                        "type": "string"
+                    },
+                    "staffId": {
                         "type": "string"
                     }
                 }

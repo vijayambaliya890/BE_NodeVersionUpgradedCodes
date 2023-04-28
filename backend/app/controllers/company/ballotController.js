@@ -1159,7 +1159,7 @@ class ballot {
           endDate,
           leaveTypeId: leaveTypeId,
           leaveGroupId: leaveGroupId,
-          remark: "Won by Ballot(Auto Conduct)",
+          remark: "Won by Ballot(Auto Assign Conduct)",
           timeZone: ballot.timeZone,
           totalDay: diff,
           totalDeducated: totalDeductable,
@@ -1168,13 +1168,14 @@ class ballot {
           status: 4,
           submittedFrom: 4,
         };
-        const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $push: { staffLeave: obj } });
+        finalLeave.push(obj);
         //finalLeave.push(obj);
         //const saveLeave = new LeaveApplied(obj).save();
       } else {
         // failed to won as anuual leave is not present
       }
     }
+    const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $set: { staffLeave: finalLeave } });
   }
   async getSlot(id) {
     let ballots = await Ballot.find({
@@ -1281,7 +1282,7 @@ class ballot {
               //console.log('ressasss', ressss);
               // notification for publish ballot
               // this.sendNotification(ressss)
-              this.ballotEvent(ressss, 'createBallot', false)
+              // this.ballotEvent(ressss, 'createBallot', false)
             }
 
             if (data.parentBallot) {
@@ -4165,6 +4166,7 @@ class ballot {
   async insertStaffLeaveForBallot(finalWinStaff, ballot, totalDeducated) {
     //userId, weekNo,
     // yyyy-mm-dd
+    const finalLeave = [];
     for (let i = 0; i < finalWinStaff.length; i++) {
       const staffWon = finalWinStaff[i];
       const userId = staffWon.userId;
@@ -4197,12 +4199,13 @@ class ballot {
           status: 4,
           submittedFrom: 4,
         };
-        const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $push: { staffLeave: obj } });
+        finalLeave.push(obj);
         //const saveLeave = new LeaveApplied(obj).save();
       } else {
         // failed to won as anuual leave is not present
       }
     }
+    const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $set: { staffLeave: finalLeave } });
   }
   async unSuccessfullStaffLeaveBallotBalanaceUpdate(ballotId) {
     //console.logs('ballotId', ballotId)
@@ -4336,8 +4339,7 @@ class ballot {
         let isPresent = false;
         let staffRestrictionObj = {};
         isPresent = item.userList.some((user) => {
-          ////console.logs('user',user)
-          if (user.id.toString() === req.user._id.toString()) {
+          if (user._id.toString() === req.user._id.toString()) {
             staffRestrictionObj = {
               slot: item.slot,
               startDate: item.startDate,
@@ -4351,8 +4353,9 @@ class ballot {
           let slot = this.getWeekIndex(item.startDate, ballot.weekRange, "start", ballot.leaveType);
           slot = -1;
           if (slot == -1) {
-            var slotStr = item.slot.split(" ")[0].substring(6);
-            slot = parseInt(slotStr) - 1;
+            // var slotStr = item.slot.split(" ")[0].substring(6);
+            var slotStr = item.slot; 
+            slot = parseInt(slotStr);
           }
           staffRestrictionObj.slotNo = slot;
           staffRestriction.push(staffRestrictionObj);
@@ -9598,20 +9601,20 @@ async function insertStaffLeaveForBallot(finalWinStaff, ballot, totalDeducated) 
         totalRestOff: diff - totalDeducated,
         leaveTypeId: leaveTypeId,
         leaveGroupId: leaveGroupId,
-        remark: "Won by Ballot(Auto)",
+        remark: "Won by Ballot",
         timeZone: ballot.timeZone,
         totalDay: diff,
         businessUnitId: parentBussinessUnitId,
         status: 4,
         submittedFrom: 4,
       };
-      const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $push: { staffLeave: obj } });
-      //finalLeave.push(obj);
+      finalLeave.push(obj);
       //const saveLeave = new LeaveApplied(obj).save();
     } else {
       // failed to won as anuual leave is not present
     }
   }
+  const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $set: { staffLeave: finalLeave } });
 }
 async function unSuccessfullStaffLeaveBallotBalanaceUpdate(ballotId) {
   //console.logs('ballotId', ballotId)

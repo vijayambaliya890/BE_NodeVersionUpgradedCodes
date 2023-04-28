@@ -343,8 +343,6 @@ class challenge {
                       ? 'Challenge Start date and time are required'
                       : !!!criteriaType
                         ? 'Select Criteria Type'
-                        : !!!criteriaSourceType
-                          ? 'Select Criteria Source Type'
                           : administrators.length
                             ? false
                             : 'Administrators is required';
@@ -361,6 +359,10 @@ class challenge {
         if (message) {
           return __.out(res, 300, message);
         }
+      }
+
+      if(criteriaType !== 4 && !criteriaType){
+        return __.out(res, 300,  'Select Criteria Source Type');
       }
       challenge['createdBy'] = req.user._id;
       challenge['companyId'] = req.user.companyId;
