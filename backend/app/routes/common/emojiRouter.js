@@ -27,14 +27,14 @@ let express = require('express'),
     });
 
 
-EmojiRouter.use(passport.authenticate('jwt', {
-    session: false
-}), /*Allow only admin*/
-    function (req, res, next) {
-        // No Restrictions, Allow flexistaff & Non flexistaff
-        next();
+// EmojiRouter.use(passport.authenticate('jwt', {
+//     session: false
+// }), /*Allow only admin*/
+//     function (req, res, next) {
+//         // No Restrictions, Allow flexistaff & Non flexistaff
+//         next();
 
-    });
+//     });
 
 
 EmojiRouter.post('/uploadEmoji', upload.single('file'), (req, res) => {

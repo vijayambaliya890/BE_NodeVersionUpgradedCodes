@@ -7,16 +7,16 @@ let express = require('express'),
 
 //RENDER
 
-staffShiftRouter.use(passport.authenticate('jwt', {
-    session: false
-}), /*Allow only FLEXISTAFF*/
-    function (req, res, next) {
-        if (req.user.isFlexiStaff === 1 || true)
-            next();
-        else {
-            return res.status(402).send('This account is not permitted to access');
-        };
-    });
+// staffShiftRouter.use(passport.authenticate('jwt', {
+//     session: false
+// }), /*Allow only FLEXISTAFF*/
+//     function (req, res, next) {
+//         if (req.user.isFlexiStaff === 1 || true)
+//             next();
+//         else {
+//             return res.status(402).send('This account is not permitted to access');
+//         };
+//     });
 // before it was post
 staffShiftRouter.get('/matchingshifts', (req, res) => {
     staffShiftController.matchingShifts(req, res)
@@ -25,12 +25,7 @@ staffShiftRouter.post('/recallShift', (req, res) => {
     staffShiftController.recalledShiftConfirmation(req, res)
 });
 staffShiftRouter.post('/bookingslist', async (req, res) => {
-    const routeprivilege = await __.getPrivilegeData(req.user._id);
-    if (routeprivilege.myBooking || true) {
         staffShiftController.bookingsList(req, res);
-    } else {
-        return __.out(res, 300, 'This account is not permitted to access');
-    }
 });
 staffShiftRouter.post('/checklimit', (req, res) => {
     staffShiftController.checkLimitBeforeBooking(req, res);

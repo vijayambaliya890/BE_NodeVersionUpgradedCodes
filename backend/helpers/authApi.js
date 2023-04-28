@@ -50,24 +50,16 @@ passport.use(
       })
         .populate([
           {
-            path: "role",
-            select: "name description isFlexiStaff privileges",
-            populate: {
-              path: "privileges",
-              select: "name description privilegeCategoryId",
-              populate: {
-                path: "privilegeCategoryId",
-                select: "name",
-              },
-            },
+            path: "role", // using but adding into token data
+            select: "name description isFlexiStaff",
           },
           {
-            path: "schemeId",
-            select: "shiftSchemeType",
+            path: "schemeId",  // using but adding into token data
+            select: "shiftSchemeType", // ** this data we will use in booking API so one query will reduce there on user collection
           },
           {
-            path: "companyId",
-            select: "name logo",
+            path: "companyId", // using but adding into token data
+            select: "name logo",  // not using
           },
         ])
         .then(async (user) => {
@@ -79,15 +71,16 @@ passport.use(
             user.tokenId = jwtPayload.tokenId;
             user.company = user.companyId;
             user.companyId = user.companyId._id;
+            user.privileges = jwtPayload.privileges;
             // Restrict for Push
-            let req = {
-              user: user,
-              body: {
-                internalRes: true,
-              },
-            };
-            let checkPwdDuration = await LoginController.pwdChangeDuration(req);
-            user.pwdDurationStatus = checkPwdDuration.status;
+            // let req = {
+            //   user: user,
+            //   body: {
+            //     internalRes: true,
+            //   },
+            // };
+            // let checkPwdDuration = await LoginController.pwdChangeDuration(req);
+            // user.pwdDurationStatus = checkPwdDuration.status;
             // All bu access
             user.allBUAccess = user.allBUAccess || 0;
 

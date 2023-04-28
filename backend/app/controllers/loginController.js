@@ -159,6 +159,7 @@ class nativeAuth {
                 if (req.body.deviceToken)
                   userData.deviceToken = req.body.deviceToken;
                 userData.loginAttempt = 0; // reset login attempt
+                userData.roleUpdate = false;
                 let updatedData = await userData.save(),
                   doc = updatedData.toObject(),
                   privilegeFlags = await __.getUserPrivilegeObject(

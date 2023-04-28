@@ -30,8 +30,8 @@ const Section = require('../app/models/section'),
   CustomForm = require('../app/models/customForms'),
   BuilderModule = require('../app/models/builderModule'),
   Shift = require('../app/models/shift'),
-  request = require("request");
-  
+  request = require('request');
+
 class globalFunctions {
   async writePdfToCustomForm(payload) {
     const options = {
@@ -617,11 +617,19 @@ class globalFunctions {
         return !!privilege ? userData[privilege] : userData;
       },
       validate: async (req, res, next) => {
-        let flag = await methods.getPrivilege(req.user._id, role);
-        if (!flag) {
-          return __.out(res, 300, 'This account is not permitted to access');
+        if (req.user.roleUpdate) {
+          let flag = await methods.getPrivilege(req.user._id, role);
+          if (!flag) {
+            return __.out(res, 300, 'This account is not permitted to access');
+          }
+          next();
+        } else {
+          let flag = req.user.privileges[role];
+          if (!flag) {
+            return __.out(res, 300, 'This account is not permitted to access');
+          }
+          next();
         }
-        next();
       },
     };
     return Object.freeze(methods);
@@ -649,7 +657,7 @@ class globalFunctions {
       };
       const clamscan = await new NodeClam().init(options);
       const { fileSelected, isInfected, viruses } = await clamscan.isInfected(
-        localPath
+        localPath,
       );
       if (isInfected) {
         return `${fileSelected} is infected with ${viruses.join(', ')}.`;
@@ -2438,9 +2446,12 @@ class globalFunctions {
     }
   }
 
-  async getPrivilegeData(id, privilege) {
+  async getPrivilegeData(userInfo) {
+    if(!userInfo.roleUpdate){
+      return userInfo.privileges
+    }
     let whereClause = {
-      _id: id,
+      _id: userInfo._id,
       status: { $ne: 3 /* $ne => not equal*/ },
     };
     let users = await User.findOne(whereClause)
@@ -2680,9 +2691,10 @@ class globalFunctions {
             grant_type: 'client_credentials',
             scope: process.env.UNIQ_SCOPE,
           },
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }, (error, response, body) => {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+        },
+        (error, response, body) => {
           try {
             if (error) {
               return resolve(null);
@@ -2692,9 +2704,9 @@ class globalFunctions {
           } catch (error) {
             return reject(null);
           }
-        }
-      )
-    })
+        },
+      );
+    });
   }
 }
 globalFunctions = new globalFunctions();

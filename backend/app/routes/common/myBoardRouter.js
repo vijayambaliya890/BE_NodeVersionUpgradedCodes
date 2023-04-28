@@ -4,14 +4,14 @@ let express = require('express'),
     passport = require('passport'),
     jwt = require('jsonwebtoken');
 
-myBoardRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only admin*/
-    function (req, res, next) {
-        // No Restrictions, Allow flexistaff & Non flexistaff
-        next();
+// myBoardRouter.use(passport.authenticate('jwt', {
+//         session: false
+//     }), /*Allow only admin*/
+//     function (req, res, next) {
+//         // No Restrictions, Allow flexistaff & Non flexistaff
+//         next();
 
-    });
+//     });
 
 
 myBoardRouter.get('/getWalls', (req, res) => {

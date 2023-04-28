@@ -20,17 +20,12 @@ let express = require("express"),
 console.log("ehehhe");
 //RENDER
 
-leaveManagementRouter.use(
-  passport.authenticate("jwt", {
-    session: false,
-  }) /*Allow only admin*/,
-  (req, res, next) => {
-    console.log("hhehehe");
-    if (req.user.isFlexiStaff !== 1) next();
-    else next();
-    //return res.status(402).send('This account is not permitted to access');
-  }
-);
+leaveManagementRouter.use((req, res, next) => {
+  console.log("hhehehe");
+  if (req.user.isFlexiStaff !== 1) next();
+  else next();
+  //return res.status(402).send('This account is not permitted to access');
+});
 
 leaveManagementRouter.post("/type/leaverequest", (req, res) => {
   leaveManagementController.leaveRequestType(req, res);

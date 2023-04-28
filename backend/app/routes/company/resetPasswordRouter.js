@@ -10,9 +10,7 @@ let express = require('express'),
 
 //RENDER
 
-resetPasswordRouter.use(passport.authenticate('jwt', {
-    session: false
-}), /*Allow only admin*/
+resetPasswordRouter.use(
     function (req, res, next) {
         if (req.user.isFlexiStaff !== 1)
             next();

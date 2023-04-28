@@ -15,15 +15,10 @@ businessUnitRouter.post(
   businessUnitController.getBusinessUnitDetails,
 );
 
-businessUnitRouter.use(
-  passport.authenticate('jwt', {
-    session: false,
-  }) /*Allow only admin*/,
-  (req, res, next) => {
-    if (req.user.isFlexiStaff !== 1 || req.path.includes('weekNo')) next();
-    else return res.status(402).send('This account is not permitted to access');
-  },
-);
+businessUnitRouter.use((req, res, next) => {
+  if (req.user.isFlexiStaff !== 1 || req.path.includes('weekNo')) next();
+  else return res.status(402).send('This account is not permitted to access');
+},);
 
 businessUnitRouter.post('/updatelocation', (req, res) => {
   businessUnitController.updateLocation(req, res);

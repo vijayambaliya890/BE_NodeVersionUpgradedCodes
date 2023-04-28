@@ -9,9 +9,7 @@ let express = require('express'),
 
 //RENDER
 
-sectionRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only admin*/
+sectionRouter.use(
     function (req, res, next) {
         if (req.user.isFlexiStaff !== 1)
             next();

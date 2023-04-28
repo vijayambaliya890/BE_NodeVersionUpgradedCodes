@@ -5,9 +5,7 @@ let express = require('express'),
     __ = require('../../../helpers/globalFunctions'),
     jwt = require('jsonwebtoken');
 //RENDER
-templateRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only admin*/
+templateRouter.use(
     function (req, res, next) {
         if (req.user.isFlexiStaff !== 1)
             next();

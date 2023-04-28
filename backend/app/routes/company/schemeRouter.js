@@ -9,9 +9,7 @@ let express = require('express'),
 
 //RENDER
 
-schemeRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only admin*/
+schemeRouter.use(
     function (req, res, next) {
         console.log('req ', req.originalUrl);
         if (req.user.isFlexiStaff !== 1)

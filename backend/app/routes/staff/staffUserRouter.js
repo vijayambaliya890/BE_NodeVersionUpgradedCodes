@@ -21,9 +21,7 @@ let express = require('express'),
 
 //RENDER
 
-staffUserRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only FLEXISTAFF*/
+staffUserRouter.use(
     function (req, res, next) {
         if (req.user.isFlexiStaff === 1 || req.url === '/read' || req.url === '/getStaff')
             next();

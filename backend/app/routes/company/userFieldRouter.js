@@ -7,9 +7,6 @@ let express = require('express'),
 //RENDER
 
 userFieldRouter.use(
-  passport.authenticate('jwt', {
-    session: false,
-  }) /*Allow only admin*/,
   (req, res, next) => {
     if (req.user.isFlexiStaff !== 1) next();
     else return res.status(402).send('This account is not permitted to access');

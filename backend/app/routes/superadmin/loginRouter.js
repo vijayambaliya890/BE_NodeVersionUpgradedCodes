@@ -10,9 +10,7 @@ loginRouter.post('/login', (req, res) => {
     loginController.login(req, res)
 });
 
-loginRouter.use(passport.authenticate('jwt', {
-    session: false
-}), /*Allow only FLEXISTAFF*/
+loginRouter.use(
     function (req, res, next) {
         if (req.user.role === "superadmin") {
             next();

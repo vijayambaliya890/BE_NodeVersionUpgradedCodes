@@ -17,14 +17,14 @@ const express = require("express"),
   });
 
 //RENDER
-settingRouter.use(
-  passport.authenticate("jwt", {
-    session: false
-  }) /*Allow only admin*/,
-  function(req, res, next) {
-    next();
-  }
-);
+// settingRouter.use(
+//   passport.authenticate("jwt", {
+//     session: false
+//   }) /*Allow only admin*/,
+//   function(req, res, next) {
+//     next();
+//   }
+// );
 
 settingRouter.post("/redeemedLanding", (req, res) => {
   settingController.redeemedLanding(req, res);

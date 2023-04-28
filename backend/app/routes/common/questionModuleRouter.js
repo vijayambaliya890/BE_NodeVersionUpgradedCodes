@@ -9,15 +9,15 @@ let express = require('express'),
         moduleController.isUserExistInQuestion(req, res)
     });    
 
-moduleRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only admin*/
-    function (req, res, next) {
+// moduleRouter.use(passport.authenticate('jwt', {
+//         session: false
+//     }), /*Allow only admin*/
+//     function (req, res, next) {
 
-        // No Restrictions, Allow flexistaff & Non flexistaff
-        next();
+//         // No Restrictions, Allow flexistaff & Non flexistaff
+//         next();
 
-    });
+//     });
 
 moduleRouter.post('/getModuleQuestions', (req, res) => {
     moduleController.getModuleQuestions(req, res)

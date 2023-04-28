@@ -29,7 +29,7 @@ const express = require('express'),
   });
 
 const myChallenges = async (req, res) => {
-  const routeprivilege = await __.getPrivilegeData(req.user._id);
+  const routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.challenges) {
     switch (req.route.path) {
       case '/appListOfChallenge':
@@ -89,7 +89,7 @@ challengeRouter.get(
   },
 );
 challengeRouter.get('/getRecentChallenges', async (req, res) => {
-  const routeprivilege = await __.getPrivilegeData(req.user._id);
+  const routeprivilege = await __.getPrivilegeData(req.user);
   if (!routeprivilege.challenges) {
     return __.out(res, 201, []);
   } else {
@@ -98,14 +98,14 @@ challengeRouter.get('/getRecentChallenges', async (req, res) => {
 });
 
 //RENDER
-challengeRouter.use(
-  passport.authenticate('jwt', {
-    session: false,
-  }) /*Allow only admin*/,
-  function (req, res, next) {
-    next();
-  },
-);
+// challengeRouter.use(
+//   passport.authenticate('jwt', {
+//     session: false,
+//   }) /*Allow only admin*/,
+//   function (req, res, next) {
+//     next();
+//   },
+// );
 
 challengeRouter.post(
   '/create',

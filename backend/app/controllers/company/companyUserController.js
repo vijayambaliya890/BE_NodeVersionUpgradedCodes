@@ -2619,7 +2619,7 @@ class user {
 
   async getUserPrivilege(req, res) {
     try {
-      let pre = req.user.role.privileges[0];
+      // let pre = req.user.role.privileges[0];
       let user = await User.findById(req.user._id).populate({
         path: 'role',
         match: {
