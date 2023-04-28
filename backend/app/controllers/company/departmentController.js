@@ -1,6 +1,7 @@
 // Controller Code Starts here
 const mongoose = require('mongoose'),
     Department = require('../../models/department'),
+    SubSection = require('../../models/subSection')
     companyController = require('./companyController'),
     businessUnitController = require('./businessUnitController'),
     __ = require('../../../helpers/globalFunctions');
@@ -176,7 +177,8 @@ class department {
                                 let orgName = subSection.orgName.split('>')
                                 orgName[1] = ` ${req.body.name.trim()} `
                                 orgName = orgName.join('>')
-                                await SubSection.update({ _id: subSection._id }, { orgName });
+                                await Department.update({ _id: req.body.departmentId }, { name: orgName });
+                                await SubSection.update({ _id: subSection._id }, { orgName });   
                             }
                         }    
                     }
