@@ -453,15 +453,18 @@ class post {
         return __.out(res, 300, `${postType} Not Found`);
       }
 
-      if (req.files && req.files['teaserImage']) {
-        req.body.teaser['image'] =
-          'uploads/posts/' + req.files['teaserImage'][0].filename;
+      // if (req.files && req.files['teaserImage']) {
+      //   req.body.teaser['image'] =
+      //     'uploads/posts/' + req.files['teaserImage'][0].filename;
+        req.body.teaser['image'] =req.body.teaserImage;
         if (req.body.content.isTeaserImage == true) {
           __.log(
             req.body.content.isTeaserImage,
             'req.body.content.isTeaserImage',
           );
           req.body.content['image'] = req.body.teaser['image'];
+        } else {
+          req.body.content['image'] = req.body.teaser['mainImage'];
         }
         if (
           req.body.wallTitle &&
@@ -472,17 +475,19 @@ class post {
             'req.body.content.isTeaserImageForWall',
           );
           req.body.content['eventWallLogoImage'] = req.body.teaser['image'];
+        } else {
+          req.body.content['eventWallLogoImage'] = req.body.eventWallLogoImage;
         }
-      }
-      if (req.files && req.files['mainImage']) {
-        req.body.content['image'] =
-          'uploads/posts/' + req.files['mainImage'][0].filename;
-      }
-      if (req.files && req.files['eventWallLogoImage']) {
-        req.body.content['eventWallLogoImage'] =
-          'uploads/posts/' + req.files['eventWallLogoImage'][0].filename;
-        postData.bannerImage = req.body.content.eventWallLogoImage;
-      }
+      // }
+      // if (req.files && req.files['mainImage']) {
+      //   req.body.content['image'] =
+      //     'uploads/posts/' + req.files['mainImage'][0].filename;
+      // }
+      // if (req.files && req.files['eventWallLogoImage']) {
+      //   req.body.content['eventWallLogoImage'] =
+      //     'uploads/posts/' + req.files['eventWallLogoImage'][0].filename;
+      //   postData.bannerImage = req.body.content.eventWallLogoImage;
+      // }
       // Create Channel
       req.body.teaser.image = req.body.teaser.image || postData.teaser.image;
       req.body.content.image = req.body.content.image || postData.content.image;
