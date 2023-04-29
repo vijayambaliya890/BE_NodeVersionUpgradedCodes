@@ -633,6 +633,7 @@ class post {
               {
                 $set: {
                   wallName: body.wallTitle.title,
+                  isEventWallRequired: body.eventDetails?.isEventWallRequired,
                   // bannerImage: postdata.bannerImage,
                   assignUsers: channelData.userDetails,
                   status: body.status,
@@ -658,6 +659,7 @@ class post {
                   status: body.status,
                   eventWallStartDate: body.content.eventWallStartDate,
                   eventWallEndDate: body.content.eventWallEndDate,
+                  isEventWallRequired: body.eventDetails?.isEventWallRequired,
                 },
               },
               {
@@ -674,6 +676,7 @@ class post {
             status: body.status,
             eventWallStartDate: body.content.eventWallStartDate,
             eventWallEndDate: body.content.eventWallEndDate,
+            isEventWallRequired: body.eventDetails?.isEventWallRequired,
           };
           let Wall = await new SocialWallModel(newWall).save();
           console.log('NEWWALL: ', Wall);
@@ -2009,10 +2012,11 @@ class post {
       console.log(postData[0].wallId);
 
       if (postData[0].wallId) {
-        (wallData.endDate = postData[0].wallId.eventWallEndDate),
-          (wallData.eventWallLogoImage = postData[0].wallId.bannerImage),
-          (wallData.startDate = postData[0].wallId.eventWallStartDate),
-          (wallData.wallName = postData[0].wallName);
+        wallData.endDate = postData[0].wallId.eventWallEndDate;
+        wallData.eventWallLogoImage = postData[0].wallId.bannerImage,
+        wallData.startDate = postData[0].wallId.eventWallStartDate,
+        wallData.wallName = postData[0].wallName;
+        wallData.isEventWallRequired = postData[0].wallId.isEventWallRequired;
       }
 
       const data = {
@@ -2028,6 +2032,7 @@ class post {
           organizerName: postData[0].eventDetails.organizerName,
           startDate: postData[0].eventDetails.startDate,
           title: postData[0].content.title,
+          isEventWallRequired: postData[0].eventDetails.isEventWallRequired,
         },
         teaser: postData[0].teaser,
         eventBoard: wallData,
