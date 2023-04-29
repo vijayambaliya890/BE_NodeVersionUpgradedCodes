@@ -125,6 +125,10 @@ const WallSchema = new Schema({
             type: String,
             default: ""
         },
+        firstAdminAddedAsDefault : {
+            type : Boolean,
+            default : false
+        },
         customField: []
     }],
     companyId: {
