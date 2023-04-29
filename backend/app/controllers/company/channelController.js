@@ -385,7 +385,10 @@ class channel {
       req.body.assignUsers.forEach((m, index) => {
         req.body.assignUsers[index].authors = [];
         req.body.assignUsers[index].authors = req.body.assignUsers[index].user;
-        req.body.assignUsers[index].admin.push(userData._id);
+        if(!req.body.assignUsers[index].admin.includes(userData._id.toString())){
+          req.body.assignUsers[index].admin.push(userData._id);
+          req.body.assignUsers[index].firstAdminAddedAsDefault = true;
+        }
       });
       let insertChannel = {
         name: req.body.name,
@@ -569,7 +572,7 @@ class channel {
       };
       var channelData = await Channel.findOne(
         where,
-        'orgName, name status userDetails.authors, userDetails.customField userDetails.buFilterType userDetails.subSkillSets userDetails.allBuToken userDetails.allBuTokenStaffId',
+        'orgName, name status userDetails.authors, userDetails.customField userDetails.buFilterType userDetails.subSkillSets userDetails.allBuToken userDetails.allBuTokenStaffId userDetails.firstAdminAddedAsDefault',
       )
         .populate({
           path: 'userDetails.businessUnits',
@@ -658,6 +661,7 @@ class channel {
           let subSkillSets = e.subSkillSets;
           let allBuToken = e.allBuToken;
           let allBuTokenStaffId = e.allBuTokenStaffId;
+          let firstAdminAddedAsDefault = e.firstAdminAddedAsDefault;
 
           let obj1 = {
             businessUnits: BU,
@@ -669,6 +673,7 @@ class channel {
             allBuToken: allBuToken,
             allBuTokenStaffId: allBuTokenStaffId,
             customField: customField,
+            firstAdminAddedAsDefault : firstAdminAddedAsDefault
           };
           AssignUsers.push(obj1);
         });
