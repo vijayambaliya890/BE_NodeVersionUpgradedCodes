@@ -494,6 +494,14 @@ class SocialWall {
       req.body.maxNomination.createdAt = moment(new Date()).utc().toDate();
       req.body.nominationPerUser.createdAt = moment(new Date()).utc().toDate();
 
+      let userData = await User.findOne({companyId: req.user.companyId , staffId : 'admin001'}, {_id : 1});
+      req.body.assignUsers.forEach((m, index) => {
+        if(!req.body.assignUsers[index].admin.includes(userData._id.toString())){
+          req.body.assignUsers[index].admin.push(userData._id);
+          req.body.assignUsers[index].firstAdminAddedAsDefault = true;
+        }
+      });
+
       let insertWall = {
         wallName: req.body.wallName,
         displayType: req.body.displayType,
@@ -758,19 +766,19 @@ class SocialWall {
       let wallList = await SocialWallModel.find(searchQuery)
         .populate({
           path: 'assignUsers.businessUnits',
-          select: 'name status sectionId',
-          populate: {
-            path: 'sectionId',
-            select: 'name status departmentId',
-            populate: {
-              path: 'departmentId',
-              select: 'name status companyId',
-              populate: {
-                path: 'companyId',
-                select: 'name status',
-              },
-            },
-          },
+          select: 'orgName',
+          // populate: {
+          //   path: 'sectionId',
+          //   select: 'name status departmentId',
+          //   populate: {
+          //     path: 'departmentId',
+          //     select: 'name status companyId',
+          //     populate: {
+          //       path: 'companyId',
+          //       select: 'name status',
+          //     },
+          //   },
+          // },
         })
         .populate({
           path: 'assignUsers.appointments',
