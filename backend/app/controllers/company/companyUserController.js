@@ -1377,7 +1377,10 @@ class user {
           if (doc.status == 2 && req.body.status == 1) {
             doc.loginAttempt = 0;
           }
-
+          
+          if(oldData.role?.toString() !== req.body.role?.toString()){
+            req.body.roleUpdate = true;
+          }
           // Restrict All Bu access edit
           let userAdmin = await this.isAdmin(req.user, res);
 
