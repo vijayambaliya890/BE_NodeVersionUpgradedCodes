@@ -120,20 +120,23 @@ class post {
         //  return __.out(res, 402, "Unauthorized Channel");
       }
       __.log(req.files, 'req.files');
-      if (req.files && req.files['teaserImage']) {
-        req.body.teaser['image'] =
-          'uploads/posts/' + req.files['teaserImage'][0].filename;
-      }
-      if (req.files && req.files['mainImage']) {
-        req.body.content['image'] =
-          'uploads/posts/' + req.files['mainImage'][0].filename;
-      }
+      // if (req.files && req.files['teaserImage']) {
+      //   req.body.teaser['image'] =
+      //     'uploads/posts/' + req.files['teaserImage'][0].filename;
+      // }
+      // if (req.files && req.files['mainImage']) {
+      //   req.body.content['image'] =
+      //     'uploads/posts/' + req.files['mainImage'][0].filename;
+      // }
+      req.body.teaser['image'] = req.body.teaserImage;
       if (req.body.content.isTeaserImage == true) {
         __.log(
           req.body.content.isTeaserImage,
           'req.body.content.isTeaserImage',
         );
         req.body.content['image'] = req.body.teaser['image'];
+      } else {
+        req.body.content['image'] = req.body.mainImage;
       }
       if (
         req.body.wallTitle &&
@@ -145,10 +148,10 @@ class post {
         );
         req.body.eventWallLogoImage = req.body.teaser['image'];
       }
-      if (req.files && req.files['eventWallLogoImage']) {
-        req.body.eventWallLogoImage =
-          'uploads/posts/' + req.files['eventWallLogoImage'][0].filename;
-      }
+      // if (req.files && req.files['eventWallLogoImage']) {
+      //   req.body.eventWallLogoImage =
+      //     'uploads/posts/' + req.files['eventWallLogoImage'][0].filename;
+      // }
       // Create Channel
       let insertPost = {
         channelId: req.body.channelId,
