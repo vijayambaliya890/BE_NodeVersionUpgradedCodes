@@ -61,6 +61,10 @@ const ChannelSchema = new Schema(
           type: String,
           default: '',
         },
+        firstAdminAddedAsDefault: {
+          type : Boolean,
+          default : false,
+        },
         customField: [],
       },
     ],
@@ -73,6 +77,7 @@ const ChannelSchema = new Schema(
       type: Number,
       default: 1,
     },
+    
   },
   {
     timestamps: true,
