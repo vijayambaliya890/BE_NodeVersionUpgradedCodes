@@ -449,6 +449,7 @@ class timeSheetController {
     req,
   ) {
     const newResult = [];
+    const resultData = [];
     results.forEach((item, index) => {
       if (item) {
         const timeZoneP = item.shiftDetails.timeZone
@@ -463,62 +464,81 @@ class timeSheetController {
           !item.attendance ||
           (item.attendance && item.attendance.status != 2)
         ) {
-          newResult.push(item);
+          resultData.push(item);
         }
       }
     });
-    if (newResult.length > 0) {
-      newResult.forEach((item, index) => {
-        if (item.shiftDetails.isExtendedShift) {
-          const userId = item.userInfo._id;
-          const extendData = item.shiftDetails.extendedStaff.find(
-            (extendData) => {
-              return (
-                extendData.userId.toString() === userId.toString() &&
-                extendData.confirmStatus === 2
-              );
-            },
-          );
-          if (extendData) {
-            item.shiftDetails.extendedStaff = [];
-            item.shiftDetails.extendedStaff[0] = extendData;
-            item.shiftDetails.startTime = extendData.startDateTime;
-            item.shiftDetails.endTime = extendData.endDateTime;
-          } else {
-            item.shiftDetails.extendedStaff = [];
-          }
-        }
-        if (item.shiftDetails.isSplitShift) {
-          newResult.some((splitItem, splitIndex) => {
-            if (
-              index !== splitIndex &&
-              splitItem.shiftDetails.isSplitShift &&
-              item.shiftDetails.shiftId.toString() ==
-              splitItem.shiftDetails.shiftId.toString() &&
-              new Date(item.shiftDetails.date).getTime() ==
-              new Date(splitItem.shiftDetails.date).getTime() &&
-              item.shiftDetails.confirmedStaffs.toString() ==
-              splitItem.shiftDetails.confirmedStaffs.toString()
-            ) {
-              if (
-                item.shiftDetails.startTime < splitItem.shiftDetails.startTime
-              ) {
-                console.log(item.shiftDetails.day);
-                if (splitItem.attendance) {
-                  item.splitAttendance = splitItem.attendance;
-                }
-                item.shiftDetails.splitShiftObj = splitItem.shiftDetails;
-                newResult.splice(splitIndex, 1);
-              } else {
-                if (item.attendance) {
-                  splitItem.splitAttendance = item.attendance;
-                }
-                splitItem.shiftDetails.splitShiftObj = item.shiftDetails;
-                newResult.splice(index, 1);
-              }
-              return true;
+    // if (newResult.length > 0) {
+      resultData.forEach((item, index) => {
+        if(item){
+          if (item.shiftDetails.isExtendedShift) {
+            const userId = item.userInfo._id;
+            const extendData = item.shiftDetails.extendedStaff.find(
+              (extendData) => {
+                return (
+                  extendData.userId.toString() === userId.toString() &&
+                  extendData.confirmStatus === 2
+                );
+              },
+            );
+            if (extendData) {
+              item.shiftDetails.extendedStaff = [];
+              item.shiftDetails.extendedStaff[0] = extendData;
+              item.shiftDetails.startTime = extendData.startDateTime;
+              item.shiftDetails.endTime = extendData.endDateTime;
+            } else {
+              item.shiftDetails.extendedStaff = [];
             }
-          });
+          }
+          if(!newResult.includes(item)){
+            if (item.shiftDetails.isSplitShift) {
+              let isFound = false;
+              resultData.some((splitItem, splitIndex) => {
+                if (
+                  index !== splitIndex &&
+                  splitItem.shiftDetails.isSplitShift &&
+                  item.shiftDetails.shiftId.toString() ==
+                  splitItem.shiftDetails.shiftId.toString() &&
+                  new Date(item.shiftDetails.date).getTime() ==
+                  new Date(splitItem.shiftDetails.date).getTime() &&
+                  item.shiftDetails.confirmedStaffs.toString() ==
+                  splitItem.shiftDetails.confirmedStaffs.toString()
+                ) {
+                  isFound = true;
+                  if (
+                    item.shiftDetails.startTime < splitItem.shiftDetails.startTime
+                  ) {
+                    console.log(item.shiftDetails.day);
+                    if (splitItem.attendance) {
+                      item.splitAttendance = splitItem.attendance;
+                    }
+                    // item.shiftDetails.splitShiftObj = splitItem.shiftDetails;
+                    // newResult.splice(splitIndex, 1);
+                    item.position = 1;
+                    splitItem.position = 2;
+                    newResult.push(item);
+                    newResult.push(splitItem);
+                  } else {
+                    if (item.attendance) {
+                      splitItem.splitAttendance = item.attendance;
+                    }
+                    // splitItem.shiftDetails.splitShiftObj = item.shiftDetails;
+                    // newResult.splice(index, 1);
+                    item.position = 2;
+                    splitItem.position = 1;
+                    newResult.push(splitItem);
+                    newResult.push(item);
+                  }
+                  return true;
+                }
+              });
+              if (!isFound) {
+                newResult.push(item);
+              }
+            } else {
+              newResult.push(item);
+            }
+          }
         }
       });
       newResult.sort(function (a, b) {
@@ -529,10 +549,10 @@ class timeSheetController {
       });
       // this.setRedisData(`${req.params.businessUnitId}timeDashboard`, newResult);
       return res.json({ status: 1, message: 'Data Found', data: newResult });
-    } else {
-      // this.setRedisData(`${req.params.businessUnitId}timeDashboard`, []);
-      return res.json({ status: 2, message: 'No Data Found 11', data: null });
-    }
+    // } else {
+    //   // this.setRedisData(`${req.params.businessUnitId}timeDashboard`, []);
+    //   return res.json({ status: 2, message: 'No Data Found 11', data: null });
+    // }
   }
   async readUserForDashboard(req, res) {
     if (!__.checkHtmlContent(req.params)) {
