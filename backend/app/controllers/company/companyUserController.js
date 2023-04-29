@@ -490,7 +490,7 @@ class user {
         .limit(limit);
   
       data = data.map((v) => {
-        let bu = v.parentBussinessUnitId.orgName;
+        let bu = v.parentBussinessUnitId?.orgName;
         let obj = {
           _id: v._id,
           name: v.name,
