@@ -2,16 +2,13 @@ const push_noti_status = {
   SUCCESS: 'success',
   FAILED: 'failed',
 };
-// import PushNotificationHelper from "../../helpers/pushNotificationHelper";
-// import { getDB } from '../connection/db.connect';
-// import PushNotification from "../../helpers/pushNotification";
-// import Agenda from "../../helpers/agenda";
 const PushNotificationHelper = require('./pushNotificationHelper');
 const { agendaNotification } = require('./agendaInit');
 const PushNotification = require('./pushNotification');
 const Notification = require('../app/models/notification');
 const NotificationCron = require('../app/models/notificationCron');
 const { logInfo, logError } = require('./logger.helper');
+const { AssignUserRead } = require('./assinguserread');
 class ManageNotification {
   constructor() {}
   async create(notification) {
@@ -57,7 +54,7 @@ class ManageNotification {
         select: 'name staffId',
       })
       .populate({
-        path: 'assignUsers.admin', // this is missing in notification
+        path: 'assignUsers.admin',
         strictPopulate: false,
         select: 'name staffId',
       })
@@ -66,7 +63,6 @@ class ManageNotification {
         strictPopulate: false,
         select: 'name status',
         populate: {
-          //this populate has been requested from frontEnd team , so did so
           path: 'skillSetId',
           select: '_id name',
         },
@@ -97,7 +93,6 @@ class ManageNotification {
     return updatedNotification;
   }
   async sendNotification(data) {
-    // fromUpdate
     try {
       logInfo('manageNotification::sendNotification', data);
       if (data.otherModules) {
@@ -111,83 +106,87 @@ class ManageNotification {
         return 'old data';
       }
     } catch (e) {
-      logError('manageNotification::sendNotification', e);
+      logError('manageNotification::sendNotification', e.stack);
       return e;
     }
   }
   async sendImmediateNotification(id, fromUpdate = false) {
-    // fromUpdate
-    logInfo('manageNotification::sendImmediateNotification', id);
-    let getField = {};
-    if (!fromUpdate) {
-      getField = {
-        title: 1,
-        description: 1,
-        assignUsers: 1,
-      };
-    }
-    let notificationData = await Notification.findOne(
-      { _id: id, isPublish: true, notificationStatus: { $nin: [3, 4] } },
-      getField,
-    );
-    if (notificationData) {
-      const notificationObj = {
-        title: notificationData.title,
-        body: notificationData.description,
-      };
-      // get device token
-
-      const users = await PushNotificationHelper.getAssignUsers(
-        notificationData,
-        ['_id', 'deviceToken'],
-      );
-      let totalUser = 0;
-      let userId = [];
-      if (users.length > 0) {
-        totalUser = users.length;
-        let deviceTokenList = [];
-        deviceTokenList = users.map((user) => user.deviceToken);
-        userId = users.map((user) => user._id);
-        deviceTokenList = deviceTokenList.filter((tokenId) => tokenId);
-        const result = PushNotification.push(
-          notificationObj,
-          deviceTokenList,
-          notificationData._id,
-        );
-      }
+    try {
+      logInfo('manageNotification::sendImmediateNotification', id);
+      let getField = {};
       if (!fromUpdate) {
-        const updateCron = await NotificationCron.updateOne(
-          { 'data._id': id },
-          {
-            $set: {
-              lastFinishedAt: new Date(),
-              totalSent: totalUser,
-              'data.notifyAcknowledgedUsers': userId,
-            },
-          },
-        );
-
-        return updateCron;
-      } else {
-        // create cron entry in case if immediate notification
-        let data = JSON.parse(JSON.stringify(notificationData));
-        data.notifyAcknowledgedUsers = userId;
-        data.moduleType = 'pushNotification';
-        data = await this.deleteUnwantedData(data);
-        const obj = {
-          name: 'ad-hoc',
-          totalSent: totalUser,
-          data: data,
-          priority: 0,
-          type: 'normal',
-          nextRunAt: null,
-          lastRunAt: new Date(),
-          lastFinishedAt: new Date(),
+        getField = {
+          title: 1,
+          description: 1,
+          assignUsers: 1,
         };
-        const rr = await new NotificationCron(obj).save();
+      }
+      let notificationData = await Notification.findOne(
+        { _id: id, isPublish: true, notificationStatus: { $nin: [3, 4] } },
+        getField,
+      );
+      if (notificationData) {
+        const notificationObj = {
+          title: notificationData.title,
+          body: notificationData.description,
+        };
+        // get device token
+
+        const users = await AssignUserRead.read(notificationData.assignUsers, {
+          _id: 1,
+          deviceToken: 1,
+        });
+        let totalUser = 0;
+        let userId = [];
+        if (users.length > 0) {
+          totalUser = users.length;
+          let deviceTokenList = [];
+          deviceTokenList = users.map((user) => user.deviceToken);
+          userId = users.map((user) => user._id);
+          deviceTokenList = deviceTokenList.filter((tokenId) => tokenId);
+          const result = PushNotification.push(
+            notificationObj,
+            deviceTokenList,
+            notificationData._id,
+          );
+        }
+        if (!fromUpdate) {
+          const updateCron = await NotificationCron.updateOne(
+            { 'data._id': id },
+            {
+              $set: {
+                lastFinishedAt: new Date(),
+                totalSent: totalUser,
+                'data.notifyAcknowledgedUsers': userId,
+              },
+            },
+          );
+
+          return updateCron;
+        } else {
+          // create cron entry in case if immediate notification
+          let data = JSON.parse(JSON.stringify(notificationData));
+          data.notifyAcknowledgedUsers = userId;
+          data.moduleType = 'pushNotification';
+          data = await this.deleteUnwantedData(data);
+          const obj = {
+            name: 'ad-hoc',
+            totalSent: totalUser,
+            data: data,
+            priority: 0,
+            type: 'normal',
+            nextRunAt: null,
+            lastRunAt: new Date(),
+            lastFinishedAt: new Date(),
+          };
+          const rr = await new NotificationCron(obj).save();
+          return true;
+        }
+      } else {
         return true;
       }
-    } else {
+    } catch (e) {
+      logError('manageNotification::sendImmediateNotification', e.stack);
       return true;
     }
   }

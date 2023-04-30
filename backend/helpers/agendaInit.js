@@ -2,7 +2,7 @@ const Agenda = require('agenda');
 const { logInfo, logError } = require('./logger.helper');
 const mongoDsn = `${process.env.LIVE_DB_HOST}`;
 const agendaNotification = new Agenda({
-  db: { address: `${mongoDsn}`, collection: 'notificationcron1' },
+  db: { address: `${mongoDsn}`, collection: 'notificationcrons' },
   maxConcurrency: 30,
 });
 
