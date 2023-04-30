@@ -311,6 +311,7 @@ class ManageNotification {
         return res.json({ success: false, msg: "No notification found", data: [], totalRecords: 0 })
       }
     } catch (e) {
+      logError('getScheduleNotification error', e.stack)
       return res.json({
         success: false,
         msg: "Something went wrong"
@@ -550,18 +551,18 @@ class ManageNotification {
       let noti = await ManageNotificationRepo.getSingle({ _id: body.id });
       if (noti) {
         if (new Date(noti.effectiveTo).getTime() < new Date().getTime()) {
-          const text = noti.notificationType == 1 ? 'cancelled' : 'deactived';
-          return res.json({ success: false, msg: `Notification can not be ${text} as it is alreday expired` });
+          const text = noti.notificationType == 1 ? 'cancelled' : 'deactivated';
+          return res.json({ success: false, msg: `Notification can not be ${text} as it is already expired` });
         } else if (noti.notificationStatus === 3 || noti.notificationStatus === 4) {
-          const text = noti.notificationType == 1 ? 'cancelled' : 'deactived';
-          return res.json({ success: false, msg: `Notification is alreday ${text}` });
+          const text = noti.notificationType == 1 ? 'cancelled' : 'deactivated';
+          return res.json({ success: false, msg: `Notification is already ${text}` });
         }
         let notificationStatus = 3;
         if (noti.notificationType == 2) {
           notificationStatus = 4;
           const notiLog = await this.deleteNextSchedule(noti._id, req)
         } else {
-          const notiLog = await this.updateadhocSchedule(noti._id, req)
+          const notiLog = await this.updateadhocSchedule(noti._id, noti.notificationStatus)
         }
         await ManageNotificationRepo.cancelled(noti._id, notificationStatus)
         return res.json({ success: true, msg: "Cancelled Successfully" });
@@ -587,7 +588,11 @@ class ManageNotification {
       return notificationData;
     }
   }
-  async updateadhocSchedule(id, req) {
+  async updateadhocSchedule(id, notificationStatus) {
+    if(notificationStatus === 0){
+      let notiLog = await NotificationCronRepo.update({ "data._id": id }, { "data.notificationStatus": 3 });
+      return notiLog;
+    }
     let notiLog = await NotificationCronRepo.update({ "data._id": id, nextRunAt: { $ne: null } }, { nextRunAt: null, "data.notificationStatus": 3 });
     return notiLog;
   }
