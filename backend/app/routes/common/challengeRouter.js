@@ -128,6 +128,23 @@ challengeRouter.get(
     challengeController.readChallenges(req, res);
   },
 );
+
+challengeRouter.get(
+  '/read/new',
+  __.checkRole('challenges').validate,
+  (req, res) => {
+    challengeController.readChallengesNew(req, res);
+  },
+);
+
+challengeRouter.get(
+  '/read/new/:challengeId',
+  __.checkRole('challenges').validate,
+  (req, res) => {
+    challengeController.readChallengesSingle(req, res);
+  },
+);
+
 challengeRouter.post(
   '/uploadFiles',
   upload.single('file'),

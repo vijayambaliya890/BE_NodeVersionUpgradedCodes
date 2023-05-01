@@ -22,6 +22,7 @@ const mongoose = require('mongoose'),
   DisqualifyUser = require('../../models/disqualifyUser');
 const subSection = require('../../models/subSection');
 const RewardImportLog = require('../../models/rewardImportLog');
+const { logInfo } = require('../../../helpers/logger.helper');
 
 class challenge {
   getChallengeStatusModel(res, flag) {
@@ -1025,6 +1026,215 @@ class challenge {
         recordsTotal: recordsTotal || 0,
         recordsFiltered: recordsFiltered || 0,
         data: arr,
+      };
+      return res.status(201).json(result);
+    } catch (error) {
+      __.log(error);
+      return __.out(res, 300, 'something went wrong try later');
+    }
+  }
+
+  async readChallengesSingle(req, res) {
+    try {
+      if (!__.checkHtmlContent(req.query)) {
+        return __.out(res, 300, `You've entered malicious input`);
+      }
+      const challengeId = req.params.challengeId;
+      let query = {
+        _id: challengeId, 
+        status: {
+          $nin: [2],
+        },
+      };
+      const challenge = await Challenge.findOne(query)
+        .populate([
+          {
+            path: 'administrators',
+            select: 'name staffId',
+          },
+          {
+            path: 'selectedChannel',
+            select: 'name',
+          },
+          {
+            path: 'selectedWall',
+            select: 'wallName',
+          },
+          {
+            path: 'selectedCustomForm',
+            select: 'title',
+          },
+          {
+            path: 'nomineeQuestion',
+            select: 'question',
+          },
+          {
+            path: 'businessUnit',
+            select: 'name status',
+            match: {
+              status: 1,
+            },
+            populate: {
+              path: 'sectionId',
+              select: 'name status',
+              match: {
+                status: 1,
+              },
+              populate: {
+                path: 'departmentId',
+                select: 'name status',
+                match: {
+                  status: 1,
+                },
+                populate: {
+                  path: 'companyId',
+                  select: 'name status',
+                  match: {
+                    status: 1,
+                  },
+                },
+              },
+            },
+          },
+          {
+            path: 'assignUsers.businessUnits',
+            select: 'name status sectionId',
+            populate: {
+              path: 'sectionId',
+              select: 'name status departmentId',
+              populate: {
+                path: 'departmentId',
+                select: 'name status companyId',
+                populate: {
+                  path: 'companyId',
+                  select: 'name status',
+                },
+              },
+            },
+          },
+          {
+            path: 'assignUsers.appointments',
+            select: 'name',
+          },
+          {
+            path: 'assignUsers.subSkillSets',
+            select: 'name status',
+            match: {
+              status: 1,
+            },
+            populate: {
+              path: 'skillSetId',
+              select: 'name status',
+              match: {
+                status: 1,
+              },
+            },
+          },
+          {
+            path: 'assignUsers.user',
+            select: 'name staffId',
+          },
+          {
+            path: 'assignUsers.admin',
+            select: 'name staffId',
+          }, 
+          {
+            path: 'selectedScheme',
+            select: '_id schemeName',
+            match: {
+              status: 1
+            }
+          }
+        ])
+        .lean();
+      const pageSettings = await PageSettings.findOne({
+        companyId: req.user.companyId,
+        status: 1,
+      }).select('pointSystems');
+        // append point system data
+        if (
+          !!challenge.nonRewardPointSystemEnabled &&
+          !!challenge.nonRewardPointSystem
+        ) {
+          challenge.nonRewardPointSystem = pageSettings.pointSystems.find(
+            (ps) =>
+              ps._id.toString() === challenge.nonRewardPointSystem.toString(),
+          );
+        }
+      let result = {
+        data: challenge,
+      };
+      return res.status(201).json(result);
+    } catch (error) {
+      __.log(error);
+      return __.out(res, 300, 'something went wrong try later');
+    }
+  }
+
+  async readChallengesNew(req, res) {
+    try {
+      logInfo('readChallengesNew called')
+      if (!__.checkHtmlContent(req.query)) {
+        return __.out(res, 300, `You've entered malicious input`);
+      }
+      let pageNum = req.query.start ? parseInt(req.query.start) : 0;
+      let limit = req.query.length ? parseInt(req.query.length) : 10;
+      let skip = req.query.skip
+        ? parseInt(req.query.skip)
+        : (pageNum * limit) / limit;
+      let query = {
+        companyId: mongoose.Types.ObjectId(req.user.companyId),
+        administrators: {
+          $in: [mongoose.Types.ObjectId(req.user._id)],
+        },
+        status: {
+          $nin: [2],
+        },
+      };
+      if (req.query.search && req.query.search.value) {
+        query['$or'] = [
+          {
+            title: {
+              $regex: `${req.query.search.value}`,
+              $options: 'ixs',
+            },
+          },
+        ];
+      }
+      console.time('2')
+      const recordsFiltered = await Challenge.count(query).lean();
+      console.timeEnd('2')
+      let sort = {};
+      if (req.query.order) {
+        let orderData = 'desc'; //req.query.order;
+        const getSort = (val) => ('asc' === val ? 1 : -1);
+        for (let i = 0; i < orderData.length; i++) {
+          switch (orderData[i].column) {
+            case '0':
+              sort[`createdAt`] = getSort(orderData[i].dir);
+              break;
+            case '1':
+              sort[`title`] = getSort(orderData[i].dir);
+              break;
+            case '2':
+              sort[`status`] = getSort(orderData[i].dir);
+              break;
+          }
+        }
+        if (!Object.keys(sort).length) {
+          sort = { createdAt: -1 };
+        }
+      }
+      const challengeData = await Challenge.find(query)
+        .skip(skip)
+        .sort(sort)
+        .limit(limit)
+        .lean();
+      let result = {
+        draw: req.query.draw || 0,
+        recordsTotal: recordsFiltered || 0,
+        recordsFiltered: recordsFiltered || 0,
+        data: challengeData,
       };
       return res.status(201).json(result);
     } catch (error) {
