@@ -791,6 +791,8 @@ class reports {
           'appliedStaffs.0': {
             $exists: true,
           },
+          isOff: false,
+          isRest: false
         };
 
         if (
