@@ -334,7 +334,6 @@ class EventSessionController {
 
   async editMultipleSessions(req, res) {
     const { event_id } = req.body;
-    console.log('IN SESSIOSN UPDATE : ', req.body);
     let requiredResult = await __.checkRequiredFields(
       req,
       ['event_id'],
@@ -345,8 +344,6 @@ class EventSessionController {
         __.out(res, 400, requiredResult.missingFields);
       } else {
         let sessions = req.body['sessions'];
-        console.log('event id object =====>>>>' + event_id);
-        console.log('session object =====>>>>' + sessions);
         // let post_create = await new Post();
         // await post_create.save();
         //eventId = post_create._id;
@@ -365,12 +362,6 @@ class EventSessionController {
         let eventWallEndDate = post.wallId
           ? post.wallId.eventWallEndDate
           : false;
-        console.log({
-          publishingStartDate,
-          publishingEndDate,
-          eventWallEndDate,
-          eventWallStartDate,
-        });
         let insertSessions = [];
         let successArr = [];
         let failedArr = [];
@@ -379,9 +370,8 @@ class EventSessionController {
           try {
             // insertSessions.push(insertSession);
             if (elem._id) {
-              console.log('hasId: ', elem);
               let eventSession = await EventSession.findByIdAndUpdate(
-                elem.session_id,
+                elem._id,
                 {
                   $set: {
                     startDate: elem.startDate,
@@ -392,23 +382,16 @@ class EventSessionController {
                     location: elem.location,
                     adminIds: elem.adminIds,
                   },
-                },
-                async (err, data) => {
-                  if (err) {
-                    failedArr.push({
-                      session_id: elem.session_id,
-                      message: JSON.stringify(err),
-                    });
-                  } else {
-                    successArr.push({ session_id: elem.session_id });
-                  }
-                },
-              ).catch((err) => {
-                failedArr.push({
-                  session_id: elem.session_id,
-                  message: JSON.stringify(err),
                 });
-              });
+                if(eventSession){
+                successArr.push({ session_id: elem._id });
+                }else{
+                  failedArr.push({
+                    session_id: elem._id,
+                    message: 'Session Id not found',
+                  });
+                }
+                  
             } else {
               let insertSession = {
                 startDate: elem.startDate,
@@ -427,8 +410,9 @@ class EventSessionController {
               await post.update({ $push: { sessions: newSes._id } });
             }
           } catch (err) {
+            console.log('eee', err.stack)
             failedArr.push({
-              session_id: elem.session_id,
+              session_id: elem._id,
               message: JSON.stringify(err),
             });
           }

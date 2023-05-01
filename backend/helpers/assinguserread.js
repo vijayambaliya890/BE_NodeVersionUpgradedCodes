@@ -1,7 +1,7 @@
 const User = require('../app/models/user');
 const { logError, logInfo } = require('./logger.helper');
 class AssignUserRead {
-  async read(userDetails) {
+  async read(userDetails, project = { _id: 1 }) {
     try {
       logInfo('AssignUserRead:: read');
       if (userDetails.length === 0) {
@@ -9,7 +9,7 @@ class AssignUserRead {
       }
       const callGetUserDetails = [];
       userDetails.forEach((detail) => {
-        callGetUserDetails.push(this.getUserDetails(detail));
+        callGetUserDetails.push(this.getUserDetails(detail, project));
       });
       const userInfo = await Promise.all(callGetUserDetails);
       const users = userInfo.flat().map((user) => user._id);
@@ -20,7 +20,7 @@ class AssignUserRead {
     }
   }
 
-  async getUserDetails(detail) {
+  async getUserDetails(detail, project) {
     try {
       logInfo('AssignUserRead:: getUserDetails');
       if (!detail.businessUnits) {
@@ -93,7 +93,7 @@ class AssignUserRead {
           }
         }
       }
-      const users = await User.find(searchQuery, { _id: 1 }).lean();
+      const users = await User.find(searchQuery, project).lean();
       return users;
     } catch (e) {
       logError('AssignUserRead: getUserDetails', e.stack);
