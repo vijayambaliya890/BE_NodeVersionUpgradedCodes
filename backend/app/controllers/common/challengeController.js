@@ -22,6 +22,8 @@ const mongoose = require('mongoose'),
   DisqualifyUser = require('../../models/disqualifyUser');
 const subSection = require('../../models/subSection');
 const RewardImportLog = require('../../models/rewardImportLog');
+const { AssignUserRead } = require('../../../helpers/assinguserread');
+const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class challenge {
   getChallengeStatusModel(res, flag) {
@@ -330,22 +332,22 @@ class challenge {
         const message = !!!title
           ? 'Title is required'
           : !!!description
-            ? 'Description is required'
-            : !!!icon
-              ? 'Icon is required'
-              : !!!publishStart
-                ? 'Publish Start date and time are required'
-                : !!!publishEnd
-                  ? 'Publish end date and time are required'
-                  : !!!challengeStart
-                    ? 'Challenge Start date and time are required'
-                    : !!!challengeEnd
-                      ? 'Challenge Start date and time are required'
-                      : !!!criteriaType
-                        ? 'Select Criteria Type'
-                          : administrators.length
-                            ? false
-                            : 'Administrators is required';
+          ? 'Description is required'
+          : !!!icon
+          ? 'Icon is required'
+          : !!!publishStart
+          ? 'Publish Start date and time are required'
+          : !!!publishEnd
+          ? 'Publish end date and time are required'
+          : !!!challengeStart
+          ? 'Challenge Start date and time are required'
+          : !!!challengeEnd
+          ? 'Challenge Start date and time are required'
+          : !!!criteriaType
+          ? 'Select Criteria Type'
+          : administrators.length
+          ? false
+          : 'Administrators is required';
         stopAfterAchievement = stopAfterAchievement || false;
         if (message) {
           return __.out(res, 300, message);
@@ -354,64 +356,63 @@ class challenge {
         const message = !!!title
           ? 'Title is required'
           : !administrators.length
-            ? 'Administrators is required'
-            : false;
+          ? 'Administrators is required'
+          : false;
         if (message) {
           return __.out(res, 300, message);
         }
       }
 
-      if(criteriaType !== 4 && !criteriaType){
-        return __.out(res, 300,  'Select Criteria Source Type');
+      if (criteriaType !== 4 && !criteriaType) {
+        return __.out(res, 300, 'Select Criteria Source Type');
       }
       challenge['createdBy'] = req.user._id;
       challenge['companyId'] = req.user.companyId;
       challenge.rewardPoints = parseInt(challenge.rewardPoints);
-      if ('_id' in challenge) {
-        await Challenge.findOneAndUpdate(
+      if (challenge._id) {
+         Challenge.findOneAndUpdate(
           { _id: challenge._id },
           {
             $set: challenge,
           },
           { new: true },
-        );
+        ).then(()=>{
+          logInfo('challenge updated');
+        }).catch((err)=>{
+          logError('Error in challenge update', err.stack)
+        });
         challenge.challengeId = challenge._id;
         challenge.logDescription = 'Updated';
         delete challenge['_id'];
         /** get the users for wall/channal */
         if (1 == status) {
           let users = [];
+          const promises = [];
           if (!!selectedChannel) {
             const channel = await Channel.findOne({ _id: selectedChannel })
               .select('userDetails createdBy')
               .lean();
-            users = await __.channelUsersList(channel);
+            promises.push(AssignUserRead.read(channel.userDetails));
           } else if (!!selectedWall) {
             const wall = await Wall.findOne({ _id: selectedWall })
               .select('assignUsers createdBy')
               .lean();
-            users = await __.wallUsersList(wall);
+              promises.push(AssignUserRead.read(wall.assignUsers));
           } else if (criteriaType === 4 && assignUsers.length) {
-            users = await __.wallUsersList({
-              assignUsers,
-              createdBy: req.user._id,
-            });
+            promises.push(AssignUserRead.read(assignUsers));
           }
-          let challengeUsers = await this.getChallengeStatusModel(
+          let challengeUsers = [];
+          let userData = {};
+          promises.push(this.getChallengeStatusModel(
             !!challenge.nonRewardPointSystemEnabled,
           )
             .find({ challengeId: challenge.challengeId })
             .select('userId')
-            .lean();
-          const finalUsers = users.reduce((prev, curr, i) => {
-            const index = challengeUsers.findIndex(
-              (u) => u.userId.toString() === curr.toString(),
-            );
-            if (-1 === index) {
-              return prev.concat(curr);
-            }
-            return prev;
-          }, []);
+            .lean());
+            [userData,challengeUsers] = await Promise.all(promises)
+            users = userData.users;
+            const userIds = new Set(challengeUsers.map((u) => u.userId.toString()));
+            const finalUsers = users.filter((u) => !userIds.has(u.toString()));
           if (finalUsers.length) {
             for (const user of finalUsers) {
               await this.getChallengeStatusModel(
@@ -428,7 +429,11 @@ class challenge {
             __.log('no new users found');
           }
         }
-        await new ChallengeLog(challenge).save();
+         new ChallengeLog(challenge).save().then(()=>{
+          logInfo('challenge log added');
+        }).catch((err)=>{
+          logError('Error in challenge log addition', err.stack)
+        });
         return __.out(res, 201, 'Challenge updated successfully');
       } else {
         return __.out(res, 300, 'challengeId is missing');
@@ -485,22 +490,22 @@ class challenge {
           const message = !!!title
             ? 'Title is required'
             : !!!description
-              ? 'Description is required'
-              : !!!icon
-                ? 'Icon is required'
-                : !!!publishStart
-                  ? 'Publish Start date and time are required'
-                  : !!!publishEnd
-                    ? 'Publish end date and time are required'
-                    : !!!challengeStart
-                      ? 'Challenge Start date and time are required'
-                      : !!!challengeEnd
-                        ? 'Challenge Start date and time are required'
-                        : !!!criteriaType
-                          ? 'Select Criteria Type'
-                          : !administrators.length
-                            ? 'Administrators is required'
-                            : null;
+            ? 'Description is required'
+            : !!!icon
+            ? 'Icon is required'
+            : !!!publishStart
+            ? 'Publish Start date and time are required'
+            : !!!publishEnd
+            ? 'Publish end date and time are required'
+            : !!!challengeStart
+            ? 'Challenge Start date and time are required'
+            : !!!challengeEnd
+            ? 'Challenge Start date and time are required'
+            : !!!criteriaType
+            ? 'Select Criteria Type'
+            : !administrators.length
+            ? 'Administrators is required'
+            : null;
           stopAfterAchievement = stopAfterAchievement || false;
           if (message) {
             return __.out(res, 300, message);
@@ -509,8 +514,8 @@ class challenge {
           const message = !!!title
             ? 'Title is required'
             : administrators.length
-              ? false
-              : 'Administrators is required';
+            ? false
+            : 'Administrators is required';
           if (message) {
             return __.out(res, 300, message);
           }
@@ -952,14 +957,14 @@ class challenge {
           {
             path: 'assignUsers.admin',
             select: 'name staffId',
-          }, 
+          },
           {
             path: 'selectedScheme',
             select: '_id schemeName',
             match: {
-              status: 1
-            }
-          }
+              status: 1,
+            },
+          },
         ])
         .skip(skip)
         .sort(sort)
@@ -1015,7 +1020,7 @@ class challenge {
         if (
           challenge.isAdmin &&
           -1 ===
-          arr.findIndex((v) => v._id.toString() === challenge._id.toString())
+            arr.findIndex((v) => v._id.toString() === challenge._id.toString())
         ) {
           arr[arr.length] = challenge;
         }
@@ -1499,10 +1504,10 @@ class challenge {
       } = req.query;
       let pageNum = req.query.draw ? parseInt(req.query.draw) : 1;
       let limit = req.query.length ? parseInt(req.query.length) : 10;
-      console.log(req.query.skip, pageNum)
+      console.log(req.query.skip, pageNum);
       const skip = req.query.skip
         ? parseInt(req.query.skip)
-        : (pageNum-1) * limit;
+        : (pageNum - 1) * limit;
 
       if (!!!challengeId) {
         return __.out(res, 300, 'challengeId is required');
@@ -1883,8 +1888,8 @@ class challenge {
               : 2 === type &&
                 !!totalCount &&
                 0 === totalCount % challenge.criteriaCount
-                ? challenge.rewardPoints
-                : 0;
+              ? challenge.rewardPoints
+              : 0;
           const status = !(
             challenge.stopAfterAchievement &&
             ((2 === type && totalCount === challenge.criteriaCount) ||
@@ -2170,17 +2175,17 @@ class challenge {
               const statusFlag = challenge.fieldOptions.some((fieldOption) => {
                 return !!customform.formStatus && !!customform.formStatus.length
                   ? customform.formStatus.some(
-                    (fs) =>
-                      !fs.fieldStatusValueId ||
-                      fieldOption.fieldOptionValue.toString() ===
-                      fs.fieldStatusValueId.toString(),
-                  )
+                      (fs) =>
+                        !fs.fieldStatusValueId ||
+                        fieldOption.fieldOptionValue.toString() ===
+                          fs.fieldStatusValueId.toString(),
+                    )
                   : customform.workflowStatus.some(
-                    (wf) =>
-                      !wf.fieldStatusId ||
-                      fieldOption.fieldOptionValue.toString() ===
-                      wf.fieldStatusId.toString(),
-                  );
+                      (wf) =>
+                        !wf.fieldStatusId ||
+                        fieldOption.fieldOptionValue.toString() ===
+                          wf.fieldStatusId.toString(),
+                    );
               });
               if (7 === challenge.criteriaSourceType) {
                 const index = allNomineeTypeQuestions.findIndex(
@@ -2413,7 +2418,7 @@ class challenge {
       let limit = req.query.length ? parseInt(req.query.length) : 10;
       let skip = req.query.skip
         ? parseInt(req.query.skip)
-        : (pageNum-1) * limit;
+        : (pageNum - 1) * limit;
       //"challenge.businessUnit": mongoose.Types.ObjectId(businessUnit)
       let query = {
         administrators: {
@@ -2642,7 +2647,7 @@ class challenge {
       let limit = req.query.length ? parseInt(req.query.length) : 10;
       let skip = req.query.skip
         ? parseInt(req.query.skip)
-        : (pageNum-1) * limit;
+        : (pageNum - 1) * limit;
 
       let query = {
         companyId: mongoose.Types.ObjectId(req.user.companyId),
@@ -3424,8 +3429,9 @@ class challenge {
           7: `you been nominated in submitted form acheived expected status`,
           8: `you been nominated in wallpost`,
         };
-        const badgeDescription = `These badges are awarded when ${subText[challenge.criteriaSourceType]
-          }`;
+        const badgeDescription = `These badges are awarded when ${
+          subText[challenge.criteriaSourceType]
+        }`;
 
         // current badge
         let currentBadge = challenge.ranks.find(
@@ -3476,7 +3482,7 @@ class challenge {
           const hintCount = Math.ceil(
             ((endRange - challengeStatus.totalRewardPoints) /
               challenge.rewardPoints) *
-            (challenge.criteriaCount || 1),
+              (challenge.criteriaCount || 1),
           );
 
           // badge hint description
@@ -3489,8 +3495,9 @@ class challenge {
             7: `when you been nominated in ${hintCount} more submitted form and acheived expected status, this will be completed`,
             8: `when you been nominated in ${hintCount} more wallpost`,
           };
-          badgeHint = `These badges are awarded when ${subTextHint[challenge.criteriaSourceType]
-            }`;
+          badgeHint = `These badges are awarded when ${
+            subTextHint[challenge.criteriaSourceType]
+          }`;
         }
 
         return {
