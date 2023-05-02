@@ -2193,9 +2193,16 @@ class globalFunctions {
       assignUsers: {
         $elemMatch: {
           buFilterType: 1,
-          businessUnits: {
-            $in: [businessUnit],
-          },
+          $or: [
+            {
+              businessUnits: {
+                $in: [businessUnit],
+              },
+            },
+            {
+              allBuToken: true
+            },
+          ],
           $or: [
             keyFalseCondition,
             {
@@ -2232,9 +2239,16 @@ class globalFunctions {
       assignUsers: {
         $elemMatch: {
           buFilterType: 2,
-          businessUnits: {
-            $in: [businessUnit],
-          },
+          $or: [
+            {
+              businessUnits: {
+                $in: [businessUnit],
+              },
+            },
+            {
+              allBuToken: true
+            },
+          ],
           $or: [
             keyFalseCondition,
             {
@@ -2276,9 +2290,16 @@ class globalFunctions {
       assignUsers: {
         $elemMatch: {
           buFilterType: 3,
-          businessUnits: {
-            $in: [businessUnit],
-          },
+          $or: [
+            {
+              businessUnits: {
+                $in: [businessUnit],
+              },
+            },
+            {
+              allBuToken: true
+            },
+          ],
           $or: [
             keyFalseCondition,
             {
