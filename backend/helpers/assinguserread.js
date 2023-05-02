@@ -1,6 +1,7 @@
 const User = require('../app/models/user');
 const { logError, logInfo } = require('./logger.helper');
 class AssignUserRead {
+  // return array of _id of users inside users
   async read(userDetails, project = { _id: 1 }) {
     try {
       logInfo('AssignUserRead:: read');
