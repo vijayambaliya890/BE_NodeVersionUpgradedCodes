@@ -1205,23 +1205,21 @@ class challenge {
           },
         ];
       }
-      console.time('2')
-      const recordsFiltered = await Challenge.count(query).lean();
-      console.timeEnd('2')
       let sort = {};
-      if (req.query.order) {
-        let orderData = 'desc'; //req.query.order;
+      const order = req.query.order;
+      if (order) {
         const getSort = (val) => ('asc' === val ? 1 : -1);
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
+        for (let i = 0; i < order.length; i++) {
+          const or = order[i];
+          switch (or.column) {
             case '0':
-              sort[`createdAt`] = getSort(orderData[i].dir);
+              sort[`createdAt`] = getSort(or.dir);
               break;
             case '1':
-              sort[`title`] = getSort(orderData[i].dir);
+              sort[`title`] = getSort(or.dir);
               break;
             case '2':
-              sort[`status`] = getSort(orderData[i].dir);
+              sort[`publishEnd`] = getSort(or.dir);
               break;
           }
         }
@@ -1229,11 +1227,12 @@ class challenge {
           sort = { createdAt: -1 };
         }
       }
-      const challengeData = await Challenge.find(query)
+      const [challengeData,recordsFiltered ]= await Promise.all([Challenge.find(query)
         .skip(skip)
         .sort(sort)
         .limit(limit)
-        .lean();
+        .lean(),
+        Challenge.countDocuments(query)]);
       let result = {
         draw: req.query.draw || 0,
         recordsTotal: recordsFiltered || 0,
