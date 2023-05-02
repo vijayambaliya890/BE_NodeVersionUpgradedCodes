@@ -2138,7 +2138,7 @@ class challenge {
             { _id: challengeStatus._id, userId: challengeCriteria.userId },
             data,
           );
-          if (!challenge.nonRewardPointSystemEnabled) {
+          if (!challenge.nonRewardPointSystemEnabled && rewardPoints) {
             await User.update(
               { _id: userId },
               { rewardPoints: user.rewardPoints },
