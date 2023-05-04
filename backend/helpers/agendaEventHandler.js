@@ -206,55 +206,55 @@ agendaNormal.define(
         case 'notificationBefore2Days':
           ballotNotification(data, 2)
             .then((result) => {
-              logInfo('BackupStaffRemoval done', result);
+              logInfo('notificationBefore2Days done successfully', result);
             })
             .catch((err) => {
-              logError('BackupStaffRemoval has error', err);
+              logError('notificationBefore2Days has error', err);
             });
           break;
         case 'notificationBefore1Day':
           ballotNotification(data, 1)
             .then((result) => {
-              logInfo('BackupStaffRemoval done', result);
+              logInfo('notificationBefore1Day done successfully', result);
             })
             .catch((err) => {
-              logError('BackupStaffRemoval has error', err);
+              logError('notificationBefore1Day has error', err);
             });
           break;
         case 'notificationOnDay':
           ballotNotification(data, 0)
             .then((result) => {
-              logInfo('BackupStaffRemoval done', result);
+              logInfo('notificationOnDay done successfully', result);
             })
             .catch((err) => {
-              logError('BackupStaffRemoval has error', err);
+              logError('notificationOnDay has error', err);
             });
           break;
         case 'conductBallot':
           conductBallot(data.ballotId)
             .then((result) => {
-              logInfo('BackupStaffRemoval done', result);
+              logInfo('conductBallot done successfully', result);
             })
             .catch((err) => {
-              logError('BackupStaffRemoval has error', err);
+              logError('conductBallot has error', err);
             });
           break;
         case 'publishBallot':
           publishBallot(data.ballotId)
             .then((result) => {
-              logInfo('BackupStaffRemoval done', result);
+              logInfo('publishBallot done successfully', result);
             })
             .catch((err) => {
-              logError('BackupStaffRemoval has error', err);
+              logError('publishBallot has error', err);
             });
           break;
         case 'resultRelease':
           resultReleaseFun(data.ballotId)
             .then((result) => {
-              logInfo('BackupStaffRemoval done', result);
+              logInfo('ResultRelease done successfully', result);
             })
             .catch((err) => {
-              logError('BackupStaffRemoval has error', err);
+              logError('ResultRelease has error', err);
             });
           break;
         default:

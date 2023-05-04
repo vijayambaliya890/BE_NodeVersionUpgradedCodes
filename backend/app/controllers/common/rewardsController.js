@@ -8,7 +8,11 @@ const mongoose = require("mongoose"),
   rewardsVouchersList = require('../../models/rewardsVouchersList'),
   rewardURL = "https://cerrapoints.com",
   Company = require('../../models/company');
-const uuid = require("node-uuid");
+  NewReward = require('../../models/rewards'),	
+  multiparty = require('multiparty'),	
+  csv = require('csvtojson')
+  const uuid = require("node-uuid")
+
 const isJSON = str => {
   try {
     return (JSON.parse(str) && !!str);
@@ -616,6 +620,12 @@ class redeemedRewards {
       }, {
         $project: { 'user.name': 1, 'user.staffId': 1, name: 1, 'code': 1, 'points': 1, 'redemption_type': 1, 'createdAt': 1, 'totalRewardPoints': 1, 'businessUnit.name': 1, 'section.name': 1, 'department.name': 1, 'company.name': 1 }
       }]);
+      const formatDate = (dateUTC) => [
+        moment(dateUTC)
+          .add(-req.query.timeZone, 'minutes')
+          .format('YYYY-MM-DD'),
+        moment(dateUTC).add(-req.query.timeZone, 'minutes').format('hh:mm:A')
+      ];
       let rowResult = rewards.map(reward => {
         return {
           'User Name': reward.user.name || '--',
