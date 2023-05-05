@@ -1,18 +1,22 @@
 const User = require('../app/models/user');
 const { logError, logInfo } = require('./logger.helper');
 class AssignUserRead {
-  // return array of _id of users inside users
-  async read(userDetails, project = { _id: 1 }) {
+  // return array of _id of users inside users if project is missing
+  async read(userDetails, project=null) {
     try {
       logInfo('AssignUserRead:: read');
       if (userDetails.length === 0) {
         return { status: false, message: 'user details are empty', users: [] };
       }
+      const userProject = project ? project : { _id: 1 };
       const callGetUserDetails = [];
       userDetails.forEach((detail) => {
-        callGetUserDetails.push(this.getUserDetails(detail, project));
+        callGetUserDetails.push(this.getUserDetails(detail, userProject));
       });
       const userInfo = await Promise.all(callGetUserDetails);
+      if (project) {
+        return { users: userInfo.flat(), status: true };
+      }
       const users = userInfo.flat().map((user) => user._id);
       return { users, status: true };
     } catch (err) {
@@ -21,7 +25,7 @@ class AssignUserRead {
     }
   }
 
-  async getUserDetails(detail, project) {
+  async getUserDetails(detail, project = { _id: 1 }) {
     try {
       logInfo('AssignUserRead:: getUserDetails');
       if (!detail.businessUnits) {
