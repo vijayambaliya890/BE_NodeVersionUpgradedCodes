@@ -377,8 +377,8 @@ class post {
         .sort({
           createdAt: -1,
         })
-        .skip(skip)
-        .limit(limit)
+        // .skip(skip)
+        // .limit(limit)
         .lean();
       let postLists = [];
       const currentDate = moment(moment().utc()).format('MM-DD-YYYY HH:mm:ss');
