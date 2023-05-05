@@ -7,11 +7,11 @@ const mongoose = require("mongoose"),
   __ = require("../../../helpers/globalFunctions"),
   rewardsVouchersList = require('../../models/rewardsVouchersList'),
   rewardURL = "https://cerrapoints.com",
-  Company = require('../../models/company');
+  Company = require('../../models/company'),
   NewReward = require('../../models/rewards'),	
   multiparty = require('multiparty'),	
-  csv = require('csvtojson')
-  const uuid = require("node-uuid")
+  csv = require('csvtojson'),
+  uuid = require("node-uuid");
 
 const isJSON = str => {
   try {
