@@ -22,7 +22,6 @@ const ShiftHelper = require('../../../helpers/shiftHelper');
 const SubSection = require('../../models/subSection');
 const { logInfo, logError } = require('../../../helpers/logger.helper');
 let shiftCheckId = [];
-const Company = require("../../models/company");
 
 class staffShift {
     async recalledShiftConfirmation(req, res) {
