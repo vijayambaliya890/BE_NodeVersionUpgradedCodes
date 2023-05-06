@@ -58,17 +58,13 @@ class challenge {
           { fromDate: { $lte: toDate }, toDate: { $gte: toDate } },
           { fromDate: { $gte: fromDate }, toDate: { $lte: toDate } },
         ],
+        status: 1
       }).lean();
 
       if (!!userExists)
         return __.out(res, 300, `User already exists for given date range`);
 
-      // check for status
-      req.body.status = moment(moment().format('M-D-YYYY')).isSame(
-        moment(req.body.fromDate),
-      )
-        ? 1
-        : 0;
+      req.body.status = 1
       req.body.fromDate = fromDate;
       req.body.toDate = toDate;
       let createData = await new DisqualifyUser(req.body).save();
@@ -2212,6 +2208,8 @@ class challenge {
         const bool = await DisqualifyUser.findOne({
           challengeId: challenge._id,
           userId,
+          fromDate: { $gte: new Date(moment().toLocaleString()) },
+          toDate: { $lte: new Date(moment().toLocaleString()) },
           status: 1,
         }).lean();
         if (bool) return;
@@ -2267,6 +2265,8 @@ class challenge {
           bool = await DisqualifyUser.findOne({
             challengeId,
             userId,
+            fromDate: { $gte: new Date(moment().toLocaleString()) },
+            toDate: { $lte: new Date(moment().toLocaleString()) },
             status: 1,
           }).lean();
         if (bool) return;
