@@ -1933,11 +1933,11 @@ class customform {
           $unwind: '$customForm',
         },
       ];
-      const totalRecords = await ManageFormLog.aggregate([
-        { $match: query },
-        ...aggregateQuery,
-        { $group: { _id: null, count: { $sum: 1 } } },
-      ]).allowDiskUse(true);
+      // const totalRecords = await ManageFormLog.aggregate([
+      //   { $match: query },
+      //   ...aggregateQuery,
+      //   { $group: { _id: null, count: { $sum: 1 } } },
+      // ]).allowDiskUse(true);
       if (!!req.query.search) {
         if (req.query.search.value) {
           const searchCondition = {
@@ -1981,11 +1981,12 @@ class customform {
           }
         }
       }
-      const filteredRecords = await ManageFormLog.aggregate([
-        ...aggregateQuery,
-        { $match: query },
-        { $group: { _id: null, count: { $sum: 1 } } },
-      ]).allowDiskUse(true);
+      // const filteredRecords = await ManageFormLog.aggregate([
+      //   ...aggregateQuery,
+      //   { $match: query },
+      //   { $group: { _id: null, count: { $sum: 1 } } },
+      // ]).allowDiskUse(true);
+    
       const manageFormlog = await ManageFormLog.aggregate([
         ...aggregateQuery,
         { $match: query },
@@ -2018,8 +2019,8 @@ class customform {
       });
       const result = {
         draw: req.query.draw || 0,
-        recordsTotal: totalRecords.length ? totalRecords[0].count : 0,
-        recordsFiltered: filteredRecords.length ? filteredRecords[0].count : 0,
+        // recordsTotal: totalRecords.length ? totalRecords[0].count : 0,
+        // recordsFiltered: filteredRecords.length ? filteredRecords[0].count : 0,
         data: manageFormlog,
       };
       return res.status(201).json(result);
