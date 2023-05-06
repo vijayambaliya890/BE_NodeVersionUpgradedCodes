@@ -26,17 +26,17 @@ var upload = multer({
 });
 
 //RENDER
-postRouter.use(
-  passport.authenticate("jwt", {
-    session: false
-  }) /*Allow only admin*/,
-  function (req, res, next) {
-    next();
-  }
-);
+// postRouter.use(
+//   passport.authenticate("jwt", {
+//     session: false
+//   }) /*Allow only admin*/,
+//   function (req, res, next) {
+//     next();
+//   }
+// );
 
 postRouter.get("/readOne/:postId", async (req, res) => {
-  const routeprivilege = await __.getPrivilegeData(req.user._id);
+  const routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.newsAndEvents) {
     postController.readOne(req, res);
   } else {
@@ -53,7 +53,7 @@ postRouter.post("/readnew", (req, res) => {
 });
 
 const newsAndEvents = async (req, res) => {
-  const routeprivilege = await __.getPrivilegeData(req.user._id);
+  const routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.newsAndEvents) {
     switch (req.route.path) {
       case "/comment": postController.commentPost(req, res); break;
@@ -79,7 +79,7 @@ postRouter.get("/getUserChannels", (req, res) => {
 });
 
 postRouter.post("/viewComments/:postId", async (req, res) => {
-  const routeprivilege = await __.getPrivilegeData(req.user._id);
+  const routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.newsAndEvents) {
     postController.viewComments(req, res);
   } else {

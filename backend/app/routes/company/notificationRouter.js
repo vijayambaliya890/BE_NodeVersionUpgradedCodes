@@ -20,17 +20,14 @@ let express = require('express'),
 
 //RENDER
 
-notificationRouter.use(passport.authenticate('jwt', {
-    session: false
-}), /*Allow only admin*/
-    function (req, res, next) {
-        if (req.user.isFlexiStaff !== 1)
-            next();
-        else
-            return res.status(402).send('This account is not permitted to access');
-    });
+notificationRouter.use(function (req, res, next) {
+    if (req.user.isFlexiStaff !== 1)
+        next();
+    else
+        return res.status(402).send('This account is not permitted to access');
+});
 const inputNotification = async (req, res) => {
-    const routeprivilege = await __.getPrivilegeData(req.user._id);
+    const routeprivilege = await __.getPrivilegeData(req.user);
     if (routeprivilege.inputNotification) {
         switch (req.route.path) {
             case "/create": notificationController.create(req, res); break;
@@ -48,7 +45,7 @@ notificationRouter.post('/create', upload.single('notificationAttachment'), inpu
 notificationRouter.post('/update', upload.single('notificationAttachment'), inputNotification);
 
 notificationRouter.post('/read', async (req, res) => {
-    const routeprivilege = await __.getPrivilegeData(req.user._id);
+    const routeprivilege = await __.getPrivilegeData(req.user);
     if (routeprivilege.viewNotification) {
         notificationController.read(req, res);
     } else {
@@ -57,7 +54,7 @@ notificationRouter.post('/read', async (req, res) => {
 });
 
 notificationRouter.get('/viewAllNotification/:businessUnitId', async (req, res) => {
-    const routeprivilege = await __.getPrivilegeData(req.user._id);
+    const routeprivilege = await __.getPrivilegeData(req.user);
     if (routeprivilege.viewNotification) {
         notificationController.viewAllNotification(req, res);
     } else {

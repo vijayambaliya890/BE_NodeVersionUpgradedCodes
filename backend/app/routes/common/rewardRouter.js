@@ -17,22 +17,22 @@ let express = require("express"),
     storage: storage
   });
 
-//RENDER
-rewardsRouter.use(
-  passport.authenticate("jwt", {
-    session: false
-  }) /*Allow only admin*/,
-  function (req, res, next) {
-    next();
-  }
-);
+// //RENDER
+// rewardsRouter.use(
+//   passport.authenticate("jwt", {
+//     session: false
+//   }) /*Allow only admin*/,
+//   function (req, res, next) {
+//     next();
+//   }
+// );
 
 rewardsRouter.get("/login", (req, res) => {
   rewardsController.redemptionLogin(req, res);
 });
 
 const myRewards = async (req, res) => {
-  let routeprivilege = await __.getPrivilegeData(req.user._id);
+  let routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.myRewards) {
     switch (req.route.path) {
       case "/redemptionGamification": rewardsController.redemptionGamification(req, res); break;
@@ -71,7 +71,7 @@ rewardsRouter.get('/getVoucherList', myRewards);
 rewardsRouter.get('/redeemedRewardSaveProduct/:productCode', myRewards);
 
 rewardsRouter.get("/type/:rewardType", async (req, res) => {
-  let routeprivilege = await __.getPrivilegeData(req.user._id);
+  let routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.myRewards) {
     rewardsController.redemptionType(req, res);
   } else {
@@ -80,7 +80,7 @@ rewardsRouter.get("/type/:rewardType", async (req, res) => {
 });
 
 rewardsRouter.get("/category/:rewardCategory/:subCategory", async (req, res) => {
-  let routeprivilege = await __.getPrivilegeData(req.user._id);
+  let routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.myRewards) {
     rewardsController.redemptionCategory(req, res);
   } else {
@@ -89,7 +89,7 @@ rewardsRouter.get("/category/:rewardCategory/:subCategory", async (req, res) => 
 });
 
 rewardsRouter.get("/details/:rewardDetails", async (req, res) => {
-  let routeprivilege = await __.getPrivilegeData(req.user._id);
+  let routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.myRewards) {
     rewardsController.redemptionDetails(req, res);
   } else {
@@ -98,7 +98,7 @@ rewardsRouter.get("/details/:rewardDetails", async (req, res) => {
 });
 
 rewardsRouter.get("/history/:rewardHistory/:rewardDate", async (req, res) => {
-  let routeprivilege = await __.getPrivilegeData(req.user._id);
+  let routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.myRewards) {
     rewardsController.redemptionHistory(req, res);
   } else {
@@ -111,7 +111,7 @@ rewardsRouter.get("/history/:rewardHistory/:rewardDate", async (req, res) => {
 
 
 rewardsRouter.get("/search/:rewardSearch", async (req, res) => {
-  let routeprivilege = await __.getPrivilegeData(req.user._id);
+  let routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.myRewards) {
     rewardsController.redemptionSearch(req, res);
   } else {
@@ -122,7 +122,7 @@ rewardsRouter.get("/search/:rewardSearch", async (req, res) => {
 
 
 rewardsRouter.get("/rewardsHistory", async (req, res) => {
-  let routeprivilege = await __.getPrivilegeData(req.user._id);
+  let routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.redemptionList) {
     rewardsController.rewardsHistory(req, res);
   } else {
@@ -131,7 +131,7 @@ rewardsRouter.get("/rewardsHistory", async (req, res) => {
 });
 
 rewardsRouter.get("/rewardsHistoryExport", async (req, res) => {
-  let routeprivilege = await __.getPrivilegeData(req.user._id);
+  let routeprivilege = await __.getPrivilegeData(req.user);
   if (routeprivilege.redemptionList) {
     rewardsController.rewardsHistoryExport(req, res);
   } else {

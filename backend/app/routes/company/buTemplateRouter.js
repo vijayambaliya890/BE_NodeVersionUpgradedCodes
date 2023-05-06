@@ -9,15 +9,12 @@ let express = require('express'),
 
 //RENDER
 
-buTemplateRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only admin*/
-    function (req, res, next) {
-        if (req.user.isFlexiStaff !== 1)
-            next();
-        else
-            return res.status(402).send('This account is not permitted to access');
-    });
+buTemplateRouter.use(function (req, res, next) {
+    if (req.user.isFlexiStaff !== 1)
+        next();
+    else
+        return res.status(402).send('This account is not permitted to access');
+});
 
 buTemplateRouter.post('/createbuTemplate', (req, res) => {
     buTemplateController.create(req, res)

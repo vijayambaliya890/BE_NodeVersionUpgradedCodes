@@ -3,14 +3,14 @@ let express = require('express'),
   passport = require('passport'),
   oopsGroupController = require('../../controllers/common/opsGroupController');
 
-oopsGroupRouter.use(
-  passport.authenticate('jwt', {
-    session: false,
-  }) /*Allow only admin*/,
-  function (req, res, next) {
-    next();
-  },
-);
+// oopsGroupRouter.use(
+//   passport.authenticate('jwt', {
+//     session: false,
+//   }) /*Allow only admin*/,
+//   function (req, res, next) {
+//     next();
+//   },
+// );
 oopsGroupRouter.post('/create', (req, res) => {
   oopsGroupController.create(req, res);
 });

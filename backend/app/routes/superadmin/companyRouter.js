@@ -33,9 +33,7 @@ var upload = multer({
 
 //RENDER
 
-companyRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only FLEXISTAFF*/
+companyRouter.use(
     function (req, res, next) {
         if (req.user.role === "superadmin") {
             next();

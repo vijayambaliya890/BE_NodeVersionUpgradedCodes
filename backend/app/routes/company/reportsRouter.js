@@ -10,7 +10,7 @@ let express = require('express'),
 
 //RENDER
 
-reportsRouter.use(passport.authenticate('jwt', { session: false }), /*Allow only admin*/ function (req, res, next) {
+reportsRouter.use(function (req, res, next) {
     if (req.user.isFlexiStaff !== 1){
         next();
     } else {

@@ -6,15 +6,10 @@ let express = require('express'),
   uuid = require('node-uuid'),
   path = require('path');
 
-leaveApplicationRouter.use(
-  passport.authenticate('jwt', {
-    session: false,
-  }) /*Allow only admin*/,
-  function (req, res, next) {
-    if (req.user.isFlexiStaff !== 1 || req.path.includes('staff')) next();
-    else return res.status(402).send('This account is not permitted to access');
-  },
-);
+leaveApplicationRouter.use(function (req, res, next) {
+  if (req.user.isFlexiStaff !== 1 || req.path.includes('staff')) next();
+  else return res.status(402).send('This account is not permitted to access');
+});
 
 leaveApplicationRouter.get('/', (req, res) => {
   leaveApplicationController.testRoute(req, res);

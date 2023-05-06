@@ -3,16 +3,13 @@ let express = require('express'),
     passport = require('passport'),
     oopsGroupController = require('../../controllers/company/opsGroupController')
 
-oopsGroupRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only admin*/
-    (req, res, next) => {
-        console.log('pa', req.path);
-        if (req.user.isFlexiStaff !== 1 || req.path.includes("breakTime") || req.path.includes("staff"))
-            next();
-        else
-            return res.status(402).send('This account is not permitted to access');
-    });
+oopsGroupRouter.use((req, res, next) => {
+    console.log('pa', req.path);
+    if (req.user.isFlexiStaff !== 1 || req.path.includes("breakTime") || req.path.includes("staff"))
+        next();
+    else
+        return res.status(402).send('This account is not permitted to access');
+});
 oopsGroupRouter.post('/', (req, res) => {
     oopsGroupController.create(req, res)
 });

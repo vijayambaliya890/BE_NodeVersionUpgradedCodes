@@ -201,6 +201,10 @@ const UserSchema = new Schema(
       type: Boolean,
       default: false, // vice versa
     },
+    roleUpdate:{
+      type: Boolean,
+      default: false, // vice versa
+    }, // use for role update check during middleware
   },
   {
     timestamps: true,

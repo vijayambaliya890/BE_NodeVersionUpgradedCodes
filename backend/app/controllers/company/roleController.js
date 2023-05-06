@@ -1,6 +1,7 @@
 // Controller Code Starts here
 const mongoose = require('mongoose'),
     Role = require('../../models/role'),
+    User = require('../../models/user'),
     __ = require('../../../helpers/globalFunctions');
 const { logInfo, logError } = require('../../../helpers/logger.helper');
 
@@ -79,6 +80,11 @@ class role {
                 if (doc === null) {
                     __.out(res, 300, 'Invalid roleId');
                 } else {
+                  const userUpdate = await User.updateMany(
+                    { role: req.body.roleId },
+                    { $set: { roleUpdate: true } },
+                  );
+                  logInfo('During role update user updated', userUpdate);
                     Object.assign(doc, req.body);
                     let result = await doc.save();
                     if (result === null) {

@@ -7,15 +7,12 @@ let express = require('express'),
 
 //RENDER
 
-leaveGroupRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only admin*/
-    (req, res, next) => {
-        if (req.user.isFlexiStaff !== 1)
-            next();
-        else
-            return res.status(402).send('This account is not permitted to access');
-    });
+leaveGroupRouter.use((req, res, next) => {
+    if (req.user.isFlexiStaff !== 1)
+        next();
+    else
+        return res.status(402).send('This account is not permitted to access');
+});
 
 leaveGroupRouter.post('/create', (req, res) => {  // check if user role has access to this module
     leaveGroupController.create(req, res)

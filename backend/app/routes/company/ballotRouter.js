@@ -17,15 +17,13 @@ let express = require('express'),
     storage: storage,
   });
 
-ballotRouter.use(
-  passport.authenticate('jwt', {
-    session: false,
-  }) /*Allow only admin*/,
-  function (req, res, next) {
-    if (req.user.isFlexiStaff !== 1 || req.path.includes('staff')) next();
-    else return res.status(402).send('This account is not permitted to access');
-  },
-);
+ballotRouter.use(function (req, res, next) {
+  if (req.user.isFlexiStaff !== 1 || req.path.includes('staff')) next();
+  else return res.status(402).send('This account is not permitted to access');
+},  function (req, res, next) {
+  if (req.user.isFlexiStaff !== 1 || req.path.includes('staff')) next();
+  else return res.status(402).send('This account is not permitted to access');
+});
 /// create ballot as draft
 ballotRouter.post('/', (req, res) => {
   ballotController.create(req, res);

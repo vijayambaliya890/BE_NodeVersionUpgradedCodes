@@ -7,9 +7,7 @@ let express = require('express'),
 
 //RENDER
 
-timeSheetRouter.use(passport.authenticate('jwt', {
-    session: false
-}), /*Allow only admin*/
+timeSheetRouter.use(
     (req, res, next) => {
         if (req.user.isFlexiStaff !== 1 || req.path.includes("qrcode") || req.path.includes("qrCodeStatus"))
             next();

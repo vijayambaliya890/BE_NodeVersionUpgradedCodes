@@ -9,19 +9,16 @@ let express = require('express'),
 
 //RENDER
 
-assignShiftRouter.use(passport.authenticate('jwt', {
-    session: false
-}), /*Allow only admin*/
-    function (req, res, next) {
-        console.log('req.path', req.path)
-        if (req.path.includes("view")) {
-            console.log('aaa')
-        }
-        if (req.user.isFlexiStaff !== 1 || req.path.includes("changerequest") || req.path.includes("changeRequest") || req.path.includes("view"))
-            next();
-        else
-            return res.status(402).send('This account is not permitted to access');
-    });
+assignShiftRouter.use(function (req, res, next) {
+    console.log('req.path', req.path)
+    if (req.path.includes("view")) {
+        console.log('aaa')
+    }
+    if (req.user.isFlexiStaff !== 1 || req.path.includes("changerequest") || req.path.includes("changeRequest") || req.path.includes("view"))
+        next();
+    else
+        return res.status(402).send('This account is not permitted to access');
+});
 
 assignShiftRouter.post('/stafflisting', (req, res) => {
     assignShiftController.createStaffListing(req, res)

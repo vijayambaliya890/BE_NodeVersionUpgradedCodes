@@ -18,14 +18,12 @@ let express = require('express'),
     });
 
 
-wallPostRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only admin*/
-    function (req, res, next) {
-        // No Restrictions, Allow flexistaff & Non flexistaff
-        next();
+// wallPostRouter.use(
+//     function (req, res, next) {
+//         // No Restrictions, Allow flexistaff & Non flexistaff
+//         next();
 
-    });
+//     });
 
 wallPostRouter.post('/createPost', (req, res) => {
     wallPostController.createPost(req, res)

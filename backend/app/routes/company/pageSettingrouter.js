@@ -25,23 +25,20 @@ pageSettingRouter.get('/read', (req, res) => {
 });
 /*Allow only admin*/
 /*Allow only admin*/
-pageSettingRouter.use(passport.authenticate('jwt', {
-    session: false
-}), 
-function (req, res, next) {
-    next();
-});
+// pageSettingRouter.use(passport.authenticate('jwt', {
+//     session: false
+// }), 
+// function (req, res, next) {
+//     next();
+// });
 
-pageSettingRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), 
-    function (req, res, next) {
-        console.log('req.url', req.url)
-        if (true || req.user.isFlexiStaff !== 1 || req.url == '/skillset')
-            next();
-        else
-            return res.status(402).send('This account is not permitted to access');
-    });
+pageSettingRouter.use(function (req, res, next) {
+    console.log('req.url', req.url)
+    if (true || req.user.isFlexiStaff !== 1 || req.url == '/skillset')
+        next();
+    else
+        return res.status(402).send('This account is not permitted to access');
+});
 
 pageSettingRouter.post('/update', (req, res) => {
     pageSettingController.update(req, res)

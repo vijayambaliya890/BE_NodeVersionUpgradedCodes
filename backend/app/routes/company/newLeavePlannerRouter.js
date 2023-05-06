@@ -6,15 +6,10 @@ let express = require("express"),
 
 //RENDER
 
-newLeavePlannerRouter.use(
-  passport.authenticate("jwt", {
-    session: false,
-  }) /*Allow only admin*/,
-  (req, res, next) => {
-    if (req.user.isFlexiStaff !== 1) next();
-    else next();
-  }
-);
+newLeavePlannerRouter.use((req, res, next) => {
+  if (req.user.isFlexiStaff !== 1) next();
+  else next();
+});
 
 newLeavePlannerRouter.post("/leavetype", (req, res) => {
   // check if user role has access to this module

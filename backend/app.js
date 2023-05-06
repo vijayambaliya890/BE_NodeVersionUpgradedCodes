@@ -253,18 +253,19 @@ app.use(
     session: false,
   }),
   function (req, res, next) {
-    if (
-      !!req.user &&
-      req.user.pwdDurationStatus &&
-      req.user.pwdDurationStatus == true
-    ) {
-      next();
-    } else {
-      res.send(401, {
-        error: 'Passwordchange',
-        message: 'You have to change your password',
-      });
-    }
+    next();
+    // if (
+    //   !!req.user &&
+    //   req.user.pwdDurationStatus &&
+    //   req.user.pwdDurationStatus == true // this logic we will come to any other common API
+    // ) {
+    //   next();
+    // } else {
+    //   res.send(401, {
+    //     error: 'Passwordchange',
+    //     message: 'You have to change your password',
+    //   });
+    // }
   },
 );
 

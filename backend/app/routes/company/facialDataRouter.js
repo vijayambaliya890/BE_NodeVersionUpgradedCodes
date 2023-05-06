@@ -7,15 +7,12 @@ let express = require('express'),
 
 //RENDER
 
-facialDataRouter.use(passport.authenticate('jwt', {
-        session: false
-    }), /*Allow only admin*/
-    (req, res, next) => {
-        if (req.user.isFlexiStaff !== 1)
-            next();
-        else
-            return res.status(402).send('This account is not permitted to access');
-    });
+facialDataRouter.use((req, res, next) => {
+    if (req.user.isFlexiStaff !== 1)
+        next();
+    else
+        return res.status(402).send('This account is not permitted to access');
+});
 
 facialDataRouter.post('/create', (req, res) => {
     facialDataController.create(req, res)

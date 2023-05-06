@@ -17,13 +17,10 @@ let express = require("express"),
     storage: storage,
   });
 
-console.log("ehehhe");
+
 //RENDER
 
 swappingRouter.use(
-  passport.authenticate("jwt", {
-    session: false,
-  }) /*Allow only admin*/,
   (req, res, next) => {
     if (req.user.isFlexiStaff !== 1) next();
     else next();
