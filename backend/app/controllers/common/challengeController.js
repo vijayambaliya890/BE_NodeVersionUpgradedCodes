@@ -252,12 +252,46 @@ class challenge {
           },
         },
       ];
-      let challengeStatus = await this.getChallengeStatusModel()
+
+      const aggregateNonQuery = [
+        {
+          $match: {
+            userId: mongoose.Types.ObjectId(req.user._id),
+          },
+        },
+        {
+          $lookup: {
+            from: 'challenges',
+            localField: 'challengeId',
+            foreignField: '_id',
+            as: 'challenge',
+          },
+        },
+        {
+          $unwind: '$challenge',
+        },
+        {
+          $group: {
+            _id: '$challenge.nonRewardPointSystem',
+            count: { $sum: '$rewardPoints' },
+          },
+        },
+      ];
+      let [challengeStatus, challengeNonStatus] = await Promise.all([this.getChallengeStatusModel()
         .aggregate(aggregateQuery)
-        .allowDiskUse(true);
+        .allowDiskUse(true),
+        ChallengeCriteriaNonReward
+        .aggregate(aggregateNonQuery)
+        .allowDiskUse(true)]);
       challengeStatus = [
         { _id: null, count: challengeStatus.reduce((a, b) => a + b.count, 0) },
       ];
+
+      challengeStatus = [...challengeStatus,...challengeNonStatus]
+
+      // challengeNonStatus = [
+      //   { _id: null, count: challengeNonStatus.reduce((a, b) => a + b.count, 0) },
+      // ];
       // const challengeStatus2 = await ((this.getChallengeStatusModel(true)).aggregate(aggregateQuery).allowDiskUse(true));
       // challengeStatus = [...challengeStatus, ...challengeStatus2];
 
@@ -285,6 +319,7 @@ class challenge {
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
+
 
   async update(req, res) {
     try {
