@@ -3005,8 +3005,8 @@ class customform {
         return __.out(res, 300, `You've entered malicious input`);
       }
       const managedForm = await ManageForm.findOne({ _id: req.body._id })
-        .populate({
-          path: 'customFormId userId',
+      .populate({
+          path: 'customFormId',
           select: 'moduleId isDeployed title formStatus workflow',
           populate: {
             path: 'moduleId',
