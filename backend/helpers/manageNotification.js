@@ -131,11 +131,11 @@ class ManageNotification {
           body: notificationData.description,
         };
         // get device token
-
-        const users = await AssignUserRead.read(notificationData.assignUsers, {
+        const resultUsers = await AssignUserRead.read(notificationData.assignUsers, {
           _id: 1,
           deviceToken: 1,
         });
+        let users= resultUsers.users;
         let totalUser = 0;
         let userId = [];
         if (users.length > 0) {
