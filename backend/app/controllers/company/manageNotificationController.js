@@ -262,7 +262,7 @@ class ManageNotification {
       let { sortBy, sortWith, page, limit, search } = req.query;
       const pageNum = !!page ? parseInt(page) : 0;
       limit = !!limit ? parseInt(limit) : 10;
-      const skip = (pageNum - 1) / limit;
+      const skip = (pageNum - 1) * limit;
       let sortObj = {
         [sortWith]: sortBy === 'desc' ? -1 : 1
       }
@@ -350,7 +350,7 @@ class ManageNotification {
       let { sortBy, sortWith, page, limit, search } = req.query;
       const pageNum = !!page ? parseInt(page) : 0;
       limit = !!limit ? parseInt(limit) : 10;
-      const skip = (pageNum - 1) / limit;
+      const skip = (pageNum - 1) * limit;
       let sortObj = {
         [sortWith]: sortBy === 'desc' ? -1 : 1
       }
