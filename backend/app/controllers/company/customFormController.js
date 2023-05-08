@@ -2004,7 +2004,7 @@ class customform {
           },
         },
        ]),
-       ManageFormLog.countDocuments({ $match: query }),
+       ManageFormLog.countDocuments(query),
      ]);
       manageFormlog.forEach((mform) => {
         if (mform.userName === 'DONOTCHANGE') {
