@@ -1933,11 +1933,7 @@ class customform {
           $unwind: '$customForm',
         },
       ];
-      // const totalRecords = await ManageFormLog.aggregate([
-      //   { $match: query },
-      //   ...aggregateQuery,
-      //   { $group: { _id: null, count: { $sum: 1 } } },
-      // ]).allowDiskUse(true);
+
       if (!!req.query.search) {
         if (req.query.search.value) {
           const searchCondition = {
@@ -1981,16 +1977,22 @@ class customform {
           }
         }
       }
-      // const filteredRecords = await ManageFormLog.aggregate([
-      //   ...aggregateQuery,
-      //   { $match: query },
-      //   { $group: { _id: null, count: { $sum: 1 } } },
-      // ]).allowDiskUse(true);
-    
-      const manageFormlog = await ManageFormLog.aggregate([
-        ...aggregateQuery,
-        { $match: query },
-        {
+
+     const [manageFormlog, totalRecords] = await Promise.all([
+       ManageFormLog.aggregate([
+        
+         { $match: query },
+         {
+           $sort: sort,
+         },
+         {
+           $skip: skip,
+         },
+         {
+           $limit: limit,
+         },
+         ...aggregateQuery,
+         {
           $project: {
             'user.name': 1,
             'user.staffId': 1,
@@ -2001,16 +2003,9 @@ class customform {
             userName: 1,
           },
         },
-        {
-          $sort: sort,
-        },
-        {
-          $skip: skip,
-        },
-        {
-          $limit: limit,
-        },
-      ]).allowDiskUse(true);
+       ]),
+       ManageFormLog.countDocuments({ $match: query }),
+     ]);
       manageFormlog.forEach((mform) => {
         if (mform.userName === 'DONOTCHANGE') {
           delete mform.user.name;
@@ -2019,8 +2014,7 @@ class customform {
       });
       const result = {
         draw: req.query.draw || 0,
-        // recordsTotal: totalRecords.length ? totalRecords[0].count : 0,
-        // recordsFiltered: filteredRecords.length ? filteredRecords[0].count : 0,
+        recordsTotal:  totalRecords,
         data: manageFormlog,
       };
       return res.status(201).json(result);
