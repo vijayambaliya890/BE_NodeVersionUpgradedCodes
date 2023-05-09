@@ -2438,15 +2438,13 @@ class challenge {
                 return !!customform.formStatus && !!customform.formStatus.length
                   ? customform.formStatus.some(
                       (fs) =>
-                        !fs.fieldStatusValueId ||
-                        fieldOption.fieldOptionValue.toString() ===
-                          fs.fieldStatusValueId.toString(),
+                        fieldOption.fieldOptionValue?.toString() ===
+                          fs.fieldStatusValueId?.toString(),
                     )
                   : customform.workflowStatus.some(
                       (wf) =>
-                        !wf.fieldStatusId ||
-                        fieldOption.fieldOptionValue.toString() ===
-                          wf.fieldStatusId.toString(),
+                        fieldOption.fieldOptionValue?.toString() ===
+                          wf.fieldStatusId?.toString(),
                     );
               });
               if (7 === challenge.criteriaSourceType) {
