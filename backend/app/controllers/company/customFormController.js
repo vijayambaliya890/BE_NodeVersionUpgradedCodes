@@ -2316,6 +2316,7 @@ class customform {
         },
       ).lean();
       await challengeController.triggerChallenge(
+        res,
         customFormData.userId,
         customFormData._id,
         'customform',
@@ -2519,6 +2520,7 @@ class customform {
       ).lean();
       logs.forEach((logg) => ManageFormLog(logg).save());
       await challengeController.triggerChallenge(
+        res,
         customFormData.userId,
         customFormData._id,
         'customform',
