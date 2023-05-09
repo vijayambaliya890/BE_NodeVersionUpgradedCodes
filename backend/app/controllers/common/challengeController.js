@@ -1097,7 +1097,7 @@ class challenge {
           },
           {
             path: 'selectedCustomForm',
-            select: 'title',
+            select: 'title workflow',
           },
           {
             path: 'nomineeQuestion',
@@ -1182,6 +1182,25 @@ class challenge {
           }
         ])
         .lean();
+       
+        if (challenge.criteriaSourceType === 6) {
+
+
+          const workflow = challenge.selectedCustomForm.workflow;
+          const fieldOptions = challenge.fieldOptions;
+          const matchedWorkFlow = workflow.filter(obj1 => fieldOptions.some(obj2 => obj1._id == obj2.fieldOptionValue));
+          let result = [];
+          matchedWorkFlow.forEach((workFlow)=>{
+           const workflowStatus = workFlow.workflowStatus.filter(obj1 => fieldOptions.some(obj2 => obj1._id == obj2.formStatusValue));
+           const workflowStatusResult = workflowStatus.map((ws)=>{
+            return `${workFlow.title}-> ${ws.field}`
+           });
+           result = [...result,...workflowStatusResult]
+          });
+          challenge.workFlowStatusInfo = result;
+          delete challenge.selectedCustomForm.workflow;
+        }
+
       const pageSettings = await PageSettings.findOne({
         companyId: req.user.companyId,
         status: 1,
@@ -2446,7 +2465,7 @@ class challenge {
                     `statusFlag ${statusFlag} nomineeflag ${nomineeQuestionFlag}`,
                   );
                 }
-              } else if (6 === challenge.criteriaSourceType) {
+              } else if (6 === challenge.criteriaSourceType && statusFlag) {
                 await checkChallenge(challenge, customform.userId);
               }
             }
