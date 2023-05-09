@@ -855,7 +855,7 @@ class businessUnit {
       }
       let businessUnitList = await SubSection.find(where)
         .select(
-          '_id name status cancelShiftPermission standByShiftPermission shiftCancelHours techEmail adminEmail notificRemindHours notificRemindDays appointments sectionId orgName noOfWeek breakInMinutes shiftTimeInMinutes isBreakTime shiftBreak mainSkillSets skillSetTierType plannedHours',
+          '_id name status sectionId orgName',
         )
         .populate([
           {
