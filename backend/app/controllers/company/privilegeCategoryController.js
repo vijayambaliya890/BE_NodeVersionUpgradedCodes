@@ -52,7 +52,7 @@ class privilegeCategory {
                         $ne: 3
                     }
                 },
-            }).lean();
+            }).sort({_id:1}).lean();
             __.out(res, 201, {
                 privilegeCategory: privilegeCategory
             });
