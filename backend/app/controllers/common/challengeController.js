@@ -400,7 +400,7 @@ class challenge {
       }
       challenge['createdBy'] = req.user._id;
       challenge['companyId'] = req.user.companyId;
-      challenge.rewardPoints = parseInt(challenge.rewardPoints);
+      challenge.rewardPoints = parseInt(challenge.rewardPoints || 0);
       if (challenge._id) {
         Challenge.findOneAndUpdate(
           { _id: challenge._id },
@@ -437,21 +437,17 @@ class challenge {
           }
           let challengeUsers = [];
           let userData = {};
-          promises.push(
-            this.getChallengeStatusModel(
-              !!challenge.nonRewardPointSystemEnabled,
-            )
-              .find({ challengeId: challenge.challengeId })
-              .select('userId')
-              .lean(),
-          );
-          [userData, challengeUsers] = await Promise.all(promises);
-          users = userData.users;
-          const userIds = new Set(
-            challengeUsers.map((u) => u.userId.toString()),
-          );
-          const finalUsers = users.filter((u) => !userIds.has(u.toString()));
-          if (finalUsers.length) {
+          promises.push(this.getChallengeStatusModel(
+            !!challenge.nonRewardPointSystemEnabled,
+          )
+            .find({ challengeId: challenge.challengeId })
+            .select('userId')
+            .lean());
+            [userData,challengeUsers] = await Promise.all(promises)
+            users = userData.users;
+            const userIds = new Set(challengeUsers?.map((u) => u.userId.toString()));
+            const finalUsers = users?.filter((u) => !userIds.has(u.toString()));
+          if (finalUsers && finalUsers.length) {
             for (const user of finalUsers) {
               await this.getChallengeStatusModel(
                 !!challenge.nonRewardPointSystemEnabled,
