@@ -58,13 +58,13 @@ class challenge {
           { fromDate: { $lte: toDate }, toDate: { $gte: toDate } },
           { fromDate: { $gte: fromDate }, toDate: { $lte: toDate } },
         ],
-        status: 1
+        status: 1,
       }).lean();
 
       if (!!userExists)
         return __.out(res, 300, `User already exists for given date range`);
 
-      req.body.status = 1
+      req.body.status = 1;
       req.body.fromDate = fromDate;
       req.body.toDate = toDate;
       let createData = await new DisqualifyUser(req.body).save();
@@ -273,17 +273,19 @@ class challenge {
           },
         },
       ];
-      let [challengeStatus, challengeNonStatus] = await Promise.all([this.getChallengeStatusModel()
-        .aggregate(aggregateQuery)
-        .allowDiskUse(true),
-        ChallengeCriteriaNonReward
-        .aggregate(aggregateNonQuery)
-        .allowDiskUse(true)]);
+      let [challengeStatus, challengeNonStatus] = await Promise.all([
+        this.getChallengeStatusModel()
+          .aggregate(aggregateQuery)
+          .allowDiskUse(true),
+        ChallengeCriteriaNonReward.aggregate(aggregateNonQuery).allowDiskUse(
+          true,
+        ),
+      ]);
       challengeStatus = [
         { _id: null, count: challengeStatus.reduce((a, b) => a + b.count, 0) },
       ];
 
-      challengeStatus = [...challengeStatus,...challengeNonStatus]
+      challengeStatus = [...challengeStatus, ...challengeNonStatus];
 
       // challengeNonStatus = [
       //   { _id: null, count: challengeNonStatus.reduce((a, b) => a + b.count, 0) },
@@ -315,7 +317,6 @@ class challenge {
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
-
 
   async update(req, res) {
     try {
@@ -401,17 +402,19 @@ class challenge {
       challenge['companyId'] = req.user.companyId;
       challenge.rewardPoints = parseInt(challenge.rewardPoints || 0);
       if (challenge._id) {
-         Challenge.findOneAndUpdate(
+        Challenge.findOneAndUpdate(
           { _id: challenge._id },
           {
             $set: challenge,
           },
           { new: true },
-        ).then(()=>{
-          logInfo('challenge updated');
-        }).catch((err)=>{
-          logError('Error in challenge update', err.stack)
-        });
+        )
+          .then(() => {
+            logInfo('challenge updated');
+          })
+          .catch((err) => {
+            logError('Error in challenge update', err.stack);
+          });
         challenge.challengeId = challenge._id;
         challenge.logDescription = 'Updated';
         delete challenge['_id'];
@@ -428,7 +431,7 @@ class challenge {
             const wall = await Wall.findOne({ _id: selectedWall })
               .select('assignUsers createdBy')
               .lean();
-              promises.push(AssignUserRead.read(wall.assignUsers));
+            promises.push(AssignUserRead.read(wall.assignUsers));
           } else if (criteriaType === 4 && assignUsers.length) {
             promises.push(AssignUserRead.read(assignUsers));
           }
@@ -460,11 +463,14 @@ class challenge {
             __.log('no new users found');
           }
         }
-         new ChallengeLog(challenge).save().then(()=>{
-          logInfo('challenge log added');
-        }).catch((err)=>{
-          logError('Error in challenge log addition', err.stack)
-        });
+        new ChallengeLog(challenge)
+          .save()
+          .then(() => {
+            logInfo('challenge log added');
+          })
+          .catch((err) => {
+            logError('Error in challenge log addition', err.stack);
+          });
         return __.out(res, 201, 'Challenge updated successfully');
       } else {
         return __.out(res, 300, 'challengeId is missing');
@@ -1076,7 +1082,7 @@ class challenge {
       }
       const challengeId = req.params.challengeId;
       let query = {
-        _id: challengeId, 
+        _id: challengeId,
         status: {
           $nin: [2],
         },
@@ -1172,49 +1178,51 @@ class challenge {
           {
             path: 'assignUsers.admin',
             select: 'name staffId',
-          }, 
+          },
           {
             path: 'selectedScheme',
             select: '_id schemeName',
             match: {
-              status: 1
-            }
-          }
+              status: 1,
+            },
+          },
         ])
         .lean();
-       
-        if (challenge.criteriaSourceType === 6) {
 
-
-          const workflow = challenge.selectedCustomForm.workflow;
-          const fieldOptions = challenge.fieldOptions;
-          const matchedWorkFlow = workflow.filter(obj1 => fieldOptions.some(obj2 => obj1._id == obj2.fieldOptionValue));
-          let result = [];
-          matchedWorkFlow.forEach((workFlow)=>{
-           const workflowStatus = workFlow.workflowStatus.filter(obj1 => fieldOptions.some(obj2 => obj1._id == obj2.formStatusValue));
-           const workflowStatusResult = workflowStatus.map((ws)=>{
-            return `${workFlow.title}-> ${ws.field}`
-           });
-           result = [...result,...workflowStatusResult]
+      if (challenge.criteriaSourceType === 6) {
+        const workflow = challenge.selectedCustomForm.workflow;
+        const fieldOptions = challenge.fieldOptions;
+        const matchedWorkFlow = workflow.filter((obj1) =>
+          fieldOptions.some((obj2) => obj1._id == obj2.fieldOptionValue),
+        );
+        let result = [];
+        matchedWorkFlow.forEach((workFlow) => {
+          const workflowStatus = workFlow.workflowStatus.filter((obj1) =>
+            fieldOptions.some((obj2) => obj1._id == obj2.formStatusValue),
+          );
+          const workflowStatusResult = workflowStatus.map((ws) => {
+            return `${workFlow.title}-> ${ws.field}`;
           });
-          challenge.workFlowStatusInfo = result;
-          delete challenge.selectedCustomForm.workflow;
-        }
+          result = [...result, ...workflowStatusResult];
+        });
+        challenge.workFlowStatusInfo = result;
+        delete challenge.selectedCustomForm.workflow;
+      }
 
       const pageSettings = await PageSettings.findOne({
         companyId: req.user.companyId,
         status: 1,
       }).select('pointSystems');
-        // append point system data
-        if (
-          !!challenge.nonRewardPointSystemEnabled &&
-          !!challenge.nonRewardPointSystem
-        ) {
-          challenge.nonRewardPointSystem = pageSettings.pointSystems.find(
-            (ps) =>
-              ps._id.toString() === challenge.nonRewardPointSystem.toString(),
-          );
-        }
+      // append point system data
+      if (
+        !!challenge.nonRewardPointSystemEnabled &&
+        !!challenge.nonRewardPointSystem
+      ) {
+        challenge.nonRewardPointSystem = pageSettings.pointSystems.find(
+          (ps) =>
+            ps._id.toString() === challenge.nonRewardPointSystem.toString(),
+        );
+      }
       let result = {
         data: challenge,
       };
@@ -1227,7 +1235,7 @@ class challenge {
 
   async readChallengesNew(req, res) {
     try {
-      logInfo('readChallengesNew called')
+      logInfo('readChallengesNew called');
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -1277,12 +1285,10 @@ class challenge {
           sort = { createdAt: -1 };
         }
       }
-      const [challengeData,recordsFiltered ]= await Promise.all([Challenge.find(query)
-        .skip(skip)
-        .sort(sort)
-        .limit(limit)
-        .lean(),
-        Challenge.countDocuments(query)]);
+      const [challengeData, recordsFiltered] = await Promise.all([
+        Challenge.find(query).skip(skip).sort(sort).limit(limit).lean(),
+        Challenge.countDocuments(query),
+      ]);
       let result = {
         draw: req.query.draw || 0,
         recordsTotal: recordsFiltered || 0,
@@ -2674,60 +2680,38 @@ class challenge {
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
+
       let pageNum = req.query.draw ? parseInt(req.query.draw) : 0;
       let limit = req.query.length ? parseInt(req.query.length) : 10;
       let skip = req.query.skip
         ? parseInt(req.query.skip)
         : (pageNum - 1) * limit;
-      //"challenge.businessUnit": mongoose.Types.ObjectId(businessUnit)
       let query = {
         administrators: {
           $in: [mongoose.Types.ObjectId(req.user._id)],
         },
       };
-      const populateQuery = [
-        {
-          $match: query,
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'createdBy',
-            foreignField: '_id',
-            as: 'user',
-          },
-        },
-        {
-          $unwind: '$user',
-        },
-      ];
       let sort = { createdAt: -1 };
       if (req.query.order) {
-        let orderData = req.query.order;
+        let order = req.query.order;
         const getSort = (val) => ('asc' === val ? 1 : -1);
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
+        for (let i = 0; i < order.length; i++) {
+          switch (order[i].column) {
             case '0':
-              sort[`user.name`] = getSort(orderData[i].dir);
+              sort[`user.name`] = getSort(order[i].dir);
               break;
             case '1':
-              sort[`createdAt`] = getSort(orderData[i].dir);
+              sort[`createdAt`] = getSort(order[i].dir);
               break;
             case '2':
-              sort[`title`] = getSort(orderData[i].dir);
+              sort[`title`] = getSort(order[i].dir);
               break;
             default:
-              sort[`description`] = getSort(orderData[i].dir);
+              sort[`description`] = getSort(order[i].dir);
               break;
           }
         }
       }
-      if (!Object.keys(sort).length) {
-        sort[`createdAt`] = -1;
-      }
-      let totalRecords = await ChallengeLog.aggregate(
-        populateQuery,
-      ).allowDiskUse(true);
       if (!!req.query.search) {
         if (req.query.search.value) {
           const searchCondition = {
@@ -2739,19 +2723,19 @@ class challenge {
               title: searchCondition,
             },
             {
-              'user.name': searchCondition,
-            },
-            {
               logDescription: searchCondition,
             },
           ];
         }
       }
-      let filteredRecords = await ChallengeLog.aggregate(
-        populateQuery,
-      ).allowDiskUse(true);
-      let data = await ChallengeLog.aggregate([
-        ...populateQuery,
+
+      if (!Object.keys(sort).length) {
+        sort[`createdAt`] = -1;
+      }
+      const populateQuery = [
+        {
+          $match: query,
+        },
         {
           $sort: sort,
         },
@@ -2761,137 +2745,51 @@ class challenge {
         {
           $limit: limit,
         },
-      ]).allowDiskUse(true);
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'createdBy',
+            foreignField: '_id',
+            as: 'user',
+            pipeline: [
+              {
+                $project: {
+                  name: 1,
+                  staffId: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: '$user',
+        },
+        {
+          $project:{
+          user:1,
+          title:1,
+          createdAt:1,
+          description:1,
+          logDescription:1,
+          _id:'$challengeId'
+        }
+      }
+      ];
+      const filteredRecordsPromise = ChallengeLog.countDocuments(query);
+      const dataPromise = ChallengeLog.aggregate(populateQuery);
+
+      const [filteredRecords, data] = await Promise.all([
+        filteredRecordsPromise,
+        dataPromise,
+      ]);
+      // console.log(data)
       const result = {
         draw: req.query.draw || 0,
-        recordsTotal: totalRecords.length || 0,
-        recordsFiltered: filteredRecords.length || 0,
+        recordsTotal: filteredRecords || 0,
+        recordsFiltered: filteredRecords || 0,
         data: data,
       };
       return res.status(201).json(result);
-      /*const populateQuery1 = [
-        {
-          $lookup: {
-            from: "users",
-            localField: "userId",
-            foreignField: "_id",
-            as: "user"
-          }
-        },
-        {
-          $unwind: "$user"
-        },
-        {
-          $lookup: {
-            from: "challenges",
-            localField: "challengeId",
-            foreignField: "_id",
-            as: "challenge"
-          }
-        },
-        {
-          $unwind: "$challenge"
-        }, {
-          $lookup: {
-            from: "channels",
-            localField: "challenge.selectedChannel",
-            foreignField: "_id",
-            as: "channel"
-          }
-        }, {
-          '$unwind': {
-            path: '$channel',
-            preserveNullAndEmptyArrays: true
-          }
-        }, {
-          $lookup: {
-            from: "walls",
-            localField: "challenge.selectedWall",
-            foreignField: "_id",
-            as: "wall"
-          }
-        }, {
-          $unwind: {
-            path: '$wall',
-            preserveNullAndEmptyArrays: true
-          },
-        }];
-
-      let totalRecords = await ChallengeCriteria.aggregate([...populateQuery, { $match: query }]);
-      if (!!challengeId) {
-        query = { ...query, challengeId: mongoose.Types.ObjectId(challengeId) };
-      }
-      if (!!userId) {
-        query = { ...query, userId: mongoose.Types.ObjectId(userId) };
-      }
-      if (!!req.query.search) {
-        if (req.query.search.value) {
-          const searchCondition = {
-            $regex: `${req.query.search.value}`,
-            $options: "i"
-          };
-          query["$or"] = [
-            {
-              "challenge.title": searchCondition
-            },
-            {
-              "user.staffId": searchCondition
-            },
-            {
-              "user.name": searchCondition
-            }
-          ];
-        }
-      }
-      let sort = { createdAt: -1 };
-      if (req.query.order) {
-        let orderData = req.query.order;
-        const getSort = val => ("asc" === val ? 1 : -1);
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
-            case "0":
-              sort[`challenge.title`] = getSort(orderData[i].dir);
-              break;
-            case "1":
-              sort[`user.name`] = getSort(orderData[i].dir);
-              break;
-            case "2":
-              sort[`user.staffId`] = getSort(orderData[i].dir);
-              break;
-            default:
-              sort[`criteriaCount`] = getSort(orderData[i].dir);
-              break;
-          }
-        }
-      }
-      let filteredRecords = await ChallengeCriteria.aggregate([...populateQuery, { $match: query }]);
-      const data = await ChallengeCriteria.aggregate([...populateQuery, { $match: query }, {
-        $sort: sort
-      }, {
-        $project: {
-          "challenge.title": 1,
-          'challenge.criteriaSourceType': 1,
-          "user.name": 1,
-          "user.staffId": 1,
-          "channel.name": 1,
-          "wall.wallName": 1,
-          "criteriaCount": 1,
-          "createdAt": 1
-        }
-      },
-      {
-        $skip: skip
-      },
-      {
-        $limit: limit
-      }]).allowDiskUse(true);
-      const result = {
-        draw: req.query.draw || 0,
-        recordsTotal: totalRecords.length || 0,
-        recordsFiltered: filteredRecords.length || 0,
-        data: data
-      };
-      return res.status(201).json(result);*/
     } catch (error) {
       __.log(error);
       __.out(res, 201, 'Something went wrong try later');
