@@ -2233,8 +2233,8 @@ class challenge {
         const bool = await DisqualifyUser.findOne({
           challengeId: challenge._id,
           userId,
-          fromDate: { $gte: new Date(moment().toLocaleString()) },
-          toDate: { $lte: new Date(moment().toLocaleString()) },
+          fromDate: { $lte: new Date().toISOString() },
+          toDate: { $gte: new Date().toISOString() },
           status: 1,
         }).lean();
         if (bool) return;
@@ -2286,12 +2286,12 @@ class challenge {
       };
 
       const checkChallenge = async (challenge, userId) => {
-        const challengeId = challenge._id,
-          bool = await DisqualifyUser.findOne({
+        const challengeId = challenge._id;
+        const  bool = await DisqualifyUser.findOne({
             challengeId,
             userId,
-            fromDate: { $gte: new Date(moment().toLocaleString()) },
-            toDate: { $lte: new Date(moment().toLocaleString()) },
+            fromDate: { $lte: new Date().toISOString() },
+            toDate: { $gte: new Date().toISOString() },
             status: 1,
           }).lean();
         if (bool) return;
