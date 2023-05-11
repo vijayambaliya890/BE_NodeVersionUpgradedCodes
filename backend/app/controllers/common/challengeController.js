@@ -139,20 +139,16 @@ class challenge {
     }
   }
 
-  async checkUser(res, userId) {
+  async checkUser(res, user) {
     try {
-      const user = await User.findById(userId).lean();
+      const userId = user._id;
       const [walls, channels, customForms] = await Promise.all([
         __.getUserWalls(user),
         __.getUserChannel(user),
         __.getUserCustomForm(user),
       ]);
-
       const allAssignedChallenges =
-        await this.getChallengeStatusModel().aggregate([
-          { $match: { userId: mongoose.Types.ObjectId(userId) } },
-          { $project: { challengeId: 1, _id: 0 } },
-        ]);
+        await this.getChallengeStatusModel().find({ userId: mongoose.Types.ObjectId(userId) } , { challengeId: 1, _id: 0 }).lean()
       const selectedFields = {
         _id: 1,
         selectedWall: 1,
@@ -174,6 +170,7 @@ class challenge {
           ),
         },
       };
+
       const challenges = await Challenge.find(query, selectedFields).lean();
 
       const updatePromises = challenges.map((challenge) =>
@@ -202,7 +199,7 @@ class challenge {
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      await this.checkUser(res, req.user._id);
+      await this.checkUser(res, req.user);
       const aggregateQuery = [
         {
           $match: {
@@ -2969,12 +2966,12 @@ class challenge {
         return __.out(res, 300, `You've entered malicious input`);
       }
       const skip = req.query.page ? req.query.page * 10 : 0;
-      await this.checkUser(res, req.user._id);
+
+      await this.checkUser(res, req.user);
+
       const aggregateQuery = [
         {
-          $match: {
-            userId: mongoose.Types.ObjectId(req.user._id),
-          },
+          $match: { userId: mongoose.Types.ObjectId(req.user._id), },
         },
         {
           $lookup: {
@@ -3024,21 +3021,9 @@ class challenge {
           },
         },
       ];
-      let challengeStatus = await this.getChallengeStatusModel()
-        .aggregate(aggregateQuery)
-        .allowDiskUse(true);
-      // const challengeStatus2 = await this.getChallengeStatusModel(true).aggregate(aggregateQuery).allowDiskUse(true);
-      // challengeStatus.push(...challengeStatus2);
-      challengeStatus = challengeStatus.sort(
-        (a, b) => b.updatedAt - a.updatedAt,
-      );
-      /**
-       * ,{
-        $skip:skip
-      },{
-        $limit:10
-      }
-       */
+
+      let challengeStatus = await this.getChallengeStatusModel().aggregate(aggregateQuery)
+
       const pageSettings = await PageSettings.findOne({
         companyId: req.user.companyId,
         status: 1,
