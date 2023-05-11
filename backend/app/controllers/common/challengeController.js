@@ -141,65 +141,43 @@ class challenge {
 
   async checkUser(res, userId) {
     try {
-      let user = await User.findById(userId).lean();
-      let walls = await __.getUserWalls(user);
-      let channels = await __.getUserChannel(user);
-      const query = [
-        {
-          $match: {
-            userId: mongoose.Types.ObjectId(userId),
-          },
+      const user = await User.findById(userId).lean();
+      const [walls, channels, customForms] = await Promise.all([
+        __.getUserWalls(user),
+        __.getUserChannel(user),
+        __.getUserCustomForm(user),
+      ]);
+
+      const allAssignedChallenges =
+        await this.getChallengeStatusModel().aggregate([
+          { $match: { userId: mongoose.Types.ObjectId(userId) } },
+          { $project: { challengeId: 1, _id: 0 } },
+        ]);
+      const selectedFields = {
+        _id: 1,
+        selectedWall: 1,
+        selectedChannel: 1,
+        selectedCustomForm: 1,
+        nonRewardPointSystemEnabled: 1,
+      };
+      const query = {
+        $or: [
+          { selectedChannel: { $in: channels } },
+          { selectedWall: { $in: walls } },
+          { selectedCustomForm: { $in: customForms } },
+        ],
+        status: 1,
+        challengeStart: { $lte: new Date() },
+        _id: {
+          $nin: allAssignedChallenges.map((v) =>
+            mongoose.Types.ObjectId(v.challengeId),
+          ),
         },
-        {
-          $project: { challengeId: 1, _id: 0 },
-        },
-      ];
-      let assignedChallenges = await this.getChallengeStatusModel()
-        .aggregate(query)
-        .allowDiskUse(true);
-      const assignedChallenges2 = await this.getChallengeStatusModel(true)
-        .aggregate(query)
-        .allowDiskUse(true);
-      assignedChallenges.push(...assignedChallenges2);
-      let challenges = [];
-      if (walls.length) {
-        let wallchallenges = await Challenge.find({
-          selectedWall: {
-            $in: walls || [],
-          },
-          challengeStart: {
-            $lte: new Date(),
-          },
-          _id: {
-            $nin: assignedChallenges.map((v) =>
-              mongoose.Types.ObjectId(v.challengeId),
-            ),
-          },
-          status: 1,
-        }).lean();
-        wallchallenges = wallchallenges || [];
-        challenges = [...challenges, ...wallchallenges];
-      }
-      if (channels.length) {
-        let channelChallenges = await Challenge.find({
-          selectedChannel: {
-            $in: channels || [],
-          },
-          status: 1,
-          challengeStart: {
-            $lte: new Date(),
-          },
-          _id: {
-            $nin: assignedChallenges.map((v) =>
-              mongoose.Types.ObjectId(v.challengeId),
-            ),
-          },
-        }).lean();
-        channelChallenges = channelChallenges || [];
-        challenges = [...challenges, ...channelChallenges];
-      }
-      for (const challenge of challenges) {
-        await this.getChallengeStatusModel(
+      };
+      const challenges = await Challenge.find(query, selectedFields).lean();
+
+      const updatePromises = challenges.map((challenge) =>
+        this.getChallengeStatusModel(
           !!challenge.nonRewardPointSystemEnabled,
         ).findOneAndUpdate(
           { challengeId: challenge._id, userId: userId },
@@ -210,8 +188,9 @@ class challenge {
             totalRewardPoints: 0,
           },
           { upsert: true },
-        );
-      }
+        ),
+      );
+      await Promise.all(updatePromises);
     } catch (error) {
       __.log(error);
       return __.out(res, 500);
@@ -432,6 +411,13 @@ class challenge {
               .select('assignUsers createdBy')
               .lean();
             promises.push(AssignUserRead.read(wall.assignUsers));
+          } else if (!!selectedCustomForm) {
+            const customform = await CustomForm.findOne({
+              _id: selectedCustomForm,
+            })
+              .select('assignUsers createdBy')
+              .lean();
+            promises.push(AssignUserRead.read(customform.assignUsers));
           } else if (criteriaType === 4 && assignUsers.length) {
             promises.push(AssignUserRead.read(assignUsers));
           }
@@ -582,6 +568,13 @@ class challenge {
               .select('assignUsers createdBy')
               .lean();
             users = await __.wallUsersList(wall);
+          } else if (!!selectedCustomForm) {
+            const customform = await CustomForm.findOne({
+              _id: selectedCustomForm,
+            })
+              .select('assignUsers createdBy')
+              .lean();
+            users = await __.wallUsersList(customform);
           } else if (criteriaType === 4 && assignUsers.length) {
             users = await __.wallUsersList({
               assignUsers,
@@ -2449,12 +2442,12 @@ class challenge {
                   ? customform.formStatus.some(
                       (fs) =>
                         fieldOption.formStatusValue?.toString() ===
-                          fs.fieldStatusValueId?.toString(),
+                        fs.fieldStatusValueId?.toString(),
                     )
                   : customform.workflowStatus.some(
                       (wf) =>
                         fieldOption.formStatusValue?.toString() ===
-                          wf.fieldStatusId?.toString(),
+                        wf.fieldStatusId?.toString(),
                     );
               });
               if (7 === challenge.criteriaSourceType) {
@@ -2769,15 +2762,15 @@ class challenge {
           $unwind: '$user',
         },
         {
-          $project:{
-          user:1,
-          title:1,
-          createdAt:1,
-          description:1,
-          logDescription:1,
-          _id:'$challengeId'
-        }
-      }
+          $project: {
+            user: 1,
+            title: 1,
+            createdAt: 1,
+            description: 1,
+            logDescription: 1,
+            _id: '$challengeId',
+          },
+        },
       ];
       const filteredRecordsPromise = ChallengeLog.countDocuments(query);
       const dataPromise = ChallengeLog.aggregate(populateQuery);
