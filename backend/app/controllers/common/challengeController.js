@@ -1182,7 +1182,7 @@ class challenge {
         ])
         .lean();
 
-      if (challenge.criteriaSourceType === 6) {
+      if (challenge.criteriaType === 5) {
         const workflow = challenge.selectedCustomForm.workflow;
         const fieldOptions = challenge.fieldOptions;
         const matchedWorkFlow = workflow.filter((obj1) =>
