@@ -34,6 +34,7 @@ class challenge {
   }
   async disqualifyUser(req, res) {
     try {
+      logInfo("Challenge Controller: disqualifyUser", { soruceUser: req.user._id, body: req.body })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -74,13 +75,13 @@ class challenge {
         return __.out(res, 201, 'User disqualified successfully');
       }
     } catch (err) {
-      // __.log(err);
-      console.log('>>> error :', err.toString());
+      logError("Challenge Controller: disqualifyUser", err.stack)
       return __.out(res, 500, err);
     }
   }
   async readDisqualifier(req, res) {
     try {
+      logInfo("Challenge Controller: readDisqualifier", { soruceUser: req.user._id })
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -112,13 +113,13 @@ class challenge {
         data: result,
       });
     } catch (err) {
-      // __.log(err);
-      console.log('>>> error in get disq...');
+      logError("Challenge Controller: readDisqualifier", err.stack)
       return __.out(res, 500, err);
     }
   }
   async deleteDisqualifier(req, res) {
     try {
+      logInfo("Challenge Controller: deleteDisqualifier", { soruceUser: req.user._id })
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -133,14 +134,14 @@ class challenge {
       );
       return __.out(res, 201, 'Deleted successfully');
     } catch (err) {
-      // __.log(err);
-      console.log('>>> error in get disq...');
+      logError("Challenge Controller: deleteDisqualifier", err.stack)
       return __.out(res, 500, err);
     }
   }
 
   async checkUser(res, user) {
     try {
+      logInfo("CheckUser function:", { soruceUser: req.user._id })
       const userId = user._id;
       const [walls, channels, customForms] = await Promise.all([
         __.getUserWalls(user),
@@ -189,13 +190,14 @@ class challenge {
       );
       await Promise.all(updatePromises);
     } catch (error) {
-      __.log(error);
+      logError("CheckUser fucntion:", err.stack)
       return __.out(res, 500);
     }
   }
 
   async getPointsSummary(req, res) {
     try {
+      logInfo("Challenge Controller: getPointsSummary", { soruceUser: req.user._id })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -249,6 +251,7 @@ class challenge {
           },
         },
       ];
+
       let [challengeStatus, challengeNonStatus] = await Promise.all([
         this.getChallengeStatusModel()
           .aggregate(aggregateQuery)
@@ -260,14 +263,7 @@ class challenge {
       challengeStatus = [
         { _id: null, count: challengeStatus.reduce((a, b) => a + b.count, 0) },
       ];
-
       challengeStatus = [...challengeStatus, ...challengeNonStatus];
-
-      // challengeNonStatus = [
-      //   { _id: null, count: challengeNonStatus.reduce((a, b) => a + b.count, 0) },
-      // ];
-      // const challengeStatus2 = await ((this.getChallengeStatusModel(true)).aggregate(aggregateQuery).allowDiskUse(true));
-      // challengeStatus = [...challengeStatus, ...challengeStatus2];
 
       // get active point systems
       const pageSettings = await PageSettings.findOne({
@@ -289,13 +285,14 @@ class challenge {
         }),
       );
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: getPointsSummary", err.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
 
   async update(req, res) {
     try {
+      logInfo("Challenge Controller: update", { soruceUser: req.user._id, body: req.body })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -459,12 +456,13 @@ class challenge {
         return __.out(res, 300, 'challengeId is missing');
       }
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: update", err.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
   async create(req, res) {
     try {
+      logInfo("Challenge Controller: create", { soruceUser: req.user._id, body: req.body })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -608,13 +606,14 @@ class challenge {
       }
       return __.out(res, 300, 'Challenge data missing');
     } catch (err) {
-      __.log(err);
+      logError("Challenge Controller: create", err.stack)
       return __.out(res, 300, 'Invalid Data submitted');
     }
   }
 
   async getChannelOrBoardsUsers(req, res) {
     try {
+      logInfo("Challenge Controller: getChannelOrBoardsUsers", { soruceUser: req.user._id, body: req.body })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -693,13 +692,14 @@ class challenge {
       }
       return __.out(res, 201, { items: users, count_filtered });
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: getChannelOrBoardsUsers", err.stack)
       return __.out(res, 300, error);
     }
   }
 
   async getChannelsAndBoards(req, res) {
     try {
+      logInfo("Challenge Controller: getChannelsAndBoards", { soruceUser: req.user._id, body: req.body })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -807,13 +807,14 @@ class challenge {
           : [],
       });
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: getChannelsAndBoards", err.stack)
       return __.out(res, 300, 'Invalid Data submitted');
     }
   }
 
   async uploadContentFiles(req, res) {
     try {
+      logInfo("Challenge Controller: uploadContentFiles", { soruceUser: req.user._id})
       if (!req.file) {
         return __.out(res, 300, `No File is Uploaded`);
       }
@@ -833,13 +834,14 @@ class challenge {
         //return __.out(res, 300, result);
       }
     } catch (err) {
-      __.log(err);
+      logError("Challenge Controller: uploadContentFiles", err.stack)
       return __.out(res, 500, err);
     }
   }
 
   async readChallenges(req, res) {
     try {
+      logInfo("Challenge Controller: readChallenges", { soruceUser: req.user._id})
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -1060,13 +1062,14 @@ class challenge {
       };
       return res.status(201).json(result);
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: readChallenges", err.stack)
       return __.out(res, 300, 'something went wrong try later');
     }
   }
 
   async readChallengesSingle(req, res) {
     try {
+      logInfo("Challenge Controller: readChallengesSingle", { soruceUser: req.user._id})
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -1218,14 +1221,14 @@ class challenge {
       };
       return res.status(201).json(result);
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: readChallengesSingle", err.stack)
       return __.out(res, 300, 'something went wrong try later');
     }
   }
 
   async readChallengesNew(req, res) {
     try {
-      logInfo('readChallengesNew called');
+      logInfo("Challenge Controller: readChallengesNew", { soruceUser: req.user._id})
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -1287,13 +1290,14 @@ class challenge {
       };
       return res.status(201).json(result);
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: readChallengesNew", err.stack)
       return __.out(res, 300, 'something went wrong try later');
     }
   }
 
   async read(req, res) {
     try {
+      logInfo("Challenge Controller: read", { soruceUser: req.user._id})
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -1394,13 +1398,14 @@ class challenge {
       };
       return res.status(201).json(result);
     } catch (err) {
-      __.log(err);
+      logError("Challenge Controller: read", err.stack)
       return __.out(res, 500, err);
     }
   }
 
   async readOne(req, res) {
     try {
+      logInfo("Challenge Controller: readOne", { soruceUser: req.user._id})
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -1420,13 +1425,14 @@ class challenge {
       }
       return __.out(res, 201, challengeData);
     } catch (err) {
-      __.log(err);
+      logError("Challenge Controller: readOne", err.stack)
       return __.out(res, 500, err);
     }
   }
 
   async exportManageChallenge(req, res) {
     try {
+      logInfo("Challenge Controller: exportManageChallenge", { soruceUser: req.user._id})
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -1641,110 +1647,117 @@ class challenge {
         csvLink: `/challenge/${moment().format('YYYYMMDD')}.csv`,
       });
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: exportManageChallenge", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
 
   async getCountOfChallenges(req, res) {
-    if (!__.checkHtmlContent(req.body)) {
-      return __.out(res, 300, `You've entered malicious input`);
-    }
-    console.log('getCountOfChallenges API has called');
-    let {
-      challengeId,
-      startDate,
-      endDate,
-      businessUnit,
-      nonRewardPointSystemEnabled,
-    } = req.query;
-    let query = {
-      challengeId: mongoose.Types.ObjectId(challengeId),
-      rewardPoints: {
-        $exists: true,
-      },
-      rewardPoints: {
-        $gt: 0,
-      },
-    };
-    let userQuery = {
-      status: {
-        $in: [1, 2],
-      },
-    };
-    if (!!businessUnit) {
-      userQuery['parentBussinessUnitId'] = {
-        $in: [mongoose.Types.ObjectId(businessUnit)],
+    try {
+      logInfo("Challenge Controller: getCountOfChallenges", { soruceUser: req.user._id, body: req.body })
+      if (!__.checkHtmlContent(req.body)) {
+        return __.out(res, 300, `You've entered malicious input`);
+      }
+      console.log('getCountOfChallenges API has called');
+      let {
+        challengeId,
+        startDate,
+        endDate,
+        businessUnit,
+        nonRewardPointSystemEnabled,
+      } = req.query;
+      let query = {
+        challengeId: mongoose.Types.ObjectId(challengeId),
+        rewardPoints: {
+          $exists: true,
+        },
+        rewardPoints: {
+          $gt: 0,
+        },
       };
-    }
-
-    if (!!startDate) {
-      query['createdAt'] = query['createdAt'] || {};
-      query['createdAt']['$gte'] = query['createdAt']['$gte'] || {};
-      query['createdAt']['$gte'] = moment(startDate, 'YYYY-MM-DD').toDate();
-    }
-    if (!!endDate) {
-      query['createdAt'] = query['createdAt'] || {};
-      query['createdAt']['$lte'] = query['createdAt']['$lte'] || {};
-      query['createdAt']['$lte'] = moment(endDate, 'YYYY-MM-DD').toDate();
-    }
-    const groupData = await this.getChallengeCriteriaModel(
-      eval(nonRewardPointSystemEnabled),
-    ).aggregate([
-      {
-        $match: query,
-      },
-      {
-        $group: {
-          _id: '$userId',
-          totalAmount: {
-            $sum: '$rewardPoints',
+      let userQuery = {
+        status: {
+          $in: [1, 2],
+        },
+      };
+      if (!!businessUnit) {
+        userQuery['parentBussinessUnitId'] = {
+          $in: [mongoose.Types.ObjectId(businessUnit)],
+        };
+      }
+  
+      if (!!startDate) {
+        query['createdAt'] = query['createdAt'] || {};
+        query['createdAt']['$gte'] = query['createdAt']['$gte'] || {};
+        query['createdAt']['$gte'] = moment(startDate, 'YYYY-MM-DD').toDate();
+      }
+      if (!!endDate) {
+        query['createdAt'] = query['createdAt'] || {};
+        query['createdAt']['$lte'] = query['createdAt']['$lte'] || {};
+        query['createdAt']['$lte'] = moment(endDate, 'YYYY-MM-DD').toDate();
+      }
+      const groupData = await this.getChallengeCriteriaModel(
+        eval(nonRewardPointSystemEnabled),
+      ).aggregate([
+        {
+          $match: query,
+        },
+        {
+          $group: {
+            _id: '$userId',
+            totalAmount: {
+              $sum: '$rewardPoints',
+            },
           },
         },
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: '_id',
-          foreignField: '_id',
-          as: 'user',
-          pipeline: [
-            {
-              $match: userQuery,
-            },
-            {
-              $project: {
-                _id: 1.0,
+        {
+          $lookup: {
+            from: 'users',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'user',
+            pipeline: [
+              {
+                $match: userQuery,
               },
+              {
+                $project: {
+                  _id: 1.0,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: '$user',
+        },
+        {
+          $group: {
+            _id: null,
+            totalUsers: {
+              $sum: 1,
             },
-          ],
-        },
-      },
-      {
-        $unwind: '$user',
-      },
-      {
-        $group: {
-          _id: null,
-          totalUsers: {
-            $sum: 1,
-          },
-          totalAmount: {
-            $sum: '$totalAmount',
+            totalAmount: {
+              $sum: '$totalAmount',
+            },
           },
         },
-      },
-    ]);
-    let result = { totalUsers: 0, totalAmount: 0 };
-    if (groupData.length) {
-      result.totalUsers = groupData[0].totalUsers;
-      result.totalAmount = groupData[0].totalAmount;
+      ]);
+      let result = { totalUsers: 0, totalAmount: 0 };
+      if (groupData.length) {
+        result.totalUsers = groupData[0].totalUsers;
+        result.totalAmount = groupData[0].totalAmount;
+      }
+      return __.out(res, 201, result);
+    } catch(error) {
+      logError("Challenge Controller: getCountOfChallenges", error.stack)
+      return __.out(res, 300, 'Something went wrong try later');
     }
-
-    return __.out(res, 201, result);
   }
+
   async manageChallenge(req, res) {
     try {
+      logInfo("Challenge Controller: manageChallenge", { soruceUser: req.user._id })
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -2098,13 +2111,14 @@ class challenge {
       };
       return res.status(201).json(result);
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: manageChallenge", error.stack)
       return __.out(res, 300, 'something went wrong try later');
     }
   }
 
   async triggerChallenge(res, userId, postId, postType, sourceType) {
     try {
+      logInfo("Challenge Controller: triggerChallenge", { soruceUser: req.user._id })
       const setRewardsForUser = async (
         challenge,
         challengeCriteria,
@@ -2484,13 +2498,14 @@ class challenge {
           break;
       }
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: triggerChallenge", error.stack)
       return __.out(res, 500);
     }
   }
 
   async getChallengeUsers(req, res) {
     try {
+      logInfo("Challenge Controller: getChallengeUsers", { soruceUser: req.user._id, body: req.body })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -2571,53 +2586,14 @@ class challenge {
       }));
       let count_filtered = await User.count(query).lean();
       return __.out(res, 201, { items: finalUsers, count_filtered });
-
-      /*let userQuery = {
-        "user.status": {
-          $in: [1, 2]
-        }
-      }
-      if (!!req.body.q) {
-        userQuery['user.name'] = {
-          $regex: req.body.q.toString(),
-          $options: "ixs"
-        };
-      }
-      
-      const count_filtered = await ChallengeStatus.count({
-        challengeId: mongoose.Types.ObjectId(challengeId)
-      }).lean();
-      const challengeStatus = await ChallengeStatus.aggregate([{
-        $match: {
-          challengeId: mongoose.Types.ObjectId(challengeId),
-        }
-      }, {
-        $lookup: {
-          from: "users",
-          localField: "userId",
-          foreignField: "_id",
-          as: "user"
-        }
-      },
-      {
-        $unwind: "$user"
-      }, {
-        $match: userQuery
-      }, { $skip: page }, { $limit: 10 }, { $project: { 'user.name': 1, 'user._id': 1 } }]).allowDiskUse(true);
-      let users = challengeStatus.map(userObj => {
-        return {
-          name: userObj.user.name,
-          _id: userObj.user._id
-        };
-      });
-      return __.out(res, 201, { items: users, count_filtered });*/
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: getChallengeUsers", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
   async getChallengesAndUsers(req, res) {
     try {
+      logInfo("Challenge Controller: getChallengesAndUsers", { soruceUser: req.user._id, body: req.body })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -2660,13 +2636,14 @@ class challenge {
       }
       return __.out(res, 201, { items: challenges || [], count_filtered });
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: getChallengesAndUsers", error.stack)
       __.out(res, 300, 'Something went wrong try later');
     }
   }
 
   async getChallengesLog(req, res) {
     try {
+      logInfo("Challenge Controller: getChallengesLog", { soruceUser: req.user._id, body: req.body })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -2781,13 +2758,14 @@ class challenge {
       };
       return res.status(201).json(result);
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: getChallengesLog", error.stack)
       __.out(res, 201, 'Something went wrong try later');
     }
   }
 
   async readChallengeCriteriaLog(req, res) {
     try {
+      logInfo("Challenge Controller: readChallengeCriteriaLog", { soruceUser: req.user._id })
       if (!__.checkHtmlContent(req.query)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -2955,13 +2933,14 @@ class challenge {
       };
       return res.status(201).json(result);
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: readChallengeCriteriaLog", error.stack)
       return __.out(res, 300, { error });
     }
   }
 
   async appListOfChallenge(req, res) {
     try {
+      logInfo("Challenge Controller: appListOfChallenge", { soruceUser: req.user._id, body: req.body })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -3053,13 +3032,14 @@ class challenge {
       });
       return __.out(res, 201, challengeStatus);
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: appListOfChallenge", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
 
   async appListOfAchievements(req, res) {
     try {
+      logInfo("Challenge Controller: appListOfAchievements", { soruceUser: req.user._id, body: req.body })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -3132,19 +3112,9 @@ class challenge {
       let challengeStatus = await this.getChallengeStatusModel()
         .aggregate(aggregateQuery)
         .allowDiskUse(true);
-      // const challengeStatus2 = await this.getChallengeStatusModel(true).aggregate(aggregateQuery).allowDiskUse(true);
-      // challengeStatus.push(...challengeStatus2);
       challengeStatus = challengeStatus.sort(
         (a, b) => b.updatedAt - a.updatedAt,
       );
-      /**
-       * 
-       * ,{
-        $skip:skip
-      },{
-        $limit:10
-      }
-       */
       challengeStatus = challengeStatus.map((v) => {
         v.challenge['ranks'] = v.challenge['ranks'] || [];
         if (![1, 2, 5].includes(v.challenge.criteriaType)) {
@@ -3154,13 +3124,14 @@ class challenge {
       });
       return __.out(res, 201, challengeStatus);
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: appListOfAchievements", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
 
   async appListOfRanks(req, res) {
     try {
+      logInfo("Challenge Controller: appListOfRanks", { soruceUser: req.user._id, body: req.body })
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
@@ -3257,31 +3228,14 @@ class challenge {
         return __.out(res, 300, 'Challenge id required');
       }
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: appListOfRanks", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
 
   async directRewards(req, res) {
     try {
-      /*const directRewardStatus = async () => {
-        let count = await Challenge.count({
-          administrators: req.user._id,
-          criteriaType: 4,
-          status: 1,
-          challengeStart: {
-            $lte: new Date()
-          },
-          challengeEnd: {
-            $gte: new Date()
-          }
-        });
-        return !!count;
-      }
-      const flag = await directRewardStatus(req);
-      if (!flag) {
-        return __.out(res, 300, 'No direct rewards assigned');
-      }*/
+      logInfo("Challenge Controller: directRewards", { soruceUser: req.user._id, body: req.body })
       const challenge = await Challenge.findOne({
         _id: req.body.challengeId,
         challengeEnd: {
@@ -3349,12 +3303,13 @@ class challenge {
         return __.out(res, 300, 'Challenge or User not found');
       }
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: directRewards", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
   async getBadges(req, res) {
     try {
+      logInfo("Challenge Controller: getBadges", { soruceUser: req.user._id })
       const currentFolder = './public/uploads/challenge/badges';
       fs.readdir(currentFolder, (err, files) => {
         if (!!err) {
@@ -3367,12 +3322,13 @@ class challenge {
         return __.out(res, 201, files);
       });
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: getBadges", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
   async saveBadge(req, res) {
     try {
+      logInfo("Challenge Controller: saveBadge", { soruceUser: req.user._id})
       if (!req.file) {
         return __.out(res, 300, `No File is Uploaded`);
       }
@@ -3395,12 +3351,13 @@ class challenge {
         data: { link: filePath },
       });
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: saveBadge", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
   async getRecentChallenges(req, res) {
     try {
+      logInfo("Challenge Controller: getRecentChallenges", { soruceUser: req.user._id })
       const aggregateQuery = [
         {
           $match: {
@@ -3465,12 +3422,13 @@ class challenge {
       );
       return __.out(res, 201, challengeStatus);
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: getRecentChallenges", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
   async getNomineeQuestions(req, res) {
     try {
+      logInfo("Challenge Controller: getNomineeQuestions", { soruceUser: req.user._id })
       const customFormId = req.query.customFormId;
       const questions = await CustomForm.aggregate([
         {
@@ -3529,12 +3487,13 @@ class challenge {
         workflow: questions[0] ? questions[0].workflow : [],
       });
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: getNomineeQuestions", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
   async getBadgeDetails(challengeId, userId) {
     try {
+      logInfo("Challenge Controller: getBadgeDetails", { soruceUser: req.user._id })
       const challenge = await Challenge.findOne({ _id: challengeId })
         .select({
           badgeTiering: 1,
@@ -3597,8 +3556,6 @@ class challenge {
             var allChallengesCompleted = true;
           }
         } else {
-          // calculate percentage for current badge
-          // (actual-startRange) / (endRange-startRange) * 100
           currentBadge = {
             _id: currentBadge._id,
             percentage:
@@ -3653,12 +3610,13 @@ class challenge {
         };
       }
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: getBadgeDetails", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
   async bulkUpdateDirectReward(req, res) {
     try {
+      logInfo("Challenge Controller: bulkUpdateDirectReward", { soruceUser: req.user._id, body: req.body })
       const challenge = await Challenge.findOne({
         _id: req.body.challengeId,
         challengeEnd: {
@@ -3765,13 +3723,14 @@ class challenge {
       await new RewardImportLog(savePayload).save();
       return __.out(res, 201, 'Reward added successfully');
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: bulkUpdateDirectReward", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
 
   async isRewardErrorLogExist(req, res) {
     try {
+      logInfo("Challenge Controller: isRewardErrorLogExist", { soruceUser: req.user._id })
       const challenge = await RewardImportLog.findOne({
         challengeId: req.params.challengeId,
       }).lean();
@@ -3781,13 +3740,14 @@ class challenge {
 
       return __.out(res, 201, true);
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: isRewardErrorLogExist", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
 
   async getRewardErrorLog(req, res) {
     try {
+      logInfo("Challenge Controller: getRewardErrorLog", { soruceUser: req.user._id })
       const draw = req.query.draw || 0,
         pageNum = req.query.start ? parseInt(req.query.start) : 0,
         limit = req.query.length ? parseInt(req.query.length) : 10,
@@ -3854,7 +3814,7 @@ class challenge {
       };
       return res.status(201).json(result);
     } catch (error) {
-      __.log(error);
+      logError("Challenge Controller: getRewardErrorLog", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
