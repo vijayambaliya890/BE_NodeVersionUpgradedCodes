@@ -668,6 +668,15 @@ class SocialWall {
         }
       }
 
+      let userData = await User.findOne({companyId: req.user.companyId , staffId : 'admin001'}, {_id : 1});
+      req.body.assignUsers.forEach((m, index) => {
+        if(!req.body.assignUsers[index].admin.includes(userData._id.toString())){
+          req.body.assignUsers[index].admin.push(userData._id);
+          req.body.assignUsers[index].firstAdminAddedAsDefault = true;
+        }
+      });
+
+  
       var wallData = await SocialWallModel.findOneAndUpdate(
         where,
         {
