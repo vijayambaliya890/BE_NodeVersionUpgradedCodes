@@ -2118,7 +2118,6 @@ class challenge {
 
   async triggerChallenge(res, userId, postId, postType, sourceType) {
     try {
-      // logInfo("Challenge Controller: triggerChallenge", { soruceUser: req.user._id })
       logInfo("Challenge Controller: triggerChallenge", { soruceUser: userId })
       const setRewardsForUser = async (
         challenge,
