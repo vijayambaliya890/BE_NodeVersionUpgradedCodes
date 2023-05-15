@@ -26,6 +26,7 @@ const RATIO = 1
 const { agendaNormal } = require('../../../helpers/agendaInit');
 const AgendaJobs = require('../../models/agenda');
 const { logInfo, logError } = require('../../../helpers/logger.helper');
+const json2csv = require('json2csv').parse;
 class ballot {
   async ballotEvent(data, from, isUpdate = false) {
     try {
@@ -7274,13 +7275,12 @@ class ballot {
       }
     }
     // return res.json({ csvData })
-    json2csv({ data: csvData, fields: keys }, function (err, csv) {
-      if (err) console.log(err);
-
+    const csv = await json2csv(csvData, keys);
+    // json2csv({ data: csvData, fields: keys }, function (err, csv) {
       res.setHeader("Content-disposition", "attachment; filename=testing.csv");
       res.set("Content-Type", "application/csv");
       res.status(200).json({ csv, noData: true });
-    });
+    // });
   }
 
   async saveBallotAsDraft(req, res) {
