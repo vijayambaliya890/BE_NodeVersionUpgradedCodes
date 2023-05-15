@@ -42,6 +42,11 @@ companyUserRouter.get(
 companyUserRouter.post('/updateOtherFields', (req, res) => {
   companyUserController.updateOtherFields(req, res);
 });
+
+companyUserRouter.get('/checkWithRole', (req, res) => {
+  companyUserController.checkWithRole(req, res);
+});
+
 companyUserRouter.use(function (req, res, next) {
   if (req.user.isFlexiStaff !== 1) next();
   else return res.status(402).send('This account is not permitted to access');
@@ -100,9 +105,6 @@ companyUserRouter.post(
 );
 companyUserRouter.post('/active', (req, res) => {
   companyUserController.statusUpdate(req, res);
-});
-companyUserRouter.get('/checkWithRole', (req, res) => {
-  companyUserController.checkWithRole(req, res);
 });
 companyUserRouter.post('/inactive', (req, res) => {
   companyUserController.statusUpdate(req, res);
