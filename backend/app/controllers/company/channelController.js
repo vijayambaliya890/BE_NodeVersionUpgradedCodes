@@ -465,9 +465,16 @@ class channel {
       // await getUserDetails();
       /******** End GET businessUnitIds,exclusionAppointmentIds,authors **********/
       // Create Channel
-      req.body.assignUsers.forEach((m, index) => {
-        req.body.assignUsers[index].authors = [];
-        req.body.assignUsers[index].authors = req.body.assignUsers[index].user;
+      let userData = await User.findOne({companyId: req.user.companyId , staffId : 'admin001'}, {_id : 1});
+
+      req.body.assignUsers.map(user => {
+        user.authors = [];
+        user.authors = user.user
+        if (!user.admin.includes(userData._id.toString())) {
+          user.admin.push(userData._id);
+          user.firstAdminAddedAsDefault = true;
+        }
+        return user;
       });
       channelData.name = req.body.name;
       channelData.userDetails = req.body.assignUsers;
