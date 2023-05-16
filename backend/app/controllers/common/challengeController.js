@@ -144,9 +144,9 @@ class challenge {
       logInfo("CheckUser function:", { soruceUser: req.user._id })
       const userId = user._id;
       const [walls, channels, customForms] = await Promise.all([
-        __.getUserWalls(user),
-        __.getUserChannel(user),
-        __.getUserCustomForm(user),
+        AssignUserRead.getUserInAssignedUser(user, Wall),
+        AssignUserRead.getUserInAssignedUser(user, Channel, 'channel'),
+        AssignUserRead.getUserInAssignedUser(user, CustomForm),
       ]);
       const allAssignedChallenges =
         await this.getChallengeStatusModel().find({ userId: mongoose.Types.ObjectId(userId) } , { challengeId: 1, _id: 0 }).lean()
@@ -388,7 +388,7 @@ class challenge {
           .catch((err) => {
             logError('Error in challenge update', err.stack);
           });
-        challenge.challengeId = challenge._id;
+        challenge.challengeId = challenge._id; 
         challenge.logDescription = 'Updated';
         delete challenge['_id'];
         /** get the users for wall/channal */
@@ -399,21 +399,21 @@ class challenge {
             const channel = await Channel.findOne({ _id: selectedChannel })
               .select('userDetails createdBy')
               .lean();
-            promises.push(AssignUserRead.read(channel.userDetails));
+            promises.push(AssignUserRead.read(channel.userDetails, null, channel.createdBy));
           } else if (!!selectedWall) {
             const wall = await Wall.findOne({ _id: selectedWall })
               .select('assignUsers createdBy')
               .lean();
-            promises.push(AssignUserRead.read(wall.assignUsers));
+            promises.push(AssignUserRead.read(wall.assignUsers, null, wall.createdBy));
           } else if (!!selectedCustomForm) {
             const customform = await CustomForm.findOne({
               _id: selectedCustomForm,
             })
               .select('assignUsers createdBy')
               .lean();
-            promises.push(AssignUserRead.read(customform.assignUsers));
+            promises.push(AssignUserRead.read(customform.assignUsers, null, customform.createdBy));
           } else if (criteriaType === 4 && assignUsers.length) {
-            promises.push(AssignUserRead.read(assignUsers));
+            promises.push(AssignUserRead.read(assignUsers, null, req.user._id));
           }
           let challengeUsers = [];
           let userData = {};
@@ -553,24 +553,27 @@ class challenge {
             const channel = await Channel.findOne({ _id: selectedChannel })
               .select('userDetails createdBy')
               .lean();
-            users = await __.channelUsersList(channel);
+            // users = await __.channelUsersList(channel);
+             users = await AssignUserRead.read(channel.userDetails, null, channel.createdBy);
+             users = users.users;
           } else if (!!selectedWall) {
             const wall = await Wall.findOne({ _id: selectedWall })
               .select('assignUsers createdBy')
               .lean();
-            users = await __.wallUsersList(wall);
+            // users = await __.wallUsersList(wall);
+            users = await AssignUserRead.read(wall.assignUsers, null, wall.createdBy)
+            users = users.users;
           } else if (!!selectedCustomForm) {
             const customform = await CustomForm.findOne({
               _id: selectedCustomForm,
             })
               .select('assignUsers createdBy')
               .lean();
-            users = await __.wallUsersList(customform);
+            users = await AssignUserRead.read(customform.assignUsers, null, customform.createdBy)
+            users = users.users;
           } else if (criteriaType === 4 && assignUsers.length) {
-            users = await __.wallUsersList({
-              assignUsers,
-              createdBy: req.user._id,
-            });
+            users = await AssignUserRead.read(assignUsers, null, req.user._id)
+            users = users.users;
           }
           if (users.length) {
             users = users.map((user) => ({
@@ -625,19 +628,23 @@ class challenge {
         let channel = await Channel.findById(channelId)
           .select('userDetails createdBy')
           .lean();
-        users = await __.channelUsersList(channel);
+          users = await AssignUserRead.read(channel.userDetails, null, channel.createdBy);
+          users = users.users;
       }
       if (!!wallId) {
         let wall = await Wall.findById(wallId)
           .select('assignUsers createdBy')
           .lean();
-        users = await __.wallUsersList(wall, true);
+        users = await AssignUserRead.read(wall.assignUsers, null, wall.createdBy)
+        users = users.users;
       }
       if (!!customFormId) {
         let customform = await CustomForm.findById(customFormId)
           .select('assignUsers createdBy')
           .lean();
-        users = await __.wallUsersList(customform, true);
+        users = await AssignUserRead.read(customform.assignUsers, null, customform.createdBy);
+        users = users.users;
+      
       }
       if (!!questionId) {
         let questionDetails = await Question.findById(questionId)
@@ -647,13 +654,8 @@ class challenge {
             select: 'createdBy',
           })
           .lean();
-        users = await __.wallUsersList(
-          {
-            assignUsers: questionDetails.assignUsers,
-            createdBy: questionDetails.moduleId.createdBy,
-          },
-          true,
-        );
+        users =  users = await AssignUserRead.read(questionDetails.assignUsers, null, questionDetails.moduleId.createdBy);
+        users = users.users;
       }
       let query = {};
       if (users.length) {
@@ -1024,9 +1026,10 @@ class challenge {
         challenge.isAdmin = -1 !== index;
         if (challenge.criteriaType === 1 && !!challenge.selectedChannel) {
           let channel = await Channel.findById(challenge.selectedChannel)
-            .select('userDetails')
+            .select('userDetails createdBy')
             .lean();
-          let users = await __.channelUsersList(channel);
+          let users = await AssignUserRead.read(channel.userDetails, null, channel.createdBy);
+          users = users.users;
           const ind = users.findIndex(
             (v) => v.toString() === req.user._id.toString(),
           );
@@ -1036,9 +1039,10 @@ class challenge {
         }
         if (challenge.criteriaType === 2 && !!challenge.selectedWall) {
           let wall = await Wall.findById(challenge.selectedWall)
-            .select('assignUsers')
+            .select('assignUsers createdBy')
             .lean();
-          let users = await __.wallUsersList(wall, true);
+          let users = await AssignUserRead.read(wall.assignUsers, null, wall.createdBy);
+          users = users.users;
           const ind = users.findIndex(
             (v) => v.toString() === req.user._id.toString(),
           );
@@ -2530,22 +2534,26 @@ class challenge {
           const channel = await Channel.findById(selectedChannel)
             .select('userDetails createdBy')
             .lean();
-          userIds = await __.channelUsersList(channel);
+          userIds = await AssignUserRead.read(channel.userDetails, null, channel.createdBy);
+          userIds = userIds.users;
           break;
         case 2:
           const wall = await Wall.findById(selectedWall)
             .select('assignUsers createdBy')
             .lean();
-          userIds = await __.wallUsersList(wall);
+          userIds = await AssignUserRead.read(wall.assignUsers, null, wall.createdBy);
+          userIds = userIds.users;
           break;
         case 4:
-          userIds = await __.wallUsersList({ assignUsers, createdBy });
+          userIds = await AssignUserRead.read(assignUsers, null, createdBy);
+          userIds = userIds.users;
           break;
         case 5:
           const customform = await CustomForm.findById(selectedCustomForm)
             .select('assignUsers createdBy')
             .lean();
-          userIds = await __.wallUsersList(customform);
+          userIds = await AssignUserRead.read(customform.assignUsers, null, customform.createdBy);
+          userIds = userIds.users;
           break;
         default:
           break;
@@ -2623,14 +2631,17 @@ class challenge {
         let users = [];
         if (!!challenge.selectedWall) {
           let wall = await Wall.findById(challenge.selectedWall)
-            .select('assignUsers')
+            .select('assignUsers createdBy')
             .lean();
-          users = await __.wallUsersList(wall, false);
+          users = await AssignUserRead.read(wall.assignUsers, { name: 1, staffId: 1, deviceToken: 1, otherFields: 1 }, wall.createdBy);
+          users = users.users;
         } else if (!!challenge.selectedChannel) {
-          let wall = await Channel.findById(challenge.selectedChannel)
-            .select('userDetails')
+          let channel = await Channel.findById(challenge.selectedChannel)
+            .select('userDetails createdBy')
             .lean();
-          users = await __.channelUsersList(wall, null);
+           
+          users = await AssignUserRead.read(channel.userDetails,   { name: 1, staffId: 1, deviceToken: 1, otherFields: 1 }, channel.createdBy);
+          users = users.users;
         }
         challenge['users'] = users;
       }
