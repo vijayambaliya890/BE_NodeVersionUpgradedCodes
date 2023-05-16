@@ -382,13 +382,15 @@ class channel {
         return __.out(res, 300, 'Channel Name Already Exists');
       }
       let userData = await User.findOne({companyId: req.user.companyId , staffId : 'admin001'}, {_id : 1});
-      req.body.assignUsers.forEach((m, index) => {
-        req.body.assignUsers[index].authors = [];
-        req.body.assignUsers[index].authors = req.body.assignUsers[index].user;
-        if(!req.body.assignUsers[index].admin.includes(userData._id.toString())){
-          req.body.assignUsers[index].admin.push(userData._id);
-          req.body.assignUsers[index].firstAdminAddedAsDefault = true;
+
+      req.body.assignUsers.map(user => {
+        user.authors = [];
+        user.authors = user.user
+        if (!user.admin.includes(userData._id.toString())) {
+          user.admin.push(userData._id);
+          user.firstAdminAddedAsDefault = true;
         }
+        return user;
       });
       let insertChannel = {
         name: req.body.name,
@@ -465,9 +467,16 @@ class channel {
       // await getUserDetails();
       /******** End GET businessUnitIds,exclusionAppointmentIds,authors **********/
       // Create Channel
-      req.body.assignUsers.forEach((m, index) => {
-        req.body.assignUsers[index].authors = [];
-        req.body.assignUsers[index].authors = req.body.assignUsers[index].user;
+      let userData = await User.findOne({companyId: req.user.companyId , staffId : 'admin001'}, {_id : 1});
+
+      req.body.assignUsers.map(user => {
+        user.authors = [];
+        user.authors = user.user
+        if (!user.admin.includes(userData._id.toString())) {
+          user.admin.push(userData._id);
+          user.firstAdminAddedAsDefault = true;
+        }
+        return user;
       });
       channelData.name = req.body.name;
       channelData.userDetails = req.body.assignUsers;
