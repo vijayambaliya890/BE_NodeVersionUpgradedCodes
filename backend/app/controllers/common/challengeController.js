@@ -141,7 +141,7 @@ class challenge {
 
   async checkUser(res, user) {
     try {
-      logInfo("CheckUser function:", { soruceUser: req.user._id })
+      logInfo("CheckUser function:", { soruceUser: user._id })
       const userId = user._id;
       const [walls, channels, customForms] = await Promise.all([
         AssignUserRead.getUserInAssignedUser(user, Wall),
@@ -190,7 +190,7 @@ class challenge {
       );
       await Promise.all(updatePromises);
     } catch (error) {
-      logError("CheckUser fucntion:", err.stack)
+      logError("CheckUser function:", error.stack)
       return __.out(res, 500);
     }
   }
@@ -285,7 +285,7 @@ class challenge {
         }),
       );
     } catch (error) {
-      logError("Challenge Controller: getPointsSummary", err.stack)
+      logError("Challenge Controller: getPointsSummary", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
@@ -456,7 +456,7 @@ class challenge {
         return __.out(res, 300, 'challengeId is missing');
       }
     } catch (error) {
-      logError("Challenge Controller: update", err.stack)
+      logError("Challenge Controller: update", error.stack)
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
@@ -694,7 +694,7 @@ class challenge {
       }
       return __.out(res, 201, { items: users, count_filtered });
     } catch (error) {
-      logError("Challenge Controller: getChannelOrBoardsUsers", err.stack)
+      logError("Challenge Controller: getChannelOrBoardsUsers", error.stack)
       return __.out(res, 300, error);
     }
   }
@@ -809,7 +809,7 @@ class challenge {
           : [],
       });
     } catch (error) {
-      logError("Challenge Controller: getChannelsAndBoards", err.stack)
+      logError("Challenge Controller: getChannelsAndBoards", error.stack)
       return __.out(res, 300, 'Invalid Data submitted');
     }
   }
@@ -1066,7 +1066,7 @@ class challenge {
       };
       return res.status(201).json(result);
     } catch (error) {
-      logError("Challenge Controller: readChallenges", err.stack)
+      logError("Challenge Controller: readChallenges", error.stack)
       return __.out(res, 300, 'something went wrong try later');
     }
   }
@@ -1225,7 +1225,7 @@ class challenge {
       };
       return res.status(201).json(result);
     } catch (error) {
-      logError("Challenge Controller: readChallengesSingle", err.stack)
+      logError("Challenge Controller: readChallengesSingle", error.stack)
       return __.out(res, 300, 'something went wrong try later');
     }
   }
@@ -1294,7 +1294,7 @@ class challenge {
       };
       return res.status(201).json(result);
     } catch (error) {
-      logError("Challenge Controller: readChallengesNew", err.stack)
+      logError("Challenge Controller: readChallengesNew", error.stack)
       return __.out(res, 300, 'something went wrong try later');
     }
   }

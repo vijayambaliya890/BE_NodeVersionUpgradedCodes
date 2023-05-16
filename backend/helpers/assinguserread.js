@@ -46,6 +46,7 @@ class AssignUserRead {
       }
 
       let searchQuery = {
+        parentBussinessUnitId: { $in: buList },
         $or: [],
       };
       if (detail.buFilterType === 1) {
