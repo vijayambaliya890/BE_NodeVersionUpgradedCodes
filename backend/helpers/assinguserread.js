@@ -2,7 +2,7 @@ const User = require('../app/models/user');
 const { logError, logInfo } = require('./logger.helper');
 class AssignUserRead {
   // return array of _id of users inside users if project is missing
-  async read(userDetails, project=null) {
+  async read(userDetails, project = null, createdBy = null) {
     try {
       logInfo('AssignUserRead:: read');
       if (userDetails.length === 0) {
@@ -11,7 +11,9 @@ class AssignUserRead {
       const userProject = project ? project : { _id: 1 };
       const callGetUserDetails = [];
       userDetails.forEach((detail) => {
-        callGetUserDetails.push(this.getUserDetails(detail, userProject));
+        callGetUserDetails.push(
+          this.getUserDetails(detail, userProject, createdBy),
+        );
       });
       const userInfo = await Promise.all(callGetUserDetails);
       if (project) {
@@ -25,22 +27,26 @@ class AssignUserRead {
     }
   }
 
-  async getUserDetails(detail, project = { _id: 1 }) {
+  async getUserDetails(detail, project = { _id: 1 }, createdBy) {
     try {
       logInfo('AssignUserRead:: getUserDetails');
       if (!detail.businessUnits) {
         return [];
       }
+
       let buList = detail.businessUnits;
       if (detail.allBuToken) {
-        const userPlanBu = await User.findOne(
-          { staffId: detail.allBuTokenStaffId },
-          { planBussinessUnitId: 1, _id: 0 },
-        ).lean();
-        buList = userPlanBu.planBussinessUnitId;
+        if (detail.allBuTokenStaffId) {
+          const userPlanBu = await User.findOne({ staffId: detail.allBuTokenStaffId }, { planBussinessUnitId: 1, _id: 0 }).lean();
+          buList = userPlanBu?.planBussinessUnitId;
+        } else if (createdBy) {
+          const userPlanBu = await User.findOne({ _id: createdBy }, { planBussinessUnitId: 1, _id: 0 }).lean();
+          buList = userPlanBu?.planBussinessUnitId;
+        }
       }
 
       let searchQuery = {
+        parentBussinessUnitId: { $in: buList },
         $or: [],
       };
       if (detail.buFilterType === 1) {
@@ -71,6 +77,14 @@ class AssignUserRead {
           let authors = { [condition]: detail.authors };
           searchQuery.$or.push({
             _id: authors,
+            status: 1,
+          });
+        }
+        detail.users = detail.users || [];
+        if (detail.users.length > 0) {
+          let users = { [condition]: detail.users };
+          searchQuery.$or.push({
+            _id: users,
             status: 1,
           });
         }
@@ -106,24 +120,16 @@ class AssignUserRead {
     }
   }
 
-  async getUserInWhichAssignUser(userData, Model) {
+  async getUserInAssignedUser(userData, Model, from = 'other') {
     try {
-      logInfo('AssignUserRead:: getUserInWhichAssignUser');
+      logInfo('AssignUserRead:: getUserInAssignedUser');
       let customFields = userData.otherFields || [];
       let subSkillSets = userData.subSkillSets || [];
-      let includeOnly = [];
-      let excludeOnly = [];
+      const customFieldsArr = [];
       for (let singleCustom of customFields) {
         const value = singleCustom.value || null;
         const fieldId = singleCustom.fieldId;
-        excludeOnly.push({
-          'userDetails.customField.fieldId': fieldId,
-          'userDetails.customField.value': { $ne: value },
-        });
-        includeOnly.push({
-          'userDetails.customField.fieldId': fieldId,
-          'userDetails.customField.value': value,
-        });
+        customFieldsArr.push({fieldId, value})
       }
       // AllbuToken
       let searchQuery = {
@@ -143,7 +149,9 @@ class AssignUserRead {
             },
             'userDetails.buFilterType': 2,
             $or: [
-              { 'userDetails.authors': userData._id },
+              from === 'channel'
+                ? { 'userDetails.authors': userData._id }
+                : { 'userDetails.user': userData._id },
               {
                 'userDetails.appointments': {
                   $in: [userData.appointmentId],
@@ -154,14 +162,20 @@ class AssignUserRead {
                   $in: subSkillSets,
                 },
               },
-              ...includeOnly,
+              {
+                'userDetails.customField': {
+                  $in: customFieldsArr,
+                },
+              },
             ],
           },
           {
-            businessUnits: userData.parentBussinessUnitId,
-            buFilterType: 3,
+            'userDetails.businessUnits': userData.parentBussinessUnitId,
+            'userDetails.buFilterType': 3,
             $and: [
-              { 'userDetails.authors': { $nin: [userData._id] } },
+              from === 'channel'
+                ? { 'userDetails.authors': { $nin: [userData._id] } }
+                : { 'userDetails.user': { $nin: [userData._id] } },
               {
                 'userDetails.appointments': {
                   $nin: [userData.appointmentId],
@@ -172,7 +186,11 @@ class AssignUserRead {
                   $nin: subSkillSets,
                 },
               },
-              ...excludeOnly,
+              {
+                'userDetails.customField': {
+                  $nin: customFieldsArr,
+                },
+              }
             ],
           },
         ],
@@ -182,6 +200,17 @@ class AssignUserRead {
           $match: {
             status: 1,
             companyId: userData.companyId,
+          },
+        },
+        {
+          $addFields: {
+            userDetails: {
+              $cond: {
+                if: { $ifNull: ['$userDetails', false] },
+                then: '$userDetails',
+                else: '$assignUsers',
+              },
+            },
           },
         },
         {
@@ -224,7 +253,7 @@ class AssignUserRead {
       return result.map((re) => re._id);
       return result;
     } catch (error) {
-      logError('AssignUserRead:: getUserInWhichAssignUser', error.stack);
+      logError('AssignUserRead:: getUserInAssignedUser', error.stack);
       return [];
     }
   }

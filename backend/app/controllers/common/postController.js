@@ -496,8 +496,7 @@ class post {
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      // let channelIds = await __.getUserChannel(req.user);
-      let channelIds = await AssignUserRead.getUserInWhichAssignUser(req.user, Channel);
+      let channelIds = await AssignUserRead.getUserInAssignedUser(req.user, Channel, 'channel');
       var channelList = await Channel.find({
         _id: {
           $in: channelIds,
