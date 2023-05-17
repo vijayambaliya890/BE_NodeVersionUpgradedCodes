@@ -125,19 +125,11 @@ class AssignUserRead {
       logInfo('AssignUserRead:: getUserInAssignedUser');
       let customFields = userData.otherFields || [];
       let subSkillSets = userData.subSkillSets || [];
-      let includeOnly = [];
-      let excludeOnly = [];
+      const customFieldsArr = [];
       for (let singleCustom of customFields) {
         const value = singleCustom.value || null;
         const fieldId = singleCustom.fieldId;
-        excludeOnly.push({
-          'userDetails.customField.fieldId': fieldId,
-          'userDetails.customField.value': { $ne: value },
-        });
-        includeOnly.push({
-          'userDetails.customField.fieldId': fieldId,
-          'userDetails.customField.value': value,
-        });
+        customFieldsArr.push({fieldId, value})
       }
       // AllbuToken
       let searchQuery = {
@@ -170,7 +162,11 @@ class AssignUserRead {
                   $in: subSkillSets,
                 },
               },
-              // ...includeOnly,
+              {
+                'userDetails.customField': {
+                  $in: customFieldsArr,
+                },
+              },
             ],
           },
           {
@@ -190,7 +186,11 @@ class AssignUserRead {
                   $nin: subSkillSets,
                 },
               },
-              // ...excludeOnly,
+              {
+                'userDetails.customField': {
+                  $nin: customFieldsArr,
+                },
+              }
             ],
           },
         ],
