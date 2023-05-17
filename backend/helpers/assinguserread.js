@@ -170,12 +170,12 @@ class AssignUserRead {
                   $in: subSkillSets,
                 },
               },
-              ...includeOnly,
+              // ...includeOnly,
             ],
           },
           {
-            businessUnits: userData.parentBussinessUnitId,
-            buFilterType: 3,
+            'userDetails.businessUnits': userData.parentBussinessUnitId,
+            'userDetails.buFilterType': 3,
             $and: [
               from === 'channel'
                 ? { 'userDetails.authors': { $nin: [userData._id] } }
@@ -190,7 +190,7 @@ class AssignUserRead {
                   $nin: subSkillSets,
                 },
               },
-              ...excludeOnly,
+              // ...excludeOnly,
             ],
           },
         ],
