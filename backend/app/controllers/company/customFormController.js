@@ -21,7 +21,8 @@ const mongoose = require('mongoose'),
   fs = require('fs-extra'),
   fsa = require('fs'),
   _ = require('lodash'),
-  challengeController = require('../../controllers/common/challengeController'),
+  challengeController = require('../../controllers/common/challengeController')
+  const { AssignUserRead } = require('../../../helpers/assinguserread');
   __ = require('../../../helpers/globalFunctions');
 //PDFDocument = require('../../../helpers/pdfkit-table');
 
@@ -812,7 +813,7 @@ class customform {
   // read myform data
   async readCustomForms(req, res) {
     try {
-      let data = await __.getUserCustomForm(req.user);
+      let data = await AssignUserRead.getUserInAssignedUser(req.user, CustomForm)
       let response = {
         data: data,
       };
