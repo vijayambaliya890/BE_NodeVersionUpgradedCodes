@@ -475,7 +475,7 @@ class questionModule {
             req.user._id,
             req.body.wallPostId,
             'wall',
-            2
+            9
           );
         }
         if (req.body.postId) {
