@@ -30,7 +30,8 @@ const Section = require('../app/models/section'),
   CustomForm = require('../app/models/customForms'),
   BuilderModule = require('../app/models/builderModule'),
   Shift = require('../app/models/shift'),
-  request = require('request');
+  request = require('request');  
+  const { AssignUserRead } = require('../helpers/assinguserread');
 
 class globalFunctions {
   async writePdfToCustomForm(payload) {
@@ -731,7 +732,7 @@ class globalFunctions {
   async isUserAuthorized(req, wallId) {
     try {
       if (!wallId) return false;
-      var usersWallData = await this.getUserWalls(req.user);
+      var usersWallData = await AssignUserRead.read(req.user, null, null);
       if (!usersWallData) return false;
       return true;
     } catch (error) {

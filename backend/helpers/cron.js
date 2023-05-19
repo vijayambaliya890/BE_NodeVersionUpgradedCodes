@@ -1086,7 +1086,7 @@ class cron {
           status: 1
         }).select('userDetails').lean();
         if (channel) {
-          let userIds = await AssignUserRead.read(channel.userDetails, null, null);
+          let userIds = await AssignUserRead.read(channel.userDetails, { _id :1 ,name: 1, staffId: 1, deviceToken: 1, otherFields: 1 }, null);
           const deviceTokens = userIds.filter(v => !!v.deviceToken).map(v => v.deviceToken);
           if (deviceTokens.length) {
             let channeluserTokens = deviceTokens;

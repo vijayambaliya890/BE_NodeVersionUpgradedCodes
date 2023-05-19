@@ -1342,7 +1342,7 @@ class myBoard {
       if (!wallData) {
         return [];
       }
-      let users = await AssignUserRead.read(wallData.assignUsers, null, wallData.createdBy);
+      let users = await AssignUserRead.read(wallData.assignUsers, { _id : 1 ,name: 1, staffId: 1, deviceToken: 1, otherFields: 1 }, wallData.createdBy);
       return users;
       /*
             // If no users are filtered out
@@ -1671,7 +1671,7 @@ class myBoard {
       }
       const wallId = req.params.wallId;
       let wall = await WallModel.findById(wallId).select('assignUsers createdBy').lean();
-      return await AssignUserRead.read(wall.assignUsers, null, wall.createdBy);
+      return await AssignUserRead.read(wall.assignUsers, {_id:1 ,name: 1, staffId: 1, deviceToken: 1, role:1 }, wall.createdBy);
     } catch (error) {
       __.log(error);
       return __.out(res, 300, 'Something went wrong try later');
