@@ -20,6 +20,7 @@ const mongoose = require('mongoose'),
   SubSection = require('../../models/subSection'),
   moment = require('moment'),
   { parse } = require('json2csv');
+  const { AssignUserRead } = require('../../../helpers/assinguserread');
 
 class SocialWall {
   async buToolQueryChecking(req, res) {
@@ -1439,7 +1440,7 @@ class SocialWall {
         .select('title description moduleId wallId')
         .lean();
       const questions = wallPostDetails.moduleId.questions;
-      const users = await __.wallUsersList(wallPostDetails.wallId);
+      const users = await AssignUserRead.read(data.assignUsers, null, req.user._id);
       const userDetails = await User.find({
         _id: {
           $in: users,

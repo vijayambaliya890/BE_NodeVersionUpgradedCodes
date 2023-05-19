@@ -14,6 +14,7 @@ const mongoose = require("mongoose"),
   ChallengeModule = require("../common/challengeController"),
   _ = require("lodash"),
   __ = require("../../../helpers/globalFunctions");
+  const { AssignUserRead } = require('../../../helpers/assinguserread');
 
 class questionModule {
   async getModuleQuestions(req, res) {
@@ -1034,7 +1035,7 @@ class questionModule {
           select: 'createdBy'
         });
         if (!!question) {
-          const users = await __.wallUsersList({ assignUsers: question.assignUsers || [], createdBy: question.moduleId.createdBy });
+          const users = await AssignUserRead.read(question.assignUsers || [], null, question.moduleId.createdBy);
           const index = users.findIndex(user => user.toString() === userId.toString());
           return __.out(res, 201, { userExist: -1 !== index });
         } else {
