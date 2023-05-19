@@ -495,7 +495,7 @@ class user {
           _id: v._id,
           name: v.name,
           staffId: v.staffId,
-          appointment: { name: v.appointmentId.name },
+          appointment: { name: v.appointmentId?.name },
           businessUnit: bu,
           contactNumber: v.contactNumber,
           doj: v.doj,
