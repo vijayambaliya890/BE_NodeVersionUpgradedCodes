@@ -13,6 +13,7 @@ const mongoose = require('mongoose'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
 const { logInfo, logError } = require('../../../helpers/logger.helper');
+const { AssignUserRead } = require('../../../helpers/assinguserread');
 
 class businessUnit {
   async updateLocation(req, res) {
@@ -320,7 +321,7 @@ class businessUnit {
       if (!__.checkHtmlContent(req.body)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      let channelIds = await __.getUserChannel(req.user);
+      let channelIds = await AssignUserRead.getUserInAssignedUser(req.user, Channel, 'channel')
       var channelList = await Channel.find({
         _id: {
           $in: channelIds,

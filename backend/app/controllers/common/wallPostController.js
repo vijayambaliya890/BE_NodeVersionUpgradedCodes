@@ -14,6 +14,7 @@ const mongoose = require("mongoose"),
   ChallengeModule = require("../common/challengeController"),
   FCM = require("../../../helpers/fcm"),
   __ = require("../../../helpers/globalFunctions");
+  const { AssignUserRead } = require('../../../helpers/assinguserread');
 
 class wallPost {
   async createPost(req, res) {
@@ -274,7 +275,7 @@ class wallPost {
         return __.out(res, 300, `Wall not found`);
       }
       // Check user is in this wall
-      let userWalls = await __.getUserWalls(req.user);
+      let userWalls = await AssignUserRead.getUserInAssignedUser(req.user, Wall)
       if (userWalls.indexOf(wallData._id) == -1) {
         // return __.out(res, 300, `Permission denied`);
       }
@@ -865,7 +866,7 @@ class wallPost {
       let wallData = await Wall.findOne({
         _id: wallPostDetails.wallId
       });
-      let userId = await __.wallUsersList(wallData);
+      let userId = await AssignUserRead.read(wallData.assignUsers, null, wallData.createdBy);
       if (wallPostDetails) {
         let questionField = [];
         let questionList = {};

@@ -21,7 +21,8 @@ const mongoose = require('mongoose'),
   fs = require('fs-extra'),
   fsa = require('fs'),
   _ = require('lodash'),
-  challengeController = require('../../controllers/common/challengeController'),
+  challengeController = require('../../controllers/common/challengeController')
+  const { AssignUserRead } = require('../../../helpers/assinguserread');
   __ = require('../../../helpers/globalFunctions');
 //PDFDocument = require('../../../helpers/pdfkit-table');
 
@@ -111,10 +112,7 @@ class customform {
         }
         return data;
       };
-      const users = await __.wallUsersList({
-        assignUsers: data.assignUsers,
-        createdBy: req.user._id,
-      });
+      const users = await AssignUserRead.read(data.assignUsers, null, req.user._id);
       if (users.length) {
       } else if (2 != data.isDeployed && data.status === 1) {
         return __.out(res, 300, `No users found with these user details`);
@@ -679,7 +677,7 @@ class customform {
   // read forms and myforms for mobile
   async readFormsandMyforms(req, res, quickNav = false) {
     try {
-      let data = await __.getUserCustomFormMobile(req.user, [1, 2]);
+      let data = await AssignUserRead.getUserInAssignedUser(req.user, CustomForm);
       let customFields = req.user.otherFields || [];
       customFields = customFields.map((v) => {
         return {
@@ -812,7 +810,7 @@ class customform {
   // read myform data
   async readCustomForms(req, res) {
     try {
-      let data = await __.getUserCustomForm(req.user);
+      let data = await AssignUserRead.getUserInAssignedUser(req.user, CustomForm)
       let response = {
         data: data,
       };

@@ -17,9 +17,9 @@ class appointment {
       if (requiredResult.status === false) {
         __.out(res, 400, requiredResult.missingFields);
       } else {
-        let regex = new RegExp(`^${req.body.name.trim()}$`, 'i');
+        // let regex = new RegExp(`^${req.body.name.trim()}$`, 'i');
         let duplicate = await Appointment.count({
-          name: { $regex: regex },
+          name: { $eq : req.body.name.trim() },
           status: { $nin: 3 },
           companyId: req.user.companyId,
         });
@@ -257,9 +257,9 @@ class appointment {
         if (doc === null) {
           return __.out(res, 300, 'Invalid appointmentId');
         } else {
-          let regex = new RegExp(`^${req.body.name.trim()}$`, 'i');
+          // let regex = new RegExp(`^${req.body.name.trim()}$`, 'i');
           let duplicate = await Appointment.count({
-            name: { $regex: regex },
+            name: { $eq: req.body.name.trim() },
             status: { $nin: 3 },
             companyId: req.user.companyId,
           });

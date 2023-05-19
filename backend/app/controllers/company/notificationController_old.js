@@ -14,6 +14,7 @@ const mongoose = require('mongoose'),
   fs = require('fs-extra'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
+  const { AssignUserRead } = require('../../../helpers/assinguserread');
 
 class notification {
   async create(req, res) {
@@ -79,7 +80,7 @@ class notification {
         }
 
         insert.assignUsers = insert.assignUsers || [];
-        let userIds = await __.notificUsersList(insert);
+        let userIds = await AssignUserRead.read(insert.assignUsers, null, insert.createdBy);
 
         if (userIds.length == 0 && insert.status == 1) {
           return __.out(res, 300, `No users found to send this notification`);
@@ -233,7 +234,7 @@ class notification {
         }
 
         insert.assignUsers = insert.assignUsers || [];
-        let userIds = await __.notificUsersList(insert);
+        let userIds = await AssignUserRead.read(insert.assignUsers, null, insert.createdBy);
 
         insert.notifyOverAllUsers = userIds;
         insert.notifyUnreadUsers = userIds;
@@ -496,7 +497,7 @@ class notification {
       .lean();
   }
   async addUserToDynamicNotifications(data, res) {
-    let notificationIds = await __.getUserNotification(data.userData);
+    let notificationIds = await AssignUserRead.getUserInAssignedUser(data.userData, Notification)
 
     // If no notifications found
     if (notificationIds.length == 0) {

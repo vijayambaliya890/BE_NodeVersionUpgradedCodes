@@ -14,13 +14,15 @@ const mongoose = require('mongoose'),
   QuestionModule = require('./questionModuleController.js'),
   SubSection = require('../../models/subSection'),
   PageSettingModel = require('../../models/pageSetting');
+  const { AssignUserRead } = require('../../../helpers/assinguserread');
 
 class myBoard {
   // List Filtered Walls
   async getWalls(req, res, forQuickNav) {
     try {
       // Check user is in this wall
-      let userWalls = await __.getUserWalls(req.user);
+      // let userWalls = await __.getUserWalls(req.user);
+      let userWalls = await AssignUserRead.getUserInAssignedUser(req.user, WallModel)
       let curretdate = new Date();
       let wallList = await WallModel.find({
         _id: {
@@ -95,7 +97,8 @@ class myBoard {
 
   async getComplimentsForMe(req, res) {
     try {
-      let userWalls = await __.getUserWalls(req.user);
+      // let userWalls = await __.getUserWalls(req.user);
+      let userWalls = await AssignUserRead.getUserInAssignedUser(req.user, WallModel)
       let pageSetting = await PageSettingModel.findOne({
         companyId: req.user.companyId,
       })
@@ -123,7 +126,7 @@ class myBoard {
 
   async getComplimentsSentByMe(req, res) {
     try {
-      let userWalls = await __.getUserWalls(req.user);
+      let userWalls = await AssignUserRead.getUserInAssignedUser(req.user, WallModel)
       let pageSetting = await PageSettingModel.findOne({
         companyId: req.user.companyId,
       })
@@ -151,7 +154,7 @@ class myBoard {
 
   async getSuggestions(req, res) {
     try {
-      let userWalls = await __.getUserWalls(req.user);
+      let userWalls = await AssignUserRead.getUserInAssignedUser(req.user, WallModel)
       let pageSetting = await PageSettingModel.findOne({
         companyId: req.user.companyId,
       })
@@ -181,7 +184,7 @@ class myBoard {
   async wallSummary(req, res) {
     try {
       // Check user is in this wall
-      let userWalls = await __.getUserWalls(req.user);
+      let userWalls = await AssignUserRead.getUserInAssignedUser(req.user, WallModel)
       /***  WALL SUMMARY */
       // Get all wall list
       let wallList = await WallModel.find({
@@ -483,7 +486,7 @@ class myBoard {
       if (req.body.wallId) {
         searchQuery['wallId._id'] = mongoose.Types.ObjectId(req.body.wallId);
       } else {
-        let userWalls = await __.getUserWalls(req.user);
+        let userWalls = await AssignUserRead.getUserInAssignedUser(req.user, WallModel)
         userWalls = userWalls.map((v) => {
           return mongoose.Types.ObjectId(v);
         });
@@ -1207,7 +1210,7 @@ class myBoard {
         return __.out(res, 300, `You've entered malicious input`);
       }
       // Get users assigned users
-      let userWallIds = await __.getUserWalls(req.user);
+      let userWallIds = await AssignUserRead.getUserInAssignedUser(req.user, WallModel)
       // Get Active Categories - to avoid the deleted category posts
       let categoryIds = await WallCategory.find({
         wallId: {
@@ -1339,7 +1342,7 @@ class myBoard {
       if (!wallData) {
         return [];
       }
-      let users = await __.wallUsersList(wallData, false);
+      let users = await AssignUserRead.read(wallData.assignUsers, { _id : 1 ,name: 1, staffId: 1, deviceToken: 1, otherFields: 1 }, wallData.createdBy);
       return users;
       /*
             // If no users are filtered out
@@ -1365,7 +1368,7 @@ class myBoard {
   async recentPolls(req, res) {
     try {
       // Active Walls
-      let userWalls = await __.getUserWalls(req.user);
+      let userWalls = await AssignUserRead.getUserInAssignedUser(req.user, WallModel)
       // Get Active Categories - to avoid the deleted category posts
       let categoryIds = await WallCategory.find({
         wallId: {
@@ -1667,8 +1670,8 @@ class myBoard {
         return __.out(res, 300, `You've entered malicious input`);
       }
       const wallId = req.params.wallId;
-      let wall = await WallModel.findById(wallId).select('assignUsers').lean();
-      return await __.wallUsersList(wall, false);
+      let wall = await WallModel.findById(wallId).select('assignUsers createdBy').lean();
+      return await AssignUserRead.read(wall.assignUsers, {_id:1 ,name: 1, staffId: 1, deviceToken: 1, role:1 }, wall.createdBy);
     } catch (error) {
       __.log(error);
       return __.out(res, 300, 'Something went wrong try later');

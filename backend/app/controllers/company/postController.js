@@ -20,6 +20,7 @@ const mongoose = require('mongoose'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
   const { logInfo, logError } = require('../../../helpers/logger.helper');
+  const { AssignUserRead } = require('../../../helpers/assinguserread');
 
 class post {
   async uploadFile(req, res) {
@@ -847,7 +848,7 @@ class post {
         return __.out(res, 300, `You've entered malicious input`);
       }
       // user can manage the
-      let channelIds = await __.getUserChannel(req.user);
+      let channelIds = await AssignUserRead.getUserInAssignedUser(req.user, Channel, 'channel')
       let where = {
         status: {
           $nin: [3],
@@ -936,7 +937,7 @@ class post {
         req.user.companyId,
         'subsection',
       );
-      let channelIds = await __.getUserChannel(req.user);
+      let channelIds = await AssignUserRead.getUserInAssignedUser(req.user, Channel, 'channel')
       var channelList = await Channel.find({
         _id: {
           $in: channelIds,

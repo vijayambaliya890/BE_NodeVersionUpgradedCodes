@@ -10,6 +10,7 @@ const mongoose = require('mongoose'),
   Question = require('../../models/question'),
   _ = require('lodash'),
   __ = require('../../../helpers/globalFunctions');
+  const { AssignUserRead } = require('../../../helpers/assinguserread');
 
 class channel {
   async create(req, res) {
@@ -419,10 +420,7 @@ class channel {
             questionFromBody.ppimageuploadfrom || 0;
           questionFromBody.dateTime = questionFromBody.dateTime || [];
           if (type === 14 && !!assignUsers && assignUsers.length) {
-            const users = await __.wallUsersList({
-              assignUsers: assignUsers,
-              createdBy: req.user._id,
-            });
+            const users = await AssignUserRead.read(assignUsers, null, req.user._id);
             if (!users.length) {
               return __.out(res, 300, `No users found with these user details`);
             }

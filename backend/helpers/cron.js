@@ -52,6 +52,7 @@ staffLeave = require('../app/models/staffLeave')
 LeaveType = require('../app/models/leaveType')
 LeaveApplied = require('../app/models/leaveApplied');
 LeaveGroup = require('../app/models/leaveGroup');
+const { AssignUserRead } = require('../helpers/assinguserread');
 const createStaffLeave = async (data) => {
   const leaveGroupData = await LeaveGroup.findOne({
     _id: data.leaveGroupId
@@ -935,12 +936,12 @@ class cron {
             const channel = await Channel.findOne({
               _id: challenge.selectedChannel
             }).select('userDetails createdBy').lean();
-            users = await __.channelUsersList(channel);
+            users = await AssignUserRead.read(channel.userDetails, null, channel.createdBy);
           } else if (!!challenge.selectedWall && 2 === challenge.criteriaType) {
             const wall = await Wall.findOne({
               _id: challenge.selectedWall
             }).select('assignUsers createdBy').lean();
-            users = await __.wallUsersList(wall);
+            users = await AssignUserRead.read(wall.assignUsers, null, wall.createdBy);
           }
           if (users.length) {
             await sendNotification(challenge, users);
@@ -1085,7 +1086,7 @@ class cron {
           status: 1
         }).select('userDetails').lean();
         if (channel) {
-          let userIds = await __.channelUsersList(channel, false);
+          let userIds = await AssignUserRead.read(channel.userDetails, { _id :1 ,name: 1, staffId: 1, deviceToken: 1, otherFields: 1 }, null);
           const deviceTokens = userIds.filter(v => !!v.deviceToken).map(v => v.deviceToken);
           if (deviceTokens.length) {
             let channeluserTokens = deviceTokens;
