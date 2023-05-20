@@ -21,7 +21,7 @@ const schedule = require('node-schedule'),
   spawn = require('child_process').spawn,
   Channel = require('../app/models/channel'),
   Company = require('../app/models/company'),
-  Forms = require('../app/models/company'),
+  Forms = require('../app/models/customForms'),
   BUTemplate = require('../app/models/buTemplate'),
   companyController = require('../app/controllers/company/companyController'),
   departmentController = require('../app/controllers/company/departmentController'),
@@ -455,7 +455,7 @@ const integration = async (resDaily, req, res) => {
                 departmentId: {
                   $in: [departmentId]
                 },
-                name: elem.Department, //new RegExp(`^${elem.Department}$`, 'i'),
+                name: elem.Department.trim(), //new RegExp(`^${elem.Department}$`, 'i'),
                 status: {
                   $in: [status]
                 }
@@ -466,7 +466,7 @@ const integration = async (resDaily, req, res) => {
               } else {
                 let insertedSection = await new Section({
                   "departmentId": departmentId,
-                  "name": elem.Department || "__",
+                  "name": elem.Department.trim() || "__",
                   "status": 1
                 }).save();
                 sectionId = insertedSection._id;
