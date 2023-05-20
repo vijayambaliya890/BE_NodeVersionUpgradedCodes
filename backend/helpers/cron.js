@@ -937,11 +937,13 @@ class cron {
               _id: challenge.selectedChannel
             }).select('userDetails createdBy').lean();
             users = await AssignUserRead.read(channel.userDetails, null, channel.createdBy);
+            users = users.users;
           } else if (!!challenge.selectedWall && 2 === challenge.criteriaType) {
             const wall = await Wall.findOne({
               _id: challenge.selectedWall
             }).select('assignUsers createdBy').lean();
             users = await AssignUserRead.read(wall.assignUsers, null, wall.createdBy);
+            users = users.users
           }
           if (users.length) {
             await sendNotification(challenge, users);
@@ -1087,6 +1089,7 @@ class cron {
         }).select('userDetails').lean();
         if (channel) {
           let userIds = await AssignUserRead.read(channel.userDetails, { _id :1 ,name: 1, staffId: 1, deviceToken: 1, otherFields: 1 }, null);
+          userIds = userIds.users
           const deviceTokens = userIds.filter(v => !!v.deviceToken).map(v => v.deviceToken);
           if (deviceTokens.length) {
             let channeluserTokens = deviceTokens;

@@ -421,7 +421,7 @@ class channel {
           questionFromBody.dateTime = questionFromBody.dateTime || [];
           if (type === 14 && !!assignUsers && assignUsers.length) {
             const users = await AssignUserRead.read(assignUsers, null, req.user._id);
-            if (!users.length) {
+            if (!users.users.length) {
               return __.out(res, 300, `No users found with these user details`);
             }
           }

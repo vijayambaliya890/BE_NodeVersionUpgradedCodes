@@ -112,7 +112,8 @@ class customform {
         }
         return data;
       };
-      const users = await AssignUserRead.read(data.assignUsers, null, req.user._id);
+      let users = await AssignUserRead.read(data.assignUsers, null, req.user._id);
+      users = users.users;
       if (users.length) {
       } else if (2 != data.isDeployed && data.status === 1) {
         return __.out(res, 300, `No users found with these user details`);
