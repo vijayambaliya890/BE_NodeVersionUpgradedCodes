@@ -431,7 +431,7 @@ const integration = async (resDaily, req, res) => {
               // find department..
               let departmentIds = await Department.find({
                 companyId: companyId,
-                name: elem.Company, //new RegExp(`^${elem.Company}$`, 'i'),
+                name: elem.Company.trim(), //new RegExp(`^${elem.Company}$`, 'i'),
                 status: {
                   $in: status
                 }
@@ -442,7 +442,7 @@ const integration = async (resDaily, req, res) => {
               } else {
                 const insertedDepartment = await new Department({
                   "companyId": companyId,
-                  "name": elem.Company,
+                  "name": elem.Company.trim(),
                   "status": 1
                 }).save();
                 departmentId = insertedDepartment._id;
@@ -523,7 +523,7 @@ const integration = async (resDaily, req, res) => {
                   standByShiftPermission,
                   reportingLocation,
                   status: 1,
-                  orgName: `${cmpy.name} > ${elem.Company} > ${elem.Department || '___'} > __`
+                  orgName: `${cmpy.name} > ${elem.Company} > ${elem.Department || '__'} > __`
                   // orgName: `${company.name} > ${elem.Company} > ${elem.Department || '___'} > __`
                 }).save();
                 subsectionId = insertedSubSection._id;
