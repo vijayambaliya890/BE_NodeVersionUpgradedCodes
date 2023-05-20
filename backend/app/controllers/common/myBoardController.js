@@ -1343,7 +1343,10 @@ class myBoard {
         return [];
       }
       let users = await AssignUserRead.read(wallData.assignUsers, { _id : 1 ,name: 1, staffId: 1, deviceToken: 1, otherFields: 1 }, wallData.createdBy);
-      return users;
+      if(users.status){
+       return users.users;
+      }
+      return [];
       /*
             // If no users are filtered out
             if (wallUsersList.length == 0) {

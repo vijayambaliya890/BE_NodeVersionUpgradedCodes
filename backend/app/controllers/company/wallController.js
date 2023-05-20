@@ -1440,7 +1440,8 @@ class SocialWall {
         .select('title description moduleId wallId')
         .lean();
       const questions = wallPostDetails.moduleId.questions;
-      const users = await AssignUserRead.read(data.assignUsers, null, req.user._id);
+      let users = await AssignUserRead.read(data.assignUsers, null, req.user._id);
+      users = users.users;
       const userDetails = await User.find({
         _id: {
           $in: users,

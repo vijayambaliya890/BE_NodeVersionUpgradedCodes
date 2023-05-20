@@ -867,6 +867,7 @@ class wallPost {
         _id: wallPostDetails.wallId
       });
       let userId = await AssignUserRead.read(wallData.assignUsers, null, wallData.createdBy);
+      userId = userId.users;      
       if (wallPostDetails) {
         let questionField = [];
         let questionList = {};

@@ -1036,8 +1036,11 @@ class questionModule {
         });
         if (!!question) {
           const users = await AssignUserRead.read(question.assignUsers || [], null, question.moduleId.createdBy);
-          const index = users.findIndex(user => user.toString() === userId.toString());
+          if(users.status){
+          const index = users.users.findIndex(user => user.toString() === userId.toString());
           return __.out(res, 201, { userExist: -1 !== index });
+          }
+          return __.out(res, 300, 'Something went wrong try later');
         } else {
           return __.out(res, 300, "Question not found");
         }

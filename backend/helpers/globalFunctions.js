@@ -733,7 +733,8 @@ class globalFunctions {
     try {
       if (!wallId) return false;
       var usersWallData = await AssignUserRead.read(req.user, null, null);
-      if (!usersWallData) return false;
+      usersWallData = usersWallData.users;
+      if (!usersWallData.length) return false;
       return true;
     } catch (error) {
       return false;

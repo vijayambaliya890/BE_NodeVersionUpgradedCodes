@@ -89,6 +89,7 @@ class notification {
 
         insert.assignUsers = insert.assignUsers || [];
         let userIds = await AssignUserRead.read(insert.assignUsers, null, insert.createdBy);
+        userIds = userIds.users;
         if (userIds.length == 0 && insert.status == 1) {
           return __.out(res, 300, `No users found to send this notification`);
         }
@@ -250,6 +251,7 @@ class notification {
         }
         insert.assignUsers = insert.assignUsers || [];
         let userIds = await AssignUserRead.read(insert.assignUsers, null, insert.createdBy);
+        userIds = userIds.users;
         insert.notifyOverAllUsers = userIds;
         insert.notifyUnreadUsers = userIds;
         // Link Module
