@@ -380,18 +380,13 @@ const integration = async (resDaily, req, res) => {
             }
 
             let name = ''
-            try {
-              appointment = appointment.replace(/\\/g, ",");
-              name = new RegExp(`^${appointment}$`, 'i');
-            } catch (error) {
               if (appointment.includes('(')) {
-                appointment = `${appointment})`
-                name = new RegExp(`^${appointment}$`, 'i');
+                name = appointment.trim();
               } else {
-                reasons[reasons.length] = "Incorrect data in the csv file";
-              }
-            }
-
+                appointment = appointment.replace(/\\/g, ",");
+                name = new RegExp(`^${appointment}$`, 'i');          
+              } 
+    
             if (reasons.length) {
               nonUpdated[nonUpdated.length] = {
                 "EmployeeNumber": elem.EmployeeNumber,
@@ -414,7 +409,7 @@ const integration = async (resDaily, req, res) => {
               user.appointmentId = appointmentsData._id;
             } else {
               let insertedDoc = await new Appointment({
-                "name": appointment,
+                "name": appointment.trim(),
                 "status": 1,
                 "companyId": companyId
               }).save();
