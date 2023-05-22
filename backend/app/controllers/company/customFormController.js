@@ -813,8 +813,9 @@ class customform {
   async readCustomForms(req, res) {
     try {
       let data = await AssignUserRead.getUserInAssignedUser(req.user, CustomForm)
+      let allData = await CustomForm.find({ _id : { $in : data } } );
       let response = {
-        data: data,
+        data: allData,
       };
       return __.out(res, 201, response);
     } catch (error) {
