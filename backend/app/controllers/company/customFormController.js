@@ -679,6 +679,7 @@ class customform {
   async readFormsandMyforms(req, res, quickNav = false) {
     try {
       let data = await AssignUserRead.getUserInAssignedUser(req.user, CustomForm);
+      let allData = await CustomForm.find({ _id : { $in : data } } );
       let customFields = req.user.otherFields || [];
       customFields = customFields.map((v) => {
         return {
@@ -689,7 +690,7 @@ class customform {
       const userId = req.user._id;
       const userAppointment = req.user.appointmentId;
       const userSubSkillSets = req.user.subSkillSets || [];
-      data.forEach((form) => {
+      allData.forEach((form) => {
         let is_manageable = !!form.assignUsers.filter((user) =>
           user.admin.find(
             (adminUser) => adminUser.toString() === userId.toString(),
@@ -772,12 +773,12 @@ class customform {
                 (adm) => adm.toString() === req.user._id.toString(),
               )),
           );
-      });
-      data = data.filter((d) => d.is_manageable || d.is_submittable);
+        });
+        allData = allData.filter((d) => d.is_manageable || d.is_submittable);
       if (quickNav) {
         // getting forms for quicknav mobile
-        data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        let forms = data.filter((form) => form.quickNavEnabled).slice(0, 10);
+        allData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        let forms = allData.filter((form) => form.quickNavEnabled).slice(0, 10);
         // getting boards for quicknav mobile
         let boards = await MyBoardController.getWalls(req, res, true);
         boards.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -786,21 +787,21 @@ class customform {
       }
       const statusFilter = await FormSetting.find({
         createdBy: req.user._id,
-        formId: { $in: data.map((d) => d._id) },
+        formId: { $in: allData.map((d) => d._id) },
       })
         .select('statusFilter fieldStatus formId')
         .lean();
       statusFilter.forEach((s) => {
-        data.find((d) => d._id.toString() == s.formId.toString()).statusFilter =
+        allData.find((d) => d._id.toString() == s.formId.toString()).statusFilter =
           s.statusFilter;
-        data.find((d) => d._id.toString() == s.formId.toString()).fieldStatus =
+        allData.find((d) => d._id.toString() == s.formId.toString()).fieldStatus =
           s.fieldStatus;
       });
       /* if(+req.query.m === 1) {
                 return res.status(201).json(data);
             } else { */
-      data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      return __.out(res, 201, { data });
+            allData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      return __.out(res, 201, allData);
       // }
     } catch (error) {
       __.log(error);
