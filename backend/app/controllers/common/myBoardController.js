@@ -480,6 +480,356 @@ class myBoard {
       //     return __.out(res, 400, requiredResult.missingFields);
       // }
       let searchQuery = {
+      };
+      let mainSearch = {
+        status: 1,
+      }
+      let categorySearch = {
+      }
+      let authorSearch = {
+
+      }
+      // Specified Wall or all assigned walls
+      if (req.body.wallId) {
+        // searchQuery['wallId._id'] = mongoose.Types.ObjectId(req.body.wallId);
+        mainSearch.wallId = mongoose.Types.ObjectId(req.body.wallId);
+      } else {
+        let userWalls = await AssignUserRead.getUserInAssignedUser(req.user, WallModel)
+        userWalls = userWalls.map((v) => {
+          return mongoose.Types.ObjectId(v);
+        });
+        mainSearch.wallId = {
+          $in: userWalls,
+        };
+      }
+
+      if (req.body.categoryId) {
+        mainSearch.category = {
+          $in: req.body.categoryId,
+        }
+      } else {
+        categorySearch.status = 1;
+      }
+      if (req.body.searchTitle) {
+        // title/description/author name
+        searchQuery['$or'] = [
+          {
+            title: {
+              $regex: `${req.body.searchTitle}`,
+              $options: 'i',
+            },
+          },
+          {
+            description: {
+              $regex: `${req.body.searchTitle}`,
+              $options: 'i',
+            },
+          },
+        ];
+      }
+      if (req.body.fromDate) {
+        mainSearch.createdAt = {};
+        mainSearch.createdAt['$gte'] = new Date(
+          moment(req.body.fromDate).startOf('day').utc().format(),
+        );
+      }
+      if (req.body.toDate) {
+        mainSearch.createdAt['$lte'] = new Date(
+          moment(req.body.toDate).endOf('day').utc().format(),
+        );
+      }
+      // Question Only Posts
+      if (req.body.moduleIncluded == true) {
+        mainSearch.moduleIncluded = true;
+      }
+      // Tasks API
+      if (req.body.taskOnly == true) {
+        mainSearch.taskList = {
+          $gt: [],
+        };
+      }
+      if (req.body.myTasks == true) {
+        mainSearch.assignedToList = {
+          $in: [req.user._id],
+        };
+      }
+      if (req.body.createdByUser == true) {
+        authorSearch._id = mongoose.Types.ObjectId(req.user._id);
+      }
+      if (!!req.body.isTaskCompleted) {
+        mainSearch.isTaskCompleted = req.body.isTaskCompleted;
+      }
+      if (!!req.body.wallIds && !!req.body.wallIds.length) {
+        req.body.wallIds = req.body.wallIds.map((id) =>
+          mongoose.Types.ObjectId(id),
+        );
+        if (req.body.compliments_forMe) {
+          mainSearch = {
+            wallId: { $in: req.body.wallIds },
+            nomineeUsers: mongoose.Types.ObjectId(req.user._id),
+            status: 1,
+          };
+        } else if (req.body.compliments_sentByMe) {
+          mainSearch = {
+            wallId: { $in: req.body.wallIds },
+            'nomineeUsers.0': { $exists: true },
+            status: 1,
+          };
+          authorSearch = {_id:mongoose.Types.ObjectId(req.user._id)};
+        } else if (req.body.suggestions) {
+          mainSearch = {
+            wallId: { $in: req.body.wallIds },
+            status: 1,
+          };
+          authorSearch = {_id:mongoose.Types.ObjectId(req.user._id)};
+        } else {
+          mainSearch = {};
+          searchQuery = {};
+        }
+      }
+      // Dynamic Search Queries
+      const where = {
+        companyId: req.user.companyId,
+        status: 1,
+      };
+      let [postList, emojiList, taskAssigningUsers, userBUs] = await Promise.all([WallPost.aggregate([
+        {$match: mainSearch},
+        {
+          $sort: {
+            lastUpdated: -1,
+          },
+        },
+        {
+          $lookup: {
+            from: 'walls',
+            localField: 'wallId',
+            foreignField: '_id',
+            as: 'wallId',
+          },
+        },
+        {
+          $unwind: '$wallId',
+        },
+        {
+          $lookup: {
+            from: 'wallcategories',
+            localField: 'category',
+            foreignField: '_id',
+            as: 'category',
+            pipeline:[{
+              $match: categorySearch
+            }]
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'author',
+            foreignField: '_id',
+            as: 'author',
+            pipeline:[{
+              $match: authorSearch
+            }]
+          },
+        },
+        {
+          $unwind: '$author',
+        },
+        {$match: searchQuery},
+        {
+          $project: {
+            category: 1,
+            title: 1,
+            description: 1,
+            attachments: 1,
+            reportCount: 1,
+            sharedCount: 1,
+            likesCount: 1,
+            commentCount: 1,
+            createdAt: 1,
+            updatedAt: 1,
+            moduleIncluded: 1,
+            moduleId: 1,
+            lastUpdated: 1,
+            priorityDate: 1,
+            taskList: 1,
+            assignedToList: 1,
+            taskDueDate: 1,
+            isTaskCompleted: 1,
+            anonymousPost: 1,
+            wallId: {
+              _id: '$wallId._id',
+              wallName: '$wallId.wallName',
+              bannerImage: '$wallId.bannerImage',
+            },
+            category: {
+              categoryName: '$category.categoryName',
+            },
+            author: {
+              name: {
+                $cond: {
+                  if: { $eq: [true, '$anonymousPost'] },
+                  then: 'Anonymous',
+                  else: '$author.name',
+                },
+              },
+              staffId: {
+                $cond: {
+                  if: { $eq: [true, '$anonymousPost'] },
+                  then: '',
+                  else: '$author.name',
+                },
+              },
+              profilePicture: {
+                $cond: {
+                  if: { $eq: [true, '$anonymousPost'] },
+                  then: '',
+                  else: '$author.profilePicture',
+                },
+              },
+            },
+          },
+        },
+      ]),
+      Emojis.find(where)
+        .select('emoji _id status')
+        .lean(),
+        this.taskAssigningUsers(req),
+        this.getWallBunsinessUnit(req.body.wallId)
+    ]);
+      for (var i = 0; i < postList.length; i++) {
+        postList[i].category = Array.isArray(postList[i].category)
+          ? postList[i].category
+          : [postList[i].category];
+        if (postList[i].priorityDate > postList[i].lastUpdated) {
+          postList[i].filterDates = postList[i].priorityDate;
+        } else {
+          postList[i].filterDates = postList[i].lastUpdated;
+        }
+      }
+      postList.sort(function (a, b) {
+        return new Date(b.filterDates) - new Date(a.filterDates);
+      });
+      // Find User is liked this post
+      let postIds = postList.map((v) => v._id);
+      // Get liked posts Id
+      let likedIds = await WallLike.find({
+        postId: {
+          $in: postIds,
+        },
+        userId: req.user._id,
+        isLiked: true,
+        status: 1,
+      }).lean();
+      likedIds = likedIds.map((v) => {
+        return v.postId;
+      });
+
+      // Add User liked Key
+      postList = postList.map((v, i) => {
+        // User Liked Status
+        let checkIndex = likedIds
+          .findIndex((x) => x.toString() == v._id)
+          .toString();
+        if (checkIndex != -1) {
+          v.userLiked = true;
+        } else {
+          v.userLiked = false;
+        }
+        // Add key doesn't exists
+        v.moduleIncluded = v.moduleIncluded || false;
+        v.taskList = v.taskList || [];
+        v.lastUpdated = v.lastUpdated || v.createdAt;
+        return v;
+      });
+
+      var categorySummary = undefined;
+
+      // category dashboard if required
+      if (req.body.compliments_forMe) {
+        const matchQuery = [
+          {
+            $lookup: {
+              from: 'walls',
+              localField: 'wallId',
+              foreignField: '_id',
+              as: 'wallId',
+            },
+          },
+          {
+            $unwind: '$wallId',
+          },
+          {
+            $lookup: {
+              from: 'wallcategories',
+              localField: 'category',
+              foreignField: '_id',
+              as: 'category',
+            },
+          },
+          {
+            $unwind: '$category',
+          },
+          {
+            $match: searchQuery,
+          },
+          {
+            $group: {
+              _id: '$category._id',
+              title: {
+                $first: '$category.categoryName',
+              },
+              count: {
+                $sum: 1,
+              },
+            },
+          },
+        ];
+        categorySummary = await WallPost.aggregate(matchQuery).allowDiskUse(
+          true,
+        );
+      }
+      const output = {
+        categorySummary,
+        data: postList || [],
+        total: postList.length,
+        emojiList: emojiList,
+        taskAssigningUsers: taskAssigningUsers.map((v) => {
+          return { _id: v._id, name: v.name };
+        }),
+        userBUs
+      };
+      if (
+        !!req.body.compliments_forMe ||
+        !!req.body.compliments_sentByMe ||
+        !!req.body.suggestions
+      ) {
+        return output;
+      } else {
+        return __.out(res, 201, output);
+      }
+    } catch (err) {
+      __.log(err);
+      return __.out(res, 500);
+    }
+  }
+
+  // Get all Posts - wall base
+  async getPostsOld(req, res) {
+    try {
+      if (!__.checkHtmlContent(req.body)) {
+        return __.out(res, 300, `You've entered malicious input`);
+      }
+      let pageNum = req.body.pageNum ? parseInt(req.body.pageNum) : 1;
+      let limit = req.body.limit ? parseInt(req.body.limit) : 10;
+      let skip = req.body.skip
+        ? parseInt(req.body.skip)
+        : (pageNum - 1) * limit;
+      // let requiredResult = await __.checkRequiredFields(req, ['wallId']);
+      // if (requiredResult.status == false) {
+      //     return __.out(res, 400, requiredResult.missingFields);
+      // }
+      let searchQuery = {
         status: 1,
       };
       // Specified Wall or all assigned walls

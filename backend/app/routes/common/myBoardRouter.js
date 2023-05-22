@@ -41,6 +41,10 @@ myBoardRouter.post('/getPosts', (req, res) => {
     MyBoardController.getPosts(req, res)
 });
 
+myBoardRouter.post('/getPosts/old', (req, res) => {
+    MyBoardController.getPostsOld(req, res)
+});
+
 myBoardRouter.post('/taskSummary', (req, res) => {
     MyBoardController.taskSummary(req, res)
 });
