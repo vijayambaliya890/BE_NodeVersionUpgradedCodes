@@ -679,7 +679,7 @@ class customform {
   async readFormsandMyforms(req, res, quickNav = false) {
     try {
       let data = await AssignUserRead.getUserInAssignedUser(req.user, CustomForm);
-      let allData = await CustomForm.find({ _id : { $in : data } } );
+      let allData = await CustomForm.find({ $or: [ { _id: { $in : data } }, {  $and : [{companyId: req.user.companyId} , {status : 1} , {isDeployed : 2}] }]});
       let customFields = req.user.otherFields || [];
       customFields = customFields.map((v) => {
         return {
