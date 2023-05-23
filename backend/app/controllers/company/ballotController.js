@@ -4340,11 +4340,11 @@ class ballot {
         let isPresent = false;
         let staffRestrictionObj = {};
         isPresent = item.userList.some((user) => {
-          if (user._id.toString() === req.user._id.toString()) {
+          if (user.id.toString() === req.user._id.toString()) {
             staffRestrictionObj = {
               slot: item.slot,
               startDate: item.startDate,
-              endDate: ballot.leaveType == 1 ? new Date(new Date(item.endDate).setDate(new Date(item.endDate).getDate() + 6)) : item.endDate,
+              endDate: ballot.leaveType == 1 ? new Date(new Date(item.startDate).setDate(new Date(item.startDate).getDate() + 6)) : item.startDate,
             };
             return true;
           }

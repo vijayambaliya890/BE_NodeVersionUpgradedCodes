@@ -800,8 +800,9 @@ class customform {
       /* if(+req.query.m === 1) {
                 return res.status(201).json(data);
             } else { */
+
             allData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      return __.out(res, 201, allData);
+      return __.out(res, 201, {data:allData});
       // }
     } catch (error) {
       __.log(error);
