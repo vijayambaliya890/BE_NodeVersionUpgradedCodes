@@ -214,6 +214,13 @@ class challenge {
             localField: 'challengeId',
             foreignField: '_id',
             as: 'challenge',
+            pipeline: [
+              {
+                $match: {
+                  nonRewardPointSystemEnabled: false,
+                },
+              },
+            ]
           },
         },
         {
@@ -239,6 +246,13 @@ class challenge {
             localField: 'challengeId',
             foreignField: '_id',
             as: 'challenge',
+            pipeline: [
+              {
+                $match: {
+                  nonRewardPointSystemEnabled: true,
+                },
+              },
+            ]
           },
         },
         {
