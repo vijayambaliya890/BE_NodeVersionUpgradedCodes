@@ -693,7 +693,7 @@ class customform {
           path: 'questions',
           select: 'question _id imageSrc ppimageuploadfrom options type'
         }
-      }])
+      }]).lean();
       let customFields = req.user.otherFields || [];
       customFields = customFields.map((v) => {
         return {
