@@ -80,9 +80,9 @@ class AssignUserRead {
             status: 1,
           });
         }
-        detail.users = detail.users || [];
-        if (detail.users.length > 0) {
-          let users = { [condition]: detail.users };
+        detail.user = detail.user || [];
+        if (detail.user.length > 0) {
+          let users = { [condition]: detail.user };
           searchQuery.$or.push({
             _id: users,
             status: 1,
