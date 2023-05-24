@@ -679,7 +679,21 @@ class customform {
   async readFormsandMyforms(req, res, quickNav = false) {
     try {
       let data = await AssignUserRead.getUserInAssignedUser(req.user, CustomForm);
-      let allData = await CustomForm.find({ $or: [ { _id: { $in : data } }, {  $and : [{companyId: req.user.companyId} , {status : 1} , {isDeployed : 2}] }]});
+      let allData = await CustomForm.find({ $or: [ { _id: { $in : data } }, {  $and : [{companyId: req.user.companyId} , {status : 1} , {isDeployed : 2}] }]})
+      .populate([{
+        path: 'moduleId',
+        select: 'questions',
+        populate: {
+          path: 'questions',
+          select: 'question _id imageSrc ppimageuploadfrom options type'
+        }
+      }, {
+        path: 'workflow.additionalModuleId',
+        populate: {
+          path: 'questions',
+          select: 'question _id imageSrc ppimageuploadfrom options type'
+        }
+      }])
       let customFields = req.user.otherFields || [];
       customFields = customFields.map((v) => {
         return {
