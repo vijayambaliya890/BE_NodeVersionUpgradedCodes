@@ -1973,6 +1973,10 @@ class post {
         select: 'name',
       })
       .populate({
+        path: 'moduleId',
+        select: 'moduleName',
+      })
+      .populate({
         path: 'wallId',
       })
       .sort({

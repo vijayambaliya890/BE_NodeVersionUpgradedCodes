@@ -265,6 +265,10 @@ const CustomFormSchema = new Schema({
                     type: Number,
                     default: 1 // 0.deleted 1.active
                 },
+                color: {
+                    type: String,
+                    required: true 
+                },
                 isDefault: {
                     type: Boolean,
                     default: false
