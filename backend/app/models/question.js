@@ -102,12 +102,23 @@ const QuestionSchema = new Schema({
         default: ''
     },
     conditionalQuestions: [{
-        optionId: {
-            type: Schema.Types.ObjectId
-        },
         questionId: {
-            type: Schema.Types.ObjectId,
-            ref: "Question"
+            _id: {
+                type : Schema.Types.ObjectId,
+            },
+            name:{
+                type:String,
+                required:true
+            }
+        },
+        optionId: {
+            _id: {
+                type : Schema.Types.ObjectId,
+            },
+            name:{
+                type:String,
+                required:true
+            }
         }
     }],
     profile: [{
