@@ -1056,7 +1056,6 @@ class channel {
           },
         ],
       });
-      console.log('----------moduleData------',moduleData)
       /*let moduleData = await BuilderModule.findOne(where).populate({
                 path: "questions",
                 

@@ -6624,7 +6624,6 @@ class shift {
         return __.out(res, 300, 'Previous Request Change is in process');
       }
       shiftDetailsData.status = 2;
-      shiftDetailsData.confirmedStaffs = [];
       await shiftDetailsData.save();
 
       AgendaCron.removeEvent({ 'data.shiftDetailId': req.body.shiftDetailsId })
