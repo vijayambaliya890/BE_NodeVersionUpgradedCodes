@@ -3626,6 +3626,7 @@ class customform {
         'https://admin.stage-netroc.gq': 'https://stage-netroc.gq/',
         'https://admin.net-roc2.gq': 'https://net-roc2.gq/',
         'https://admin.dbstage.gq': 'https://dbstage.gq/',
+        'https://admin.netroc3.tk':'https://netroc3.tk/',
       };
       const backendBaseURL = 'https://' + req.get('host');
       const baseUrl = baseUrls[backendBaseURL];
