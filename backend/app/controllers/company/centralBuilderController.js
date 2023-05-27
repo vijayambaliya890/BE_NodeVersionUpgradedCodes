@@ -416,6 +416,21 @@ class channel {
             pollingSelectionCount,
             chooseCount,
           };
+          
+          const promises = questionFromBody.conditionalQuestions.map(async (ele) => {
+            const obj = {};
+            const question = await Question.findOne({ _id: ele.questionId });
+            obj["questionId"] = { _id: question._id, name: question.question };
+            const result = question.options.find((data) => data._id == ele.optionId);
+            if (result) {
+              obj["optionId"] = { name: result.value, _id: result._id };
+            }
+            return obj;
+          });
+          
+          const array = await Promise.all(promises);
+          questionFromBody.conditionalQuestions = array;
+
           questionFromBody.ppimageuploadfrom =
             questionFromBody.ppimageuploadfrom || 0;
           questionFromBody.dateTime = questionFromBody.dateTime || [];
