@@ -555,6 +555,23 @@ class user {
           $options: 'ixs',
         };
       }
+
+      if (req.body.search !== undefined) {
+        query.$or = [
+          {
+            name: {
+              $regex: req.body.search.toString(),
+              $options: 'ixs',
+            },
+          },
+          {
+            staffId: {
+              $regex: req.body.search.toString(),
+              $options: 'ixs',
+            },
+          },
+        ];
+      }
       query.status = {
         $nin: [2],
       };
