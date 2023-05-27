@@ -15,6 +15,7 @@ const mongoose = require("mongoose"),
   _ = require("lodash"),
   __ = require("../../../helpers/globalFunctions");
   const { AssignUserRead } = require('../../../helpers/assinguserread');
+  const { logInfo, logError } = require('../../../helpers/logger.helper');
 
 class questionModule {
   async getModuleQuestions(req, res) {
@@ -731,6 +732,7 @@ class questionModule {
       if (requiredResult.status === false) {
         return __.out(res, 400, requiredResult.missingFields);
       }
+      logInfo("question Module Controller: resCustomFormQuestions");
       let resData;
       let questionsIds = [];
       let userIds;
@@ -960,6 +962,7 @@ class questionModule {
       }
     } catch (err) {
       __.log(err);
+      logError("question Module Controller: resCustomFormQuestions", err)
       return __.out(res, 500, err);
     }
   }
