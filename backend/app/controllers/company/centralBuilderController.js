@@ -416,6 +416,20 @@ class channel {
             pollingSelectionCount,
             chooseCount,
           };
+          let array = []
+          
+          for(const ele of questionFromBody.conditionalQuestions){
+            let obj  =  {}
+            let question=  await Question.findOne({_id:ele.questionId})
+              obj["questionId"] = { _id: question._id , name: question.question}
+              const result = question.options.find((data) => data._id == ele.optionId)
+              if(result){
+                obj["optionId"] = {name: result.value, _id: result._id}
+              }
+            array.push(obj)
+          }
+          questionFromBody.conditionalQuestions = array
+
           questionFromBody.ppimageuploadfrom =
             questionFromBody.ppimageuploadfrom || 0;
           questionFromBody.dateTime = questionFromBody.dateTime || [];
