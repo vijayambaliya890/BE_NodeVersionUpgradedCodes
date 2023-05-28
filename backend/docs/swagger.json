@@ -10,6 +10,11 @@
             "url": "https://admin.netroc3.tk"
         }
     ],
+    "security": [
+        {
+          "BearerAuth": []
+        }
+    ],
     "paths": {
         "/shift/create": {
             "post": {
@@ -20665,17 +20670,12 @@
             }
         },
         "securitySchemes": {
-            "oauth2": {
-                "type": "oauth2",
-                "flows": {
-                    "implicit": {
-                        "authorizationUrl": "http://yourauthurl.com",
-                        "scopes": {
-                            "scope_name": "Enter your scopes here"
-                        }
-                    }
-                }
-            }
+         "BearerAuth": {
+                  "type": "http",
+                  "scheme": "bearer",
+                  "bearerFormat": "JWT"
         }
+        }
+        
     }
 }
