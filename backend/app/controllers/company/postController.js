@@ -1900,9 +1900,9 @@ class post {
       let channelIds = channels.map((c) => c._id);
 
       let where = {
-        status: {
-          $nin: [2],
-        },
+        // status: {
+        //   $nin: [2],
+        // },
       };
       if (!!channelIds && channelIds.length) {
         where.channelId = {
