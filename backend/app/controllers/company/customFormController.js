@@ -495,19 +495,7 @@ class customform {
         .populate([
           {
             path: 'assignUsers.businessUnits',
-            select: 'name status sectionId',
-            populate: {
-              path: 'sectionId',
-              select: 'name status departmentId',
-              populate: {
-                path: 'departmentId',
-                select: 'name status companyId',
-                populate: {
-                  path: 'companyId',
-                  select: 'name status',
-                },
-              },
-            },
+            select: 'orgName status',
           },
           {
             path: 'assignUsers.appointments',
