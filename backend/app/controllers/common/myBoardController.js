@@ -1275,7 +1275,7 @@ class myBoard {
                     pipeline: [{
                         $project: {
                             _id: 1,
-                            orgName: 1
+                            name: '$orgName'
                         }
                     }]
                 }
