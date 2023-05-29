@@ -1657,12 +1657,16 @@ class challenge {
         'DirectRewardedBy',
       ];
       let csv = json2csv({ data: totalRecords, fields: headers });
-      await fs.writeFileSync(
-        `./public/challenge/${moment().format('YYYYMMDD')}.csv`,
+      const directory = 'public/challenge';
+      if (!fs.existsSync(directory)) {
+         fs.mkdirSync(directory, { recursive: true });
+     }
+      fs.writeFileSync(
+        `public/challenge/${moment().format('YYYYMMDD')}.csv`,
         csv,
       );
       return __.out(res, 201, {
-        csvLink: `/challenge/${moment().format('YYYYMMDD')}.csv`,
+        csvLink: `challenge/${moment().format('YYYYMMDD')}.csv`,
       });
     } catch (error) {
       logError("Challenge Controller: exportManageChallenge", error.stack)
