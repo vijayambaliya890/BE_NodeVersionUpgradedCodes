@@ -1204,55 +1204,94 @@ class myBoard {
 
   async getWallBunsinessUnit(wallId) {
     try {
-      const wall = await WallModel.findById(wallId)
-        .populate([
-          {
-            path: 'assignUsers.businessUnits',
-            select: 'name sectionId',
-            populate: {
-              path: 'sectionId',
-              select: 'name departmentId',
-              populate: {
-                path: 'departmentId',
-                select: 'name companyId',
-                populate: {
-                  path: 'companyId',
-                  select: 'name',
+        const wall = await WallModel.aggregate([{
+                $match: {
+                    _id: mongoose.Types.ObjectId(wallId)
                 },
-              },
             },
-          },
-        ])
-        .select('assignUsers.businessUnits');
-      if (!!wall) {
-      } else {
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'createdBy',
+                    foreignField: '_id',
+                    as: 'createdBy',
+                    pipeline: [{
+                        $project: {
+                            planBussinessUnitId: 1,
+                        },
+                    }, ],
+                },
+            },
+            {
+                $unwind: '$createdBy'
+            },
+            {
+                $unwind: '$assignUsers'
+            },
+            {
+                $addFields: {
+                    'assignUsers.businessUnits': {
+                        $cond: [{
+                                $eq: ['$assignUsers.allBuToken', true]
+                            },
+                            '$createdBy.planBussinessUnitId',
+                            '$assignUsers.businessUnits',
+                        ],
+                    },
+                },
+            },
+            {
+                $project: {
+                    'businessUnits': '$assignUsers.businessUnits'
+                }
+            },
+            {
+                $group: {
+                    _id: '$_id',
+                    businessUnits: {
+                        $push: '$businessUnits'
+                    },
+                },
+            },
+            {
+                $addFields: {
+                    businessUnits: {
+                        $reduce: {
+                            input: "$businessUnits",
+                            initialValue: [],
+                            in: {
+                                $concatArrays: ["$$value", "$$this"]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $lookup: {
+                    from: 'subsections',
+                    localField: 'businessUnits',
+                    foreignField: '_id',
+                    as: 'businessUnits',
+                    pipeline: [{
+                        $project: {
+                            _id: 1,
+                            orgName: 1
+                        }
+                    }]
+                }
+            }
+
+        ]);
+        if (wall.length > 0) {
+            return wall[0].businessUnits
+        }
         return [];
-      }
-      let businessUnits = wall.assignUsers.reduce((prev, au, i) => {
-        return prev.concat(au.businessUnits);
-      }, []);
-      return await businessUnits
-        .filter((v) => {
-          return (
-            v.sectionId != null &&
-            v.sectionId.departmentId != null &&
-            v.sectionId.departmentId.companyId != null
-          );
-        })
-        .map((v) => {
-          let x = {
-            _id: v._id,
-            name: `${v.sectionId.departmentId.companyId.name} > ${v.sectionId.departmentId.name} > ${v.sectionId.name} > ${v.name}`,
-          };
-          return x;
-        });
-      //return businessUnits;
     } catch (error) {
-      __.log(error);
-      return [];
-      //return __.out(res, 300, 'Something went wrong try later');
+        __.log(error);
+        return [];
+        //return __.out(res, 300, 'Something went wrong try later');
     }
-  }
+}
 
   // Get all Posts - wall base
   async viewPost(req, res) {
