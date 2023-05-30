@@ -1,7 +1,7 @@
 const mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-const postSchema = new Schema({
+const PostLogSchema = new Schema({
 
     wallId: {
         type: Schema.Types.ObjectId,
@@ -138,6 +138,6 @@ const postSchema = new Schema({
     });
 
 // Indexes
-postSchema.index({ wallName: 'text' });
+PostLogSchema.index({ wallName: 'text' });
 
-module.exports = mongoose.model('PostLog', postSchema);
+module.exports = mongoose.model('PostLog', PostLogSchema);

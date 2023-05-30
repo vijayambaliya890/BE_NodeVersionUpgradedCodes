@@ -1,7 +1,7 @@
 const mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-const AppointmentSchema = new Schema({
+const EmojiSchema = new Schema({
     name: {
         type: String,
         default: ''
@@ -29,6 +29,6 @@ const AppointmentSchema = new Schema({
     });
 
 // Indexes
-AppointmentSchema.index({ companyId: 1 });
+EmojiSchema.index({ companyId: 1 });
 
-module.exports = mongoose.model('Emoji', AppointmentSchema);
+module.exports = mongoose.model('Emoji', EmojiSchema);

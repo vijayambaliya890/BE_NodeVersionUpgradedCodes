@@ -57,6 +57,6 @@ const EventBoardSchema = new Schema({
     timestamps: true
 });
 
-const Board = mongoose.model('EventBoard', ShiftSchema);
+const Board = mongoose.model('EventBoard', EventBoardSchema);
 
 module.exports = Board;

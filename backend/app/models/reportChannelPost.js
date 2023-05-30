@@ -1,7 +1,7 @@
 const mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-const postSchema = new Schema({
+const ReportChannelPostSchema = new Schema({
     postId: {
         type: Schema.Types.ObjectId,
         ref: 'Post'
@@ -15,6 +15,6 @@ const postSchema = new Schema({
 });
 
 // Indexes
-postSchema.index({ userId: 1 });
+ReportChannelPostSchema.index({ userId: 1 });
 
-module.exports = mongoose.model('ReportChannelPost', postSchema);
+module.exports = mongoose.model('ReportChannelPost', ReportChannelPostSchema);

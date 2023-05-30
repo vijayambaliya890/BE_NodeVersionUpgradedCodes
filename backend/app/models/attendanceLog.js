@@ -1,7 +1,7 @@
 const mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-const AttendanceSchema = new Schema({
+const AttendanceLogSchema = new Schema({
     userId: {
         type: Schema.Types.ObjectId,
         ref: 'User'
@@ -113,8 +113,8 @@ const AttendanceSchema = new Schema({
 });
 
 // Indexes
-AttendanceSchema.index({ businessUnitId: 1 });
+AttendanceLogSchema.index({ businessUnitId: 1 });
 
-const AttendanceLog = mongoose.model('AttendanceLog', AttendanceSchema);
+const AttendanceLog = mongoose.model('AttendanceLog', AttendanceLogSchema);
 
 module.exports = AttendanceLog;
