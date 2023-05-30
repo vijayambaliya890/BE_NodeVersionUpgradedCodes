@@ -25,4 +25,8 @@ const SkillSetSchema = new Schema({
 }, {
     timestamps: true
   });
+
+// Indexes
+SkillSetSchema.index({ companyId: 1 });
+
 module.exports = mongoose.model('SkillSet', SkillSetSchema);

@@ -62,6 +62,9 @@ const shiftLogSchema = new Schema({
 }, {
     timestamps: true
 });
-const ShiftLog = mongoose.model('ShiftLog', shiftLogSchema);
 
+// Indexes
+shiftLogSchema.index({ businessUnitId: 1, weekNumber: 1 });
+
+const ShiftLog = mongoose.model('ShiftLog', shiftLogSchema);
 module.exports = ShiftLog;

@@ -158,4 +158,11 @@ const WallSchema = new Schema({
 }, {
         timestamps: true
     });
+
+// Indexes
+WallSchema.index({ companyId: 1 });
+WallSchema.index({ createdBy: 1 });
+WallSchema.index({ status: 1 });
+WallSchema.index({ wallName: 'text' });
+
 module.exports = mongoose.model('Wall', WallSchema);

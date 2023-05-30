@@ -168,4 +168,9 @@ const WallPostSchema = new Schema({
 }, {
     timestamps: true
 });
+
+// Indexes
+WallPostSchema.index({ category: 1, status: 1 });
+WallPostSchema.index({ wallId: 1, status: 1, lastUpdated: -1 });
+
 module.exports = mongoose.model('WallPost', WallPostSchema);

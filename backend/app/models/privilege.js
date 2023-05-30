@@ -269,6 +269,8 @@ const PrivilegeSchema = new Schema(
   }
 );
 
-const Privilege = mongoose.model("Privilege", PrivilegeSchema);
+// Indexes
+PrivilegeSchema.index({ flags: 1 });
 
+const Privilege = mongoose.model("Privilege", PrivilegeSchema);
 module.exports = Privilege;

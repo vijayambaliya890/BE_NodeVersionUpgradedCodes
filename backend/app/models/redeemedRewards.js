@@ -146,4 +146,7 @@ const redeemedRewardSchema = new Schema(
   }
 );
 
+// Indexes
+redeemedRewardSchema.index({ userId: 1 });
+
 module.exports = mongoose.model("RedeemedRewards", redeemedRewardSchema);

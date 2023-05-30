@@ -57,6 +57,9 @@ const EventSessionSchema = new Schema({
     timestamps: true
 });
 
+// Indexes
+EventSessionSchema.index({ post: 1 });
+
 const EventSession = mongoose.model('eventsession', EventSessionSchema);
 
 module.exports = EventSession;

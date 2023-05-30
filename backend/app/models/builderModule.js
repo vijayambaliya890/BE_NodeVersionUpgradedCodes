@@ -73,4 +73,7 @@ const BuilderModuleSchema = new Schema({
     timestamps: true
 });
 
+// Indexes
+BuilderModuleSchema.index({ createdBy: 1, updatedAt: 1, companyId: 1 });
+
 module.exports = mongoose.model('BuilderModule', BuilderModuleSchema);

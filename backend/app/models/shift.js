@@ -57,6 +57,9 @@ const ShiftSchema = new Schema({
     timestamps: true
 });
 
-const Shift = mongoose.model('Shift', ShiftSchema);
+// Indexes
+ShiftSchema.index({ businessUnitId: 1, weekRangeStartsAt: 1, weekRangeEndsAt: 1, weekNumber: 1 });
+ShiftSchema.index({ shiftDetails: 1 });
 
+const Shift = mongoose.model('Shift', ShiftSchema);
 module.exports = Shift;

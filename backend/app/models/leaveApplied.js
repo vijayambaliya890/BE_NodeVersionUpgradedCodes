@@ -190,4 +190,8 @@ const LeaveAppliedSchema = new Schema(
     timestamps: true,
   }
 );
+// Indexes
+LeaveAppliedSchema.index({ swapLogId: 1 });
+LeaveAppliedSchema.index({ userId: 1, startDate: 1, leaveTypeId: 1 });
+
 module.exports = mongoose.model("LeaveApplied", LeaveAppliedSchema);

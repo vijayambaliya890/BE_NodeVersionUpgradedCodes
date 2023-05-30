@@ -37,4 +37,8 @@ const LeaveTypeSchema = new Schema({
 }, {
         timestamps: true
     });
+
+// Indexes
+LeaveTypeSchema.index({ companyId: 1, name: 'text' });
+
 module.exports = mongoose.model('LeaveType', LeaveTypeSchema);

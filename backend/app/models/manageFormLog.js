@@ -39,4 +39,10 @@ const manageFormLog = new Schema({
 }, {
         timestamps: true
     });
+
+// Indexes
+manageFormLog.index({ companyId: 1 });
+manageFormLog.index({ createdAt: 1 });
+manageFormLog.index({ manageFormId: 1 });
+
 module.exports = mongoose.model('ManageFormLog', manageFormLog);

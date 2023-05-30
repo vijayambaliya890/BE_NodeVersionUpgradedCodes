@@ -174,6 +174,10 @@ const NotificationSchema = new Schema({
     timestamps: true,
     autoIndex: true
 });
-NotificationSchema.index({businessUnitId:1});
+
+// Indexes
+NotificationSchema.index({ activeFrom: 1, activeTo: 1, businessUnitId: 1 });
+NotificationSchema.index({ businessUnitId: 1 });
+NotificationSchema.index({ notifyOverAllUsers: 1 });
 
 module.exports = mongoose.model('Notification', NotificationSchema);

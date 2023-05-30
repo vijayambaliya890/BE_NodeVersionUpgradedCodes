@@ -31,4 +31,7 @@ const FormSetting = new Schema({
 }, {
     timestamps: true
 });
+// Indexes
+FormSetting.index({ createdBy: 1 });
+
 module.exports = mongoose.model('FormSetting', FormSetting);

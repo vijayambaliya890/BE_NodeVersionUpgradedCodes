@@ -197,4 +197,10 @@ const postSchema = new Schema({
     timestamps: true,
     usePushEach: true
 });
+
+// Indexes
+postSchema.index({ categoryId: 1 });
+postSchema.index({ channelId: 1 });
+postSchema.index({ 'publishing.startDate': 1, 'publishing.endDate': 1 });
+
 module.exports = mongoose.model('Post', postSchema);

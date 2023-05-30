@@ -202,4 +202,10 @@ const AssignShiftSchema = new Schema({
 }, {
     timestamps: true
 });
+// Indexes
+AssignShiftSchema.index({ businessUnitId: 1, weekRangeStartsAt: 1 });
+AssignShiftSchema.index({ staffId: 1, date: 1 });
+AssignShiftSchema.index({ staff_id: 1, date: 1 });
+AssignShiftSchema.index({ weekNumber: 1, staff_id: 1 });
+
 module.exports = mongoose.model('AssignShift', AssignShiftSchema);

@@ -35,6 +35,10 @@ const RSVPRequestSchema = new Schema({
 	usePushEach: true
 });
 
-const RSVPRequestModel = mongoose.model('RSVPRequest', RSVPRequestSchema);
+// Indexes
+RSVPRequestSchema.index({ event: 1 });
+RSVPRequestSchema.index({ session: 1, event: 1, staff: 1 });
+RSVPRequestSchema.index({ staff: 1 });
 
+const RSVPRequestModel = mongoose.model('RSVPRequest', RSVPRequestSchema);
 module.exports = RSVPRequestModel;

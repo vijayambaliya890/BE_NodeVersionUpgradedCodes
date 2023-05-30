@@ -17,4 +17,8 @@ const PostCategorySchema = new Schema({
 }, {
     timestamps: true
 });
+
+// Indexes
+PostCategorySchema.index({ channelId: 1 });
+
 module.exports = mongoose.model('PostCategory', PostCategorySchema);

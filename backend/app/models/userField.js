@@ -37,4 +37,7 @@ const UserFieldSchema = new Schema({
     timestamps: true
 });
 
+// Indexes
+UserFieldSchema.index({ companyId: 1, fieldName: 1 });
+
 module.exports = mongoose.model('UserField', UserFieldSchema);

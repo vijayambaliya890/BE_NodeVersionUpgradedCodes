@@ -40,6 +40,9 @@ const PostCommentSchema = new Schema({
     timestamps: true
 });
 
+// Indexes
+PostCommentSchema.index({ postId: 1 });
+
 const PostComment = mongoose.model('ChannelPostComment', PostCommentSchema);
 
 module.exports = PostComment;

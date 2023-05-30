@@ -17,5 +17,8 @@ const FacialDataSchema = new Schema({
   }, {
   timestamps: true
 });
+// Indexes
+FacialDataSchema.index({ userId: 1 });
+
 const FacialData = mongoose.model("FacialData", FacialDataSchema);
 module.exports = FacialData;

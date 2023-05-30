@@ -114,6 +114,8 @@ const TemplateSchema = new Schema(
   },
 );
 
-const Template = mongoose.model('Template', TemplateSchema);
+// Indexes
+TemplateSchema.index({ plannedBy: 1, businessUnitId: 1 });
 
+const Template = mongoose.model('Template', TemplateSchema);
 module.exports = Template;

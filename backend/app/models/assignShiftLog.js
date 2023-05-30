@@ -31,4 +31,6 @@ const AssignShiftLogSchema = new Schema({
 }, {
     timestamps: true
 });
+// Indexes
+AssignShiftLogSchema.index({ businessUnitId: 1 });
 module.exports = mongoose.model('AssignShiftLog', AssignShiftLogSchema);

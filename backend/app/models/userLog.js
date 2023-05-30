@@ -29,6 +29,9 @@ const userLogSchema = new Schema({
 }, {
     timestamps: true
 });
-const UserLog = mongoose.model('UserLog', userLogSchema);
 
+// Indexes
+userLogSchema.index({ businessUnitId: 1 });
+
+const UserLog = mongoose.model('UserLog', userLogSchema);
 module.exports = UserLog;

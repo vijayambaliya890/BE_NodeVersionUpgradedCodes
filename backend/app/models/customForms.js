@@ -296,4 +296,8 @@ const CustomFormSchema = new Schema({
 }, {
         timestamps: true
     });
+// Indexes
+CustomFormSchema.index({ createdBy: 1 });
+CustomFormSchema.index({ formName: 1 });
+
 module.exports = mongoose.model('Customform', CustomFormSchema);

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-const EventSessionSchema = new Schema({
+const EventSessionBKPSchema = new Schema({
     eventId: {
         type: Schema.Types.ObjectId,
         ref: 'Post'
@@ -69,6 +69,6 @@ const EventSessionSchema = new Schema({
     timestamps: true
 });
 
-const Sessions = mongoose.model('EventSession', EventSessionSchema);
+const Sessions = mongoose.model('EventSession', EventSessionBKPSchema);
 
 module.exports = Sessions;

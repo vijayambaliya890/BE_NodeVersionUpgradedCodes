@@ -64,4 +64,8 @@ const StaffSapData = new Schema({
 }, {
     timestamps: true
 });
+
+// Indexes
+StaffSapData.index({ staff_Id: 1 });
+
 module.exports = mongoose.model('StaffSapData', StaffSapData);

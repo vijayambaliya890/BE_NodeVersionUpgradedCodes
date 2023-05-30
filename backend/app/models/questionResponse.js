@@ -45,6 +45,10 @@ const questionResponsechema = new Schema(
     autoIndex: true,
   },
 );
+
+// Indexes
 questionResponsechema.index({ notificationId: 1 });
+questionResponsechema.index({ questionId: 1 });
 questionResponsechema.index({ userId: 1 });
+
 module.exports = mongoose.model('QuestionResponse', questionResponsechema);

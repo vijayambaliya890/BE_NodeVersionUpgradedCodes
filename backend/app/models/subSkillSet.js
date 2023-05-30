@@ -17,4 +17,8 @@ const SubSkillSetSchema = new Schema({
 }, {
   timestamps: true
 });
+
+// Indexes
+SubSkillSetSchema.index({ skillSetId: 1 });
+
 module.exports = mongoose.model('SubSkillSet', SubSkillSetSchema);

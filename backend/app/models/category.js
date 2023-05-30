@@ -21,4 +21,6 @@ const CategorySchema = new Schema({
 }, {
     timestamps: true
 });
+// Indexes
+CategorySchema.index({ companyId: 1 });
 module.exports = mongoose.model('Category', CategorySchema);

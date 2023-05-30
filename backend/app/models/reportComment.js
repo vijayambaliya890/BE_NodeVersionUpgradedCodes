@@ -1,7 +1,7 @@
 const mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-const postSchema = new Schema({
+const ReportCommentSchema = new Schema({
     commentId: {
         type: Schema.Types.ObjectId,
         ref: 'PostComment'
@@ -13,4 +13,8 @@ const postSchema = new Schema({
 }, {
         timestamps: true
     });
-module.exports = mongoose.model('ReportComment', postSchema);
+
+// Indexes
+ReportCommentSchema.index({ commentId: 1 });
+
+module.exports = mongoose.model('ReportComment', ReportCommentSchema);

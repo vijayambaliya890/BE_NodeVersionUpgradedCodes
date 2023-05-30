@@ -36,13 +36,6 @@ const UserSchema = new Schema(
       lowercase: true,
       trim: true,
       required: "Email address is required",
-      // validate: {
-      //   validator: function(v) {
-      //     return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(v);
-      //   },
-      //   message: props => `${props.value} Please enter a valid Email address!`
-      // },
-      // match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid Email address']
     },
     profilePicture: {
       type: String,
@@ -58,14 +51,6 @@ const UserSchema = new Schema(
     contactNumber: {
       type: String,
       default: "",
-      // validate: {
-      //   validator: function(v) {
-      //     return /\d{3}-\d{3}-\d{4}/.test(v);
-      //   },
-      //   message: props => `${props.value} is not a valid phone number!`
-      // },
-      // required: [true, 'User phone number required'],
-      // match: [/^[0-9]+$/, 'Please enter a valid Contact Number']
     },
     countryCode: {
       type: String,
@@ -221,7 +206,19 @@ UserSchema.methods.validPassword = function (password) {
   return bcrypt.compareSync(password, user.password);
 };
 
+// Indexes
+UserSchema.index({ _id: 1, status: 1 });
+UserSchema.index({ companyId: 1 });
+UserSchema.index({ companyId: 1, parentBussinessUnitId: 1, status: 1 });
+UserSchema.index({ isBallotAdmin: 1 });
+UserSchema.index({ leaveGroupId: 1 });
 UserSchema.index({ name: "text" });
-const User = mongoose.model("User", UserSchema);
+UserSchema.index({ parentBussinessUnitId: 1 });
+UserSchema.index({ planBussinessUnitId: 1 });
+UserSchema.index({ role: 1 });
+UserSchema.index({ staffId: 1, companyId: 1 });
+UserSchema.index({ subSkillSets: 1, status: 1 });
+UserSchema.index({ viewBussinessUnitId: 1 });
 
+const User = mongoose.model("User", UserSchema);
 module.exports = User;

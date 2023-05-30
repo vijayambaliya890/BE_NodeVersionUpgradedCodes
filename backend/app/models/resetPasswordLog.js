@@ -18,4 +18,8 @@ const resetPasswordSchema = new Schema({
 }, {
         timestamps: true
     })
+
+// Indexes
+resetPasswordSchema.index({ resetUserId: 1 });
+
 module.exports = mongoose.model('ResetPasswordLog', resetPasswordSchema);

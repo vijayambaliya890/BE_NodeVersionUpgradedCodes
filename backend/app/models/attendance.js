@@ -111,6 +111,10 @@ const AttendanceSchema = new Schema({
     timestamps: true
 });
 
+// Indexes
+AttendanceSchema.index({ shiftDetailId: 1, userId: 1 });
+AttendanceSchema.index({ status: 1, createdAt: 1 });
+
 const Attendance = mongoose.model('Attendance', AttendanceSchema);
 
 module.exports = Attendance;

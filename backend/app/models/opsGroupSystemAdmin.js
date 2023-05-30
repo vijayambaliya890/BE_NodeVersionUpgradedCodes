@@ -35,4 +35,8 @@ const opsGroupSystemSchema = new Schema({
     timestamps: true
 });
 
+// Indexes
+opsGroupSystemSchema.index({ companyId: 1 });
+opsGroupSystemSchema.index({ userId: 1 });
+
 module.exports = mongoose.model('OpsGroupSystem', opsGroupSystemSchema);

@@ -209,4 +209,7 @@ const PageSettingSchema = new Schema(
   }
 );
 
+// Indexes
+PageSettingSchema.index({ companyId: 1 });
+
 module.exports = mongoose.model("pageSetting", PageSettingSchema);
