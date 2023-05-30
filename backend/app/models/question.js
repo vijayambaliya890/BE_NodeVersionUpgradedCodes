@@ -167,5 +167,9 @@ const QuestionSchema = new Schema({
     timestamps: true,
     autoIndex: true
 });
-QuestionSchema.index({moduleId:1, status:1})
+
+// Indexes
+QuestionSchema.index({ moduleId: 1 });
+QuestionSchema.index({ moduleId: 1, status: 1 });
+
 module.exports = mongoose.model('Question', QuestionSchema);

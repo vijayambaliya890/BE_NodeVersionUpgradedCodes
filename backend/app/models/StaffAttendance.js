@@ -31,7 +31,10 @@ const StaffAttendaceSchema = new Schema({
     usePushEach: true,
 	autoIndex: true
 });
-StaffAttendaceSchema.index({session:1,event:1})
-const StaffAttendaceModel = mongoose.model('staffAttendance', StaffAttendaceSchema);
 
+// Indexes
+StaffAttendaceSchema.index({ event: 1, session: 1, staff: 1 });
+StaffAttendaceSchema.index({ session: 1, event: 1 });
+
+const StaffAttendaceModel = mongoose.model('staffAttendance', StaffAttendaceSchema);
 module.exports = StaffAttendaceModel;

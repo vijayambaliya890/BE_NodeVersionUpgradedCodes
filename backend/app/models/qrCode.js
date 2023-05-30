@@ -22,4 +22,8 @@ const QrCodeSchema = new Schema({
 }, {
     timestamps: true
 });
+
+// Indexes
+QrCodeSchema.index({ shiftDetailId: 1, userId: 1 });
+
 module.exports = mongoose.model('QrCode', QrCodeSchema);

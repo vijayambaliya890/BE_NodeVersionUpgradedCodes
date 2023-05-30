@@ -56,6 +56,8 @@ const StaffLimitSchema = new Schema({
     timestamps: true
 });
 
-const StaffLimit = mongoose.model('StaffLimit', StaffLimitSchema);
+// Indexes
+StaffLimitSchema.index({ userId: 1, date: 1, shiftDetailId: 1 });
 
+const StaffLimit = mongoose.model('StaffLimit', StaffLimitSchema);
 module.exports = StaffLimit;

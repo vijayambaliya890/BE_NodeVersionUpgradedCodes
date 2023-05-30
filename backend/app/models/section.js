@@ -22,4 +22,8 @@ const SectionSchema = new Schema({
 }, {
   timestamps: true
 });
+
+// Indexes
+SectionSchema.index({ departmentId: 1 });
+
 module.exports = mongoose.model('Section', SectionSchema);

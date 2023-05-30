@@ -34,6 +34,8 @@ const PostCommentSchema = new Schema({
     timestamps: true
 });
 
-const PostComment = mongoose.model('PostComment', PostCommentSchema);
+// Indexes
+PostCommentSchema.index({ postId: 1 });
 
+const PostComment = mongoose.model('PostComment', PostCommentSchema);
 module.exports = PostComment;

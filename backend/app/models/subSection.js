@@ -159,5 +159,11 @@ const SubSectionSchema = new Schema(
     autoIndex: true,
   },
 );
+
+// Indexes
 SubSectionSchema.index({ _id: 1, status: 1 });
+SubSectionSchema.index({ _id: 1, status: 1, sectionId: 1 });
+SubSectionSchema.index({ isUsedInOpsGroup: 1 });
+SubSectionSchema.index({ name: 'text', sectionId: 1 });
+
 module.exports = mongoose.model('SubSection', SubSectionSchema);

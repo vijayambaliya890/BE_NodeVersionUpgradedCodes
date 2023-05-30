@@ -74,4 +74,14 @@ const OpsGroupSchema = new Schema({
         timestamps: true
     });
 
+// Indexes
+OpsGroupSchema.index({ adminId: 1 });
+OpsGroupSchema.index({ buId: 1 });
+OpsGroupSchema.index({ companyId: 1 });
+OpsGroupSchema.index({ createdBy: 1 });
+OpsGroupSchema.index({ opsGroupName: 1 });
+OpsGroupSchema.index({ opsGroupName: 'text' });
+OpsGroupSchema.index({ opsTeamId: 1 });
+OpsGroupSchema.index({ userId: 1 });
+
 module.exports = mongoose.model('OpsGroup', OpsGroupSchema);

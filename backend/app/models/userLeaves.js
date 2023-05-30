@@ -52,6 +52,8 @@ const leavesSchema = new Schema({
     timestamps: true
 });
 
-
+// Indexes
+leavesSchema.index({ fromdate: 1, todate: 1 });
+leavesSchema.index({ userId: 1 });
 
 module.exports = mongoose.model('userleave', leavesSchema);

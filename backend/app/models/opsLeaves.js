@@ -59,32 +59,8 @@ const opsLeaveSchema = new Schema({
     timestamps: true
 });
 
+// Indexes
+opsLeaveSchema.index({ ballots: 1 });
+opsLeaveSchema.index({ opsGroupId: 1 });
 
-// const opsLeaveSchema = new Schema({
-//     createdBy:{
-//       type: Schema.Types.ObjectId,
-//       ref: 'User'
-//     },
-//     ballots:[{
-//         type: Schema.Types.ObjectId,
-//         ref: 'Ballot'
-//     }],
-//     adminId:[{
-//         type: Schema.Types.ObjectId,
-//         ref: 'User'
-//     }],
-//     opsGroupId:[{
-//         type: Schema.Types.ObjectId,
-//         ref: 'OpsGroup'
-//     }],
-//     weekRange:[],
-//     companyId:{
-//         type: Schema.Types.ObjectId,
-//         ref: 'companies'
-//     },
-//     monthRange:[],
-//     slotRange:[]
-// },{
-//     timestamps: true
-// });
 module.exports = mongoose.model('opsLeaveManage', opsLeaveSchema);

@@ -83,4 +83,9 @@ const ChannelSchema = new Schema(
     timestamps: true,
   },
 );
+
+// Indexes
+ChannelSchema.index({ companyId: 1, name: 1, createdBy: 1 });
+ChannelSchema.index({ companyId: 1, name: 'text' });
+ChannelSchema.index({ createdBy: 1 });
 module.exports = mongoose.model('Channel', ChannelSchema);

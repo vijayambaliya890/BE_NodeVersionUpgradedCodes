@@ -17,4 +17,8 @@ const WallCategorySchema = new Schema({
 }, {
         timestamps: true
     });
+
+// Indexes
+WallCategorySchema.index({ wallId: 1, status: 1 });
+
 module.exports = mongoose.model('WallCategory', WallCategorySchema);

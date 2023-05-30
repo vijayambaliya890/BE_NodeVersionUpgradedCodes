@@ -176,4 +176,8 @@ const LeaveLogSchema = new Schema(
         timestamps: true,
     }
 );
+
+// Indexes
+LeaveLogSchema.index({ userId: 1 });
+
 module.exports = mongoose.model("LeaveLog", LeaveLogSchema);

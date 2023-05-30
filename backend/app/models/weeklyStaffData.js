@@ -31,6 +31,8 @@ const WeeklyStaffDataSchema = new Schema({
     timestamps: true
 });
 
-const WeeklyStaffData = mongoose.model('WeeklyStaffData', WeeklyStaffDataSchema);
+// Indexes
+WeeklyStaffDataSchema.index({ businessUnitId: 1, weekNumber: 1 });
 
+const WeeklyStaffData = mongoose.model('WeeklyStaffData', WeeklyStaffDataSchema);
 module.exports = WeeklyStaffData;

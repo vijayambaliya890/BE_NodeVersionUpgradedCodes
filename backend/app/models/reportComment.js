@@ -13,4 +13,8 @@ const postSchema = new Schema({
 }, {
         timestamps: true
     });
+
+// Indexes
+postSchema.index({ commentId: 1 });
+
 module.exports = mongoose.model('ReportComment', postSchema);

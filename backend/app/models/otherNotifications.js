@@ -22,4 +22,8 @@ const OtherNotificationSchema = new Schema({
 }, {
     timestamps: true
 });
+
+// Indexes
+OtherNotificationSchema.index({ user: 1 });
+
 module.exports = mongoose.model('OtherNotification', OtherNotificationSchema);

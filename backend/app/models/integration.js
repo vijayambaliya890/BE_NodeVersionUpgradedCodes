@@ -37,4 +37,7 @@ const Integration = new Schema({
     , {
         timestamps: true
     });
+// Indexes
+Integration.index({ companyId: 1 });
+
 module.exports = mongoose.model('Integration', Integration);

@@ -302,5 +302,10 @@ const BallotSchema = new Schema(
     timestamps: true,
   }
 );
+// Indexes
+BallotSchema.index({ businessUnitId: 1 });
+BallotSchema.index({ createdAt: 1, adminId: 1 });
+BallotSchema.index({ opsGroupId: 1 });
+
 BallotSchema.plugin(mongoosePaginate);
 module.exports = mongoose.model("Ballot", BallotSchema);

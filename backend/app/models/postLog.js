@@ -136,4 +136,8 @@ const postSchema = new Schema({
 }, {
         timestamps: true
     });
+
+// Indexes
+postSchema.index({ wallName: 'text' });
+
 module.exports = mongoose.model('PostLog', postSchema);

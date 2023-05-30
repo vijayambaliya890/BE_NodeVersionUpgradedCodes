@@ -39,4 +39,9 @@ const SwapLogSchema = new Schema(
   }
 );
 
+// Indexes
+SwapLogSchema.index({ appliedLeaveTo: 1, toUserId: 1 });
+SwapLogSchema.index({ fromUserId: 1 });
+SwapLogSchema.index({ toUserId: 1 });
+
 module.exports = mongoose.model("SwapLog", SwapLogSchema);

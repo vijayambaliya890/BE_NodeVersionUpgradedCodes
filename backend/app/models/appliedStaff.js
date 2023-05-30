@@ -30,6 +30,9 @@ const AppliedStaffSchema = new Schema({
     timestamps: true
 });
 
+// Indexes
+AppliedStaffSchema.index({ shiftDetailsId: 1, flexiStaff: 1 });
+
 const AppliedStaff = mongoose.model('AppliedStaff', AppliedStaffSchema);
 
 module.exports = AppliedStaff;

@@ -112,6 +112,9 @@ const AttendanceSchema = new Schema({
     timestamps: true
 });
 
+// Indexes
+AttendanceSchema.index({ businessUnitId: 1 });
+
 const AttendanceLog = mongoose.model('AttendanceLog', AttendanceSchema);
 
 module.exports = AttendanceLog;

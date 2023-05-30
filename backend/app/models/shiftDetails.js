@@ -302,6 +302,10 @@ const ShiftDetailsSchema = new Schema(
   },
 );
 
-const ShiftDetails = mongoose.model('ShiftDetails', ShiftDetailsSchema);
+// Indexes
+ShiftDetailsSchema.index({ date: 1 });
+ShiftDetailsSchema.index({ shiftId: 1 });
+ShiftDetailsSchema.index({ startTime: 1 });
 
+const ShiftDetails = mongoose.model('ShiftDetails', ShiftDetailsSchema);
 module.exports = ShiftDetails;

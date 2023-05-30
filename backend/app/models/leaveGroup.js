@@ -91,4 +91,8 @@ const LeaveGroupSchema = new Schema({
 }, {
         timestamps: true
     });
+
+// Indexes
+LeaveGroupSchema.index({ companyId: 1, name: 'text' });
+
 module.exports = mongoose.model('LeaveGroup', LeaveGroupSchema);

@@ -17,5 +17,10 @@ const ReportingLocationSchema = new Schema({
 }, {
     timestamps: true
 });
+
+// Indexes
+ReportingLocationSchema.index({ companyId: 1 });
+ReportingLocationSchema.index({ name: 'text', status: 1 });
+
 const ReportingLocation = mongoose.model('ReportingLocation', ReportingLocationSchema);
 module.exports = ReportingLocation

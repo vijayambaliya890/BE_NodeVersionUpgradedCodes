@@ -37,6 +37,8 @@ const PostViewSchema = new Schema({
     timestamps: true
 });
 
-const PostView = mongoose.model('PostView', PostViewSchema);
+// Indexes
+PostViewSchema.index({ postId: 1 });
 
+const PostView = mongoose.model('PostView', PostViewSchema);
 module.exports = PostView;

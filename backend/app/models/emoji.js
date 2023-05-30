@@ -27,4 +27,8 @@ const AppointmentSchema = new Schema({
 }, {
         timestamps: true
     });
+
+// Indexes
+AppointmentSchema.index({ companyId: 1 });
+
 module.exports = mongoose.model('Emoji', AppointmentSchema);

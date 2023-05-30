@@ -55,4 +55,8 @@ const manageSchema = new Schema({
 },{
     timestamps: true
 });
+
+// Indexes
+manageSchema.index({ customFormId: 1 });
+
 module.exports = mongoose.model('ManageForm', manageSchema);

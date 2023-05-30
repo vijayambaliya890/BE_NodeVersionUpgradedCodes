@@ -92,4 +92,9 @@ const SchemeSchema = new Schema(
     timestamps: true,
   },
 );
+
+// Indexes
+SchemeSchema.index({ businessUnitId: 1 });
+SchemeSchema.index({ companyID: 1 });
+
 module.exports = mongoose.model('Scheme', SchemeSchema);

@@ -25,6 +25,9 @@ const ChallengeStatusSchema = new Schema(
   }
 );
 
+// Indexes
+ChallengeStatusSchema.index({ challengeId: 1, userId: 1 });
+ChallengeStatusSchema.index({ userId: 1 });
 module.exports = mongoose.model(
   "ChallengeStatus",
   ChallengeStatusSchema

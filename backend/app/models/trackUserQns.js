@@ -43,5 +43,8 @@ const trackUserQnsSchema = new Schema(
     autoIndex: true,
   },
 );
+
+// Indexes
 trackUserQnsSchema.index({ notificationId: 1, userId: 1 });
+
 module.exports = mongoose.model('trackUserQns', trackUserQnsSchema);

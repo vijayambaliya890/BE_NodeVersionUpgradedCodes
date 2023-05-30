@@ -18,6 +18,8 @@ const PrivilegeCategorySchema = new Schema({
     timestamps: true
 });
 
-const PrivilegeCategory = mongoose.model('PrivilegeCategory', PrivilegeCategorySchema);
+// Indexes
+PrivilegeCategorySchema.index({ name: 'text' });
 
+const PrivilegeCategory = mongoose.model('PrivilegeCategory', PrivilegeCategorySchema);
 module.exports = PrivilegeCategory;

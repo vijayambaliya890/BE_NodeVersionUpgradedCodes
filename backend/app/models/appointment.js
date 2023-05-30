@@ -17,4 +17,6 @@ const AppointmentSchema = new Schema({
 }, {
     timestamps: true
 });
+// Indexes
+AppointmentSchema.index({ companyId: 1, name: 'text' });
 module.exports = mongoose.model('Appointment', AppointmentSchema);

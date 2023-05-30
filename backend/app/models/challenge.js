@@ -195,4 +195,7 @@ const ChallengeSchema = new Schema(
   }
 );
 
+// Indexes
+ChallengeSchema.index({ companyId: 1 });
+ChallengeSchema.index({ createdBy: 1 });
 module.exports = mongoose.model("Challenge", ChallengeSchema);

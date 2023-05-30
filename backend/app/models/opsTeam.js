@@ -46,4 +46,8 @@ const opsTeamSchema = new Schema({
         timestamps: true
     });
 
+// Indexes
+opsTeamSchema.index({ name: 'text' });
+opsTeamSchema.index({ userId: 1, opsGroupId: 1 });
+
 module.exports = mongoose.model('opsTeam', opsTeamSchema)

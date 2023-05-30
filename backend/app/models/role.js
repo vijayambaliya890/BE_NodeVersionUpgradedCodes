@@ -29,6 +29,9 @@ const roleSchema = new Schema({
 }, {
     timestamps: true
 });
-const Role = mongoose.model('Role', roleSchema);
 
+// Indexes
+roleSchema.index({ companyId: 1, name: 'text' });
+
+const Role = mongoose.model('Role', roleSchema);
 module.exports = Role;

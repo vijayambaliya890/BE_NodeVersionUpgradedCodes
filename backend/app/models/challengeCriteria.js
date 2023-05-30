@@ -63,4 +63,6 @@ const ChallengeCriteriaSchema = new Schema(
   }
 );
 
+// Indexes
+ChallengeCriteriaSchema.index({ userId: 1, criteriaSourceType: 1 });
 module.exports = mongoose.model("ChallengeCriteria", ChallengeCriteriaSchema);

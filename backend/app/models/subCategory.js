@@ -17,4 +17,8 @@ const SubCategorySchema = new Schema({
 }, {
     timestamps: true
 });
+
+// Indexes
+SubCategorySchema.index({ categoryId: 1 });
+
 module.exports = mongoose.model('SubCategory', SubCategorySchema);
