@@ -74,6 +74,6 @@ const BuilderModuleSchema = new Schema({
 });
 
 // Indexes
-BuilderModuleSchema.index({ createdAt: 1, updatedAt: 1, companyId: 1 });
+BuilderModuleSchema.index({ createdBy: 1, updatedAt: 1, companyId: 1 });
 
 module.exports = mongoose.model('BuilderModule', BuilderModuleSchema);
