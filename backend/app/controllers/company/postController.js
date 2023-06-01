@@ -1997,9 +1997,6 @@ class post {
       const postId = req.params.postId;
       let postData = await this.readPost({
         _id: postId,
-        status: {
-          $nin: [2],
-        },
       });
 
       if (!postData) return res.badRequest('News/Event Not Found');
