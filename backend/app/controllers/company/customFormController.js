@@ -3526,10 +3526,7 @@ class customform {
           'Status',
         ]),
       );
-      let csv = json2csv({
-        data: responseBody,
-        fields: headers,
-      });
+      let csv = json2csv(responseBody, headers);
       fs.writeFile(
         `./public/uploads/customForm/${customFormId}.csv`,
         csv,
