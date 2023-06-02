@@ -212,7 +212,7 @@ class ReportPost {
         _id: req.body.postId,
       })
         .populate({
-          path: 'ChannelId',
+          path: 'channelId',
           select: '_id name',
         })
         .lean();
