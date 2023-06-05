@@ -5033,7 +5033,6 @@ class staffShift {
         userId = req.body.userId;
       }
       let shiftDetails = await ShiftDetails.findOne({ _id: shiftDetailId });
-      console.log('-----shiftDetails-----',shiftDetails)
       let result = await this.reduceLimitRequestShiftChange(
         res,
         userId,
