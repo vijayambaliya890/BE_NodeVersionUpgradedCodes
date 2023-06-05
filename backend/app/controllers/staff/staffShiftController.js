@@ -4465,7 +4465,7 @@ class staffShift {
         ) {
           // Change Status in
           parentShiftDetails.requestedUsers.map((e) =>{
-            if((setStatus == 2 && req.user._id.toString() == e.userId.toString()) || (setStatus == 1 && req.user._id.toString() == e.userId.toString())){
+            if((setStatus == 1 || setStatus == 2) && req.user._id.toString() == e.userId.toString()){
               e.status = setStatus;
               currentUserData = elem;
             }
