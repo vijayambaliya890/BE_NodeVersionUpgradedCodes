@@ -4416,7 +4416,7 @@ class staffShift {
           $gt: moment().utc().format(),
         },
       }).populate({
-        path: 'requestUsers',
+        path: 'requestedUsers',
         select: 'name deviceToken',
       });
       let userId = req.user._id;
@@ -4464,8 +4464,12 @@ class staffShift {
           requestedShiftDetails._id.equals(elem.shiftDetailsId)
         ) {
           // Change Status in
-          parentShiftDetails.requestedUsers[int].status = setStatus;
-          currentUserData = elem;
+          parentShiftDetails.requestedUsers.map((e) =>{
+            if((setStatus == 1 || setStatus == 2) && req.user._id.toString() == e.userId.toString()){
+              e.status = setStatus;
+              currentUserData = elem;
+            }
+          })
         }
         if (
           parentShiftDetails.requestedUsers[int].status == 0 &&
@@ -4635,9 +4639,9 @@ class staffShift {
       }
     } catch (err) {
       __.log(err);
-      if (setStatus == 1) {
+      // if (setStatus == 1) {
         //this.reduceLimit(req.user._id, req.body.shiftDetailsId, 0);
-      }
+      // }
       return __.out(res, 500);
     }
   }
