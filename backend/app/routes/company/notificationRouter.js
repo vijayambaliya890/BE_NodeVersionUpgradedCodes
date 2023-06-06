@@ -53,6 +53,15 @@ notificationRouter.post('/read', async (req, res) => {
     }
 });
 
+notificationRouter.get('/readAcknowledgedAndUnreadUser/:_id', async (req, res) => {
+    const routeprivilege = await __.getPrivilegeData(req.user);
+    if (routeprivilege.viewNotification) {
+        notificationController.getUserwhoUnreadOrAchknowledgedNotification(req, res);
+    } else {
+        return __.out(res, 300, 'This account is not permitted to access');
+    }
+});
+
 notificationRouter.get('/viewAllNotification/:businessUnitId', async (req, res) => {
     const routeprivilege = await __.getPrivilegeData(req.user);
     if (routeprivilege.viewNotification) {
