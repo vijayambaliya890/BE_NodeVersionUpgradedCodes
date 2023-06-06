@@ -192,10 +192,8 @@ class notification {
         whereData,
         req.query,
       );
-      console.log('read notification called', notificationDetails);
       return __.out(res, 201, notificationDetails);
     } catch (err) {
-      logError('read notification has error', err);
       logError('read notification has error.stack', err.stack);
       return __.out(res, 500);
     }
@@ -203,6 +201,7 @@ class notification {
 
   async getUserwhoUnreadOrAchknowledgedNotification(req, res) {
     try {
+      logInfo('getUserwhoUnreadOrAchknowledgedNotification called');
       const { page, limit, from } = req.query;
       const pageNum = parseInt(page) || 0;
       const limitInt = parseInt(limit) || 10;
@@ -245,8 +244,8 @@ class notification {
         },
       ]);
       res.status(201).json({ data: data[0]?.users });
-    } catch (e) {
-      logError('getUserwhoUnreadNotification has error', e.stack);
+    } catch (error) {
+      logError('getUserwhoUnreadOrAchknowledgedNotification has error', error.stack);
       __.out(res, 500);
     }
   }
