@@ -7016,9 +7016,6 @@ class shift {
       }
 
       let currentReqShift = shiftDetailsData.currentReqShift._id;
-      shiftDetailsData.activeStatus = false;
-      shiftDetailsData.currentReqShift = null;
-      await shiftDetailsData.save();
 
       /* Create Shift Log */
       let logMetaData = await Shift.findOne({
@@ -7043,7 +7040,10 @@ class shift {
         existingShift: shiftDetailsData._id,
       };
       await shiftLogController.create(statusLogData, res);
-      // await this.updateRedis(logMetaData.businessUnitId);
+
+      shiftDetailsData.activeStatus = false;
+      shiftDetailsData.currentReqShift = null;
+      await shiftDetailsData.save();
       return __.out(res, 201, 'Shift requesting is stopped');
     } catch (err) {
       __.log(err);
