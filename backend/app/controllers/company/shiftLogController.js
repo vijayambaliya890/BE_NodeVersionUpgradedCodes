@@ -19,6 +19,8 @@ class shiftLog {
     try {
       let insert = {
         userId: data.userId,
+        requestedShift: data.requestedShift,
+        existingShift: data.existingShift,
         businessUnitId: data.businessUnitId,
         status: data.status,
         weekNumber: data.weekNumber,

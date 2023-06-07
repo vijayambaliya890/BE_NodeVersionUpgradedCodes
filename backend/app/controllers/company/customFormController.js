@@ -817,6 +817,7 @@ class customform {
     try {
       let data = await AssignUserRead.getUserInAssignedUser(req.user, CustomForm)
       let allData = await CustomForm.find({ _id : { $in : data } } );
+      allData.sort((a, b) => b.updatedAt - a.updatedAt);
       let response = {
         data: allData,
       };
