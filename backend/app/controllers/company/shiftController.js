@@ -6642,7 +6642,7 @@ class shift {
         }
       }
       for (let elemBackup of shiftDetailsData.backUpStaffs) {
-        await this.reduceLimitCancel(res, elemConfirm._id, shiftDetailsData);
+        await this.reduceLimitCancel(res, elemBackup._id, shiftDetailsData);
         if (elemBackup.deviceToken != null) {
           usersDeviceTokens.push(elemBackup.deviceToken);
         }
@@ -7827,7 +7827,7 @@ class shift {
           data: null,
         });
       }
-      const reduceLimitData = this.reduceLimitAfterDeny(
+      const reduceLimitData = await this.reduceLimitAfterDeny(
         res,
         userId,
         shiftDetailsData,
@@ -8211,7 +8211,7 @@ class shift {
       } else {
         otDuration = -1 * extendedDuration;
       }
-      const value = await StaffLimit.update(
+      const value = await StaffLimit.updateOne(
         { userId: userId, shiftDetailId: shiftDetails._id },
         { $inc: { normalDuration: normalDuration, otDuration: otDuration } },
       );
