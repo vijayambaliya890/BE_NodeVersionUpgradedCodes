@@ -177,7 +177,7 @@ const NotificationSchema = new Schema({
 
 // Indexes
 NotificationSchema.index({ activeFrom: 1, activeTo: 1, businessUnitId: 1 });
-NotificationSchema.index({ businessUnitId: 1 });
 NotificationSchema.index({ notifyOverAllUsers: 1 });
+NotificationSchema.index({ businessUnitId:1, createdAt:-1});
 
 module.exports = mongoose.model('Notification', NotificationSchema);
