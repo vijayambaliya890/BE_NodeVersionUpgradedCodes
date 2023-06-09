@@ -109,7 +109,7 @@ module.exports.readAll = async (req, res) => {
   try {
     const companyId = mongoose.Types.ObjectId(req.user.companyId);
     let data = await OpsGroup.find(
-      { companyId: companyId, isDelete: false, adminId: req.user._id },
+      { companyId: companyId, isDelete: false, adminId: req.user._id, "opsGroupName": { $regex: '.*' + req.body.search + '.*', $options: "i" }},
       { adminId: 0, companyId: 0 },
     ).populate([
       {
