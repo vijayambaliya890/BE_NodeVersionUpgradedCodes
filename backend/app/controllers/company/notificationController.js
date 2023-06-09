@@ -88,7 +88,11 @@ class notification {
         }
 
         insert.assignUsers = insert.assignUsers || [];
-        let userIds = await AssignUserRead.read(insert.assignUsers, null, insert.createdBy);
+        let userIds = await AssignUserRead.read(
+          insert.assignUsers,
+          null,
+          insert.createdBy,
+        );
         userIds = userIds.users;
         if (userIds.length == 0 && insert.status == 1) {
           return __.out(res, 300, `No users found to send this notification`);
@@ -190,11 +194,62 @@ class notification {
       );
       return __.out(res, 201, notificationDetails);
     } catch (err) {
-      logError('read notification has error', err);
       logError('read notification has error.stack', err.stack);
       return __.out(res, 500);
     }
   }
+
+  async getUserwhoUnreadOrAchknowledgedNotification(req, res) {
+    try {
+      logInfo('getUserwhoUnreadOrAchknowledgedNotification called');
+      const { page, limit, from } = req.query;
+      const pageNum = parseInt(page) || 0;
+      const limitInt = parseInt(limit) || 10;
+      const skip = (pageNum - 1) * limit;
+
+      let project = { notifyUnreadUsers: 1 };
+      let path = 'notifyUnreadUsers';
+      if (from === 'acknowledged') {
+        project = { notifyAcknowledgedUsers: 1 };
+        path = 'notifyAcknowledgedUsers';
+      }
+
+      const notificationId = req.params._id;
+      const data = await Notification.aggregate([
+        { $match: { _id: mongoose.Types.ObjectId(notificationId) } },
+        { $project: project },
+        {
+          $lookup: {
+            from: 'users',
+            localField: path,
+            foreignField: '_id',
+            as: 'users',
+            pipeline: [
+              {
+                $match: {
+                  status: 1,
+                },
+              },
+              // { $skip: skip },
+              // { $limit: limitInt },
+              { $project: { name: 1, staffId: 1 } },
+            ],
+          },
+        },
+        {
+          $project: {
+            users: 1,
+            _id: 0,
+          },
+        },
+      ]);
+      res.status(201).json({ data: data[0]?.users });
+    } catch (error) {
+      logError('getUserwhoUnreadOrAchknowledgedNotification has error', error.stack);
+      __.out(res, 500);
+    }
+  }
+
   async update(req, res) {
     try {
       // let reqFields = ['businessUnitId', 'subCategoryId', 'effectiveFrom', 'activeFrom', 'activeTo', 'title', 'subTitle', 'description', 'isDynamic', 'status'];
@@ -250,7 +305,11 @@ class notification {
           insert.notificationAttachment = req.file.path.substring(6);
         }
         insert.assignUsers = insert.assignUsers || [];
-        let userIds = await AssignUserRead.read(insert.assignUsers, null, insert.createdBy);
+        let userIds = await AssignUserRead.read(
+          insert.assignUsers,
+          null,
+          insert.createdBy,
+        );
         userIds = userIds.users;
         insert.notifyOverAllUsers = userIds;
         insert.notifyUnreadUsers = userIds;
@@ -602,59 +661,59 @@ class notification {
       const [results] = await Promise.all([
         // Notification.countDocuments(
         //   { ...condition, ...searchCondition }),
-          Notification.aggregate([
-            {
-              $match: { ...condition, ...searchCondition },
+        Notification.aggregate([
+          {
+            $match: { ...condition, ...searchCondition },
+          },
+          { $sort: { [sortWith]: sortBy === 'desc' ? -1 : 1 } },
+          // { $skip: (page - 1) * parseInt(limit) },
+          // { $limit: parseInt(limit) },
+          {
+            $lookup: {
+              from: 'subcategories',
+              localField: 'subCategoryId',
+              foreignField: '_id',
+              as: 'subCategory',
             },
-            { $sort: { [sortWith]: sortBy === 'desc' ? -1 : 1 } },
-            // { $skip: (page - 1) * parseInt(limit) },
-            // { $limit: parseInt(limit) },
-            {
-              $lookup: {
-                from: 'subcategories',
-                localField: 'subCategoryId',
-                foreignField: '_id',
-                as: 'subCategory',
+          },
+          {
+            $unwind: '$subCategory',
+          },
+          {
+            $lookup: {
+              from: 'categories',
+              localField: 'subCategory.categoryId',
+              foreignField: '_id',
+              as: 'subCategory.categoryId',
+            },
+          },
+          {
+            $unwind: '$subCategory.categoryId',
+          },
+          {
+            $project: {
+              _id: 1,
+              effectiveFrom: 1,
+              effectiveTo: 1,
+              activeFrom: 1,
+              activeTo: 1,
+              title: 1,
+              subTitle: 1,
+              description: 1,
+              notificationAttachment: 1,
+              subCategory: 1,
+              isAcknowledged: {
+                $setIsSubset: [
+                  [mongoose.Types.ObjectId(data.userId)],
+                  '$notifyAcknowledgedUsers',
+                ],
               },
+              moduleIncluded: 1,
+              moduleId: 1,
+              viewOnly: 1,
             },
-            {
-              $unwind: '$subCategory',
-            },
-            {
-              $lookup: {
-                from: 'categories',
-                localField: 'subCategory.categoryId',
-                foreignField: '_id',
-                as: 'subCategory.categoryId',
-              },
-            },
-            {
-              $unwind: '$subCategory.categoryId',
-            },
-            {
-              $project: {
-                _id: 1,
-                effectiveFrom: 1,
-                effectiveTo: 1,
-                activeFrom: 1,
-                activeTo: 1,
-                title: 1,
-                subTitle: 1,
-                description: 1,
-                notificationAttachment: 1,
-                subCategory: 1,
-                isAcknowledged: {
-                  $setIsSubset: [
-                    [mongoose.Types.ObjectId(data.userId)],
-                    '$notifyAcknowledgedUsers',
-                  ],
-                },
-                moduleIncluded: 1,
-                moduleId: 1,
-                viewOnly: 1,
-              },
-            },
-          ]),
+          },
+        ]),
       ]);
       // Add Mimetype for attached files
       for (let index in results) {
@@ -791,7 +850,7 @@ class notification {
       let { sortBy, sortWith, page, limit, search } = query;
       const pageNum = !!page ? parseInt(page) : 0;
       limit = !!limit ? parseInt(limit) : 10;
-      const skip = (pageNum - 1) / limit;
+      const skip = (pageNum - 1) * limit;
       if (search) {
         whereData.title = {
           $regex: search,
@@ -818,99 +877,6 @@ class notification {
               match: {
                 status: 1,
               },
-              // populate: {
-              //   path: 'sectionId',
-              //   select: 'name status',
-              //   match: {
-              //     status: 1,
-              //   },
-              //   populate: {
-              //     path: 'departmentId',
-              //     select: 'name status',
-              //     match: {
-              //       status: 1,
-              //     },
-              //     populate: {
-              //       path: 'companyId',
-              //       select: 'name status',
-              //       match: {
-              //         status: 1,
-              //       },
-              //     },
-              //   },
-              // },
-            },
-            {
-              path: 'notifyByBusinessUnits',
-              strictPopulate: false,
-              select: 'name status',
-              match: {
-                status: 1,
-              },
-              populate: {
-                path: 'sectionId',
-                select: 'name status',
-                match: {
-                  status: 1,
-                },
-                populate: {
-                  path: 'departmentId',
-                  select: 'name status',
-                  match: {
-                    status: 1,
-                  },
-                  populate: {
-                    path: 'companyId',
-                    select: 'name status',
-                    match: {
-                      status: 1,
-                    },
-                  },
-                },
-              },
-            },
-            {
-              path: 'notifyBySubSkillSets',
-              select: 'name status',
-              strictPopulate: false,
-              match: {
-                status: 1,
-              },
-              populate: {
-                path: 'skillSetId',
-                select: 'name status',
-                match: {
-                  status: 1,
-                },
-              },
-            },
-            {
-              path: 'notifyByAppointments',
-              select: 'name status',
-              strictPopulate: false,
-              match: {
-                status: 1,
-              },
-            },
-            {
-              path: 'notifyByUsers',
-              strictPopulate: false,
-              select: 'name staffId',
-            },
-            {
-              path: 'notifyOverAllUsers',
-              select: 'name staffId',
-              match: { status: 1 },
-            },
-            {
-              path: 'notifyAcknowledgedUsers',
-              select: 'name staffId',
-              match: { status: 1 },
-            },
-            {
-              path: 'notifyUnreadUsers',
-              select: 'name staffId',
-              match: { status: 1 },
             },
             {
               path: 'assignUsers.businessUnits',
@@ -962,7 +928,10 @@ class notification {
     }
   }
   async addUserToDynamicNotifications(data, res) {
-    let notificationIds = await AssignUserRead.getUserInAssignedUser(data.userData, Notification)
+    let notificationIds = await AssignUserRead.getUserInAssignedUser(
+      data.userData,
+      Notification,
+    );
     // If no notifications found
     if (notificationIds.length == 0) {
       return true;
@@ -1139,8 +1108,6 @@ class notification {
           'title subTitle description notifyUnreadUsers notifyAcknowledgedUsers userAcknowledgedAt moduleId moduleIncluded',
         )
         .lean();
-
-
 
       if (!notificationDetails) {
         return __.out(res, 300, 'Invalid notification');
