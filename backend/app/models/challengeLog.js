@@ -188,6 +188,9 @@ const ChallengeLogSchema = new Schema(
     logDescription: {
       type: String,
       default: ''
+    },
+    updatedFields: {
+      type: Object
     }
   },
   {

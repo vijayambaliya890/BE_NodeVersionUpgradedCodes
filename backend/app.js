@@ -1,5 +1,6 @@
 const os = require('os'),
   mongoose = require('mongoose'),
+  GlobalLogs = require("./app/models/globalLog"),
   express = require('express'),
   app = express(),
   compression = require('compression'),
@@ -253,6 +254,9 @@ app.use(
     session: false,
   }),
   function (req, res, next) {
+    addGlobalLogs(req.method, req.path, req.user._id, req.body).then(()=>{
+      
+    })
     next();
     // if (
     //   !!req.user &&
@@ -268,6 +272,25 @@ app.use(
     // }
   },
 );
+
+async function addGlobalLogs(method, apiPath, userID, payload) {
+    try {
+      if(method !== "GET") {
+        // console.log("Data Log:", method, apiPath, userID, payload)
+          let insertData = {
+            method: method,
+            apiPath: apiPath,
+            userID: userID,
+            payload: payload
+          };
+          new GlobalLogs(insertData).save().then(() => ({}));
+      }
+      return true;
+    } catch (err) {
+        logError(`Adding GlobalLogs is having an error`, err);
+        return false;
+    }
+}
 
 /*Company Routes starts */
 app.use('/facial', facialRoute);
