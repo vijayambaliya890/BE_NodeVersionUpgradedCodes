@@ -389,6 +389,10 @@ class challenge {
       challenge['companyId'] = req.user.companyId;
       challenge.rewardPoints = parseInt(challenge.rewardPoints || 0);
       if (challenge._id) {
+        let existingData = await Challenge.findOne({
+          _id: challenge._id,
+        }).lean();
+        let updatedFields = this.checkUpdatedFields(existingData, challenge);
         Challenge.findOneAndUpdate(
           { _id: challenge._id },
           {
@@ -402,7 +406,7 @@ class challenge {
           .catch((err) => {
             logError('Error in challenge update', err.stack);
           });
-        challenge.challengeId = challenge._id; 
+        challenge.challengeId = challenge._id;
         challenge.logDescription = 'Updated';
         delete challenge['_id'];
         /** get the users for wall/channal */
@@ -432,15 +436,15 @@ class challenge {
           let challengeUsers = [];
           let userData = {};
           promises.push(this.getChallengeStatusModel(
-            !!challenge.nonRewardPointSystemEnabled,
-          )
-            .find({ challengeId: challenge.challengeId })
-            .select('userId')
+              !!challenge.nonRewardPointSystemEnabled,
+            )
+              .find({ challengeId: challenge.challengeId })
+              .select('userId')
             .lean());
             [userData,challengeUsers] = await Promise.all(promises)
-            users = userData.users;
+          users = userData.users;
             const userIds = new Set(challengeUsers?.map((u) => u.userId.toString()));
-            const finalUsers = users?.filter((u) => !userIds.has(u.toString()));
+          const finalUsers = users?.filter((u) => !userIds.has(u.toString()));
           if (finalUsers && finalUsers.length) {
             for (const user of finalUsers) {
               await this.getChallengeStatusModel(
@@ -457,6 +461,7 @@ class challenge {
             __.log('no new users found');
           }
         }
+        challenge.updatedFields = updatedFields
         new ChallengeLog(challenge)
           .save()
           .then(() => {
@@ -470,10 +475,45 @@ class challenge {
         return __.out(res, 300, 'challengeId is missing');
       }
     } catch (error) {
-      logError("Challenge Controller: update", error.stack)
+      logError('Challenge Controller: update', error.stack);
       return __.out(res, 300, 'Something went wrong try later');
     }
   }
+
+  checkUpdatedFields(existingData, requestData) {
+    try {
+      let differentProperties = {};
+
+      // Iterate over the properties of the first object
+      for (let prop in existingData) {
+        // Check if the property exists in both objects and has different values
+        if (
+          existingData.hasOwnProperty(prop) &&
+          requestData.hasOwnProperty(prop) &&
+          existingData[prop]?.toString() !== requestData[prop]?.toString()
+        ) {
+          differentProperties[prop] = [existingData[prop], requestData[prop]];
+        }
+      }
+
+      // Iterate over the properties of the second object
+      for (let prop in requestData) {
+        // Check if the property exists in the second object but not in the first object
+        if (
+          requestData.hasOwnProperty(prop) &&
+          !existingData.hasOwnProperty(prop)
+        ) {
+          differentProperties[prop] = [undefined, requestData[prop]];
+        }
+      }
+      // old value -> new Value
+      return differentProperties;
+    } catch (e) {
+      logError('checkUpdatedFields has error', e.stack)
+      return {}
+    }
+  }
+  
   async create(req, res) {
     try {
       logInfo("Challenge Controller: create", { soruceUser: req.user._id, body: req.body })
