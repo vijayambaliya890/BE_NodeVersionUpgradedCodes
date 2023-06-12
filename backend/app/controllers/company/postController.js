@@ -1126,8 +1126,8 @@ class post {
         );
         return p;
       });
-      let totalCount;
-      let totalUserCount = await Post.count({
+
+      let CountQuery = {
         reportCount: {
           $gt: 0,
         },
@@ -1137,7 +1137,16 @@ class post {
         status: {
           $in: [1, 2],
         },
-      }).lean();
+      };
+      
+      if(req.params.postType === 'event'){
+        CountQuery.postType = {
+          $in: [req.params.postType],
+        };
+      }
+      
+      let totalCount;
+      let totalUserCount = await Post.count(CountQuery).lean();
       if (isSearched) {
         totalCount = await Post.aggregate([
           {

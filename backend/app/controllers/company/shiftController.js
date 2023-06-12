@@ -6560,6 +6560,90 @@ class shift {
       __.out(res, 500);
     }
   }
+
+  async splitShiftCancel(req, res) {
+    try {
+      let splitShiftDetails  = await ShiftDetails.find({
+        randomShiftId: req.body.randomShiftId,
+        shiftId: req.body.shiftId,
+        startTime: {
+          $gt: moment().utc().format(),
+        },
+      })
+        .populate({
+          path: 'shiftId',
+          select: '_id plannedBy',
+          match: {
+            plannedBy: req.user._id,
+          },
+          populate: {
+            path: 'businessUnitId',
+          },
+        })
+        .populate({
+          path: 'confirmedStaffs',
+          select: '_id deviceToken',
+        })
+        .populate({
+          path: 'backUpStaffs',
+          select: '_id deviceToken',
+        });
+
+        for(const shiftDetailsData of splitShiftDetails) {
+          shiftDetailsData.status = 2;
+          await shiftDetailsData.save();
+          let usersDeviceTokens = [];
+          // Loop all shiftdetails
+          for (let elemConfirm of shiftDetailsData.confirmedStaffs) {
+            await this.reduceLimitCancel(res, elemConfirm._id, shiftDetailsData);
+            if (elemConfirm.deviceToken != null) {
+              usersDeviceTokens.push(elemConfirm.deviceToken);
+            }
+          }
+          for (let elemBackup of shiftDetailsData.backUpStaffs) {
+            if (elemBackup.deviceToken != null) {
+              usersDeviceTokens.push(elemBackup.deviceToken);
+            }
+          }
+          if (usersDeviceTokens.length > 0) {
+            var pushData = {
+                title: 'Shift Cancelled',
+                body: 'Your Booked Shift Has been Cancelled',
+              },
+              collapseKey =
+                req.body.shiftDetailsId; /*unique id for this particular shift */
+            FCM.push(usersDeviceTokens, pushData, collapseKey);
+          }
+
+          /* Create Shift Log */
+          let logMetaData = await Shift.findOne({
+            _id: shiftDetailsData.shiftId,
+          })
+            .select(
+              'shiftId businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
+            )
+            .lean();
+
+          /* Add to log */
+          let statusLogData = {
+            userId: req.user._id,
+            status: 11,
+            /* shift created */
+            shiftId: shiftDetailsData.shiftId,
+            weekRangeStartsAt: logMetaData.weekRangeStartsAt,
+            weekRangeEndsAt: logMetaData.weekRangeEndsAt,
+            weekNumber: logMetaData.weekNumber,
+            businessUnitId: logMetaData.businessUnitId,
+            existingShift: shiftDetailsData._id,
+          };
+          await shiftLogController.create(statusLogData, res);
+        }
+        return ({ status: true, message: 'Shift Cancelled Successfully' });
+    } catch (error) {
+      return ({ status: false, message: error });
+    }
+    
+  }
   async cancel(req, res) {
     try {
       logInfo('shift/cancel API Start!', { name: req.user.name, staffId: req.user.staffId });
@@ -6623,6 +6707,17 @@ class shift {
         logError(`shift\cancel API, Previous Request Change is in process `, req.body);
         return __.out(res, 300, 'Previous Request Change is in process');
       }
+
+      if(req.body.isSplitShift) { 
+        req.body.randomShiftId = shiftDetailsData.randomShiftId
+        const returnResponse = await this.splitShiftCancel(req, res);
+        if(returnResponse.status) {
+          return __.out(res, 201, returnResponse.message);
+        } else {
+          __.out(res, 500);
+        }
+      }
+
       shiftDetailsData.status = 2;
       await shiftDetailsData.save();
 
@@ -6642,7 +6737,7 @@ class shift {
         }
       }
       for (let elemBackup of shiftDetailsData.backUpStaffs) {
-        await this.reduceLimitCancel(res, elemConfirm._id, shiftDetailsData);
+        await this.reduceLimitCancel(res, elemBackup._id, shiftDetailsData);
         if (elemBackup.deviceToken != null) {
           usersDeviceTokens.push(elemBackup.deviceToken);
         }
@@ -7016,9 +7111,6 @@ class shift {
       }
 
       let currentReqShift = shiftDetailsData.currentReqShift._id;
-      shiftDetailsData.activeStatus = false;
-      shiftDetailsData.currentReqShift = null;
-      await shiftDetailsData.save();
 
       /* Create Shift Log */
       let logMetaData = await Shift.findOne({
@@ -7043,7 +7135,10 @@ class shift {
         existingShift: shiftDetailsData._id,
       };
       await shiftLogController.create(statusLogData, res);
-      // await this.updateRedis(logMetaData.businessUnitId);
+
+      shiftDetailsData.activeStatus = false;
+      shiftDetailsData.currentReqShift = null;
+      await shiftDetailsData.save();
       return __.out(res, 201, 'Shift requesting is stopped');
     } catch (err) {
       __.log(err);
@@ -7827,7 +7922,7 @@ class shift {
           data: null,
         });
       }
-      const reduceLimitData = this.reduceLimitAfterDeny(
+      const reduceLimitData = await this.reduceLimitAfterDeny(
         res,
         userId,
         shiftDetailsData,
@@ -8211,7 +8306,7 @@ class shift {
       } else {
         otDuration = -1 * extendedDuration;
       }
-      const value = await StaffLimit.update(
+      const value = await StaffLimit.updateOne(
         { userId: userId, shiftDetailId: shiftDetails._id },
         { $inc: { normalDuration: normalDuration, otDuration: otDuration } },
       );

@@ -4825,18 +4825,23 @@ class staffShift {
               };
               var insertAppliedStaffs = await new StaffLimit(obj).save();
               // add new
-            } else {
-              // update
+            }
+            
+            const oldStartTime = new Date(referenceShiftDetails.startTime);
+            const newStartTime = new Date(shiftDetails.startTime);
+            const currentTime = new Date(moment().utc().format());
+
+            if((oldStartTime || newStartTime) >= currentTime){
               const upppp = await StaffLimit.findByIdAndUpdate(
-                staffLimitPresentData._id,
-                {
-                  $inc: {
-                    normalDuration: normalDuration,
-                    otDuration: otDuration,
-                  },
-                  $set: { childShiftId: shiftDetails._id },
-                },
-              );
+                    staffLimitPresentData._id,
+                    {
+                      $inc: {
+                        normalDuration: normalDuration,
+                        otDuration: otDuration,
+                      },
+                      $set: { childShiftId: shiftDetails._id },
+                    },
+                  );
             }
             if (
               parseInt(dayLimit.value) &&
