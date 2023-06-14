@@ -3336,7 +3336,7 @@ class challenge {
           !!challenge.nonRewardPointSystemEnabled,
         )
           .findOne({ challengeId: challenge._id, userId: req.body.userId })
-          .select('_id totalRewardPoints')
+          .select('_id totalRewardPoints status')
           .lean();
         const totalRewardPoints =
           (!!challengeStatus ? challengeStatus.totalRewardPoints || 0 : 0) +
@@ -3740,7 +3740,7 @@ class challenge {
           !!challenge.nonRewardPointSystemEnabled,
         )
           .findOne({ challengeId: challenge._id, userId: userChallenge.userId })
-          .select('_id totalRewardPoints')
+          .select('_id totalRewardPoints status')
           .lean();
         const totalRewardPoints =
           (!!challengeStatus ? challengeStatus.totalRewardPoints || 0 : 0) +
