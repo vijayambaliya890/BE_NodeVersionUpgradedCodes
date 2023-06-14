@@ -3463,11 +3463,11 @@ class assignShift {
           normalDuration = 1 * details.duration;
         }
       }
-      const value = await StaffLimit.update(
+      const value = await StaffLimit.updateOne(
         { userId: details.staff_id, assignShiftId: details._id },
         { $inc: { normalDuration: normalDuration, otDuration: otDuration } },
       );
-      if (value.n == 0 && from == 1 && limitData) {
+      if (value.matchedCount == 0 && from == 1 && limitData) {
         let obj = limitData.staffLimitData;
         obj.assignShiftId = details._id;
         await new StaffLimit(obj).save();
@@ -4356,6 +4356,10 @@ class assignShift {
               status: 1,
             },
           },
+        },
+        {	
+          path: "schemeId",	
+          select: "shiftSchemeType shiftSetup",	
         },
       ]);
       const companySetup = await pageSetting.findOne(
