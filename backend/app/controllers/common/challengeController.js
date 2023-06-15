@@ -449,7 +449,7 @@ class challenge {
             for (const user of finalUsers) {
               await this.getChallengeStatusModel(
                 !!challenge.nonRewardPointSystemEnabled,
-              ).update(
+              ).updateOne(
                 { challengeId: challenge.challengeId, userId: user },
                 {
                   $setOnInsert: { status: true, totalRewardPoints: 0 },
@@ -2238,7 +2238,7 @@ class challenge {
           if (!!_id) {
             await this.getChallengeCriteriaModel(
               !!challenge.nonRewardPointSystemEnabled,
-            ).update({ _id: _id }, { rewardPoints });
+            ).updateOne({ _id: _id }, { rewardPoints });
           }
           totalRewardPoints = totalRewardPoints + rewardPoints;
           if (
@@ -2256,12 +2256,12 @@ class challenge {
           __.log(data, challengeStatus._id, challengeCriteria.userId);
           await this.getChallengeStatusModel(
             !!challenge.nonRewardPointSystemEnabled,
-          ).update(
+          ).updateOne(
             { _id: challengeStatus._id, userId: challengeCriteria.userId },
             data,
           );
           if (!challenge.nonRewardPointSystemEnabled && rewardPoints) {
-            await User.update(
+            await User.updateOne(
               { _id: userId },
               { rewardPoints: user.rewardPoints },
             );
@@ -3353,7 +3353,7 @@ class challenge {
         }
         const result = await this.getChallengeStatusModel(
           !!challenge.nonRewardPointSystemEnabled,
-        ).update(
+        ).updateOne(
           { challengeId: challenge._id, userId: challengeCriteria.userId },
           {
             challengeId: challenge._id,
@@ -3363,7 +3363,7 @@ class challenge {
           },
           { upsert: true },
         );
-        await User.update({ _id: user._id }, { rewardPoints });
+        await User.updateOne({ _id: user._id }, { rewardPoints });
         if (!!result) {
           return __.out(res, 201, 'Reward added successfully');
         }
@@ -3766,7 +3766,7 @@ class challenge {
           }
           await this.getChallengeStatusModel(
             !!challenge.nonRewardPointSystemEnabled,
-          ).update(
+          ).updateOne(
             { challengeId: challenge._id, userId: challengeCriteria.userId },
             {
               challengeId: challenge._id,
@@ -3776,7 +3776,7 @@ class challenge {
             },
             { upsert: true },
           );
-          await User.update({ _id: userChallenge.userId }, { rewardPoints });
+          await User.updateOne({ _id: userChallenge.userId }, { rewardPoints });
         }
       }
 
