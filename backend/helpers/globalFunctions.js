@@ -731,10 +731,10 @@ class globalFunctions {
 
   async isUserAuthorized(req, wallId) {
     try {
-      if (!wallId) return false;
-      var usersWallData = await AssignUserRead.read(req.user, null, null);
-      usersWallData = usersWallData.users;
-      if (!usersWallData.length) return false;
+      if (!wallId) return false;  
+      var usersWallData = await AssignUserRead.getUserInAssignedUser(req.user, Wall);
+      usersWallData= usersWallData.map((wallId)=> wallId.toString())
+      if (!usersWallData.length || !usersWallData.includes(wallId.toString())) return false;
       return true;
     } catch (error) {
       return false;
