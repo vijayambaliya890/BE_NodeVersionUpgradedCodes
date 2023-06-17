@@ -66,7 +66,7 @@ class ballot {
       );
   
       obj.type = 'conductBallot';
-      const conductTime = moment(applicationCloseDate).add(15, 'm').toDate();
+      const conductTime = moment(applicationCloseDate).add(5, 'm').toDate();
   
       const conduct = await agendaNormal.schedule(
         conductTime,
