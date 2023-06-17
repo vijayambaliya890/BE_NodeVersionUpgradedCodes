@@ -8436,7 +8436,6 @@ class ballot {
   }
 
   async getslotsCalculated(ballot, res) {
-    console.log("I am inside getSlots ");
     try {
       let slotdata = [];
       let totalTeamUnassign = 0;
@@ -8481,19 +8480,16 @@ class ballot {
           } else {
             leaveBallanceData = await this.checkIsAnnualLeaveArr(opsGroupUser.userId, ballot.companyId, startYear, false);
           }
-          // const leaveBallanceData = await this.checkIsAnnualLeaveArr(opsGroupUser.userId, ballot.companyId, startYear);
 
           let opsUnassign = 0;
           leaveBallanceData.staffArr.forEach((item) => {
             opsUnassign += Math.floor(item.leaveTypeData.planQuota / leaveFormat);
-            // console.log("ininwww", opsUnassign);
           });
           slots[i].opsGroup.unassignBalanace = opsUnassign;
           for (let j = 0; j <= slots[i].arr.length - 1; j++) {
             let hasTeam = false;
             let currentweek = j + "A";
             opsQuota = slots[i].weekRangeSlot[currentweek].value;
-            // slots[i].opsGroup.BallotBalance = slots[i].opsGroup.BallotBalance + slots[i].weekRangeSlot[currentweek].value;
             let currentOpsSlotValueIs = slots[i].weekRangeSlot[currentweek].value;
 
             //Ops Team is there
@@ -8501,9 +8497,9 @@ class ballot {
 
             if (slots[i].opsTeam.length > 0) {
               hasTeam = true;
+              let promise = [];
               for (let d = 0; d <= slots[i].opsTeam.length - 1; d++) {
                 slots[i].opsTeam[d].unassignBalanace = 0;
-                // let currentweek = j + d.toString();
 
                 let currentweek = 'OG' + j + 'OT' + d.toString();
 
@@ -8516,25 +8512,29 @@ class ballot {
                   slots[i].opsTeam[d].BallotBalance = slots[i].opsTeam[d].BallotBalance + slots[i].weekRangeSlot[currentweek].value;
                 }
                 const opsTeamUser = await OpsTeam.findOne({ _id: slots[i].opsTeam[d]._id }, { userId: 1, _id: 0 }).lean();
-                // const leaveBallanceData = await this.checkIsAnnualLeaveArr(opsTeamUser.userId, ballot.companyId, startYear);
 
                 let leaveBallanceData;
                 if (ballot !== null && ballot.fixedBallotingLeaveType) {
-                  leaveBallanceData = await this.checkIsAnnualLeaveArr(opsTeamUser.userId, ballot.companyId, startYear, true, ballot.leaveTypeId);
+                   promise.push(this.checkIsAnnualLeaveArr(opsTeamUser.userId, ballot.companyId, startYear, true, ballot.leaveTypeId));
                 } else {
-                  leaveBallanceData = await this.checkIsAnnualLeaveArr(opsTeamUser.userId, ballot.companyId, startYear, false);
+                  promise.push(this.checkIsAnnualLeaveArr(opsTeamUser.userId, ballot.companyId, startYear, false));
                 }
+              }
 
-                let teamUnassign = 0;
+              let checkIsAnnualLeaveData = await Promise.all(promise);
+              for (let d = 0; d <= slots[i].opsTeam.length - 1; d++) {
+                slots[i].opsTeam[d].unassignBalanace = 0;
 
-                // console.log("leaveBallanceDataleaveBallanceDataleaveBallanceData", leaveBallanceData)
+                for (let m=0; m<= checkIsAnnualLeaveData.length -1; m++){
+                  let teamUnassign = 0;
 
-                leaveBallanceData.staffArr.forEach((item) => {
-                  teamUnassign += Math.floor(item.leaveTypeData.planQuota / leaveFormat);
-                });
-                slots[i].opsTeam[d].unassignBalanace = teamUnassign;
-                totalinAssign = totalinAssign + slots[i].opsTeam[d].unassignBalanace;
-                slots[i].opsTeam[d].ratioForBalnceQuota = RATIO
+                  checkIsAnnualLeaveData[m].staffArr.forEach((item) => {
+                    teamUnassign += Math.floor(item.leaveTypeData.planQuota / leaveFormat);
+                  });
+                  slots[i].opsTeam[d].unassignBalanace = teamUnassign;
+                  totalinAssign = totalinAssign + slots[i].opsTeam[d].unassignBalanace;
+                  slots[i].opsTeam[d].ratioForBalnceQuota = RATIO
+                }
               }
             }
             if (hasTeam) {
