@@ -8437,8 +8437,8 @@ class ballot {
 
   async getslotsCalculated(ballot, res) {
     try {
-      let slotdata = [];
-      let totalTeamUnassign = 0;
+      // let slotdata = [];
+      // let totalTeamUnassign = 0;
       let Ratio = 0;
       if (ballot.userFrom === 2) {
         //for BU do it later
@@ -8462,7 +8462,7 @@ class ballot {
         let totBQ = 0;
         for (let i = 0; i <= slots.length - 1; i++) {
           let totalQuota = 0;
-          let opsGrpid = slots[i].opsGroup.opsId;
+          // let opsGrpid = slots[i].opsGroup.opsId;
           slots[i].totalUnassignedIs = 0;
 
           slots[i].totalBallotBalance = 0;
@@ -8513,7 +8513,7 @@ class ballot {
                 }
                 const opsTeamUser = await OpsTeam.findOne({ _id: slots[i].opsTeam[d]._id }, { userId: 1, _id: 0 }).lean();
 
-                let leaveBallanceData;
+                // let leaveBallanceData;
                 if (ballot !== null && ballot.fixedBallotingLeaveType) {
                    promise.push(this.checkIsAnnualLeaveArr(opsTeamUser.userId, ballot.companyId, startYear, true, ballot.leaveTypeId));
                 } else {
@@ -8579,8 +8579,8 @@ class ballot {
           //  console.log("After above for are done",slots[i]);
           //   slots[i].totalUnassignedIs=0;
 
-          let opsRatio = slots[i].opsGroup.ratioForBalnceQuota;
-          let totalinAssign = 0;
+          // let opsRatio = slots[i].opsGroup.ratioForBalnceQuota;
+          // let totalinAssign = 0;
           //   if (slots[i].opsTeam.length > 0) {
           //       for(let t=0;t<=slots[i].opsTeam.length-1;t++){
           //           totalinAssign = totalinAssign+slots[i].opsTeam[t].unassignBalanace;
@@ -8604,7 +8604,7 @@ class ballot {
             // slots[i].weekRangeSlot[currentweek].balanceToBeAssigned = slots[i].weekRangeSlot[currentweek].value * opsRatio;
             if (slots[i].opsTeam.length > 0) {
               for (let d = 0; d <= slots[i].opsTeam.length - 1; d++) {
-                let teamRatio = slots[i].opsTeam[d].ratioForBalnceQuota;
+                // let teamRatio = slots[i].opsTeam[d].ratioForBalnceQuota;
                 let currentweek = 'OG' + j + 'OT' + d.toString();
                 slots[i].weekRangeSlot[currentweek].balanceToBeAssigned = 0;
                 //slots[i].weekRangeSlot[currentweek].balanceToBeAssigned = slots[i].weekRangeSlot[currentweek].value * teamRatio;
