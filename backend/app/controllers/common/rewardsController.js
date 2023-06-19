@@ -11,7 +11,9 @@ const mongoose = require("mongoose"),
   NewReward = require('../../models/rewards'),	
   multiparty = require('multiparty'),	
   csv = require('csvtojson'),
-  uuid = require("node-uuid");
+  uuid = require("node-uuid"),
+  fs = require("fs"),
+  json2csv = require('json2csv').parse;
 
 const isJSON = str => {
   try {
@@ -536,8 +538,17 @@ class redeemedRewards {
 
   async rewardsHistory(req, res) {
     try {
-      let query = {};
-      let rewards = await Rewards.aggregate([{
+     let pageNum = req.query.start ? parseInt(req.query.start) : 0,
+      limit = req.query.length ? parseInt(req.query.length) : 10,
+      skip = req.query.skip
+        ? parseInt(req.query.skip)
+        : (pageNum * limit) / limit;
+        
+      const businessUnitId = !!req.query.businessUnit
+      ? mongoose.Types.ObjectId(req.query.businessUnit)
+      : req.user.planBussinessUnitId;
+     
+      let query = [{
         $lookup: {
           from: 'users',
           localField: 'userId',
@@ -549,13 +560,14 @@ class redeemedRewards {
       }, {
         $match: {
           'user.parentBussinessUnitId': {
-            $in: !!req.query.businessUnit ? [mongoose.Types.ObjectId(req.query.businessUnit)] : req.user.planBussinessUnitId
+            $in: businessUnitId
           }
         }
       }, {
         $project: { name: 1, 'user.name': 1, 'user.staffId': 1, 'code': 1, 'points': 1, 'redemption_type': 1, 'createdAt': 1, 'totalRewardPoints': 1, 'user.parentBussinessUnitId': 1, isSuccess: 1 }
-      }]);
-      return __.out(res, 201, rewards);
+      }]
+      let [recordsTotal,rewards ] = await Promise.all([Rewards.aggregate(query).count('totalCount'),Rewards.aggregate(query).skip(skip).limit(limit)])
+      return __.out(res, 201,{ recordsTotal: recordsTotal[0]?.totalCount, rewards});
     } catch (error) {
       __.log(error);
       return __.out(res, 300, 'Something went wrong try later');
