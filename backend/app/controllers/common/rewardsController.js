@@ -540,12 +540,10 @@ class redeemedRewards {
     try {
      let pageNum = req.query.start ? parseInt(req.query.start) : 0,
       limit = req.query.length ? parseInt(req.query.length) : 10,
-      skip = req.query.skip
-        ? parseInt(req.query.skip)
-        : (pageNum * limit) / limit;
+      skip = req.query.skip? parseInt(req.query.skip): (pageNum * limit);
         
       const businessUnitId = !!req.query.businessUnit
-      ? mongoose.Types.ObjectId(req.query.businessUnit)
+      ? [mongoose.Types.ObjectId(req.query.businessUnit)]
       : req.user.planBussinessUnitId;
      
       let query = [{
@@ -565,6 +563,9 @@ class redeemedRewards {
         }
       }, {
         $project: { name: 1, 'user.name': 1, 'user.staffId': 1, 'code': 1, 'points': 1, 'redemption_type': 1, 'createdAt': 1, 'totalRewardPoints': 1, 'user.parentBussinessUnitId': 1, isSuccess: 1 }
+      },
+      {
+        $sort: { createdAt: -1 }
       }]
       let [recordsTotal,rewards ] = await Promise.all([Rewards.aggregate(query).count('totalCount'),Rewards.aggregate(query).skip(skip).limit(limit)])
       return __.out(res, 201,{ recordsTotal: recordsTotal[0]?.totalCount, rewards});
