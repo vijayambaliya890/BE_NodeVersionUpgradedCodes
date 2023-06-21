@@ -1893,17 +1893,7 @@ module.exports.exportOpsGroup = async (req, res) => {
               'Ops Team Name': opsData.opsTeamId[i].name,
               'Staff Id': opsData.opsTeamId[i].userId[j].staffId,
               'Staff name': opsData.opsTeamId[i].userId[j].name,
-              'Staff Parent Bu':
-                opsData.opsTeamId[i].userId[j].parentBussinessUnitId.sectionId
-                  .departmentId.companyId.name +
-                ' > ' +
-                opsData.opsTeamId[i].userId[j].parentBussinessUnitId.sectionId
-                  .departmentId.name +
-                ' > ' +
-                opsData.opsTeamId[i].userId[j].parentBussinessUnitId.sectionId
-                  .name +
-                '> ' +
-                opsData.opsTeamId[i].userId[j].parentBussinessUnitId.name,
+              'Staff Parent Bu':opsData.opsTeamId[i].userId[j].parentBussinessUnitId.orgName,
               'Staff Email': opsData.opsTeamId[i].userId[j].email,
               'Staff Phone': opsData.opsTeamId[i].userId[j].contactNumber,
               'Date Added': moment(opsData.createdAt).format('MM-DD-YYYY'),

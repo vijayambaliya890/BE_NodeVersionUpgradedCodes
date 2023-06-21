@@ -504,8 +504,9 @@ class myBoard {
       }
 
       if (req.body.categoryId) {
+        const categoryIds = req.body.categoryId.map(id => mongoose.Types.ObjectId(id));
         mainSearch.category = {
-          $in: req.body.categoryId,
+          $in: categoryIds,
         }
       } else {
         categorySearch.status = 1;

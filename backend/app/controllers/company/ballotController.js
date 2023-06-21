@@ -66,7 +66,7 @@ class ballot {
       );
   
       obj.type = 'conductBallot';
-      const conductTime = moment(applicationCloseDate).add(15, 'm').toDate();
+      const conductTime = moment(applicationCloseDate).add(5, 'm').toDate();
   
       const conduct = await agendaNormal.schedule(
         conductTime,
@@ -113,9 +113,7 @@ class ballot {
 
   async conductBallot(req, res) {
     try {
-      console.log("CONDUCT BALLOT HERE......");
       const ballotId = "5f9f7361b164f269c0a72e53";
-      //console.logs('ballotId', ballotId)
       let ballotResult = await Ballot.findOne({
         _id: ballotId,
       }); //isConduct: false
@@ -130,11 +128,9 @@ class ballot {
         if (ballotResult.leaveType == 2) {
           totalDeducated = 1;
         }
-        console.log("ballotResult", ballotResult.ballotName);
         if (ballotResult.userFrom === 2) {
           ballotResult = JSON.stringify(ballotResult);
           ballotResult = JSON.parse(ballotResult);
-          ////console.logs('ballotResult', ballotResult);
           let shuffle = [];
           shuffle = ballotResult.slotCreation;
           ballotResult.appliedStaff.forEach((appliedStaff) => {
@@ -158,7 +154,6 @@ class ballot {
                 randomStaff.forEach((randomSelectedStaff) => {
                   finalWinStaff.push(slotWise.appliedStaff[randomSelectedStaff]);
                 });
-                //console.logs('slotWise.appliedStaff.length', slotWise.appliedStaff.length, howMuchWin, randomStaff)
               }
             });
           });
@@ -178,7 +173,6 @@ class ballot {
           // for ops group
           ballotResult = JSON.stringify(ballotResult);
           ballotResult = JSON.parse(ballotResult);
-          ////console.logs('ballotResult', ballotResult);
           let shuffle = [];
 
           const opsGroupQuota = [];
@@ -193,7 +187,6 @@ class ballot {
               slotQuota: [],
             };
             opsGroupSlot.arr.forEach((arrItem, arrIndex) => {
-              ////console.logs('aaaaaaaa');
               let key = "" + arrIndex + "A";
               let slotNumber = arrIndex;
               let slotOpsGroupValue = parseInt(opsGroupSlot.weekRangeSlot[key].value);
@@ -201,7 +194,6 @@ class ballot {
               const teamValue = [];
               let totalTeamQuota = 0;
               opsGroupSlot.opsTeam.forEach((teamItem, teamIndex) => {
-                ////console.logs('aaaaaaaa');
                 let key = 'OG' + arrIndex + 'OT' + teamIndex;
                 totalTeamQuota = totalTeamQuota + parseInt(opsGroupSlot.weekRangeSlot[key].value);
                 teamValue.push(parseInt(opsGroupSlot.weekRangeSlot[key].value));
@@ -214,13 +206,9 @@ class ballot {
               };
               slotValue.slotQuota.push(obj);
             });
-            ////console.logs('aauued', slotValue)
             opsGroupQuota.push(slotValue);
-            ////console.logs('yyegwb');
-            ////console.logs('aaaa', groupBy(ballotResult.appliedStaff,'weekNo'));
             let appliedStaffObject = {};
             appliedStaffObject = groupBy(ballotResult.appliedStaff, "opsTeamId");
-            ////console.logs('appliedStaffObject', appliedStaffObject)
             //return res.send(ballotResult.appliedStaff)
             /* for(let keyyy in appliedStaffObject){
                            const ayaya = groupBy(appliedStaffObject[keyyy],'weekNo');
@@ -230,7 +218,6 @@ class ballot {
               opsGroupId: opsGroupSlot.opsGroup.opsId,
               opsTeamValue: [],
             };
-            //console.logs('yyegwbaaa',opsGroupSlot.opsTeam);
             if (opsGroupSlot.opsTeam && opsGroupSlot.opsTeam.length > 0) {
               opsGroupSlot.opsTeam.forEach((teamItem, teamIndex) => {
                 if (appliedStaffObject[teamItem._id]) {
@@ -241,10 +228,8 @@ class ballot {
                 }
               });
             } else {
-              //console.logs('no temmmm',appliedStaffObject);
               if (isEmpty(appliedStaffObject)) {
                 // Object is empty (Would return true in this example)
-                //console.logs("do nothing obect is empty");
               } else {
                 // Object is NOT empty
                 if (appliedStaffObject["undefined"]) {
@@ -256,10 +241,8 @@ class ballot {
                   const ayaya = groupBy(appliedStaffObject["undefined"], "weekNo");
                   opsGroupSlotWithTeam.opsTeamValue.push(ayaya);
                 }
-                //console.logs("please check here");
               }
             }
-            ////console.logs('hgfgetgt')
             appliedStaffArray.push(opsGroupSlotWithTeam);
             /*groupBy(ballotResult.appliedStaff, function(item)
                       {
@@ -272,7 +255,6 @@ class ballot {
             }
             return true;
           }
-          ////console.logs('aaaaaaaa');
           function groupBy(xs, key) {
             return xs.reduce(function (rv, x) {
               (rv[x[key]] = rv[x[key]] || []).push(x);
@@ -283,9 +265,7 @@ class ballot {
           //return res.json({ opsGroupQuota, appliedStaffArray })
           let limitQuota = [];
           let finalWinStaff = [];
-          console.log("aaaaaaaa");
           opsGroupQuota.forEach((item, topIndex) => {
-            ////console.logs('aaa')
             let objA = {
               opsGroupId: item.opsGroupId,
             };
@@ -294,7 +274,6 @@ class ballot {
               if (slll.opsTeamQuotaValue.length === 0) {
                 objA.isTeamPresent = false;
                 objA.opsGroupQuotaValue = slll.opsGroupQuotaValue;
-                // //console.logs('callleddd');
                 if (appliedStaffArray[topIndex].opsTeamValue[0] && appliedStaffArray[topIndex].opsTeamValue[0]["" + slll.slot]) {
                   if (slll.opsGroupQuotaValue >= appliedStaffArray[topIndex].opsTeamValue[0]["" + slll.slot].length) {
                     finalWinStaff = finalWinStaff.concat(appliedStaffArray[topIndex].opsTeamValue[0]["" + slll.slot]);
@@ -314,14 +293,11 @@ class ballot {
                     appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex] &&
                     appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot]
                   ) {
-                    console.log("bbb");
                     const len = appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot].length;
-                    //console.logs('len', len, slll.slot, p);
                     // p means no of win
                     // len means no of applied
                     if (len > p) {
                       const randomStaff = getRandomNumber(len, p);
-                      //console.logs('randomStaff', randomStaff);
                       randomStaff.forEach((randomSelectedStaff) => {
                         finalWinStaff.push(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot][randomSelectedStaff]);
                       });
@@ -337,30 +313,24 @@ class ballot {
                 // if ops group quota value is less then total team quota
                 let allAppliedStaff = [];
                 slll.opsTeamQuotaValue.forEach((p, opsTeamQuotaValueIndex) => {
-                  ////console.logs('topIndexppppppp', topIndex, opsTeamQuotaValueIndex);
                   if (
                     appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex] &&
                     appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot]
                   ) {
-                    //console.logs('aaaaeee');
                     if (p >= appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot].length) {
-                      // //console.logs('hh', appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex][''+slll.slot])
                       allAppliedStaff = allAppliedStaff.concat(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot]);
                     } else {
-                      //console.logs('thiselseworkssss')
                       const randomStaff = getRandomNumber(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot].length, p);
                       randomStaff.forEach((ppp) => {
                         allAppliedStaff.push(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot][ppp]);
                       });
                     }
-                    /*       //console.logs('bbb');
+                    /*      
                                       const len = appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex][''+slll.slot].length;
-                                      //console.logs('len', len, slll.slot, p);
                                       // p means no of win
                                       // len means no of applied
                                       if(len>p) {
                                           const randomStaff = getRandomNumber(len, p);
-                                          //console.logs('randomStaff', randomStaff);
                                           randomStaff.forEach((randomSelectedStaff)=>{
                                               finalWinStaff.push(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex][''+slll.slot][randomSelectedStaff])
                                           });
@@ -374,16 +344,12 @@ class ballot {
                   //const randomStaff = getRandomNumber(slotWise.appliedStaff.length, howMuchWin);
                 });
                 if (allAppliedStaff.length > 0) {
-                  //console.logs('ahugwgg')
                   const finalAppliedStaff = [];
                   const randomStaff = getRandomNumber(allAppliedStaff.length, allAppliedStaff.length);
-                  //console.logs('randomStaff', randomStaff, allAppliedStaff.length);
                   randomStaff.forEach((ppp) => {
                     finalAppliedStaff.push(allAppliedStaff[ppp]);
                   });
                   const finalRandomStaff = getRandomNumber(allAppliedStaff.length, slll.opsGroupQuotaValue);
-                  //console.logs('finalRandomStaff', finalRandomStaff)
-                  //console.logs('sdhfys', allAppliedStaff.length, finalRandomStaff, slll.opsGroupQuotaValue);
                   finalRandomStaff.forEach((ppp) => {
                     finalWinStaff.push(finalAppliedStaff[ppp]);
                   });
@@ -392,7 +358,6 @@ class ballot {
             });
           });
           //return res.json({ finalWinStaff })
-          console.log("finalWinStaff", finalWinStaff);
           const updateWin = await Ballot.findOneAndUpdate(
             { _id: ballotId },
             {
@@ -408,10 +373,8 @@ class ballot {
           //  unSuccessfullStaffLeaveBallotBalanaceUpdate(ballotId);
         }
       } else {
-        console.log("not found");
       }
     } catch (e) {
-      console.log("éee", e);
     }
   }
   async formatData(data) {
@@ -466,7 +429,6 @@ class ballot {
     const staffData = req.body.data;
     const ballotId = req.body.ballotId;
     const userFrom = req.body.userFrom;
-    //console.log("ballotId", ballotId);
     // const ratio = 2;// req.body.ratio;
     // for OPS group
     const userData = [];
@@ -488,10 +450,6 @@ class ballot {
       let totalslotRemain = 0;
       // let resultFilter;
       if (ballotData) {
-        //console.log("I amhere 1");
-
-        //console.log("I amhere 5", ballotData.isConduct);
-        console.log("ballotData.isConduct", ballotData.isConduct);
         if (ballotData.isConduct) {
           return res.json({ message: "Already Conduct" });
         }
@@ -500,7 +458,6 @@ class ballot {
         let parentBallotData;
         let idd;
         const ballotYear = new Date(ballotData.weekRange[0].end).getFullYear()
-        //console.log("aaaaaa");
         for (let ij = 0; ij < ballotData.ballotRound; ij++) {
           if (ij == 0) {
             idd = ballotData.parentBallot;
@@ -518,7 +475,6 @@ class ballot {
         const checkSlot = 5;
         // return res.json({ len: parentBallotWon.length, parentBallotWon });
         for (let i = 0; i < ballotData.slotCreation.length; i++) {
-          console.log("heheh");
           const slotData = ballotData.slotCreation[i];
           /* // if team present in slot ops group
                       if(slotData.opsTeam && slotData.opsTeam.length>0){
@@ -528,7 +484,6 @@ class ballot {
                              });
 
                           });*/
-          // console.log("slotData.opsGroup.opsId", slotData.opsGroup.opsId, staffData);
           let resultFilter = staffData.filter((opt) => {
             return opt.opsG == slotData.opsGroup.opsId;
           });
@@ -561,13 +516,11 @@ class ballot {
               return win.opsGroupId == slotData.opsGroup.opsId;
             });
             for (let j = 0; j < ballotData.weekRange.length; j++) {
-              // console.log("iiiii", j);
               let opsGroupQuota = Math.round(parseInt(slotData.weekRangeSlot[j + "A"].balanceToBeAssigned));
               const wonStaffList = wonStaffForOpsGroup.filter((win) => {
                 return win.weekNo == j;
               });
               const wonStaffCount = wonStaffList.length;
-              //console.log("wonStaffCount with team", wonStaffCount);
               // check if team is present or not
               let totalTeamQuota = -1;
               let teamStatus = [];
@@ -612,7 +565,6 @@ class ballot {
                   slotRemain,
                   teamStatus,
                 };
-                //console.log("obj", obj);
                 let slotWonStaff = [];
                 if (slotRemain > 0) {
                   const minimum = 0;
@@ -621,14 +573,12 @@ class ballot {
                   for (let p = 0; p < slotRemain; p++) {
                     // get team
                     const randomNumber = (Math.random() * (maximum - minimum + 1)) << 0;
-                    //console.log(j, 'randmom', randomNumber);
                     const selectedStaff = resultFilter[randomNumber];
                     let selectedStaffTeam = teamStatus.filter((ts) => {
                       return ts.teamId == selectedStaff.opsT;
                     });
                     selectedStaffTeam = selectedStaffTeam[0];
                     if (selectedStaff.ballotLeaveBalance > 0 && selectedStaffTeam.teamQuota > 0) {
-                      // console.log("obj", obj);
                       // return res.json({
                       //   obj,
                       //   selectedStaff,
@@ -638,7 +588,6 @@ class ballot {
                       // });
 
                       const isRestirct = await checkStaffRestrict(selectedStaff, parentBallotData, j, finalWonStaff, oldBallotStaffWon);
-                      // console.log(j,'selectedStaffTeam.teamQuota', selectedStaffTeam.teamQuota);
                       if (!isRestirct) {
                         if (!slotWonStaff.includes(selectedStaff)) {
                           slotWonStaff.push(selectedStaff);
@@ -653,7 +602,6 @@ class ballot {
                             }
                           );
                           if (!userData) {
-                            //console.log("staff may have deleted ");
                             st = {
                               userId: selectedStaff.userId,
                               leaveTypeId: selectedStaff.leaveTypeId,
@@ -736,7 +684,6 @@ class ballot {
                   for (let p = 0; p < slotRemain; p++) {
                     // get team
                     const randomNumber = (Math.random() * (maximum - minimum + 1)) << 0;
-                    //console.log(j, 'randmom no team', randomNumber);
                     const selectedStaff = resultFilter[randomNumber];
                     if (selectedStaff.ballotLeaveBalance > 0 && opsGroupQuota > 0) {
                       const isRestirct = await checkStaffRestrict(selectedStaff, parentBallotData, j, finalWonStaff, oldBallotStaffWon);
@@ -822,7 +769,6 @@ class ballot {
             }
           }
         }
-        //console.log("qq");
 
         const updateWin11 = await Ballot.findOneAndUpdate(
           { _id: ballotId },
@@ -841,7 +787,6 @@ class ballot {
         );
 
         const reduceLeave = JSON.parse(JSON.stringify(finalWonStaff));
-        console.log('*****************************', reduceLeave.length)
         if (reduceLeave.length > 0) {
           let leave = 5;
           if (ballotData.leaveConfiguration === 2) {
@@ -852,34 +797,27 @@ class ballot {
           if (ballotData.leaveType == 2) {
             leave = 1;
           }
-          //console.log('leave', leave);
           // genereate leave
           this.insertStaffLeaveForBallotIn(reduceLeave, ballotData, leave);
           reduceLeave.forEach((item) => {
-            //console.log("itemitem", item);
             const leaveTypeData = {
               leaveTypeId: item.leaveTypeId,
             };
-            console.log('item.weekNo', item.weekNo, typeof item.weekNo)
             const startDate = ballotData.weekRange[item.weekNo].start;
             const startYear = new Date(startDate).getFullYear();
             const sapData = this.managePlanLeave(item.userId, -leave, leaveTypeData, startYear);
             //const sapData = StaffSapData.update({ staff_Id: item.userId }, { $inc: { ballotLeaveBalanced: -leave } }).then((result1) => {
-            //console.log(result1)
             //});
-            // //console.log('sapData', sapData)
           });
         }
         finalWonStaff = groupBy(finalWonStaff, "userId");
 
         function checkStaffRestrict(selectedStaffR, ballotDataR, slotNo, autoWonStaff, oldBallotStaffWon) {
           // staff restricted
-          //  console.log('1')
           let isRestrictedR = false;
           const userIdR = selectedStaffR.userId.toString();
           const startDate = ballotDataR.slotCreation[0].arr[slotNo].startDate;
           let isWinStaff = [];
-          //console.log(
           // "before ballotDataR.wonStaff",
           //  ballotDataR.wonStaff.length,
           //   "actual won ",
@@ -892,7 +830,6 @@ class ballot {
           } else {
             ballotDataR.wonStaff = autoWonStaff;
           }
-          //  console.log(
           //     "after ballotDataR.wonStaff",
           //     ballotDataR.wonStaff.length
           //   );
@@ -920,7 +857,6 @@ class ballot {
                 return userList.id.toString() === userIdR;
               });
               if (userListArr.length > 0) {
-                //   console.log('I am here')
                 return true;
               }
             }
@@ -941,11 +877,9 @@ class ballot {
           slotWinNo.sort(function (a, b) {
             return a - b;
           });
-          console.log("slotWinNo", slotWinNo);
           // let slotNumbers = this.getSlot();
           // maxConsecutiveBallot start
           const maxConsecutiveBallot = ballotDataR.maxConsecutiveBallot;
-          //console.log("maxConsecutiveBallot", maxConsecutiveBallot, slotWinNo);
           if (slotWinNo.length > 1 && maxConsecutiveBallot) {
             let checkMaxCons = 0;
             let ismaxConsecutiveBallot = false;
@@ -966,10 +900,8 @@ class ballot {
               }
             }
             if (ismaxConsecutiveBallot) {
-              console.log("is Consuctive");
               return true;
             } else {
-              // console.log("noottt");
             }
             // if(maxConsecutiveBallot){
             //     const lastSlot = ballotDataR.weekRange.length-1;
@@ -999,7 +931,6 @@ class ballot {
             //             slotCheckArr.push(slotArr)
             //         }
             //     }
-            //     console.log(slotNo, 'slotCheckArr', slotCheckArr)
             //     let isMaxConsiactive = false;
             //     for(let i=0; i<slotCheckArr.length; i++){
             //         const checkSlot = slotCheckArr[i];
@@ -1045,7 +976,6 @@ class ballot {
                 // const endSlot = ballotDataR.slotCreation[0].arr.findIndex((ee) => {
                 //   let endDate = new Date(ee.startDate);
                 //   endDate = endDate.setDate(endDate.getDate() + 6);
-                //   //console.log('endDate', new Date(endDate))
                 //   return new Date(endDate).getTime() === new Date(segement.endDate).getTime();
                 // });
 
@@ -1054,40 +984,33 @@ class ballot {
                 var daysTillThen = Math.floor((segementStartDate - yearStartDate) / (24 * 60 * 60 * 1000));
                   
                 var weekNumberForSegementStartDate = Math.ceil(daysTillThen / 7);
-                console.log('weekNumberForSegementStartDate', weekNumberForSegementStartDate);
 
                 var segementEndDate = new Date(segement.endDate);
                 yearStartDate = new Date(segementEndDate.getFullYear(), 0, 1);
                 daysTillThen = Math.floor((segementEndDate - yearStartDate) / (24 * 60 * 60 * 1000));
                   
                 var weekNumberForSegementEndDate = Math.ceil(daysTillThen / 7);
-                console.log('weekNumberForSegementEndDate', weekNumberForSegementEndDate);
                 
                 let slotWon = 0;
-                // console.log("startSlot", slotNo, startSlot, endSlot);
                 for (let i = weekNumberForSegementStartDate-1; i < weekNumberForSegementEndDate-1; i++) {
                   // for (let i = startSlot; i <= endSlot; i++) {
                   const slotWonArr = ballotDataR.wonStaff.filter((ww) => {
                     return ww.weekNo === i && ww.userId.toString() === userIdR;
                   });
-                  //console.log('userIdR', userIdR, i, slotWonArr.length);
                   if (slotWonArr.length > 0) {
                     slotWon++;
                   }
                 }
-                //  console.log("slotWon", slotWon, segement.maxBallot);
                 if (slotWon >= segement.maxBallot) {
                   return true;
                 }
 
-                // console.log(startSlot, endSlot);
               } else {
                 return true;
               }
             }
           }
           //Segement restriction end;
-          //console.log('last')
 
           // check old ballot data
           let oldStartDate = new Date(ballotDataR.weekRange[slotNo].start).getTime();
@@ -1146,10 +1069,8 @@ class ballot {
         const slotArr = ballot.weekRange;
         const slotValue = slotArr[slotWon];
         let startDate = moment(slotValue.start); //.format('DD-MM-YYYY');
-        console.log("startDate", startDate);
         let endDate = moment(slotValue.end);
         const diff = endDate.diff(startDate, "days") + 1;
-        console.log("diff", diff);
         let leaveTypeId = leaveTypeData.leaveTypeData.leaveTypeId;
         let leaveGroupId = leaveTypeData.leaveGroupId;
         let parentBussinessUnitId = leaveTypeData.businessUnitId;
@@ -1236,7 +1157,6 @@ class ballot {
           message: "Please fill the empty fields",
         });
       }
-      // console.log("REQ OBJ : ", req.body);
       req.body.createdBy = req.user._id;
       req.body.companyId = req.user.companyId;
       const data = req.body;
@@ -1252,10 +1172,8 @@ class ballot {
       data.applicationOpenDateTime = `${data.openDate} ${data.openTime}:00 ${data.timeZone}`
       data.applicationCloseDateTime = `${data.closeDate} ${data.closeTime}:00 ${data.timeZone}`
 
-      console.log(" data.applicationOpenDateTime", data.applicationOpenDateTime);
       data.applicationOpenDateTime = moment(data.applicationOpenDateTime, "MM-DD-YYYY HH:mm:ss Z").utc().format();
       data.applicationCloseDateTime = moment(data.applicationCloseDateTime, "MM-DD-YYYY HH:mm:ss Z").utc().format();
-      console.log(" data.applicationOpenDateTime", data.applicationOpenDateTime);
       data.ballotStartDate = moment(data.ballotStartDate, "MM-DD-YYYY HH:mm:ss Z").utc().format();
       data.ballotEndDate = moment(data.ballotEndDate, "MM-DD-YYYY HH:mm:ss Z").utc().format();
       data.fixedBallotingLeaveType = req.body.fixedBallotingLeaveType
@@ -1272,7 +1190,6 @@ class ballot {
         });
       }
       if (data.isAutoAssign) {
-        console.log("INSIDE IF of isAutoAssign");
         new Ballot(data)
           .save()
           .then((ressss) => {
@@ -1280,25 +1197,20 @@ class ballot {
             if (data.isDraft) {
               message = "Ballot saved as a draft";
             } else {
-              //console.log('ressasss', ressss);
               // notification for publish ballot
               // this.sendNotification(ressss)
               // this.ballotEvent(ressss, 'createBallot', false)
             }
 
             if (data.parentBallot) {
-              console.log("Parent Ballot is----:", data.parentBallot);
               this.checkIfHasParentAndUpdate(req.body.parentBallot, ressss._id);
             }
             return res.json({ status: true, message });
           })
           .catch((err) => {
-            console.log("aaaa", err);
           });
       } else {
-        console.log("INSIDE ELSE HERE");
         if (data.LeaveTYPE) {
-          console.log("--------XXXXXXX--------createCasual--------------xxxxxxxx------")
           this.createCasual();
         }
         const validationObj = this.validationOfDate(data);
@@ -1371,12 +1283,10 @@ class ballot {
                   this.ballotEvent(ressss, 'createBallot', false)
                 }
                 if (data.parentBallot) {
-                  console.log("Parent Ballot is:", data.parentBallot);
                   this.checkIfHasParentAndUpdate(req.body.parentBallot, ressss._id);
                 }
                 return res.json({ status: true, message });
               }).catch((err) => {
-                console.log("aaaa", err);
               });
           } else {
             return res.json({
@@ -1389,7 +1299,6 @@ class ballot {
         }
       }
     } catch (e) {
-      console.log("inside create catch block ->", e);
       return res.json({ status: false, message: "Something went wrong1", e });
     }
   }
@@ -1426,7 +1335,6 @@ class ballot {
           message: "Please fill the empty fields",
         });
       }
-      console.log("REQ OBJ : ", req.body);
       req.body.createdBy = req.user._id;
       req.body.companyId = req.user.companyId;
       const data = req.body;
@@ -1441,7 +1349,6 @@ class ballot {
         data.resultReleaseDateTime = moment(data.resultReleaseDateTime, "MM-DD-YYYY HH:mm:ss Z").utc().format();
       }
       if (data.isAutoAssign) {
-        console.log("INSIDE IF");
         new Ballot(data)
           .save()
           .then((ressss) => {
@@ -1450,22 +1357,18 @@ class ballot {
               message = "Ballot saved as a draft";
             } else {
               this.ballotEvent(ressss, 'createBallot', false)
-              //console.log('ressasss', ressss);
               // notification for publish ballot
               // this.sendNotification(ressss)
             }
 
             if (data.parentBallot) {
-              console.log("Parent Ballot is:", data.parentBallot);
               this.checkIfHasParentAndUpdate(req.body.parentBallot, ressss._id);
             }
             return res.json({ status: true, message });
           })
           .catch((err) => {
-            console.log("aaaa", err);
           });
       } else {
-        console.log("INSIDE ELSE HERE");
 
         const validationObj = this.validationOfDate(data);
         if (validationObj.status) {
@@ -1495,19 +1398,16 @@ class ballot {
                   this.ballotEvent(ressss, 'createBallot', false)
                   message = "Ballot saved as a draft";
                 } else {
-                  //console.log('ressasss', ressss);
                   // notification for publish ballot
                   // this.sendNotification(ressss)
                 }
 
                 if (data.parentBallot) {
-                  console.log("Parent Ballot is:", data.parentBallot);
                   this.checkIfHasParentAndUpdate(req.body.parentBallot, ressss._id);
                 }
                 return res.json({ status: true, message });
               })
               .catch((err) => {
-                console.log("aaaa", err);
               });
           } else {
             return res.json({
@@ -1557,7 +1457,6 @@ class ballot {
           message: "Please fill the empty fields",
         });
       }
-      console.log("REQ OBJ : ", req.body);
       req.body.createdBy = req.user._id;
       req.body.companyId = req.user.companyId;
       const data = req.body;
@@ -1569,7 +1468,6 @@ class ballot {
         data.resultReleaseDateTime = moment(data.resultReleaseDateTime, "MM-DD-YYYY HH:mm:ss Z").utc().format();
       }
       if (data.isAutoAssign) {
-        console.log("INSIDE IF");
         new Ballot(data)
           .save()
           .then((ressss) => {
@@ -1577,22 +1475,18 @@ class ballot {
             if (data.isDraft) {
               message = "Ballot saved as a draft";
             } else {
-              //console.log('ressasss', ressss);
               // notification for publish ballot
               // this.sendNotification(ressss)
             }
 
             if (data.parentBallot) {
-              console.log("Parent Ballot is:", data.parentBallot);
               this.checkIfHasParentAndUpdate(req.body.parentBallot, ressss._id);
             }
             return res.json({ status: true, message });
           })
           .catch((err) => {
-            console.log("aaaa", err);
           });
       } else {
-        console.log("INSIDE ELSE HERE");
         if (data.LeaveTYPE) {
           this.createCasual();
         }
@@ -1647,19 +1541,16 @@ class ballot {
                 if (data.isDraft) {
                   message = "Ballot saved as a draft";
                 } else {
-                  //console.log('ressasss', ressss);
                   // notification for publish ballot
                   // this.sendNotification(ressss)
                 }
 
                 if (data.parentBallot) {
-                  console.log("Parent Ballot is:", data.parentBallot);
                   this.checkIfHasParentAndUpdate(req.body.parentBallot, ressss._id);
                 }
                 return res.json({ status: true, message });
               })
               .catch((err) => {
-                console.log("aaaa", err);
               });
           } else {
             return res.json({
@@ -1706,7 +1597,6 @@ class ballot {
           message: "Please fill the empty fields",
         });
       }
-      console.log("REQ OBJ : ", req.body);
       req.body.createdBy = req.user._id;
       req.body.companyId = req.user.companyId;
       const data = req.body;
@@ -1718,7 +1608,6 @@ class ballot {
         data.resultReleaseDateTime = moment(data.resultReleaseDateTime, "MM-DD-YYYY HH:mm:ss Z").utc().format();
       }
       if (data.isAutoAssign) {
-        console.log("INSIDE IF");
         new Ballot(data)
           .save()
           .then((ressss) => {
@@ -1726,22 +1615,18 @@ class ballot {
             if (data.isDraft) {
               message = "Ballot saved as a draft";
             } else {
-              //console.log('ressasss', ressss);
               // notification for publish ballot
               // this.sendNotification(ressss)
             }
 
             if (data.parentBallot) {
-              console.log("Parent Ballot is:", data.parentBallot);
               this.checkIfHasParentAndUpdate(req.body.parentBallot, ressss._id);
             }
             return res.json({ status: true, message });
           })
           .catch((err) => {
-            console.log("aaaa", err);
           });
       } else {
-        console.log("INSIDE ELSE HERE");
 
         const validationObj = this.validationOfDate(data);
         if (validationObj.status) {
@@ -1792,19 +1677,16 @@ class ballot {
                 if (data.isDraft) {
                   message = "Ballot saved as a draft";
                 } else {
-                  //console.log('ressasss', ressss);
                   // notification for publish ballot
                   // this.sendNotification(ressss)
                 }
 
                 if (data.parentBallot) {
-                  console.log("Parent Ballot is:", data.parentBallot);
                   this.checkIfHasParentAndUpdate(req.body.parentBallot, ressss._id);
                 }
                 return res.json({ status: true, message });
               })
               .catch((err) => {
-                console.log("aaaa", err);
               });
           } else {
             return res.json({
@@ -1825,11 +1707,6 @@ class ballot {
   */
 
   validationOfDate(data) {
-    //console.logs("data.applicationOpenDateTime: ",data.applicationOpenDateTime);
-    //console.logs("data.applicationCloseDateTime: ",data.applicationCloseDateTime);
-    //console.logs("data.ballotStartDate: ",data.ballotStartDate);
-    //console.logs("data.resultReleaseDateTime: ",data.resultReleaseDateTime);
-    //console.logs("data.ballotEndDate: ",data.ballotEndDate)
     if (
       data.applicationOpenDateTime === "Invalid date" ||
       data.applicationCloseDateTime === "Invalid date" ||
@@ -1902,14 +1779,10 @@ class ballot {
   async checkIfHasParentAndUpdate(ballotid, id) {
     let currentBallot = await Ballot.findOne({ _id: ballotid });
     if (!currentBallot) {
-      //console.logs("NO ballot found");
     } else {
-      //console.logs("in else of current data found");
       if (currentBallot.parentBallot) {
-        //console.logs("in if of parent data",currentBallot.parentBallot);
         this.checkIfHasParentAndUpdate(currentBallot.parentBallot, id);
       } else {
-        //console.logs("in checkIfHasParentAndUpdate update id is: ",id);
         let update = await Ballot.update({ _id: currentBallot._id }, { $push: { childBallots: id } });
       }
     }
@@ -1918,7 +1791,6 @@ class ballot {
   async readBallots(req, res) {
     try {
       let id = req.user.id;
-      console.log('req of readBallots', req.query)
       let limit = 10;
       let page = 1;
       if (req.query.page) {
@@ -1996,7 +1868,6 @@ class ballot {
     try {
       // get ballot for Ops group
       const opsGroupList = await OpsGroup.findOne({ userId: req.user._id, isDelete: false }, { _id: 1, opsTeamId: 1 });
-      console.log('------------------- opsGroupList ----------------------- ', opsGroupList)
       const staffOpsTeam = await OpsTeam.findOne({
         userId: req.user._id,
         isDeleted: false,
@@ -2008,7 +1879,6 @@ class ballot {
         isPublish: true,
         $expr: { $eq: [{ $year: "$ballotStartDate" }, req.body.year] },
       });
-      //console.logs("ballotListOps :",opsGroupList);
       // get ballot for BU
       let ballotListBu = await Ballot.find({
         businessUnitId: req.user.parentBussinessUnitId,
@@ -2016,11 +1886,9 @@ class ballot {
         $expr: { $eq: [{ $year: "$ballotStartDate" }, req.body.year] },
 
       });
-      //console.logs('ballotListBu', ballotListBu.length, ballotListOps.length);
       let ballotList = ballotListBu.concat(ballotListOps);
       this.generateBallotDataForStaff(ballotList, res, req, opsGroupList, staffOpsTeam);
     } catch (e) {
-      console.log('|||||||||||||||||||||| error ||||||||||||||||| ', e)
       return res.status(500).json({
         success: false,
         data: e,
@@ -2042,7 +1910,6 @@ class ballot {
         const toBeRemove = [];
         item.appliedStaff.forEach((appliedStaff, index) => {
           if (req.user._id.toString() === appliedStaff.userId.toString()) {
-            // //console.logs('1')
             staffStatus = "Submitted";
             if (item.isResultRelease) {
               //staffStatus = "Unsuccessful";
@@ -2080,7 +1947,6 @@ class ballot {
         for (let iii = toBeRemove.length - 1; iii >= 0; iii--) {
           item.appliedStaff.splice(toBeRemove[iii], 1);
         }
-        ////console.logs('toBeRemove', toBeRemove)
         // if result release
         let ballotStatus = "Open";
         if (new Date().getTime() > new Date(item.applicationCloseDateTime).getTime()) {
@@ -2095,36 +1961,27 @@ class ballot {
         ballotList[i].staffStatus = staffStatus;
         ballotList[i].ballotStatus = ballotStatus;
         ballotList[i].monthRange = [];
-        ////console.logs(JSON.stringify(item.weekRange), 'weekrange');
         ballotList[i].monthRange = JSON.stringify(item.weekRange);
         ballotList[i].monthRange = JSON.parse(ballotList[i].monthRange);
 
         // week range
         if (ballotList[i].userFrom === 2) {
-          ////console.logs('aaaaa', req.user)
-          ////console.logs('req.user.parentBussinessUnitId', req.user._id)
           userSlot = ballotList[i].slotCreation.filter((bu) => {
-            // //console.logs('bu.buId', bu.buId)
             return bu.buId.toString() === req.user.parentBussinessUnitId.toString();
           });
-          // //console.logs('userSlot', userSlot.length)
           userSlot = userSlot[0];
         } else {
           let slotRange = ballotList[i].slotCreation.filter((bu) => {
-            // //console.logs('bu.buId', opsGroupList._id);
             return bu.opsGroup.opsId.toString() === opsGroupList._id.toString();
           });
-          console.log("SLOTRANGE: ", slotRange);
           slotRange = slotRange[0];
           userSlotOps = [];
           userTierOps = [];
           if (opsGroupList && opsGroupList.opsTeamId.length > 0) {
             let teamIndex = slotRange.opsTeam.findIndex((tttt) =>  tttt && tttt._id && tttt._id.toString() === opsTeamList._id.toString());
-            // //console.logs("TEAMINDEX: ",teamIndex);
             slotRange.arr.forEach((ii, indexArr) => {
               const key = 'OG' + indexArr + 'OT' + teamIndex;
               const key1 = "" + indexArr + "A";
-              //console.logs("KAY IS:",slotRange.weekRangeSlot[key]);
               userTierOps.push(slotRange.weekRangeSlot[key1]);
               userSlotOps.push(slotRange.weekRangeSlot[key]);
             });
@@ -2139,16 +1996,12 @@ class ballot {
           ballotList[i].slotCreation = [];
           ballotList[i].slotCreation.push(slotRange);
         }
-        // //console.logs("USERLOT:",userSlotOps);
-        console.log('hehehehehheheheh')
         ballotList[i].monthRange.forEach((dd, index) => {
           dd.month = moment(dd.start).format("MMMM-YY");
           dd.weekNO = index;
-          console.log('ballotList[i].userFrom', ballotList[i].userFrom)
           if (ballotList[i].userFrom === 2) {
             if (userSlot) dd.quotaValue = userSlot.arr[index].value;
           } else {
-            ////console.logs("userSlotOps[index].value: ",userSlotOps[index]);
             if (userTierOps.length > 0) {
               dd.tierQuota = userTierOps[index] ? userTierOps[index].value : 0;
             } else {
@@ -2157,8 +2010,6 @@ class ballot {
             dd.quotaValue = userSlotOps[index] ? userSlotOps[index].value : 0;
           }
         });
-        console.log('i am heehehhhe')
-        ////console.logs(groupBy(ballotList[i].monthRange, 'month'));
         ballotList[i].monthRange = groupBy(ballotList[i].monthRange, "month");
         const MONTH = [];
 
@@ -2211,7 +2062,6 @@ class ballot {
     try {
       var opsfilteredOpen = [];
       var opsfilteredClosed = [];
-      //console.logs('req.user._id', req.user._id)
       // const ballotList = await Ballot.find({'appliedStaff.userId': req.user._id, isPublish: true}, {slotCreation:0});
       const ballotList = await Ballot.find(
         {
@@ -2224,20 +2074,16 @@ class ballot {
       //finding ballots with new requirements saying
 
       const opsGroupOfUser = await OpsGroup.findOne({ userId: req.user._id, isDelete: false }, { _id: 1, opsTeamId: 1 });
-      console.log("out opsGroup: ", opsGroupOfUser);
       if (opsGroupOfUser) {
         const ballotListOps = await Ballot.find({
           opsGroupId: opsGroupOfUser._id,
           isPublish: true,
           isDeleted: false,
         });
-        console.log("ballotListOps ", ballotListOps.length);
         if (ballotListOps.length > 0) {
           //new Date().getTime() > new Date(item.applicationCloseDateTime).getTime()
           opsfilteredOpen = ballotListOps.filter((bl) => new Date(bl.applicationCloseDateTime).getTime() > new Date().getTime());
           opsfilteredClosed = ballotListOps.filter((b2) => new Date(b2.applicationCloseDateTime).getTime() < new Date().getTime());
-          console.log("opsfilteredOpen: ", opsfilteredOpen.length);
-          console.log("opsfilteredClosed: ", opsfilteredClosed.length);
         }
       }
 
@@ -2268,21 +2114,16 @@ class ballot {
   }
   async generateBallotDataForStaffApplied(ballotList, opsfilteredOpen, opsfilteredClosed, res, req) {
     let ballotForParent = [];
-    //console.logs("ballot list is: ",ballotList);
     if (ballotList.length > 0) {
       ballotList = JSON.stringify(ballotList);
       ballotList = JSON.parse(ballotList);
       for (let i = 0; i < ballotList.length; i++) {
-        //console.logs("BallotList of i: ",i);
         const item = ballotList[i];
         let staffStatus = "No Application";
         const toBeRemove = [];
         item.appliedStaff.forEach((appliedStaff, index) => {
-          //console.logs("item.appliedStaff: ", index);
           if (req.user._id.toString() === appliedStaff.userId.toString()) {
-            //console.logs("AOOLIED CHECK");
             const slotObj = item.weekRange[appliedStaff.weekNo];
-            //console.logs('slotObj', slotObj);
             item.appliedStaff[index].slotObj = {};
             item.appliedStaff[index].slotObj = slotObj;
             staffStatus = "Submitted";
@@ -2338,47 +2179,37 @@ class ballot {
       //code added to get won slots for all related ballots
       // for (let b = 0; b <= ballotList.length - 1; b++) {
       //   if (ballotList[b].childBallots && ballotList[b].childBallots.length > 0) {
-      //     //console.logs("in child ballots list", ballotList[b].childBallots);
       //     for (let cb = 0; cb <= ballotList[b].childBallots.length - 1; cb++) {
       //       let child = ballotList.find(function (ele) {
       //         return ele._id === ballotList[b].childBallots[cb];
       //       });
-      //       //console.logs("Child is: ", child);
       //       if (!child) {
-      //         //console.logs("respetive ballot won may no be there");
       //         let BallotChild = await Ballot.findOne({
       //           _id: ballotList[b].childBallots[cb],
       //         });
       //         BallotChild = JSON.stringify(BallotChild);
       //         BallotChild = JSON.parse(BallotChild);
       //         if (!BallotChild) {
-      //           //console.logs("NO ballot found so skip it");
       //         } else {
       //           let parentSuccess = ballotList[b].appliedStaff.filter(function (app) {
       //             return app.resultStatus === "Successful";
       //           });
       //           // ballotList[b].appliedStaff=  ballotList[b].appliedStaff.concat(successArray);
-      //           //console.logs("parentSuccess BAllotchold: ", parentSuccess);
       //           BallotChild.appliedStaff = parentSuccess;
-      //           //console.logs("BAllotchold: ", BallotChild.appliedStaff);
       //           ballotForParent.push(BallotChild);
       //         }
       //       } else {
-      //         //console.logs("found child yep yep", child.appliedStaff);
       //         let parentSuccess = ballotList[b].appliedStaff.filter(function (app) {
       //           return app.resultStatus === "Successful";
       //         });
       //         let successArray = child.appliedStaff.filter(function (applied) {
       //           return applied.resultStatus === "Successful";
       //         });
-      //         //console.logs("Successfula array is: ", successArray);
       //         ballotList[b].appliedStaff = ballotList[b].appliedStaff.concat(successArray);
-      //         //console.logs(" ballotList[b].childBallots[cb]: ", child)
       //         child.appliedStaff = child.appliedStaff.concat(parentSuccess);
       //       }
       //     }
       //   } else {
-      //     //console.logs("no child ballot found");
       //   }
       // }
 
@@ -2392,15 +2223,11 @@ class ballot {
           if (opsfilteredOpen[i].appliedStaff.length > 0) {
             let toBeRemove1 = [];
             for (let a = 0; a <= opsfilteredOpen[i].appliedStaff.length - 1; a++) {
-              console.log("HERE in for loop me");
               let staffStatus = "No Application";
               if (req.user._id.toString() === opsfilteredOpen[i].appliedStaff[a].userId.toString()) {
-                //console.logs("AOOLIED CHECK");
                 const slotObj = opsfilteredOpen[i].weekRange[opsfilteredOpen[i].appliedStaff[a].weekNo];
-                //console.logs('slotObj', slotObj);
                 opsfilteredOpen[i].appliedStaff[a].slotObj = {};
                 opsfilteredOpen[i].appliedStaff[a].slotObj = slotObj;
-                console.log("HERE in for loop mefsdfsfsdf:", opsfilteredOpen[i].appliedStaff[a]);
                 opsfilteredOpen[i].appliedStaff[a].staffStatus = "Submitted";
               } else {
                 // remove other staff
@@ -2430,17 +2257,13 @@ class ballot {
                   return dat.push(wn);
                 }
               });
-              console.log("here", winss.length);
               winners = winners.concat(winss);
             }
           }
           if (winners.length > 0) {
             for (let w = 0; w <= winners.length - 1; w++) {
-              console.log("winners[w] ", winners[w].slotObj.start);
-              console.log("winners[w] ", winners[w].slotObj.end);
 
               var indexHere = opsfilteredOpen[i].weekRange.findIndex((x) => x.start == winners[w].slotObj.start && x.end == winners[w].slotObj.end);
-              console.log("Index here is: ", indexHere);
               if (indexHere !== -1) {
                 //find and exchange indexes here...
                 winners[w].weekNo = indexHere;
@@ -2448,19 +2271,15 @@ class ballot {
               }
             }
           }
-          // console.log("WInners sre: ", winners);
           var indexOfSameBallot = ballotList.findIndex((x) => x._id.toString() == opsfilteredOpen[i]._id.toString());
           if (indexOfSameBallot !== -1) {
-            console.log("Thid is there already", indexOfSameBallot);
             ballotList.splice(indexOfSameBallot);
           } else {
-            console.log("this is not tere already", indexOfSameBallot);
           }
         }
 
         ballotList = ballotList.concat(opsfilteredOpen);
       }
-      console.log("coming out");
       return res.status(201).json({
         success: true,
         data: ballotList,
@@ -2477,7 +2296,6 @@ class ballot {
   async staffApplyForSlot(req, res) {
     try {
       //req.user._id = req.body.userId;
-      //console.logs('req.user._id', req.user._id);
       const alreadyApplied = await Ballot.findOne({
         _id: req.body.ballotId,
         isPublish: true,
@@ -2485,14 +2303,11 @@ class ballot {
           $elemMatch: { weekNo: req.body.slotNumber, userId: req.user._id },
         },
       });
-      ////console.logs('alreadyApplied',alreadyApplied);
       if (!alreadyApplied) {
         let obj = {};
         let checkLeave = await this.checkIsLeavePresent(req.user._id, req.body.leaveConfiguration);
         if (checkLeave) {
           if (req.body.userFrom === 1) {
-            //console.logs('111');
-            // //console.logs('111',alreadyApplied.userFrom);
             const opsGroupList = await OpsGroup.findOne(
               { userId: req.user._id, isDelete: false },
               {
@@ -2510,7 +2325,6 @@ class ballot {
             );
             if (opsTeamList || (opsGroupList && opsGroupList.opsTeamId.length === 0)) {
               if (opsGroupList.opsTeamId.length === 0) {
-                //console.logs('ygdyug')
                 obj = {
                   userId: req.user._id,
                   weekNo: req.body.slotNumber,
@@ -2539,7 +2353,6 @@ class ballot {
               buId: req.user.parentBussinessUnitId,
             };
           }
-          //console.logs('obj', obj)
           const apply = await Ballot.findOneAndUpdate({ _id: req.body.ballotId }, { $push: { appliedStaff: obj } });
           let leaveDecrease = 5;
           if (apply.leaveConfiguration === 2) {
@@ -2579,7 +2392,6 @@ class ballot {
     //  try {
 
     //req.user._id = req.body.userId;
-    //console.logs('req.user._id', req.user._id);
     const alreadyArr = [];
     const successArr = [];
     const failedArr = [];
@@ -2592,14 +2404,11 @@ class ballot {
           $elemMatch: { weekNo: slotNumber, userId: req.user._id },
         },
       });
-      ////console.logs('alreadyApplied',alreadyApplied);
       if (!alreadyApplied) {
         let obj = {};
         let checkLeave = await this.checkIsLeavePresent(req.user._id, req.body.leaveConfiguration);
         if (checkLeave) {
           if (req.body.userFrom === 1) {
-            //console.logs('111');
-            // //console.logs('111',alreadyApplied.userFrom);
             const opsGroupList = await OpsGroup.findOne(
               { userId: req.user._id, isDelete: false },
               {
@@ -2617,7 +2426,6 @@ class ballot {
             );
             if (opsTeamList || (opsGroupList && opsGroupList.opsTeamId.length === 0)) {
               if (opsGroupList.opsTeamId.length === 0) {
-                //console.logs('ygdyug')
                 obj = {
                   userId: req.user._id,
                   weekNo: slotNumber,
@@ -2647,7 +2455,6 @@ class ballot {
               buId: req.user.parentBussinessUnitId,
             };
           }
-          // //console.logs('obj', obj)
           const apply = await Ballot.findOneAndUpdate({ _id: req.body.ballotId }, { $push: { appliedStaff: obj } });
           let leaveDecrease = 5;
           if (apply.leaveConfiguration === 2) {
@@ -2701,12 +2508,10 @@ class ballot {
       annualLeave = await leaveType.findOne({ name: "Annual Leave", isActive: true, companyId });
     }
 
-    console.log("annualLeaveannualLeaveannualLeaveleaveTypeIdleaveTypeId", annualLeave)
 
     if (annualLeave) {
       const staffLevaeData = await staffLeave.findOne({ userId: userId, "leaveDetails.leaveTypeId": annualLeave._id, });
 
-      console.log("staffLevaeDatastaffLevaeDatastaffLevaeDatastaffLevaeData", staffLevaeData)
 
       if (staffLevaeData) {
         if (!year) {
@@ -2734,7 +2539,6 @@ class ballot {
     return { status: false };
   }
   async managePlanLeave(userId, leaveQuota, leaveTypeData, startYear = new Date().getFullYear()) {
-    console.log('startYear^^^^^^^^^^^^^^--->>>>>', userId, leaveQuota, leaveTypeData, startYear)
     const updateStaffLeave = await staffLeave.findOneAndUpdate(
       { userId, leaveDetails: { "$elemMatch": { "year": startYear, leaveTypeId: leaveTypeData.leaveTypeId } } },
       { $inc: { "leaveDetails.$.planQuota": leaveQuota, "leaveDetails.$.request": leaveQuota } }
@@ -2769,11 +2573,8 @@ class ballot {
           message: "Balloting Exercise is closed, cannot submit now.",
         });
       }
-      console.log("alreadyApplied.appliedStaff", alreadyApplied.appliedStaff);
-      // //console.logs("Already apply are: ",alreadyApplied);
       //  req.user._id = "5a9973ae36ab4f444b42718b"
       for (var j = 0; j <= alreadyApplied.appliedStaff.length - 1; j++) {
-        console.log("ahdygu");
         if (req.user._id.toString() === alreadyApplied.appliedStaff[j].userId.toString()) {
           let leaveIncrease = 5;
           if (alreadyApplied.leaveConfiguration === 2) {
@@ -2791,13 +2592,10 @@ class ballot {
           //const sapData = await StaffSapData.findOneAndUpdate({staff_Id: req.user._id}, {$inc: {ballotLeaveBalanced: leaveIncrease}});
           const sapData = await this.managePlanLeave(req.user._id, leaveIncrease, isAnnualLeavePresent.leaveTypeData, startYear);
         } else {
-          //console.logs("Not similar one");
         }
       }
       const pullStaff = await Ballot.update({ _id: data.ballotId, "appliedStaff.userId": req.user._id }, { $pull: { appliedStaff: { userId: req.user._id } } });
 
-      //console.logs("req.body.leaveConfiguration :", req.body.leaveConfiguration);
-      console.log("hehehhe");
       for (let i = 0; i < req.body.slotNumber.length; i++) {
         let obj = {};
         const slotNumber = req.body.slotNumber[i];
@@ -2810,11 +2608,8 @@ class ballot {
           isAnnualLeavePresent.leaveTypeData,
           startYear
         );
-        console.log("hehehhe");
         if (checkLeave) {
           if (req.body.userFrom === 1) {
-            //console.logs('111');
-            // //console.logs('111',alreadyApplied.userFrom);
             const opsGroupList = await OpsGroup.findOne(
               { userId: req.user._id, isDelete: false },
               {
@@ -2832,7 +2627,6 @@ class ballot {
             );
             if (opsTeamList || (opsGroupList && opsGroupList.opsTeamId.length === 0)) {
               if (opsGroupList.opsTeamId.length === 0) {
-                //console.logs('ygdyug')
                 obj = {
                   userId: req.user._id,
                   weekNo: slotNumber,
@@ -2849,7 +2643,6 @@ class ballot {
                 };
               }
             } else {
-              console.log("OPS AND OPS TEAM FAILED");
               failedArr.push(slotNumber);
               /* return res.status(400).json({
                              success: false,
@@ -2863,7 +2656,6 @@ class ballot {
               buId: req.user.parentBussinessUnitId,
             };
           }
-          // //console.logs('obj', obj)
           const apply = await Ballot.findOneAndUpdate({ _id: req.body.ballotId }, { $push: { appliedStaff: obj } });
           let leaveDecrease = 5;
           if (apply.leaveConfiguration === 2) {
@@ -2877,10 +2669,6 @@ class ballot {
             leaveDecrease = 1;
           }
           //const sapData = await StaffSapData.findOneAndUpdate({staff_Id: req.user._id}, {$inc: {ballotLeaveBalanced: -leaveDecrease}});
-          // console.log("[][][][][------------------[][][][]][-----------[][][][][][][---------")
-          // console.log(req.user._id)
-          // console.log(isAnnualLeavePresent.leaveTypeData)
-          // console.log(startYear)
           const sapData = await this.managePlanLeave(req.user._id, -1 * leaveDecrease, isAnnualLeavePresent.leaveTypeData, startYear);
           successArr.push(slotNumber);
           /*return res.status(201).json({
@@ -2889,7 +2677,6 @@ class ballot {
                     sapData
                 });*/
         } else {
-          console.log("CHECK LEAVE FAILED");
           failedArr.push(slotNumber);
           // return res.status(400).json({
           //     success: false,
@@ -2919,7 +2706,6 @@ class ballot {
   }
 
   async checkIsLeavePresentMultiple(userId, leave, type, leaveTypeData, startYear = new Date().getFullYear()) {
-    //console.logs("LEAVE IN MUL:", leave);
     let howMany = 7;
     if (leave === 1) {
       howMany = 5;
@@ -2934,7 +2720,6 @@ class ballot {
     }
 
     // let staffLeave = await StaffSapData.findOne({staff_Id: id});
-    //  //console.logs('staffLeave',staffLeave);
     const staffLevaeData = await staffLeave.findOne({
       userId: userId,
       leaveDetails: { "$elemMatch": { "year": startYear, leaveTypeId: leaveTypeData.leaveTypeId } }
@@ -2957,12 +2742,10 @@ class ballot {
     }
 
     let staffLeave = await StaffSapData.findOne({ staff_Id: id });
-    //console.logs('staffLeave', staffLeave);
     return staffLeave && howMany <= staffLeave.ballotLeaveBalanced;
   }
 
   async sapDataImport(req, res) {
-    console.log('I am here')
     const bodyData = await this.getBodyData1(req);
     if (bodyData && bodyData.opsGroupDetails) {
       const userDataArr = bodyData.opsGroupDetails;
@@ -2995,7 +2778,6 @@ class ballot {
               let leaveType = userData.leaveGroupId.leaveType.filter((leave) => {
                 return leave && leave.leaveTypeId;// && leave.leaveTypeId.name == 'Annual Leave'
               });
-              console.log('leaveType', leaveType)
               if (leaveType && leaveType.length > 0) {
                 leaveType = leaveType[0];
                 obj.userId = userData._id;
@@ -3035,7 +2817,6 @@ class ballot {
                     }
                     var newArray = staffLeaveData.leaveDetails.concat([leaveDetails])
                     staffLeaveData.leaveDetails = newArray
-                    console.log('staffLeaveData.leaveDetails', staffLeaveData.leaveDetails.length)
                     //staffLeaveData.leaveDetails.push(leaveDetails)
                     const saveDD1 = await staffLeaveData.save()
                   }
@@ -3077,37 +2858,25 @@ class ballot {
              bodyData.opsGroupDetails, (item, next) => {
                  let opsData = item;
    
-                 console.log("ITEM IS: ",opsData['Staff name']);
                  if(opsData['Ops Group Name']==""||opsData['Admin Name']==""){
-                     console.log("no datato save");
                      next();
                  }
                  if(opsData['Ops Group Name']==undefined||opsData['Admin Name']==undefined){
-                     console.log("no datato save");
                      next();
                  }
    
                  var parentBuArr = opsData['Staff Parent Bu'].split('>');
                  let parentBu = parentBuArr[3].trim();
-                 console.log("parentBuArr: ",parentBu);
    
                  SubSection.findOne({name:parentBu}).then((Bu)=>{
-                     console.log("BU is:");
                      User.findOne({name:opsData['Admin Name']}).then((user)=>{
-                         console.log("user found",user.name);
    
-                             console.log("USERID IS: ",user._id);
                              OpsGroupSystemAdmin.findOne({userId:user._id}).then((systemAdminData)=>{
-                                 console.log("Syestem admin found",systemAdminData.buId,"and BUID is : ",Bu._id);
                                  let ifHas = checkIfHasId(systemAdminData.buId,Bu._id)
-                                 console.log("IDHAS IS: ",ifHas);
                                  if(ifHas == true){
-                                     console.log("FOUND IN systemAdminData");
                                      User.findOne({staffId:opsData['Staff Id']}).
                                      populate({path:'parentBussinessUnitId',select:'name'}).then((staff)=>{
-                                         console.log("FOUND STAFF BY ID: ",staff._id);
                                          if(staff.name !== opsData['Staff name']){
-                                           console.log("IN CHECK IF STAFF ID AND NAME DOES NOT MATCH");
                                              var logObj={message:"StaffId and Staff name does not match",
                                              adminName:opsData['Admin Name'],
                                              adminId:user._id,
@@ -3134,10 +2903,8 @@ class ballot {
                                                   let lg= log.save();
                                                   next();
                                                  }else{
-                                                     console.log("IN ELSE OF IF OPS GROUP HAS THAT STAFF");
                                                      OpsGroup.findOne({opsGroupName:opsData['Ops Group Name']}).then(opsgroup=>{
                                                          if(opsData['Ops Team Name']!=="" && opsData['Ops Team Name']!==undefined){
-                                                             console.log("IN IF OF FINDING SIMILAR OPS GROUP WITH ITS NAME:");
                                                              if(opsgroup.opsTeamId.length>0){
    
                                                                  OpsTeam.findOne({name:opsData['Ops Team Name']}).then(team=>{
@@ -3145,15 +2912,12 @@ class ballot {
                                                                          if(!err){
                                                                              OpsTeam.update({"_id":team._id},{"$push":{"userId":staff._id}},function(err,opsteam){
                                                                                  if (!err){
-                                                                                     console.log("UPDATED",opsgroup,"And OPS TEAM IS: ",team);
                                                                                      next();
                                                                                  }else{
-                                                                                     console.log("couldn't update in opsteam .")
                                                                                      next();
                                                                                  }
                                                                              });
                                                                          }else{
-                                                                             console.log("couldn't update in ops group.")
                                                                              next();
                                                                          }
                                                                      });
@@ -3177,8 +2941,6 @@ class ballot {
    
                                                              }else{
                                                                  //This ops group dont have teams
-                                                                 console.log("IN ELSE OF THERE IS NO TEAM IN OPS GROP ALSO UPDATING HERE");
-                                                                 console.log("iF TEAM LENGTH IS GREATER THAN 0");
                                                                  var logObj={
                                                                  message:"This Ops Group does not contain any Team. Cannot add Staff to ops group.",
                                                                  adminName:opsData['Admin Name'],
@@ -3193,9 +2955,7 @@ class ballot {
                                                              }
                                                          }else{
    
-                                                             // console.log("HERE IN UPDATION OF ELSE")
                                                              if(opsgroup.opsTeamId.length>0){
-                                                              console.log("ELSE OF ELSE YEP YEP");
                                                                  var logObj={
                                                                  message:"Please specify Team To add this staff. This Ops group contains Teams",
                                                                  adminName:opsData['Admin Name'],
@@ -3208,7 +2968,6 @@ class ballot {
                                                               let lg= log.save();
                                                               next();
                                                              }else{
-                                                                 console.log("FOUND MORE THAN 0 TEAMS SECOND ELSE ME AND UPDATING");
                                                                  var logObj={
                                                                      message:"Please specify Team To add this staff.",
                                                                      adminName:opsData['Admin Name'],
@@ -3225,7 +2984,6 @@ class ballot {
                                                          }
    
                                                      }).catch(err=>{
-                                                         console.log("not able to find Opsgroup by its name");
                                                          next();
                                                      })
                                                  }
@@ -3277,14 +3035,12 @@ class ballot {
    
    
                          }).catch((err)=>{
-                             console.log("In system admin catch");
    
                              next();
                          })
    
    
                      }).catch((err)=>{
-                         console.log("FOUND BU ELSE");
    
                          var logObj={message:"Admin not found.",opsGroupName:opsData['Ops Group Name'],
                          opsTeamName:opsData['Ops Team Name']};
@@ -3294,7 +3050,6 @@ class ballot {
    
                      })
                  }).catch((err)=>{
-                     console.log("FOUND BU ELSE");
    
                      var logObj={message:"Business Unit not found.",opsGroupName:opsData['Ops Group Name'],
                      opsTeamName:opsData['Ops Team Name']};
@@ -3322,7 +3077,6 @@ class ballot {
         csv()
           .fromFile(pathCSV)
           .then((jsonObj) => {
-            // console.log("jsonObj: ",jsonObj);
             const dataRequiredObj = {
               // opsGroupData: JSON.parse(fields.ops[0]),
               opsGroupDetails: jsonObj
@@ -3337,22 +3091,16 @@ class ballot {
   }
   async sendResponse(data, res, failed, req) {
     try {
-      //console.logs('data', data)
       const dataLength = data.length;
       for (let i = 0; i < dataLength; i++) {
         let item = data[i];
-        //  //console.logs('i,i', item);
         if (item) {
-          //  //console.logs('i', i)
           const result = await StaffSapData.findOne({
             staff_Id: item.staff_Id,
           });
-          // //console.logs('result', result)
           if (!result) {
-            //console.logs('not found')
             await new StaffSapData(item).save();
           } else {
-            // //console.logs('i', i)
             const increaseLeave = result.leavesBalanced + parseInt(item.leavesBalanced);
             const ballotLeaveBalanced = result.ballotLeaveBalanced + parseInt(item.leavesBalanced);
             const newResult = await StaffSapData.findOneAndUpdate(
@@ -3367,11 +3115,9 @@ class ballot {
                 },
               }
             );
-            ////console.logs(item);
           }
         }
       }
-      //console.logs('i', 4);
       return res.json({ status: true, message: "Data Successfully imported" });
     } catch (e) {
       return res.json({
@@ -3386,7 +3132,6 @@ class ballot {
     return new Promise((resolve, reject) => {
       var form = new multiparty.Form();
       form.parse(req, function (err, fields, files) {
-        //console.logs("FILES:", files);
         const pathCSV = files.ff[0].path;
         csv()
           .fromFile(pathCSV)
@@ -3406,8 +3151,6 @@ class ballot {
   async staffCancelSlot(req, res) {
     try {
       const data = req.body;
-      //console.logs('re', req.user._id);
-
       const leaveTypeData = await this.checkIsAnnualLeave(req.user._id, req.user.companyId);
       if (leaveTypeData.status) {
         const ballotData = await Ballot.findOne({
@@ -3486,7 +3229,6 @@ class ballot {
 
   async annualLeave(req, res) {
     try {
-      console.log("I am gere", req.user._id);
       let year = req.body.year;
       if (!year) {
         year = new Date().getFullYear()
@@ -3532,7 +3274,6 @@ class ballot {
 
   async userList(req, res) {
     try {
-      console.log('req.body', req.body);
       if (req.body.isOpsGroup) {
         if (req.body.opsGroupId && req.body.opsGroupId.length > 0) {
           let opsGroupInfo = await OpsGroup.find({
@@ -3554,7 +3295,6 @@ class ballot {
               },
             ])
             .lean();
-          //console.logs('opsGroupInfo', opsGroupInfo)
           opsGroupInfo = JSON.stringify(opsGroupInfo);
           opsGroupInfo = JSON.parse(opsGroupInfo);
           const userInfo = [];
@@ -3563,7 +3303,6 @@ class ballot {
             opsItem.opsTeamId.forEach((teamItem) => {
               teamItem.userId.forEach((userItem) => {
                 opsItem.userId.forEach((opsGroupUser, index) => {
-                  //console.logs(opsGroupUser, userItem)
                   if (opsGroupUser._id == userItem) {
                     opsGroupInfo[i].userId[index].opsTeam = teamItem.name;
                     opsGroupInfo[i].userId[index].opsTeamId1 = teamItem._id;
@@ -3658,11 +3397,9 @@ class ballot {
     try {
       // const id = req.params.id;
       //const data = req.body;
-      //  //console.logs('daataaaa', data)
       if (req.body.isDeleted) {
         const data = await Ballot.update({ _id: req.body.id }, { companyId: req.user.companyId, isDeleted: true });
         this.deleteEvent(req.body.id).then((re)=>{
-          console.log('deleted ballot cron')
         })
         return res.json({
           success: true,
@@ -3671,7 +3408,6 @@ class ballot {
       } else {
         const data = await Ballot.update({ _id: req.body.id }, { companyId: req.user.companyId, isCanceled: true });
         this.deleteEvent(req.body.id).then((re)=>{
-          console.log('deleted ballot cron')
         })
         return res.json({
           success: true,
@@ -3685,16 +3421,13 @@ class ballot {
   /*
     async update(req, res) {
       try {
-        //console.logs("in update");
         const id = req.body.id;
         delete req.body.id;
-        //console.logs('req.body.id', req.body)
         if (req.body.leaveType == 2) {
           req.body.leaveConfiguration = 4;
         }
         req.body.applicationOpenDateTime = `${req.body.openDate} ${req.body.openTime} ${req.body.timeZone}`
         req.body.applicationCloseDateTime = `${req.body.closeDate} ${req.body.closeTime} ${req.body.timeZone}`
-        console.log(" req.body.applicationOpenDateTime",  req.body.applicationOpenDateTime);
         req.body.applicationOpenDateTime = moment(req.body.applicationOpenDateTime, "MM-DD-YYYY HH:mm:ss Z").utc().format();
         req.body.applicationCloseDateTime = moment(req.body.applicationCloseDateTime, "MM-DD-YYYY HH:mm:ss Z").utc().format();
   
@@ -3715,13 +3448,10 @@ class ballot {
     }
     async updateCasual(req, res) {
       try {
-        //console.logs("in update");
         const id = req.body.id;
         delete req.body.id;
-        //console.logs('req.body.id', req.body)
         req.body.applicationOpenDateTime = `${req.body.openDate} ${req.body.openTime} ${req.body.timeZone}`
         req.body.applicationCloseDateTime = `${req.body.closeDate} ${req.body.closeTime} ${req.body.timeZone}`
-        console.log(" req.body.applicationOpenDateTime",  req.body.applicationOpenDateTime);
         req.body.applicationOpenDateTime = moment(req.body.applicationOpenDateTime, "MM-DD-YYYY HH:mm:ss Z").utc().format();
         req.body.applicationCloseDateTime = moment(req.body.applicationCloseDateTime, "MM-DD-YYYY HH:mm:ss Z").utc().format();
   
@@ -3745,10 +3475,8 @@ class ballot {
 
   async update(req, res) {
     try {
-      //console.logs("in update");
       const id = req.body.id;
       delete req.body.id;
-      //console.logs('req.body.id', req.body)
       if (req.body.leaveType == 2) {
         req.body.leaveConfiguration = 4;
       }
@@ -3767,10 +3495,8 @@ class ballot {
   }
   async updateCasual(req, res) {
     try {
-      //console.logs("in update");
       const id = req.body.id;
       delete req.body.id;
-      //console.logs('req.body.id', req.body)
       const data = await Ballot.findOneAndUpdate({ _id: id }, req.body);
       if(!data.isDraft){
         this.ballotEvent(data, 'update', true);
@@ -3850,7 +3576,6 @@ class ballot {
   async winBallotForStaff(req, res) {
     try {
       const ballotId = req.params.id;
-      //console.logs('ballotId', ballotId)
       let ballotResult = await Ballot.findOne({
         _id: ballotId,
         isPublish: true,
@@ -3869,7 +3594,6 @@ class ballot {
         if (ballotResult.userFrom === 2) {
           ballotResult = JSON.stringify(ballotResult);
           ballotResult = JSON.parse(ballotResult);
-          ////console.logs('ballotResult', ballotResult);
           let shuffle = [];
           shuffle = ballotResult.slotCreation;
           ballotResult.appliedStaff.forEach((appliedStaff) => {
@@ -3893,7 +3617,6 @@ class ballot {
                 randomStaff.forEach((randomSelectedStaff) => {
                   finalWinStaff.push(slotWise.appliedStaff[randomSelectedStaff]);
                 });
-                //console.logs('slotWise.appliedStaff.length', slotWise.appliedStaff.length, howMuchWin, randomStaff)
               }
             });
           });
@@ -3917,7 +3640,6 @@ class ballot {
           // for ops group
           ballotResult = JSON.stringify(ballotResult);
           ballotResult = JSON.parse(ballotResult);
-          ////console.logs('ballotResult', ballotResult);
           let shuffle = [];
 
           const opsGroupQuota = [];
@@ -3932,7 +3654,6 @@ class ballot {
               slotQuota: [],
             };
             opsGroupSlot.arr.forEach((arrItem, arrIndex) => {
-              ////console.logs('aaaaaaaa');
               let key = "" + arrIndex + "A";
               let slotNumber = arrIndex;
               let slotOpsGroupValue = parseInt(opsGroupSlot.weekRangeSlot[key].value);
@@ -3940,7 +3661,6 @@ class ballot {
               const teamValue = [];
               let totalTeamQuota = 0;
               opsGroupSlot.opsTeam.forEach((teamItem, teamIndex) => {
-                ////console.logs('aaaaaaaa');
                 let key = 'OG' + arrIndex +'OT' + teamIndex;
                 totalTeamQuota = totalTeamQuota + parseInt(opsGroupSlot.weekRangeSlot[key].value);
                 teamValue.push(parseInt(opsGroupSlot.weekRangeSlot[key].value));
@@ -3953,13 +3673,9 @@ class ballot {
               };
               slotValue.slotQuota.push(obj);
             });
-            ////console.logs('aauued', slotValue)
             opsGroupQuota.push(slotValue);
-            ////console.logs('yyegwb');
-            ////console.logs('aaaa', groupBy(ballotResult.appliedStaff,'weekNo'));
             let appliedStaffObject = {};
             appliedStaffObject = groupBy(ballotResult.appliedStaff, "opsTeamId");
-            ////console.logs('appliedStaffObject', appliedStaffObject)
             //return res.send(ballotResult.appliedStaff)
             /* for(let keyyy in appliedStaffObject){
                              const ayaya = groupBy(appliedStaffObject[keyyy],'weekNo');
@@ -3969,7 +3685,6 @@ class ballot {
               opsGroupId: opsGroupSlot.opsGroup.opsId,
               opsTeamValue: [],
             };
-            //console.logs('yyegwbaaa');
             if (opsGroupSlot.opsTeam && opsGroupSlot.opsTeam.length > 0) {
               opsGroupSlot.opsTeam.forEach((teamItem, teamIndex) => {
                 if (appliedStaffObject[teamItem._id]) {
@@ -3980,11 +3695,9 @@ class ballot {
                 }
               });
             } else {
-              //console.logs('no temmmm');
               const ayaya = groupBy(appliedStaffObject["undefined"], "weekNo");
               opsGroupSlotWithTeam.opsTeamValue.push(ayaya);
             }
-            ////console.logs('hgfgetgt')
             appliedStaffArray.push(opsGroupSlotWithTeam);
             /*groupBy(ballotResult.appliedStaff, function(item)
                         {
@@ -3992,7 +3705,6 @@ class ballot {
                         });*/
           }
 
-          ////console.logs('aaaaaaaa');
           function groupBy(xs, key) {
             return xs.reduce(function (rv, x) {
               (rv[x[key]] = rv[x[key]] || []).push(x);
@@ -4016,9 +3728,7 @@ class ballot {
 
           let limitQuota = [];
           let finalWinStaff = [];
-          ////console.logs('aaaaaaaa');
           opsGroupQuota.forEach((item, topIndex) => {
-            ////console.logs('aaa')
             let objA = {
               opsGroupId: item.opsGroupId,
             };
@@ -4027,7 +3737,6 @@ class ballot {
               if (slll.opsTeamQuotaValue.length === 0) {
                 objA.isTeamPresent = false;
                 objA.opsGroupQuotaValue = slll.opsGroupQuotaValue;
-                // //console.logs('callleddd');
                 if (appliedStaffArray[topIndex].opsTeamValue[0] && appliedStaffArray[topIndex].opsTeamValue[0]["" + slll.slot]) {
                   if (slll.opsGroupQuotaValue >= appliedStaffArray[topIndex].opsTeamValue[0]["" + slll.slot].length) {
                     finalWinStaff = finalWinStaff.concat(appliedStaffArray[topIndex].opsTeamValue[0]["" + slll.slot]);
@@ -4047,14 +3756,11 @@ class ballot {
                     appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex] &&
                     appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot]
                   ) {
-                    //console.logs('bbb');
                     const len = appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot].length;
-                    //console.logs('len', len, slll.slot, p);
                     // p means no of win
                     // len means no of applied
                     if (len > p) {
                       const randomStaff = this.getRandomNumber(len, p);
-                      //console.logs('randomStaff', randomStaff);
                       randomStaff.forEach((randomSelectedStaff) => {
                         finalWinStaff.push(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot][randomSelectedStaff]);
                       });
@@ -4070,30 +3776,24 @@ class ballot {
                 // if ops group quota value is less then total team quota
                 let allAppliedStaff = [];
                 slll.opsTeamQuotaValue.forEach((p, opsTeamQuotaValueIndex) => {
-                  ////console.logs('topIndexppppppp', topIndex, opsTeamQuotaValueIndex);
                   if (
                     appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex] &&
                     appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot]
                   ) {
-                    //console.logs('aaaaeee');
                     if (p >= appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot].length) {
-                      // //console.logs('hh', appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex][''+slll.slot])
                       allAppliedStaff = allAppliedStaff.concat(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot]);
                     } else {
-                      //console.logs('thiselseworkssss')
                       const randomStaff = this.getRandomNumber(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot].length, p);
                       randomStaff.forEach((ppp) => {
                         allAppliedStaff.push(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot][ppp]);
                       });
                     }
-                    /*       //console.logs('bbb');
+                    /*       
                                         const len = appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex][''+slll.slot].length;
-                                        //console.logs('len', len, slll.slot, p);
                                         // p means no of win
                                         // len means no of applied
                                         if(len>p) {
                                             const randomStaff = this.getRandomNumber(len, p);
-                                            //console.logs('randomStaff', randomStaff);
                                             randomStaff.forEach((randomSelectedStaff)=>{
                                                 finalWinStaff.push(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex][''+slll.slot][randomSelectedStaff])
                                             });
@@ -4107,16 +3807,12 @@ class ballot {
                   //const randomStaff = this.getRandomNumber(slotWise.appliedStaff.length, howMuchWin);
                 });
                 if (allAppliedStaff.length > 0) {
-                  //console.logs('ahugwgg')
                   const finalAppliedStaff = [];
                   const randomStaff = this.getRandomNumber(allAppliedStaff.length, allAppliedStaff.length);
-                  //console.logs('randomStaff', randomStaff, allAppliedStaff.length);
                   randomStaff.forEach((ppp) => {
                     finalAppliedStaff.push(allAppliedStaff[ppp]);
                   });
                   const finalRandomStaff = this.getRandomNumber(allAppliedStaff.length, slll.opsGroupQuotaValue);
-                  //console.logs('finalRandomStaff', finalRandomStaff)
-                  //console.logs('sdhfys', allAppliedStaff.length, finalRandomStaff, slll.opsGroupQuotaValue);
                   finalRandomStaff.forEach((ppp) => {
                     finalWinStaff.push(finalAppliedStaff[ppp]);
                   });
@@ -4177,10 +3873,8 @@ class ballot {
         const slotArr = ballot.weekRange;
         const slotValue = slotArr[slotWon];
         let startDate = moment(slotValue.start); //.format('DD-MM-YYYY');
-        console.log("startDate", startDate);
         let endDate = moment(slotValue.end);
         const diff = endDate.diff(startDate, "days") + 1;
-        console.log("diff", diff);
         let leaveTypeId = leaveTypeData.leaveTypeData.leaveTypeId;
         let leaveGroupId = leaveTypeData.leaveGroupId;
         let parentBussinessUnitId = leaveTypeData.businessUnitId;
@@ -4209,7 +3903,6 @@ class ballot {
     const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $set: { staffLeave: finalLeave } });
   }
   async unSuccessfullStaffLeaveBallotBalanaceUpdate(ballotId) {
-    //console.logs('ballotId', ballotId)
     const ballotData = await Ballot.findOne({ _id: ballotId });
     let leave = 5;
     if (ballotData.leaveConfiguration === 2) {
@@ -4222,7 +3915,6 @@ class ballot {
     }
     const appliedStaff = groupBy(ballotData.appliedStaff, "userId");
     const wonStaff = groupBy(ballotData.wonStaff, "userId");
-    ////console.logs('ba', JSON.stringify(ballotData));
     // here currently implementing on first slot year which Got during processing 
     const updateLeaveBy = [];
     for (let key in appliedStaff) {
@@ -4256,7 +3948,6 @@ class ballot {
       }
 
       // const leaveTypeData = await this.checkIsAnnualLeave(userId, ballotData.companyId);
-      //console.logs('user', user)
       if (leaveTypeData.status) {
         let totalLeave = leaveTypeData.leaveTypeData.planQuota + user.value;
         const update = await this.managePlanLeave(userId, user.value, leaveTypeData.leaveTypeData, startYear);
@@ -4266,11 +3957,9 @@ class ballot {
         //     if (totalLeave > staffLevae.leavesBalanced) {
         //         totalLeave = staffLevae.leavesBalanced;
         //     }
-        //     // //console.logs(staffLevae)
         //     const update = await StaffSapData.update({staff_Id: user.userId}, {$set: {ballotLeaveBalanced: totalLeave}});
         // }
       }
-      //console.logs('user', user)
       // if (user.value > 0) {
       //     const staffLevae = await StaffSapData.findOne({staff_Id: user.userId});
       //     if (staffLevae) {
@@ -4278,7 +3967,6 @@ class ballot {
       //         if (totalLeave > staffLevae.leavesBalanced) {
       //             totalLeave = staffLevae.leavesBalanced;
       //         }
-      //         // //console.logs(staffLevae)
       //         const update = await StaffSapData.update({staff_Id: user.userId}, {$set: {ballotLeaveBalanced: totalLeave}});
       //     }
       // }
@@ -4293,7 +3981,6 @@ class ballot {
   }
 
   getRandomNumber(length, howMany) {
-    //console.logs("aaaaa")
     if (howMany > length) {
       howMany = length;
     }
@@ -4310,14 +3997,10 @@ class ballot {
   }
 
   async readRestrictionForStaffForBallot(req, res) {
-    //try {
     const id = req.params.id;
     const ballot = await Ballot.findOne({ _id: id }); //{staffRestriction:1,maxSegment:1,maxConsecutiveBallot:1, isRestrict:1}
     const startYearA = new Date(ballot.ballotStartDate).getFullYear();
     const levaeTypeData = await this.checkIsAnnualLeave(req.user._id, req.user.companyId, startYearA);
-    //return res.json({levaeTypeData})
-    //const leave = await StaffSapData.findOne({staff_Id: req.user._id}, {ballotLeaveBalanced: 1});
-    //return res.json({ballot})
     let ballotLeaveBalanced = 0;
     if (levaeTypeData.status) {
       ballotLeaveBalanced = levaeTypeData.leaveTypeData.planQuota;
@@ -4349,14 +4032,12 @@ class ballot {
             return true;
           }
         });
-        console.log("isPresent", isPresent);
         if (isPresent) {
           let slot = this.getWeekIndex(item.startDate, ballot.weekRange, "start", ballot.leaveType);
           slot = -1;
           if (slot == -1) {
-            // var slotStr = item.slot.split(" ")[0].substring(6);
-            var slotStr = item.slot; 
-            slot = parseInt(slotStr);
+            var slotStr = item.slot.split(" ")[0].substring(6);
+            slot = parseInt(slotStr) - 1;
           }
           staffRestrictionObj.slotNo = slot;
           staffRestriction.push(staffRestrictionObj);
@@ -4365,7 +4046,6 @@ class ballot {
       const segmentRestriction = [];
       ballot.maxSegment.forEach((item, index) => {
         let startSlot = this.getWeekIndex(item.startDate, ballot.weekRange, "start", ballot.leaveType);
-        //console.logs('item.endDate', item.endDate);
         let endSlot = this.getWeekIndex(item.endDate, ballot.weekRange, "end", ballot.leaveType);
         let slotRange = [];
         for (let i = startSlot; i <= endSlot; i++) {
@@ -4392,7 +4072,6 @@ class ballot {
         data: resTo,
         message: "Successfull",
       });
-      // return res.status(200).json({segmentRestriction, leaveConfiguration, howManySlotStaffCanApplied, success: true,  isRestrict: true, ballotLeaveBalanced, staffRestriction});
     } else {
       var resTo = {
         howManySlotStaffCanApplied: howManySlotStaffCanApplied,
@@ -4401,13 +4080,9 @@ class ballot {
       };
       return res.status(200).json({ success: true, data: resTo, message: "successful" });
     }
-    // } catch (e) {
-    //     return res.status(500).json({success: false, message: 'Something went wrong'});
-    // }
   }
 
   async getBallotFilteredResults(req, res) {
-    //console.logs("IN GET");
     let data = req.body;
     let flag = 0;
     if (data.opsTeams && data.opsTeams.length > 0) {
@@ -4428,19 +4103,15 @@ class ballot {
           } else {
             for (var a = 0; a <= OpsG.opsTeamId.length - 1; a++) {
               for (var b = 0; b <= data.opsTeams.length - 1; b++) {
-                //console.logs("ID!: ", data.opsTeams[b], " ID@: ", OpsG.opsTeamId[a]);
                 if (data.opsTeams[b].toString() === OpsG.opsTeamId[a].toString()) {
-                  //console.logs("SAME FOUND");
                   //here me now
                   var OpsT = await OpsTeam.findOne({ _id: data.opsTeams[b] });
                   if (!OpsT) {
-                    //console.logs("same team not found");
                   } else {
                     UsersIds = UsersIds.concat(OpsT.userId);
                   }
                   //UsersIds.push(data.opsTeams[b]);
                 } else {
-                  //console.logs("NOt same team Id found");
                 }
               }
             }
@@ -4453,11 +4124,9 @@ class ballot {
           for (var j = 0; j <= UsersIds.length - 1; j++) {
             if (ballot.appliedStaff[i].userId.toString() === UsersIds[j].toString()) {
               //same user found
-              //console.logs("MATCH YEP YEP");
               appliedCount = appliedCount + 1;
               // let user = await User.findOne({_id:})
             } else {
-              //console.logs("not equal applied staff");
             }
           }
         }
@@ -4467,16 +4136,13 @@ class ballot {
           for (var j = 0; j <= UsersIds.length - 1; j++) {
             if (ballot.wonStaff[i].userId.toString() === UsersIds[j].toString()) {
               //same user found
-              //console.logs("MATCH YEP YEP");
               successfulCount = successfulCount + 1;
               // let user = await User.findOne({_id:})
             } else {
-              //console.logs("not equal applied staff");
             }
           }
         }
       } else {
-        //console.logs("result not released.");
       }
 
       res.send({
@@ -4491,11 +4157,9 @@ class ballot {
       });
     }
 
-    //console.logs("USerIds found: ", UsersIds);
   }
 
   getWeekIndex(date, weekRange, from, leaveType = 1) {
-    console.log("leaveType", leaveType, from, date);
     if (leaveType == 1) {
       if (from === "end") {
         let weekDay = new Date(date).getDay();
@@ -4517,10 +4181,6 @@ class ballot {
       const tomorrow = new Date(date);
       tomorrow.setDate(new Date(date).getDate() + 1);
       const nextDate = moment(tomorrow).format("YYYY-MM-DD");
-      // //console.logs('last', lastDate);
-      //console.logs('currentDate', currentDate);
-      // //console.logs('weekRange[i]', weekRange[0])
-      //   //console.logs('nextDate', nextDate);
       let slot = -1;
       if (from === "start") {
         for (let i = 0; i < weekRange.length; i++) {
@@ -4544,7 +4204,6 @@ class ballot {
       //const date =
       //date, weekRange
       const currentDate = moment(date).format("YYYY-MM-DD");
-      console.log("currentDate", currentDate);
       let slot = -1;
       if (from === "start") {
         for (let i = 0; i < weekRange.length; i++) {
@@ -4582,7 +4241,6 @@ class ballot {
       data.applicationCloseDateTime = moment(data.applicationCloseDateTime, "MM-DD-YYYY HH:mm:ss Z").utc().format();
 
       let oldClosingDate = ballot.applicationCloseDateTime;
-      console.log("DATA IS: ", data.applicationCloseDateTime);
       let date = data.applicationCloseDateTime;
 
       data.resultReleaseDateTime = `${data.resultReleaseDate} ${data.resultReleaseTime}:00 ${data.timeZone}`
@@ -4592,7 +4250,6 @@ class ballot {
 
       let date1 = data.resultReleaseDateTime;
       //date = moment(date, "MM-DD-YYYY HH:mm:ss Z").utc().format();
-      console.log("data: ", date);
       const validationObj = this.validatieEndBallotDate(date);
       if (validationObj.status) {
         let updates = await Ballot.update(
@@ -4647,8 +4304,6 @@ class ballot {
     const appliedStaff = groupBy(ballotData.appliedStaff, "userId");
     const wonStaff = groupBy(ballotData.wonStaff, "userId");
     const updateLeaveBy = [];
-    //console.logs("Applied is: ", appliedStaff);
-    //console.logs("WONSTAFF IS: ", wonStaff);
     for (let key in appliedStaff) {
       const obj = {
         userId: key,
@@ -4662,10 +4317,8 @@ class ballot {
       obj.value = (staffAppliedCount - staffWonCount) * leave;
       updateLeaveBy.push(obj);
     }
-    //console.logs("updateLeaveBy:", updateLeaveBy);
     for (let i = 0; i < updateLeaveBy.length; i++) {
       const user = updateLeaveBy[i];
-      //console.logs('user', user)
       if (user.value > 0) {
         const staffLeavedata = await StaffSapData.findOne({
           staff_Id: user.userId,
@@ -4675,7 +4328,6 @@ class ballot {
           if (totalLeave > staffLeavedata.leavesBalanced) {
             totalLeave = staffLeavedata.leavesBalanced;
           }
-          //console.logs("staffLeavedata: ", staffLeavedata);
           const update = await StaffSapData.update({ staff_Id: user.userId }, { $set: { ballotLeaveBalanced: totalLeave } });
         }
       }
@@ -4731,7 +4383,6 @@ class ballot {
             var found = ballot.wonStaff.filter(function (element) {
               return element.buId.toString() === slots[i].buId.toString() && element.weekNo === j;
             });
-            //console.logs("FOUND: ", found);
             slots[i].arr[j].value = slots[i].arr[j].value - found.length;
           }
           //res.send(users)
@@ -4751,7 +4402,6 @@ class ballot {
             if (slots[i].opsTeam.length > 0) {
               slots[i].opsTeam.forEach((team, d) => {
                 let currentweek = 'OG' + j + 'OT' + d.toString();
-                //console.logs("Current week in Team: ", currentweek);
                 var found = ballot.wonStaff.filter(function (element) {
                   if (element.opsTeamId) {
                     return element.opsTeamId.toString() === team._id.toString() && element.weekNo === j;
@@ -4759,7 +4409,6 @@ class ballot {
                     return element.opsGroupId === opsGrpid && !element.opsTeamId && element.weekNO === j;
                   }
                 });
-                //console.logs("FOUND: ", found);
                 slots[i].weekRangeSlot[currentweek].value = slots[i].weekRangeSlot[currentweek].value - found.length;
               });
             }
@@ -4778,7 +4427,6 @@ class ballot {
   }
 
   async getBallotAppliedUsersList(req, res) {
-    //console.logs("USER ID: ", req.params.id);
     try {
       let ballot = await Ballot.findById({ _id: req.params.id }).populate([
         { path: "appliedStaff.userId", select: "_id name" },
@@ -4790,7 +4438,6 @@ class ballot {
         week.appliedUser = [];
         week.wonUser = [];
       });
-      //console.logs("WEEKRANGE IS : ", weekRange);
       ballot = JSON.stringify(ballot);
       ballot = JSON.parse(ballot);
       if (ballot) {
@@ -4800,13 +4447,11 @@ class ballot {
             //   var slot = ballot.weekRange[SlotObject.weekNo];
 
             weekRange[SlotObject.weekNo].appliedUser.push(SlotObject.userId);
-            ////console.logs("IN APPLIED :",weekRange[SlotObject.weekNO]);
             //  SlotObject.slot={};
             // SlotObject.slot= {start:slot.start,end:slot.end};
             // Applied.push(SlotObject);
           }
         }
-        //console.logs("WIN STAFF ARE: ", ballot.wonStaff.length);
         if (ballot.wonStaff.length > 0) {
           for (var i = 0; i <= ballot.wonStaff.length - 1; i++) {
             let SlotObject = ballot.wonStaff[i];
@@ -4819,9 +4464,6 @@ class ballot {
             //WON.push(SlotObject);
           }
         }
-        // //console.logs("DONE WITH SECOND");
-
-        //console.logs("CALLING THIS THEN");
         let ballotingdata = { weeks: weekRange };
         res.status(200).json({
           status: true,
@@ -4856,8 +4498,6 @@ class ballot {
           ops.opsgroup = opsG;
           let teams = [];
           let Teams = opsG.opsTeamId;
-          //console.logs("OPSGROUP IS: ", opsG);
-          //console.logs("TEAMS : ", opsG.opsTeamId);
           if (Teams.length > 0) {
             for (let j = 0; j <= Teams.length - 1; j++) {
               let OpsT = await OpsTeam.findOne({ _id: Teams[j] }, { _id: 1, name: 1 });
@@ -4868,7 +4508,6 @@ class ballot {
         }
         opsData.push(ops);
       }
-      //console.logs("data found is: ", opsData);
       return res.status(200).json({
         success: true,
         data: opsData,
@@ -4888,7 +4527,6 @@ class ballot {
       } else {
         if (ballot.parentBallot) {
           let parentBallotId = await this.checkBallots(ballot._id);
-          //console.logs("parentballet", parentBallotId);
           const ballotparent = await Ballot.findOne(
             { _id: parentBallotId },
             {
@@ -4905,10 +4543,8 @@ class ballot {
               isAutoAssign: 1,
             }
           );
-          //console.logs("ballotparent: ", ballotparent);
           this.sendManageBallotData(ballotparent, res);
         } else {
-          //console.logs("In main else");
           this.sendManageBallotData(ballot, res);
         }
       }
@@ -4919,7 +4555,6 @@ class ballot {
 
   async checkBallots(ballotid) {
     let newballot = await Ballot.findOne({ _id: ballotid });
-    //console.logs("NewBallot: ", newballot);
     newballot = JSON.stringify(newballot);
     newballot = JSON.parse(newballot);
     if (newballot.parentBallot) {
@@ -4928,7 +4563,6 @@ class ballot {
       return this.checkBallots(id);
     } else {
       // return ballot
-      //console.logs("in else of check parent ballot: ", newballot._id);
       return newballot._id;
     }
   }
@@ -4940,10 +4574,8 @@ class ballot {
       ballotStatus = "Closed";
     }
     if (ballot.isResultRelease) {
-      //console.logs("In check of result release yep");
       ballotStatus = "Closed";
     }
-    //console.logs("Ballot status is:", ballotStatus);
     let roundOne = ballot.ballotRound + 1;
     let newbal = {
       ballotName: ballot.ballotName,
@@ -4978,14 +4610,12 @@ class ballot {
             assignRatio: 1,
           }
         );
-        //  console.log("Child Ballots : ", childBallot._id,'=>',childBallot.isAutoAssign);
         if (childBallot) {
           let Status = "Open";
           if (new Date().getTime() > new Date(childBallot.applicationCloseDateTime).getTime()) {
             Status = "Closed";
           }
           if (childBallot.isResultRelease) {
-            //console.logs("In check of result release yep of child ballot");
             Status = "Closed";
           }
 
@@ -5017,10 +4647,8 @@ class ballot {
           });
         }
 
-        //console.logs("BallotsList :", BallotsList);
       }
     } else {
-      //console.logs("There is no child ballot yet");
     }
     BallotsList.reverse();
     let ballotData = { parent: parentBallotMain, BallotList: BallotsList };
@@ -5055,7 +4683,6 @@ class ballot {
       let annualLeavePlanQuotaObj;
       let calculatedValue;
 
-      // console.log("findLeaveTpeInStaffLeavefindLeaveTpeInStaffLeavefindLeaveTpeInStaffLeave", findLeaveTpeInStaffLeave)
       if (findLeaveTpeInStaffLeave !== null) {
         //New-Leavetype 
         leaveObj = _.filter(findLeaveTpeInStaffLeave.leaveDetails, (e) => JSON.stringify(e.leaveTypeId) == JSON.stringify(getLeavetypeId[0].leaveTypeId) && e.year === currentYear)
@@ -5076,7 +4703,6 @@ class ballot {
             )
           }
         } else {
-          console.log("inside else")
           let findLeaveTpeInStaffLeavee = await staffLeave.findOne({
             userId: getLeavetypeId[0].wonStaff[i].userId, 'leaveDetails.year': currentYear,
             'leaveDetails.leaveTypeId': getLeavetypeId[0].fixedBallotingLeaveType ? getLeavetypeId[0].leaveTypeId : annualLeaveId._id
@@ -5108,23 +4734,19 @@ class ballot {
 
     if (item.userFrom === 1) {
       const userIDArr = await OpsGroup.find({ _id: { $in: item.opsGroupId }, isDelete: false }, { userId: 1, _id: 0 });
-      //console.logs("userIDARR : ",userIDArr);
       let userId = [];
       userIDArr.forEach((item) => {
         userId = userId.concat(item.userId);
       });
-      //console.logs('userId', userId)
       const unAssignUser = await User.find({ _id: { $in: userId } })
         .select("deviceToken")
         .lean();
-      ////console.logs('user11', JSON.stringify(unAssignUser));
       const usersDeviceTokens = [];
       unAssignUser.forEach((token) => {
         if (token.deviceToken) {
           usersDeviceTokens.push(token.deviceToken);
         }
       });
-      //console.logs('usersDeviceTokens', usersDeviceTokens);
       if (usersDeviceTokens.length > 0) {
         //Balloting Exercise (Ballot Name) results are released, please check the results
         const pushData = {
@@ -5197,7 +4819,6 @@ class ballot {
       };
       for (let i = 0; i < ballotData.slotCreation.length; i++) {
         const slot = ballotData.slotCreation[i];
-        // //console.logs('slot', slot);
         const wonBuStaffArr = wonStaffData.filter((bu) => {
           return bu.buId == slot.buId;
         });
@@ -5251,7 +4872,6 @@ class ballot {
         const wonStaffByBu_Week = this.groupByPro(wonStaffByOpsGroup[opsGroupId], "weekNo");
         wonStaffDataOpsGroup.push({ opsGroupId, wonStaffByBu_Week });
       }
-      //console.logs('wonStaffDataOpsGroup', JSON.stringify(wonStaffDataOpsGroup));
       const wonStaffDataOpsTeam = [];
       const wonStaffByOpsTeam = this.groupByPro(ballotData.wonStaff, "opsTeamId");
       for (let opsTeamId in wonStaffByOpsTeam) {
@@ -5262,9 +4882,6 @@ class ballot {
 
       const appliedStaffDataOpsGroup = [];
       const appliedStaffDataByOpsGroup = this.groupByPro(ballotData.appliedStaff, "opsGroupId");
-      //console.logs('*******');
-      // //console.logs('appliedStaffDataByOpsGroup', JSON.stringify(appliedStaffDataByOpsGroup));
-      //console.logs('*******');
       for (let opsGroupId in appliedStaffDataByOpsGroup) {
         const appliedStaffDataByBu_Week = this.groupByPro(appliedStaffDataByOpsGroup[opsGroupId], "weekNo");
         appliedStaffDataOpsGroup.push({
@@ -5272,8 +4889,6 @@ class ballot {
           appliedStaffDataByBu_Week,
         });
       }
-      //console.logs('appliedStaffDataOpsGroup', JSON.stringify(appliedStaffDataOpsGroup));
-      //console.logs('*******');
       const appliedStaffDataOpsTeam = [];
       const appliedStaffDataByOpsTeam = this.groupByPro(ballotData.appliedStaff, "opsTeamId");
       for (let opsTeamId in appliedStaffDataByOpsTeam) {
@@ -5293,7 +4908,6 @@ class ballot {
         const weekRangeSlotList = Object.keys(slotObj.weekRangeSlot);
         const checkIndexFormat = weekRangeSlotList.includes('OG0OT0');
         if (slotObj.opsTeam.length > 0) {
-          // //console.logs('appliedStaffDataOpsTeam', appliedStaffDataOpsTeam);
           const appliedStaffOpsTeamArr = [];
           appliedStaffDataOpsTeam.forEach((item) => {
             for (let i = 0; i < slotObj.opsTeam.length; i++) {
@@ -5305,17 +4919,12 @@ class ballot {
 
           const wonStaffOpsTeamArr = [];
           wonStaffDataOpsTeam.forEach((item) => {
-            ////console.logs('itemitem', item);
             for (let i = 0; i < slotObj.opsTeam.length; i++) {
-              // //console.logs('i', i);
-              //console.logs('slotObj.opsTeam[i]', slotObj.opsTeam[i]._id, item.opsTeamId);
               if (slotObj.opsTeam[i]._id == item.opsTeamId) {
-                //console.logs('hchchchchhc')
                 wonStaffOpsTeamArr.push(item);
               }
             }
           });
-          // //console.logs('wonStaffOpsTeamArr', wonStaffOpsTeamArr.length);
           const tire1Quota = [];
           finalValueTeam = [];
           slotObj.opsTeam.forEach((team, index) => {
@@ -5331,7 +4940,6 @@ class ballot {
             const wonStaffTeamObj = wonStaffOpsTeamArr.filter((wonTeam) => {
               return wonTeam.opsTeamId == team._id;
             });
-            ////console.logs('wonStaffTeamObj', wonStaffTeamObj);
             let teamSlotArr = [];
             for (let j = 0; j < ballotData.weekRange.length; j++) {
               if (index === 0) {
@@ -5344,14 +4952,11 @@ class ballot {
               let successStaffQuota = 0;
 
               if (appliedStaffTeamObj.length > 0 && appliedStaffTeamObj[0].appliedStaffDataByBu_Week["" + j]) {
-                ////console.logs('aa')
                 appliedStaffQuota = appliedStaffTeamObj[0].appliedStaffDataByBu_Week["" + j].length;
               }
               if (wonStaffTeamObj.length > 0 && wonStaffTeamObj[0].wonStaffByBu_Week["" + j]) {
-                // //console.logs('aa')
                 successStaffQuota = wonStaffTeamObj[0].wonStaffByBu_Week["" + j].length;
               }
-              //console.logs('before push', teamQuota, typeof teamQuota)
               teamSlotArr.push({
                 teamQuota,
                 appliedStaffQuota,
@@ -5425,7 +5030,6 @@ class ballot {
               noOpsTeamAppliedDataArr[0].appliedStaffDataByBu_Week[i].length > 0
             ) {
               appliedStaffQuota = noOpsTeamAppliedDataArr[0].appliedStaffDataByBu_Week[i].length;
-              //console.logs("HERE AT QUOTA: ",appliedStaffQuota);
             }
             let successStaffQuota = 0;
             if (
@@ -5436,7 +5040,6 @@ class ballot {
             ) {
               successStaffQuota = noOpsTeamWonDataArr[0].wonStaffByBu_Week[i].length;
             }
-            //console.logs('before push', teamQuota, typeof teamQuota)
             teamSlotArr.push({
               teamQuota,
               appliedStaffQuota,
@@ -5450,7 +5053,6 @@ class ballot {
         }
       }
       //return res.json({finalValue})
-      console.log("Final value is: ", finalValue);
       const newFinalData = [];
       let finalTotalApplied = 0;
       let finalTotalQuota = 0;
@@ -5488,15 +5090,12 @@ class ballot {
                 slotData.opsGroup.successful += opsGroupData[j].value[k].successStaffQuota;
               }
               slotData.weekRangeSlot["" + k + "A"].value = opsGroupData[j].value[k];
-              ////console.logs('opsGroupData[j].value[k]', opsGroupData[j].value[k]);
               finalTotalApplied += opsGroupData[j].value[k].appliedStaffQuota;
               finalTotalSuccessful += opsGroupData[j].value[k].successStaffQuota;
               slotData.opsGroup.balanceQuota += opsGroupData[j].value[k].teamQuota - opsGroupData[j].value[k].successStaffQuota;
-              //console.logs('teamBallanceReamingteamBallanceReaming', teamBallanceReaming, slotData.opsGroup.balanceQuota)
               if (teamBallanceReaming < slotData.opsGroup.balanceQuota && opsGroupData.length !== 1) {
                 slotData.opsGroup.balanceQuota = teamBallanceReaming;
               }
-              //console.logs('finalTotalQuotafinalTotalQuota', finalTotalQuota, teamQuota, opsGroupData[j].value[k].teamQuota)
               if (teamQuota < opsGroupData[j].value[k].teamQuota && opsGroupData.length > 1) {
                 finalTotalQuota += parseInt(teamQuota);
                 slotData.opsGroup.quota += parseInt(teamQuota);
@@ -5515,7 +5114,6 @@ class ballot {
               slotData.opsTeam[j].balanceQuota += opsGroupData[j].value[k].teamQuota - opsGroupData[j].value[k].successStaffQuota;
               slotData.opsTeam[j].applied += opsGroupData[j].value[k].appliedStaffQuota;
               slotData.opsTeam[j].quota += opsGroupData[j].value[k].teamQuota;
-              //console.logs('opsGroupData[j].value[k].teamQuota', typeof opsGroupData[j].value[k].teamQuota)
               teamQuota += parseInt(opsGroupData[j].value[k].teamQuota);
               totalTeamQuota += slotData.opsTeam[j].quota;
               slotData.opsTeam[j].successful += opsGroupData[j].value[k].successStaffQuota;
@@ -5548,7 +5146,6 @@ class ballot {
       if (ballotData.leaveType == 2) {
         leaveFormat = 1;
       }
-      console.log('ballot.ballotStartDate', ballotData.ballotStartDate)
       var startYear = new Date(ballotData.ballotStartDate).getFullYear()
       let totalTeamUnassign = 0;
       for (let i = 0; i < newFinalData.length; i++) {
@@ -5575,7 +5172,6 @@ class ballot {
             // });
 
             let teamUnassign = 0;
-            console.log('leaveBallanceDataleaveBallanceData', leaveBallanceData)
             leaveBallanceData.staffArr.forEach((item) => {
               teamUnassign += Math.floor(item.leaveTypeData.planQuota / leaveFormat);
             });
@@ -5602,10 +5198,8 @@ class ballot {
           let teamUnassign = 0;
           leaveBallanceData.staffArr.forEach((item) => {
             teamUnassign += Math.floor(item.leaveTypeData.planQuota / leaveFormat);
-            console.log("teamAnassignes: ", opsGroupData.opsGroup.opsId, "-", teamUnassign);
           });
           newFinalData[i].opsGroup.unassignBalanace = teamUnassign;
-          console.log("tnewFinalData[i].opsGroup.unassignBalanace s: ", opsGroupData.opsGroup.opsId, "-", newFinalData[i].opsGroup.unassignBalanace);
           totalTeamUnassign += teamUnassign;
         }
       }
@@ -5653,7 +5247,6 @@ class ballot {
       };
       for (let i = 0; i < ballotData.slotCreation.length; i++) {
         const slot = ballotData.slotCreation[i];
-        // //console.logs('slot', slot);
         const wonBuStaffArr = wonStaffData.filter((bu) => {
           return bu.buId == slot.buId;
         });
@@ -5707,7 +5300,6 @@ class ballot {
         const wonStaffByBu_Week = this.groupByPro(wonStaffByOpsGroup[opsGroupId], "weekNo");
         wonStaffDataOpsGroup.push({ opsGroupId, wonStaffByBu_Week });
       }
-      //console.logs('wonStaffDataOpsGroup', JSON.stringify(wonStaffDataOpsGroup));
       const wonStaffDataOpsTeam = [];
       const wonStaffByOpsTeam = this.groupByPro(ballotData.wonStaff, "opsTeamId");
       for (let opsTeamId in wonStaffByOpsTeam) {
@@ -5718,9 +5310,6 @@ class ballot {
 
       const appliedStaffDataOpsGroup = [];
       const appliedStaffDataByOpsGroup = this.groupByPro(ballotData.appliedStaff, "opsGroupId");
-      //console.logs('*******');
-      // //console.logs('appliedStaffDataByOpsGroup', JSON.stringify(appliedStaffDataByOpsGroup));
-      //console.logs('*******');
       for (let opsGroupId in appliedStaffDataByOpsGroup) {
         const appliedStaffDataByBu_Week = this.groupByPro(appliedStaffDataByOpsGroup[opsGroupId], "weekNo");
         appliedStaffDataOpsGroup.push({
@@ -5728,8 +5317,6 @@ class ballot {
           appliedStaffDataByBu_Week,
         });
       }
-      //console.logs('appliedStaffDataOpsGroup', JSON.stringify(appliedStaffDataOpsGroup));
-      //console.logs('*******');
       const appliedStaffDataOpsTeam = [];
       const appliedStaffDataByOpsTeam = this.groupByPro(ballotData.appliedStaff, "opsTeamId");
       for (let opsTeamId in appliedStaffDataByOpsTeam) {
@@ -5749,7 +5336,6 @@ class ballot {
         const weekRangeSlotList = Object.keys(slotObj.weekRangeSlot);
         const checkIndexFormat = weekRangeSlotList.includes('OG0OT0');
         if (slotObj.opsTeam.length > 0) {
-          // //console.logs('appliedStaffDataOpsTeam', appliedStaffDataOpsTeam);
           const appliedStaffOpsTeamArr = [];
           appliedStaffDataOpsTeam.forEach((item) => {
             for (let i = 0; i < slotObj.opsTeam.length; i++) {
@@ -5760,17 +5346,12 @@ class ballot {
           });
           const wonStaffOpsTeamArr = [];
           wonStaffDataOpsTeam.forEach((item) => {
-            ////console.logs('itemitem', item);
             for (let i = 0; i < slotObj.opsTeam.length; i++) {
-              // //console.logs('i', i);
-              //console.logs('slotObj.opsTeam[i]', slotObj.opsTeam[i]._id, item.opsTeamId);
               if (slotObj.opsTeam[i]._id == item.opsTeamId) {
-                //console.logs('hchchchchhc')
                 wonStaffOpsTeamArr.push(item);
               }
             }
           });
-          // //console.logs('wonStaffOpsTeamArr', wonStaffOpsTeamArr.length);
           const tire1Quota = [];
           finalValueTeam = [];
           slotObj.opsTeam.forEach((team, index) => {
@@ -5786,25 +5367,19 @@ class ballot {
             const wonStaffTeamObj = wonStaffOpsTeamArr.filter((wonTeam) => {
               return wonTeam.opsTeamId == team._id;
             });
-            ////console.logs('wonStaffTeamObj', wonStaffTeamObj);
             let teamSlotArr = [];
             for (let j = 0; j < ballotData.weekRange.length; j++) {
               if (index === 0) {
                 tire1Quota.push(parseInt(slotObj.weekRangeSlot["" + j + "A"].value));
               }
-
               const week = ballotData.weekRange[j];
-              //console.logs('slotObj.weekRangeSlot[\'\' + j + index].value', slotObj.weekRangeSlot['' + j + index].value);
-
               const teamQuota = checkIndexFormat ? parseInt(slotObj.weekRangeSlot['OG' + j + 'OT' + index].value) : parseInt(slotObj.weekRangeSlot['' + j + index].value)
               let appliedStaffQuota = 0;
               let successStaffQuota = 0;
               if (appliedStaffTeamObj.length > 0 && appliedStaffTeamObj[0].appliedStaffDataByBu_Week["" + j]) {
-                ////console.logs('aa')
                 appliedStaffQuota = appliedStaffTeamObj[0].appliedStaffDataByBu_Week["" + j].length;
               }
               if (wonStaffTeamObj.length > 0 && wonStaffTeamObj[0].wonStaffByBu_Week["" + j]) {
-                // //console.logs('aa')
                 successStaffQuota = wonStaffTeamObj[0].wonStaffByBu_Week["" + j].length;
               }
               teamSlotArr.push({
@@ -5854,7 +5429,6 @@ class ballot {
 
           finalValue.push(finalValueTeam);
         } else {
-          console.log("call");
           finalValueTeam = [];
           const noOpsTeamAppliedDataArr = appliedStaffDataOpsGroup.filter((item) => {
             return item.opsGroupId == slotObj.opsGroup.opsId;
@@ -5941,16 +5515,13 @@ class ballot {
                 slotData.opsGroup.successful += opsGroupData[j].value[k].successStaffQuota;
               }
               slotData.weekRangeSlot["" + k + "A"].value = opsGroupData[j].value[k];
-              //console.logs('opsGroupData[j].value[k]', opsGroupData[j].value[k]);
               finalTotalApplied += opsGroupData[j].value[k].appliedStaffQuota;
               finalTotalSuccessful += opsGroupData[j].value[k].successStaffQuota;
               slotData.opsGroup.balanceQuota += opsGroupData[j].value[k].teamQuota - opsGroupData[j].value[k].successStaffQuota;
               if (teamBallanceReaming < slotData.opsGroup.balanceQuota && opsGroupData.length !== 1) {
                 slotData.opsGroup.balanceQuota = teamBallanceReaming;
               }
-              //console.logs('finalTotalQuotafinalTotalQuota', finalTotalQuota, teamQuota, opsGroupData[j].value[k].teamQuota)
               if (teamQuota < opsGroupData[j].value[k].teamQuota && opsGroupData.length > 1) {
-                //console.logs("TEAMQUOTA IS: ",teamQuota);
                 finalTotalQuota += teamQuota;
                 slotData.opsGroup.quota += teamQuota;
               } else {
@@ -6091,7 +5662,6 @@ class ballot {
           const weekObj = obj.weekRangeSlot;
           for (let key in weekObj) {
             if (weekObj.hasOwnProperty(key)) {
-              //console.logs(key, weekObj[key].value.teamQuota, actualData[j].weekRangeSlot[key].value.teamQuota);
               actualData[j].weekRangeSlot[key].value.teamQuota = weekObj[key].value.teamQuota;
               //actualData[j].weekRangeSlot[key].value.teamQuota += weekObj[key].value.teamQuota;
               actualData[j].weekRangeSlot[key].value.appliedStaffQuota += weekObj[key].value.appliedStaffQuota;
@@ -6143,7 +5713,6 @@ class ballot {
         finalTotalQuota = data.finalTotalQuota;
         finalTotalApplied = data.finalTotalApplied;
         finalTotalSuccessful = data.finalTotalSuccessful;
-        //console.logs('xxxxxxxxxxxxxxxxxx',finalTotalQuota, finalTotalSuccessful);
         quotaCal.push({
           finalTotalQuota,
           finalTotalSuccessful,
@@ -6174,7 +5743,6 @@ class ballot {
         preQuota = item.finalTotalQuota;
         preSuccess = item.finalTotalSuccessful;
       } else {
-        //console.logs('finalQuota', finalQuota, item.finalTotalQuota);
         finalQuota = finalQuota + (item.finalTotalQuota - (preQuota - preSuccess));
         preQuota = item.finalTotalQuota;
         preSuccess = preSuccess + item.finalTotalSuccessful;
@@ -6217,7 +5785,6 @@ class ballot {
         var won = groupByAuto(parentBallot.wonStaff, function (item) {
           return [item.userId, item.opsGroupId, item.opsTeamId, item.isAutoAssign];
         });
-        console.log("autoassignedwon: ", won);
 
         for (var key of applied) {
           let user = {};
@@ -6245,7 +5812,6 @@ class ballot {
             if (ulist.userId == won[wins].userId && ulist.opsId == won[wins].opsId && ulist.teamId == won[wins].teamId && !won[wins].isAuto) {
               ulist.wonCount = won[wins].data.length;
             } else {
-              //console.logs("not same data here");
             }
           }
         }
@@ -6318,21 +5884,17 @@ class ballot {
                     if (ulist.userId == won[wins].userId && ulist.opsId == won[wins].opsId && ulist.teamId == won[wins].teamId && !won[wins].isAuto) {
                       ulist.wonCount = won[wins].data.length;
                     } else {
-                      //console.logs("not same data here");
                     }
                   }
                 }
-                //console.logs("child yep");
               }
             }
           }
 
-          //console.logs("child yep here nw");
           res.send({ userlist: userList });
         } else {
           res.send({ userlist: userList });
         }
-        //console.logs("sending all at once");
       }
     } catch (e) {
       return res.json({ status: false, message: "Something went wrong", e });
@@ -6388,11 +5950,9 @@ class ballot {
       let user1 = await User.updateMany({ isBallotAdmin: true }, { $set: { isBallotAdmin: false } });
       for (let u = 0; u <= users.length - 1; u++) {
         let id = users[u].toString();
-        //console.logs("USERis: ",id);
         //let user = await User.find({_id: id});
 
         let user = await User.findOneAndUpdate({ _id: id }, { $set: { isBallotAdmin: true } });
-        //console.logs("USers: ",user);
       }
       return res.json({ status: true, message: "Saved Successfully." });
     } catch (e) {
@@ -6415,7 +5975,6 @@ class ballot {
 
   async getBallotPerStaffData(req, res) {
     let body = req.body;
-    //console.logs("UESR ID HERE IS: ",body.userId);
     let ballot = await Ballot.findOne({ _id: body.id });
 
     if (!ballot) {
@@ -6446,7 +6005,6 @@ class ballot {
           oneSlot.weekNo = slot;
           oneSlot.staffStatus = "";
           if (ballot.isConduct) {
-            //console.logs("INIF");
             oneSlot.staffStatus = "Unsuccessful";
           }
 
@@ -6481,7 +6039,6 @@ class ballot {
           oneSlot.weekNo = slot;
           oneSlot.staffStatus = "";
           if (ballot.isResultRelease) {
-            //console.logs("INIF");
             oneSlot.staffStatus = "Unsuccessful";
           }
           winSlots.push(oneSlot);
@@ -6548,7 +6105,6 @@ class ballot {
       wonStaff = groupBy(ballot.appliedStaff, "userId");
     }
     for (var key in wonStaff) {
-      //console.logs(key, wonStaff[key]);
       let keyP = key;
 
       let keyV = wonStaff[key].length;
@@ -6557,10 +6113,8 @@ class ballot {
     }
 
     if (ballot.childBallots && ballot.childBallots.length > 0) {
-      //console.logs("IN IF");
 
       for (var i = 0; i <= ballot.childBallots.length - 1; i++) {
-        //console.logs(ballot.childBallots[i])
         let cid = ballot.childBallots[i];
         const cBallot = await Ballot.findOne({ _id: cid }, { appliedStaff: 1, wonStaff: 1, leaveConfiguration: 1, isConduct: 1 });
         let cWOn;
@@ -6574,7 +6128,6 @@ class ballot {
         }
 
         for (var keyc in cWOn) {
-          //console.logs(keyc, cWOn[keyc]);
           let keyPP = keyc;
           let keyVP = cWOn[keyc].length;
           let valueOfKeyP = leaveFormat * keyVP;
@@ -6587,7 +6140,6 @@ class ballot {
     //return res.json({updateLeaveBy})
     for (let i = 0; i < updateLeaveBy.length; i++) {
       const user = updateLeaveBy[i];
-      //console.logs('user', user)
       const uuu = await this.managePlanLeaveCancel(user.key, user.leave, annL._id, fYear);
       // if (user.leave > 0) {
       //   const staffLeavedata = await StaffSapData.findOne({
@@ -6598,7 +6150,6 @@ class ballot {
       //     if (totalLeave > staffLeavedata.leavesBalanced) {
       //       totalLeave = staffLeavedata.leavesBalanced;
       //     }
-      //     //console.logs("staffLeavedata: ", staffLeavedata);
       //     const update = await StaffSapData.update({ staff_Id: user.key }, { $set: { ballotLeaveBalanced: totalLeave } });
       //   }
       // }
@@ -6606,11 +6157,9 @@ class ballot {
 
     const ballotupdate = await Ballot.update({ _id: id }, { isCanceled: true });
     this.deleteEvent(id).then((re)=>{
-      console.log('deleted ballot cron')
     })
     for (var i = 0; i <= ballot.childBallots.length - 1; i++) {
       this.deleteEvent(ballot.childBallots[i]).then((re)=>{
-        console.log('deleted ballot cron')
       })
       const ballotupdate1 = await Ballot.update({ _id: ballot.childBallots[i] }, { isCanceled: true });
     }
@@ -6627,7 +6176,6 @@ class ballot {
     }
   }
   async managePlanLeaveCancel(userId, leaveQuota, leaveTypeId, startYear = new Date().getFullYear()) {
-    console.log("leave aa", leaveQuota, userId, leaveTypeId, startYear);
     const updateStaffLeave = await staffLeave.findOneAndUpdate(
       { userId, leaveDetails: { "$elemMatch": { "year": startYear, leaveTypeId: leaveTypeId } } },
       { $inc: { "leaveDetails.$.planQuota": leaveQuota, "leaveDetails.$.request": leaveQuota } }
@@ -6637,11 +6185,8 @@ class ballot {
   async checkIfHasParent(ballotid) {
     let currentBallot = await Ballot.findOne({ _id: ballotid }, { parentBallot: 1, childBallots: 1 });
     if (!currentBallot) {
-      //console.logs("NO ballot found");
     } else {
-      //console.logs("in else of current data found");
       if (currentBallot.parentBallot) {
-        //console.logs("in if of parent data",currentBallot.parentBallot);
         return this.checkIfHasParent(currentBallot.parentBallot);
       }
       if (currentBallot.childBallots && currentBallot.childBallots.length > 0) {
@@ -6651,8 +6196,6 @@ class ballot {
           list.push(currentBallot.childBallots[i].toString());
         }
         // list=list.concat(currentBallot.childBallots);
-        console.log("list s: ", list);
-
         return list;
       }
     }
@@ -6662,7 +6205,6 @@ class ballot {
     try {
       let user = req.user._id;
       user = "5f5fdde0f126bb068ad3a570";
-      console.log("User:", user);
       let todayIs = new Date();
 
       // const ballotList = await Ballot.find({$or:[{'wonStaff.userId': user}], isPublish: true,isDeleted:false,isResultRelease:true}, {_id:1,ballotName:1,leaveType:1,weekRange:1,wonStaff:1,isCanceled:1,ballotRound:1,isAutoAssign:1,parentBallot:1,childBallots:1});
@@ -6672,7 +6214,6 @@ class ballot {
         type: { $in: [1, 2, 3] },
         status: { $in: ["Allocated", "Balloted"] },
       });
-      console.log("allocatedLeaves: ", allocatedLeaves);
       const thsUser = await User.findOne({ _id: user }, { isLeaveSwapAllowed: 1, name: 1 });
 
       let weeksToApply = 1;
@@ -6691,12 +6232,10 @@ class ballot {
       let ballots = [];
       const swopingsFrom = await swopRequests.find({ userFrom: req.user._id, requestStatus: 1 }, { requestStatus: 1, userFrom: 1, leaveFrom: 1, leaveTo: 1 });
       const swopingsTo = await swopRequests.find({ userTo: req.user._id, requestStatus: 1 }, { userTo: 1, requestStatus: 1, leaveFrom: 1, leaveTo: 1 });
-      console.log(" const swopingsTo : ", swopingsTo);
       const opsGrp = await OpsGroup.findOne({ userId: user, isDelete: false }, { swopSetup: 1 });
 
       if (allocatedLeaves.length > 0) {
         for (let a = 0; a <= allocatedLeaves.length - 1; a++) {
-          console.log("CAME AGAIN :.....................");
           let leave = {};
           let from = allocatedLeaves[a].fromdate.split("-");
           let startdd = new Date(allocatedLeaves[a].fromdate);
@@ -6740,7 +6279,6 @@ class ballot {
               if (qw.leaveFrom) {
                 return qw.leaveFrom.toString() == allocatedLeaves[a]._id.toString();
               } else {
-                console.log("OUT");
               }
             });
 
@@ -6755,7 +6293,6 @@ class ballot {
               if (qw.leaveTo) {
                 return qw.leaveTo.toString() == allocatedLeaves[a]._id.toString();
               } else {
-                console.log("OUT");
               }
             });
 
@@ -6800,7 +6337,6 @@ class ballot {
 
   async exportBallotByUser(req, res) {
     let ballotId = req.params.id;
-    //console.log("BallotId is: ",ballotId);
     var maxSuccess = 0;
     var weekRangeArr = [];
     try {
@@ -6834,7 +6370,6 @@ class ballot {
 
 
       //return res.json({ parentBallot })
-      //console.log("parent Ballot is: ",parentBallot);
 
       let userList = [];
       if (!parentBallot) {
@@ -6912,13 +6447,11 @@ class ballot {
         //return res.json({ appliedKeysTemp, appliedData })
         const wonData = groupBy(won);
         const wonKeys = Object.keys(wonData);
-        console.log('wonKeys', wonKeys)
         const finalData = {};
         if (wonKeys && wonKeys.length > 0) {
           for (let i = 0; i < wonKeys.length; i++) {
             const uId = wonKeys[i];
             if (appliedData[uId]) {
-              console.log('uid', uId)
               var index = appliedKeysTemp.indexOf(uId);
               if (index !== -1) {
                 appliedKeysTemp.splice(index, 1);
@@ -6956,7 +6489,6 @@ class ballot {
           for (let i = 0; i < appliedKeys.length; i++) {
             const uId = appliedKeys[i];
             if (appliedData[uId]) {
-              console.log('uid', uId)
               var index = appliedKeysTemp.indexOf(uId);
               if (index !== -1) {
                 appliedKeysTemp.splice(index, 1);
@@ -6973,7 +6505,6 @@ class ballot {
           }
         }
 
-        console.log('appliedKeysTempappliedKeysTemp', appliedKeysTemp)
         if (appliedKeysTemp.length > 0) {
           for (let i = 0; i < appliedKeysTemp.length; i++) {
             const uId = appliedKeysTemp[i];
@@ -7062,7 +6593,6 @@ class ballot {
           //   user.Team = {};
           //   user.Team.name = " ";
           // } else {
-          //   console.log("in team check if");
           //   user.Team = await OpsTeam.findOne({ _id: finalData[key].teamId }, { _id: 1, name: 1 });
           //   user.teamId = finalData[key].teamId;
           // }
@@ -7100,12 +6630,10 @@ class ballot {
             //o.ballotRound = array[0][3]
             groups[group].push(o);
           });
-          //console.log('group', groups)
           return Object.keys(groups).map(function (group) {
             var array = JSON.parse("[" + group + "]");
             groups[group] = JSON.parse(JSON.stringify(groups[group]))
             groups[group].forEach((ite, ind) => {
-              // console.log('ittt', ite)
               groups[group][ind].ballotRound = array[0][3] + 1;
             });
             return {
@@ -7124,7 +6652,6 @@ class ballot {
         }
       }
     } catch (e) {
-      console.log('ée', e)
       return res.status(500).json({
         success: false,
         data: e,
@@ -7143,7 +6670,6 @@ class ballot {
     }
 
     const annualLeaveId = annualLeave._id;
-    console.log('hehehe', annualLeaveId)
     const currentYear = new Date().getFullYear();
     const nextYear = currentYear + 1;
     const prevYear = currentYear - 1;
@@ -7160,9 +6686,7 @@ class ballot {
         if (staffLeaveData) {
           for (let j = 0; j < staffLeaveData.leaveDetails.length; j++) {
             const leaveDetails = staffLeaveData.leaveDetails[j];
-            //console.log('I am', leaveDetails.leaveTypeId)
             if (annualLeaveId.toString() == leaveDetails.leaveTypeId._id.toString()) {
-              console.log('hehe')
               const leaveName = leaveDetails.leaveTypeId.name;
               const year = leaveDetails.year;
               const planQuota = leaveDetails.planQuota;
@@ -7202,7 +6726,6 @@ class ballot {
       keys.push("Leave Dates " + iii);
     }
     keys = keys.concat(leaveTypeArr)
-    console.log('keys', keys)
     for (let ji = 0; ji < results.length; ji++) {
       const item = results[ji];
       if (item.user) {
@@ -7223,14 +6746,11 @@ class ballot {
         obj["Ops Group"] = item.Ops.opsGroupName;
         obj["Ops Team"] = item.Team.name;
         obj["Ballot Period"] = item.ballotPeriod;
-        console.log('item.appliedData', item.appliedData, maxApplied)
         for (let k = 1; k <= maxApplied; k++) {
           if (item.appliedData.length >= k) {
             const aa = item.appliedData[k - 1];
-            //console.log('aa', aa)
             const sNo = aa.weekNo + 1;
             obj["Applied Dates " + k] = '(slot' + sNo + ') ' + moment(new Date(week[aa.weekNo].start)).format('DD-MM-YYYY') + ' - ' + moment(new Date(week[aa.weekNo].end)).format('DD-MM-YYYY');
-            console.log('aa.ballotRound', aa.ballotRound)
             const round = parseInt(aa.ballotRound) - 1;
             let prev = appliedRound[round];
             if (prev) {
@@ -7238,7 +6758,6 @@ class ballot {
             } else {
               prev = 1;
             }
-            console.log('appliedRound', round, prev)
             appliedRound[round] = prev;
           } else {
             obj["Applied Dates " + k] = '-'
@@ -7252,13 +6771,10 @@ class ballot {
         }
         obj['Total Applied Slot'] = appliedRoundStr;
         obj['Successfull Ballots'] = item.wonData ? item.wonData.length : 0;
-        //console.log('item.wonData.length', item.wonData.length)
         for (let k = 1; k <= maxSuccess; k++) {
           if (item.wonData && item.wonData.length >= k) {
             const aa = item.wonData[k - 1];
-            //console.log('kk', k)
             obj["Leave Dates " + k] = '' + moment(new Date(week[aa.weekNo].start)).format('DD-MM-YYYY') + ' - ' + moment(new Date(week[aa.weekNo].end)).format('DD-MM-YYYY') + ' R(' + aa.ballotRound + ')';
-            //console.log('hh')
           } else {
             obj["Leave Dates " + k] = '-'
           }
@@ -7286,7 +6802,6 @@ class ballot {
   async saveBallotAsDraft(req, res) {
     try {
       // check required filed
-      console.log("REQ OBJ : ", req.body);
       req.body.createdBy = req.user._id;
       req.body.companyId = req.user.companyId;
       const data = req.body;
@@ -7314,19 +6829,16 @@ class ballot {
             message = "Ballot saved as a draft";
           } else {
             this.ballotEvent(ressss, 'createBallot', false)
-            //console.log('ressasss', ressss);
             // notification for publish ballot
             // this.sendNotification(ressss)
           }
 
           if (data.parentBallot) {
-            console.log("Parent Ballot is:", data.parentBallot);
             this.checkIfHasParentAndUpdate(req.body.parentBallot, ressss._id);
           }
           return res.json({ status: true, message });
         })
         .catch((err) => {
-          console.log("aaaa", err);
         });
     } catch (e) {
       return res.json({ status: false, message: "Something went wrong1", e });
@@ -7337,7 +6849,6 @@ class ballot {
     try {
       let id = req.params.id;
       const ballot = await Ballot.findOne({ _id: id });
-      //console.log("BALLOT: ",ballot);
       // let totalQuota=0;
       let slotdata = [];
       let totalTeamUnassign = 0;
@@ -7368,10 +6879,8 @@ class ballot {
             leaveFormat = 1;
           }
 
-          //console.log("@ else me once");
           let newballot = JSON.stringify(ballot);
           newballot = JSON.parse(newballot);
-          //console.log("@ else me");
           let slots = ballot.slotCreation;
 
           for (let i = 0; i <= slots.length - 1; i++) {
@@ -7389,13 +6898,11 @@ class ballot {
             const leaveBallanceData = await this.checkIsAnnualLeaveArr(opsGroupUser.userId, req.user.companyId, startYear);
             let opsUnassign = 0;
             leaveBallanceData.staffArr.forEach((item) => {
-              //  console.log("inin");
               opsUnassign += Math.floor(item.leaveTypeData.planQuota / leaveFormat);
             });
             slots[i].opsGroup.unassignBalanace = opsUnassign;
             for (let j = 0; j <= slots[i].arr.length - 1; j++) {
               let hasTeam = false;
-              // console.log("@inner loop me",slots[i].opsGroup);
               // let opsQuota=0;
               // let teamQuota=0;
               let currentweek = j + "A";
@@ -7470,7 +6977,6 @@ class ballot {
               //slots[i].opsGroup.unassignBalanace / slots[i].opsGroup.BallotBalance;
 
               if (opsQuota > teamQuota) {
-                //   console.log("Hi the total Quota is: ", teamQuota);
                 totalQuota = totalQuota + teamQuota;
               } else {
                 totalQuota = totalQuota + opsQuota;
@@ -7483,7 +6989,6 @@ class ballot {
           }
 
           for (let i = 0; i <= slots.length - 1; i++) {
-            //  console.log("After above for are done",slots[i]);
             slots[i].totalUnassignedIs = 0;
 
             let opsRatio = slots[i].opsGroup.ratioForBalnceQuota;
@@ -7517,7 +7022,6 @@ class ballot {
               }
             }
           }
-          // console.log("sending date here");
           let data = { slot: slots };
           return res.status(201).json({ status: true, data: data, message: "Received data." });
         }
@@ -7534,7 +7038,6 @@ class ballot {
       annualLeave = await leaveType.findOne({ name: "Annual Leave", isActive: true, companyId });
     }
 
-    console.log("annualLeaveannualLeaveannualLeave", annualLeave)
 
     if (annualLeave) {
       const staffLevaeData = await staffLeave.find({
@@ -7542,7 +7045,6 @@ class ballot {
         "leaveDetails.leaveTypeId": annualLeave._id,
       });
       if (staffLevaeData) {
-        console.log('staffLevaeData', year)
         const staffArr = [];
         for (let i = 0; i < staffLevaeData.length; i++) {
           const item = staffLevaeData[i];
@@ -7586,7 +7088,6 @@ class ballot {
       if (ballot.leaveType == 2) {
         leaveFormat = 1;
       }
-      console.log("IN ELSE ME: ");
       let newBallot = JSON.stringify(ballot);
       newBallot = JSON.parse(newBallot);
 
@@ -7596,7 +7097,6 @@ class ballot {
         let slots = newBallot.slotCreation;
         let users = [];
         for (var i = 0; i <= slots.length - 1; i++) {
-          console.log("inside of for: ", slots[i].opsGroup);
 
           slots[i].opsGroup.Users = [];
           const opsGroupUser = await OpsGroup.findOne({ _id: slots[i].opsGroup.opsId }, { userId: 1, _id: 0 }).lean();
@@ -7628,9 +7128,7 @@ class ballot {
               });
             }
           } else {
-            console.log("-----------------inside else")
             leaveBallanceOpsData.staffArr.forEach((item) => {
-              console.log("ininelse");
               let user = {
                 opsG: slots[i].opsGroup.opsId,
                 opsT: null,
@@ -7685,15 +7183,12 @@ class ballot {
           users[u].staffId = username.staffId;
           users[u].parentBu = username.parentBussinessUnitId;
           if (users[u].opsT === null) {
-            console.log("In if");
             let filteredData = newBallot.wonStaff.filter(
               (userWon) => userWon.userId.toString() === users[u].userId.toString() && userWon.opsGroupId.toString() === users[u].opsG.toString()
             );
             for (let f = 0; f <= filteredData.length - 1; f++) {
-              console.log("in filter for loop");
               const weekIs = filteredData[f].weekNo;
               let opsWeekIs = weekIs + "A";
-              console.log("opsWeekIs: ", opsWeekIs);
               deepClone[opsWeekIs].isRestrict = true;
               deepClone[opsWeekIs].isWon = true;
 
@@ -7712,7 +7207,6 @@ class ballot {
               }
             }
           } else {
-            console.log("In else", users[u].userId);
             let filteredData = newBallot.wonStaff.filter(
               (userWon) =>
                 userWon.userId.toString() === users[u].userId.toString() &&
@@ -7720,14 +7214,11 @@ class ballot {
                 userWon.opsTeamId.toString() === users[u].opsT.toString()
             );
             for (let f = 0; f <= filteredData.length - 1; f++) {
-              console.log("in filter for loop");
               const weekIs = filteredData[f].weekNo;
               let opsWeekIs = weekIs + "A";
-              console.log("opsWeekIs: ", opsWeekIs);
               deepClone[opsWeekIs].isRestrict = true;
               deepClone[opsWeekIs].isWon = true;
               let teamWeekIs = "" + weekIs + users[u].teamIndex;
-              console.log("teamweek: ", teamWeekIs);
               deepClone[teamWeekIs].isRestrict = true;
               deepClone[teamWeekIs].isWon = true;
 
@@ -7759,7 +7250,6 @@ class ballot {
               let isPresent = false;
               let staffRestrictionObj = {};
               isPresent = item.userList.some((user) => {
-                ////console.logs('user',user)
                 if (user.id.toString() === users[u].userId.toString()) {
                   staffRestrictionObj = {
                     slot: item.slot,
@@ -7775,13 +7265,11 @@ class ballot {
                 staffRestriction.push(staffRestrictionObj);
               }
             });
-            console.log("isRestrict : ", staffRestriction);
             if (staffRestriction.length > 0) {
               for (let r = 0; r <= staffRestriction.length - 1; r++) {
                 if (users[u].opsT === null) {
                   const weekIs = staffRestriction[r].slotNo;
                   let opsWeekIs = weekIs + "A";
-                  console.log("opsWeekIs: ", opsWeekIs);
                   deepClone[opsWeekIs].isRestrict = true;
                   deepClone[opsWeekIs].isStaffRestricted = true;
                 } else {
@@ -7800,7 +7288,6 @@ class ballot {
 
             newBallot.maxSegment.forEach((item, index) => {
               let startSlot = this.getWeekIndex(item.startDate, newBallot.weekRange, "start", newBallot.leaveType);
-              //console.logs('item.endDate', item.endDate);
               let endSlot = this.getWeekIndex(item.endDate, newBallot.weekRange, "end", newBallot.leaveType);
               let slotRange = [];
               for (let i = startSlot; i <= endSlot; i++) {
@@ -7815,15 +7302,12 @@ class ballot {
               segmentRestriction.push(segmentRestrictionObj);
             });
 
-            console.log("here after segment restrictions: ", segmentRestriction);
             if (segmentRestriction.length > 0) {
               for (let sg = 0; sg <= segmentRestriction.length - 1; sg++) {
                 let wonFilterd = newBallot.wonStaff.filter(
                   (winers) => segmentRestriction[sg].slotRange.includes(winers.weekNo) && winers.userId.toString() === users[u].userId.toString()
                 );
-                console.log("CHECK OF USER IDS ", users[u].userId, "with: ", segmentRestriction[sg].maxBallot, "and: won", wonFilterd.length);
                 if (segmentRestriction[sg].maxBallot === wonFilterd.length) {
-                  console.log("IN IF OF SEGMENT MATCH: ", users[u].userId, "for ballot:");
                   for (let slot = 0; slot <= segmentRestriction[sg].slotRange.length - 1; slot++) {
                     let indexAtSegment = segmentRestriction[sg].slotRange[slot];
                     //  users[u].deepClone[indexAtSegment+'A'].isRestrict =true;
@@ -7844,8 +7328,6 @@ class ballot {
                   }
                   for (let slot = 0; slot <= segmentRestriction[sg].slotRange.length - 1; slot++) {
                     const weekNo = segmentRestriction[sg].slotRange[slot] + "A";
-
-                    console.log("in segment R: ", weekNo);
                     if (users[u].deepClone[weekNo].isRestrict) {
                       //its consicative so here again check for consecutive
                       if (newBallot.maxConsecutiveBallot !== null && newBallot.maxConsecutiveBallot > 0) {
@@ -7860,7 +7342,6 @@ class ballot {
                         }
                       }
                     } else {
-                      console.log("its not restriced.");
                     }
 
                     if (users[u].opsT !== null) {
@@ -7880,7 +7361,6 @@ class ballot {
                           }
                         }
                       } else {
-                        console.log("Team - its not restriced.");
                       }
                     }
                   }
@@ -7891,28 +7371,20 @@ class ballot {
 
           //finally the only maxConsecutive ballots to check
           if (newBallot.maxConsecutiveBallot !== null && newBallot.maxConsecutiveBallot > 0) {
-            console.log("here at newballot check ia ma");
             let check = checkForIsRestrict(users[u].deepClone);
-            console.log("CHeck is: ", check);
             if (check === true) {
-              console.log("CHeck is: inside true one ");
               for (let ar = 0; ar <= users[u].arr.length - 1; ar++) {
                 //for ops group here
-                console.log(ar);
                 let nextOfar = ar + newBallot.maxConsecutiveBallot;
-                console.log(users[u].deepClone[ar + "A"]);
 
                 //writting random no logic here..
                 const ballarr = [ar, nextOfar];
                 var show = ballarr[Math.floor(Math.random() * ballarr.length)];
-                // console.log("SHOW IS: between ",ar ,"and",nextOfar,"=>",show);
 
                 if (users[u].deepClone[ar + "A"].isRestrict) {
-                  console.log("curent index is restricted go to next iteration.");
                 } else {
                   if (users[u].deepClone[nextOfar + "A"]) {
                     if (users[u].deepClone[nextOfar + "A"].isRestrict) {
-                      console.log("next on resticted so chill");
                     } else {
                       //users[u].deepClone[nextOfar+'A'].isRestrict = true;
                       users[u].deepClone[show + "A"].isRestrict = true;
@@ -7922,11 +7394,9 @@ class ballot {
                 //For ops teams
                 if (users[u].opsT !== null) {
                   if (users[u].deepClone["" + ar + users[u].teamIndex].isRestrict) {
-                    console.log("curent index is restricted go to next iteration.");
                   } else {
                     if (users[u].deepClone[nextOfar + "A"]) {
                       if (users[u].deepClone["" + nextOfar + users[u].teamIndex].isRestrict) {
-                        console.log("next on resticted so chill");
                       } else {
                         //users[u].deepClone[''+nextOfar+users[u].teamIndex].isRestrict = true;
                         users[u].deepClone["" + show + users[u].teamIndex].isRestrict = true;
@@ -7936,21 +7406,17 @@ class ballot {
                 }
               }
             } else {
-              console.log("In return check else");
               for (let ar = 0; ar <= users[u].arr.length - 1; ar++) {
                 //for ops group here
                 let nextOfar = ar + newBallot.maxConsecutiveBallot;
                 //writting random no logic here..
                 const ballarr = [ar, nextOfar];
                 var show = ballarr[Math.floor(Math.random() * ballarr.length)];
-                // console.log("SHOW IS: between ",ar ,"and",nextOfar,"=>",show);
 
                 if (users[u].deepClone[ar + "A"].isRestrict) {
-                  console.log("curent index is restricted go to next iteration.");
                 } else {
                   if (users[u].deepClone[nextOfar + "A"]) {
                     if (users[u].deepClone[nextOfar + "A"].isRestrict) {
-                      console.log("next on resticted so chill");
                     } else {
                       //users[u].deepClone[nextOfar+'A'].isRestrict = true;
                       users[u].deepClone[show + "A"].isRestrict = true;
@@ -7961,11 +7427,9 @@ class ballot {
                 //For ops teams
                 if (users[u].opsT !== null) {
                   if (users[u].deepClone["" + ar + users[u].teamIndex].isRestrict) {
-                    console.log("curent index is restricted go to next iteration.");
                   } else {
                     if (users[u].deepClone[nextOfar + "A"]) {
                       if (users[u].deepClone["" + nextOfar + users[u].teamIndex].isRestrict) {
-                        console.log("next on resticted so chill");
                       } else {
                         //  users[u].deepClone[''+nextOfar+users[u].teamIndex].isRestrict = true;
                         users[u].deepClone["" + show + users[u].teamIndex].isRestrict = true;
@@ -7997,13 +7461,11 @@ class ballot {
     function checkForIsRestrict(clone) {
       var cc = false;
       for (let [key, value] of Object.entries(clone)) {
-        console.log(key, value);
 
         if (value.isRestrict) {
           // return true;
           cc = true;
         } else {
-          console.log("no");
         }
       }
 
@@ -8065,7 +7527,6 @@ class ballot {
       const opsGroupD = {};
       const opsTeamD = {};
       for (var wins = 0; wins <= won.length - 1; wins++) {
-        console.log("WON DATA:for ", won[wins]);
         if (won[wins].isAuto) {
           let user = {};
           user.user = await User.findOne({ _id: won[wins].userId }, { _id: 1, name: 1, staffId: 1 });
@@ -8093,10 +7554,8 @@ class ballot {
           user.applied = 0;
           user.ballotRound = parentBallot.ballotRound + 1;
           user.wonCount = won[wins].data.length;
-          console.log("USERS HERE iS: ", user);
           userList.push(user);
         } else {
-          console.log("ITS won in ballot before/ not Autoassugned.");
         }
       }
       res.status(200).json({
@@ -8141,13 +7600,11 @@ class ballot {
     const opsD = await OpsGroup.find({ _id: { $in: opsIds } }, { _id: 1, userId: 1 }).lean();
     for (let j = 0; j <= opsD.length - 1; j++) {
       userId.push(opsD[j].userId);
-      console.log("userdata: ", opsD[j].userId.length);
     }
     let IDS = [];
     for (let k = 0; k <= userId.length - 1; k++) {
       IDS = IDS.concat(userId[k]);
     }
-    console.log("IDS ARE: ", IDS.length);
     const data = await StaffSapData.find(
       { staff_Id: { $in: IDS } },
       {
@@ -8219,7 +7676,6 @@ class ballot {
       const arr1 = appliedStaffIdWeekwise[j];
       const arr2 = wonStaffIdWeekWise[j];
       if (j === 0) {
-        console.log("aaa", arr1, arr2);
       }
       const diffUserId = [];
       arr1.forEach((item) => {
@@ -8243,7 +7699,6 @@ class ballot {
       const userId = unsuccessfullStaff[i];
       if (userId.length > 0) {
         const sapData = StaffSapData.updateMany({ staff_Id: { $in: userId } }, { $inc: { ballotLeaveBalanced: -leave } }).then((result1) => {
-          console.log(result1);
         });
       }
     }
@@ -8260,7 +7715,6 @@ class ballot {
       return [item.userId, item.opsGroupId, item.opsTeamId];
     });
     for (let apply = 0; apply <= applied.length - 1; apply++) {
-      console.log("applied[apply]: ", applied[apply]);
       const user = await User.findOne({ _id: applied[apply].userId }, { _id: 1, name: 1, staffId: 1 }).populate({
         path: "parentBussinessUnitId",
         select: "name sectionId",
@@ -8281,7 +7735,6 @@ class ballot {
       //             [{path:'parentBussinessUnitId',select:'name'}]);
       const ops = await OpsGroup.findOne({ _id: applied[apply].opsId }, { _id: 0, opsGroupName: 1 });
       const team = await OpsTeam.findOne({ _id: applied[apply].teamId }, { _id: 0, name: 1 });
-      console.log("User: ", user);
       let row = {};
       row.name = user.name;
       row.staffId = user.staffId;
@@ -8382,7 +7835,6 @@ class ballot {
             var found = ballot.wonStaff.filter(function (element) {
               return element.buId.toString() === slots[i].buId.toString() && element.weekNo === j;
             });
-            //console.logs("FOUND: ", found);
             slots[i].arr[j].value = slots[i].arr[j].value - found.length;
           }
           //res.send(users)
@@ -8401,7 +7853,6 @@ class ballot {
             if (slots[i].opsTeam.length > 0) {
               slots[i].opsTeam.forEach((team, d) => {
                 currentweek = 'OG' + j + 'OT' + d.toString();
-                console.log("Current week in Team: ", currentweek);
                 var found = ballot.wonStaff.filter(function (element) {
                   if (element.opsTeamId) {
                     return element.opsTeamId.toString() === team._id.toString() && element.weekNo === j;
@@ -8409,7 +7860,6 @@ class ballot {
                     return element.opsGroupId === opsGrpid && !element.opsTeamId && element.weekNO === j;
                   }
                 });
-                //console.logs("FOUND: ", found);
                 slots[i].weekRangeSlot[currentweek].value = slots[i].weekRangeSlot[currentweek].value - found.length;
               });
             }
@@ -8436,10 +7886,9 @@ class ballot {
   }
 
   async getslotsCalculated(ballot, res) {
-    console.log("I am inside getSlots ");
     try {
-      let slotdata = [];
-      let totalTeamUnassign = 0;
+      // let slotdata = [];
+      // let totalTeamUnassign = 0;
       let Ratio = 0;
       if (ballot.userFrom === 2) {
         //for BU do it later
@@ -8457,13 +7906,12 @@ class ballot {
 
         let newballot = JSON.stringify(ballot);
         newballot = JSON.parse(newballot);
-        //console.log("@ else me");
         let slots = ballot.slotCreation;
         let totUnAssign = 0;
         let totBQ = 0;
         for (let i = 0; i <= slots.length - 1; i++) {
           let totalQuota = 0;
-          let opsGrpid = slots[i].opsGroup.opsId;
+          // let opsGrpid = slots[i].opsGroup.opsId;
           slots[i].totalUnassignedIs = 0;
 
           slots[i].totalBallotBalance = 0;
@@ -8481,19 +7929,16 @@ class ballot {
           } else {
             leaveBallanceData = await this.checkIsAnnualLeaveArr(opsGroupUser.userId, ballot.companyId, startYear, false);
           }
-          // const leaveBallanceData = await this.checkIsAnnualLeaveArr(opsGroupUser.userId, ballot.companyId, startYear);
 
           let opsUnassign = 0;
           leaveBallanceData.staffArr.forEach((item) => {
             opsUnassign += Math.floor(item.leaveTypeData.planQuota / leaveFormat);
-            // console.log("ininwww", opsUnassign);
           });
           slots[i].opsGroup.unassignBalanace = opsUnassign;
           for (let j = 0; j <= slots[i].arr.length - 1; j++) {
             let hasTeam = false;
             let currentweek = j + "A";
             opsQuota = slots[i].weekRangeSlot[currentweek].value;
-            // slots[i].opsGroup.BallotBalance = slots[i].opsGroup.BallotBalance + slots[i].weekRangeSlot[currentweek].value;
             let currentOpsSlotValueIs = slots[i].weekRangeSlot[currentweek].value;
 
             //Ops Team is there
@@ -8501,9 +7946,9 @@ class ballot {
 
             if (slots[i].opsTeam.length > 0) {
               hasTeam = true;
+              let promise = [];
               for (let d = 0; d <= slots[i].opsTeam.length - 1; d++) {
                 slots[i].opsTeam[d].unassignBalanace = 0;
-                // let currentweek = j + d.toString();
 
                 let currentweek = 'OG' + j + 'OT' + d.toString();
 
@@ -8516,25 +7961,29 @@ class ballot {
                   slots[i].opsTeam[d].BallotBalance = slots[i].opsTeam[d].BallotBalance + slots[i].weekRangeSlot[currentweek].value;
                 }
                 const opsTeamUser = await OpsTeam.findOne({ _id: slots[i].opsTeam[d]._id }, { userId: 1, _id: 0 }).lean();
-                // const leaveBallanceData = await this.checkIsAnnualLeaveArr(opsTeamUser.userId, ballot.companyId, startYear);
 
-                let leaveBallanceData;
+                // let leaveBallanceData;
                 if (ballot !== null && ballot.fixedBallotingLeaveType) {
-                  leaveBallanceData = await this.checkIsAnnualLeaveArr(opsTeamUser.userId, ballot.companyId, startYear, true, ballot.leaveTypeId);
+                   promise.push(this.checkIsAnnualLeaveArr(opsTeamUser.userId, ballot.companyId, startYear, true, ballot.leaveTypeId));
                 } else {
-                  leaveBallanceData = await this.checkIsAnnualLeaveArr(opsTeamUser.userId, ballot.companyId, startYear, false);
+                  promise.push(this.checkIsAnnualLeaveArr(opsTeamUser.userId, ballot.companyId, startYear, false));
                 }
+              }
 
-                let teamUnassign = 0;
+              let checkIsAnnualLeaveData = await Promise.all(promise);
+              for (let d = 0; d <= slots[i].opsTeam.length - 1; d++) {
+                slots[i].opsTeam[d].unassignBalanace = 0;
 
-                // console.log("leaveBallanceDataleaveBallanceDataleaveBallanceData", leaveBallanceData)
+                for (let m=0; m<= checkIsAnnualLeaveData.length -1; m++){
+                  let teamUnassign = 0;
 
-                leaveBallanceData.staffArr.forEach((item) => {
-                  teamUnassign += Math.floor(item.leaveTypeData.planQuota / leaveFormat);
-                });
-                slots[i].opsTeam[d].unassignBalanace = teamUnassign;
-                totalinAssign = totalinAssign + slots[i].opsTeam[d].unassignBalanace;
-                slots[i].opsTeam[d].ratioForBalnceQuota = RATIO
+                  checkIsAnnualLeaveData[m].staffArr.forEach((item) => {
+                    teamUnassign += Math.floor(item.leaveTypeData.planQuota / leaveFormat);
+                  });
+                  slots[i].opsTeam[d].unassignBalanace = teamUnassign;
+                  totalinAssign = totalinAssign + slots[i].opsTeam[d].unassignBalanace;
+                  slots[i].opsTeam[d].ratioForBalnceQuota = RATIO
+                }
               }
             }
             if (hasTeam) {
@@ -8579,8 +8028,8 @@ class ballot {
           //  console.log("After above for are done",slots[i]);
           //   slots[i].totalUnassignedIs=0;
 
-          let opsRatio = slots[i].opsGroup.ratioForBalnceQuota;
-          let totalinAssign = 0;
+          // let opsRatio = slots[i].opsGroup.ratioForBalnceQuota;
+          // let totalinAssign = 0;
           //   if (slots[i].opsTeam.length > 0) {
           //       for(let t=0;t<=slots[i].opsTeam.length-1;t++){
           //           totalinAssign = totalinAssign+slots[i].opsTeam[t].unassignBalanace;
@@ -8604,7 +8053,7 @@ class ballot {
             // slots[i].weekRangeSlot[currentweek].balanceToBeAssigned = slots[i].weekRangeSlot[currentweek].value * opsRatio;
             if (slots[i].opsTeam.length > 0) {
               for (let d = 0; d <= slots[i].opsTeam.length - 1; d++) {
-                let teamRatio = slots[i].opsTeam[d].ratioForBalnceQuota;
+                // let teamRatio = slots[i].opsTeam[d].ratioForBalnceQuota;
                 let currentweek = 'OG' + j + 'OT' + d.toString();
                 slots[i].weekRangeSlot[currentweek].balanceToBeAssigned = 0;
                 //slots[i].weekRangeSlot[currentweek].balanceToBeAssigned = slots[i].weekRangeSlot[currentweek].value * teamRatio;
@@ -8636,7 +8085,6 @@ class ballot {
     if (ops) {
       let swopSetup = parseInt(ops.swopSetup);
       let users = [];
-      console.log("in ops", ops);
       if (swopSetup == 1) {
         users = ops.userId;
       } else {
@@ -8744,7 +8192,6 @@ class ballot {
         leaveObjects.push(leave);
       }
       userLeaves.insertMany(leaveObjects).then((docs) => {
-        console.log(docs);
       });
     }
   }
@@ -8765,7 +8212,6 @@ class ballot {
         leaveObjects.push(leave);
       }
       userLeaves.insertMany(leaveObjects).then((docs) => {
-        console.log(docs);
       });
     }
   }
@@ -8787,7 +8233,6 @@ class ballot {
         leaveObjects.push(leave);
       }
       userLeaves.insertMany(leaveObjects).then((docs) => {
-        console.log(docs);
       });
     }
   }
@@ -8813,7 +8258,6 @@ Array.prototype.diff = function (arr2) {
   return ret;
 };
 async function pushLeaveToLeaveApplied(ballotData) {
-  console.log("i ammmmmmmmmmmmmmmmm&&&&&&&&&&&&&&&&&&&", ballotData.ballotName);
   if (ballotData.staffLeave) {
     for (let i = 0; i < ballotData.staffLeave.length; i++) {
       const leave = ballotData.staffLeave[i];
@@ -8827,23 +8271,19 @@ async function sendResultReleaseNotification(item) {
 
   if (item.userFrom === 1) {
     const userIDArr = await OpsGroup.find({ _id: { $in: item.opsGroupId }, isDelete: false }, { userId: 1, _id: 0 });
-    //console.logs("userIDARR : ",userIDArr);
     let userId = [];
     userIDArr.forEach((item) => {
       userId = userId.concat(item.userId);
     });
-    //console.logs('userId', userId)
     const unAssignUser = await User.find({ _id: { $in: userId } })
       .select("deviceToken")
       .lean();
-    ////console.logs('user11', JSON.stringify(unAssignUser));
     const usersDeviceTokens = [];
     unAssignUser.forEach((token) => {
       if (token.deviceToken) {
         usersDeviceTokens.push(token.deviceToken);
       }
     });
-    //console.logs('usersDeviceTokens', usersDeviceTokens);
     if (usersDeviceTokens.length > 0) {
       //Balloting Exercise (Ballot Name) results are released, please check the results
       const pushData = {
@@ -8902,7 +8342,6 @@ async function resultReleaseFun(ballotId) {
       let ballot = await Ballot.findByIdAndUpdate(ballotList._id, {
         $set: { isResultRelease: true },
       });
-      console.log("AT HERE SAVED");
   }
   return true;
 }catch(e){
@@ -8938,11 +8377,9 @@ async function publishBallot(ballotId){
         userIDArr.forEach((item) => {
           userId = userId.concat(item.userId);
         });
-        //console.logs('userId', userId)
         const unAssignUser = await User.find({ _id: { $in: userId } })
           .select("deviceToken")
           .lean();
-        ////console.logs('user11', JSON.stringify(unAssignUser));
         const usersDeviceTokens = [];
         unAssignUser.forEach((token) => {
           if (token.deviceToken) {
@@ -9005,23 +8442,19 @@ async function sendBallotEditNotification(item) {
 
   if (item.userFrom === 1) {
     const userIDArr = await OpsGroup.find({ _id: { $in: item.opsGroupId }, isDelete: false }, { userId: 1, _id: 0 });
-    //console.logs("userIDARR : ",userIDArr);
     let userId = [];
     userIDArr.forEach((item) => {
       userId = userId.concat(item.userId);
     });
-    //console.logs('userId', userId)
     const unAssignUser = await User.find({ _id: { $in: userId } })
       .select("deviceToken")
       .lean();
-    ////console.logs('user11', JSON.stringify(unAssignUser));
     const usersDeviceTokens = [];
     unAssignUser.forEach((token) => {
       if (token.deviceToken) {
         usersDeviceTokens.push(token.deviceToken);
       }
     });
-    //console.logs('usersDeviceTokens', usersDeviceTokens);
     if (usersDeviceTokens.length > 0) {
       const pushData = {
         title: "Balloting Excercise Updated.",
@@ -9063,23 +8496,19 @@ async function ballotCancelledNotifications(item) {
 
   if (item.userFrom === 1) {
     const userIDArr = await OpsGroup.find({ _id: { $in: item.opsGroupId }, isDelete: false }, { userId: 1, _id: 0 });
-    //console.logs("userIDARR : ",userIDArr);
     let userId = [];
     userIDArr.forEach((item) => {
       userId = userId.concat(item.userId);
     });
-    //console.logs('userId', userId)
     const unAssignUser = await User.find({ _id: { $in: userId } })
       .select("deviceToken")
       .lean();
-    ////console.logs('user11', JSON.stringify(unAssignUser));
     const usersDeviceTokens = [];
     unAssignUser.forEach((token) => {
       if (token.deviceToken) {
         usersDeviceTokens.push(token.deviceToken);
       }
     });
-    //console.logs('usersDeviceTokens', usersDeviceTokens);
     if (usersDeviceTokens.length > 0) {
       const pushData = {
         title: "Balloting Excercise Cancelled.",
@@ -9125,18 +8554,15 @@ async function ballotExtendNotifications(item) {
     userIDArr.forEach((item) => {
       userId = userId.concat(item.userId);
     });
-    //console.logs('userId', userId)
     const unAssignUser = await User.find({ _id: { $in: userId } })
       .select("deviceToken")
       .lean();
-    ////console.logs('user11', JSON.stringify(unAssignUser));
     const usersDeviceTokens = [];
     unAssignUser.forEach((token) => {
       if (token.deviceToken) {
         usersDeviceTokens.push(token.deviceToken);
       }
     });
-    //console.logs('usersDeviceTokens', usersDeviceTokens);
     if (usersDeviceTokens.length > 0) {
       const pushData = {
         title: "Balloting Excercise Extended",
@@ -9177,7 +8603,6 @@ async function conductBallot(id) {
   try {
    logInfo('conductBallot called', id)
     const ballotId = id;
-    //console.logs('ballotId', ballotId)
     let ballotResult = await Ballot.findOne({
       _id: ballotId,
       isConduct: false,
@@ -9194,11 +8619,9 @@ async function conductBallot(id) {
       if (ballotResult.leaveType == 2) {
         totalDeducated = 1;
       }
-      console.log("ballotResult", ballotResult.ballotName);
       if (ballotResult.userFrom === 2) {
         ballotResult = JSON.stringify(ballotResult);
         ballotResult = JSON.parse(ballotResult);
-        ////console.logs('ballotResult', ballotResult);
         let shuffle = [];
         shuffle = ballotResult.slotCreation;
         ballotResult.appliedStaff.forEach((appliedStaff) => {
@@ -9222,7 +8645,6 @@ async function conductBallot(id) {
               randomStaff.forEach((randomSelectedStaff) => {
                 finalWinStaff.push(slotWise.appliedStaff[randomSelectedStaff]);
               });
-              //console.logs('slotWise.appliedStaff.length', slotWise.appliedStaff.length, howMuchWin, randomStaff)
             }
           });
         });
@@ -9243,7 +8665,6 @@ async function conductBallot(id) {
         // for ops group
         ballotResult = JSON.stringify(ballotResult);
         ballotResult = JSON.parse(ballotResult);
-        ////console.logs('ballotResult', ballotResult);
         let shuffle = [];
 
         const opsGroupQuota = [];
@@ -9258,7 +8679,6 @@ async function conductBallot(id) {
             slotQuota: [],
           };
           opsGroupSlot.arr.forEach((arrItem, arrIndex) => {
-            ////console.logs('aaaaaaaa');
             let key = "" + arrIndex + "A";
             let slotNumber = arrIndex;
             let slotOpsGroupValue = parseInt(opsGroupSlot.weekRangeSlot[key].value);
@@ -9266,7 +8686,6 @@ async function conductBallot(id) {
             const teamValue = [];
             let totalTeamQuota = 0;
             opsGroupSlot.opsTeam.forEach((teamItem, teamIndex) => {
-              ////console.logs('aaaaaaaa');
               let key = "OG" + arrIndex +"OT"+ teamIndex;
               totalTeamQuota = totalTeamQuota + parseInt(opsGroupSlot.weekRangeSlot[key].value);
               teamValue.push(parseInt(opsGroupSlot.weekRangeSlot[key].value));
@@ -9279,13 +8698,9 @@ async function conductBallot(id) {
             };
             slotValue.slotQuota.push(obj);
           });
-          ////console.logs('aauued', slotValue)
           opsGroupQuota.push(slotValue);
-          ////console.logs('yyegwb');
-          ////console.logs('aaaa', groupBy(ballotResult.appliedStaff,'weekNo'));
           let appliedStaffObject = {};
           appliedStaffObject = groupBy(ballotResult.appliedStaff, "opsTeamId");
-          ////console.logs('appliedStaffObject', appliedStaffObject)
           //return res.send(ballotResult.appliedStaff)
           /* for(let keyyy in appliedStaffObject){
                          const ayaya = groupBy(appliedStaffObject[keyyy],'weekNo');
@@ -9295,7 +8710,6 @@ async function conductBallot(id) {
             opsGroupId: opsGroupSlot.opsGroup.opsId,
             opsTeamValue: [],
           };
-          //console.logs('yyegwbaaa',opsGroupSlot.opsTeam);
           if (opsGroupSlot.opsTeam && opsGroupSlot.opsTeam.length > 0) {
             opsGroupSlot.opsTeam.forEach((teamItem, teamIndex) => {
               if (appliedStaffObject[teamItem._id]) {
@@ -9306,10 +8720,8 @@ async function conductBallot(id) {
               }
             });
           } else {
-            //console.logs('no temmmm',appliedStaffObject);
             if (isEmpty(appliedStaffObject)) {
               // Object is empty (Would return true in this example)
-              //console.logs("do nothing obect is empty");
             } else {
               // Object is NOT empty
               if (appliedStaffObject["undefined"]) {
@@ -9321,10 +8733,8 @@ async function conductBallot(id) {
                 const ayaya = groupBy(appliedStaffObject["undefined"], "weekNo");
                 opsGroupSlotWithTeam.opsTeamValue.push(ayaya);
               }
-              //console.logs("please check here");
             }
           }
-          ////console.logs('hgfgetgt')
           appliedStaffArray.push(opsGroupSlotWithTeam);
           /*groupBy(ballotResult.appliedStaff, function(item)
                     {
@@ -9337,7 +8747,6 @@ async function conductBallot(id) {
           }
           return true;
         }
-        ////console.logs('aaaaaaaa');
         function groupBy(xs, key) {
           return xs.reduce(function (rv, x) {
             (rv[x[key]] = rv[x[key]] || []).push(x);
@@ -9362,9 +8771,7 @@ async function conductBallot(id) {
 
         let limitQuota = [];
         let finalWinStaff = [];
-        console.log("aaaaaaaa");
         opsGroupQuota.forEach((item, topIndex) => {
-          ////console.logs('aaa')
           let objA = {
             opsGroupId: item.opsGroupId,
           };
@@ -9373,7 +8780,6 @@ async function conductBallot(id) {
             if (slll.opsTeamQuotaValue.length === 0) {
               objA.isTeamPresent = false;
               objA.opsGroupQuotaValue = slll.opsGroupQuotaValue;
-              // //console.logs('callleddd');
               if (appliedStaffArray[topIndex].opsTeamValue[0] && appliedStaffArray[topIndex].opsTeamValue[0]["" + slll.slot]) {
                 if (slll.opsGroupQuotaValue >= appliedStaffArray[topIndex].opsTeamValue[0]["" + slll.slot].length) {
                   finalWinStaff = finalWinStaff.concat(appliedStaffArray[topIndex].opsTeamValue[0]["" + slll.slot]);
@@ -9393,14 +8799,11 @@ async function conductBallot(id) {
                   appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex] &&
                   appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot]
                 ) {
-                  console.log("bbb");
                   const len = appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot].length;
-                  //console.logs('len', len, slll.slot, p);
                   // p means no of win
                   // len means no of applied
                   if (len > p) {
                     const randomStaff = getRandomNumber(len, p);
-                    //console.logs('randomStaff', randomStaff);
                     randomStaff.forEach((randomSelectedStaff) => {
                       finalWinStaff.push(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot][randomSelectedStaff]);
                     });
@@ -9416,30 +8819,24 @@ async function conductBallot(id) {
               // if ops group quota value is less then total team quota
               let allAppliedStaff = [];
               slll.opsTeamQuotaValue.forEach((p, opsTeamQuotaValueIndex) => {
-                ////console.logs('topIndexppppppp', topIndex, opsTeamQuotaValueIndex);
                 if (
                   appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex] &&
                   appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot]
                 ) {
-                  //console.logs('aaaaeee');
                   if (p >= appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot].length) {
-                    // //console.logs('hh', appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex][''+slll.slot])
                     allAppliedStaff = allAppliedStaff.concat(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot]);
                   } else {
-                    //console.logs('thiselseworkssss')
                     const randomStaff = getRandomNumber(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot].length, p);
                     randomStaff.forEach((ppp) => {
                       allAppliedStaff.push(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex]["" + slll.slot][ppp]);
                     });
                   }
-                  /*       //console.logs('bbb');
+                  /*       
                                     const len = appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex][''+slll.slot].length;
-                                    //console.logs('len', len, slll.slot, p);
                                     // p means no of win
                                     // len means no of applied
                                     if(len>p) {
                                         const randomStaff = getRandomNumber(len, p);
-                                        //console.logs('randomStaff', randomStaff);
                                         randomStaff.forEach((randomSelectedStaff)=>{
                                             finalWinStaff.push(appliedStaffArray[topIndex].opsTeamValue[opsTeamQuotaValueIndex][''+slll.slot][randomSelectedStaff])
                                         });
@@ -9453,16 +8850,12 @@ async function conductBallot(id) {
                 //const randomStaff = getRandomNumber(slotWise.appliedStaff.length, howMuchWin);
               });
               if (allAppliedStaff.length > 0) {
-                //console.logs('ahugwgg')
                 const finalAppliedStaff = [];
                 const randomStaff = getRandomNumber(allAppliedStaff.length, allAppliedStaff.length);
-                //console.logs('randomStaff', randomStaff, allAppliedStaff.length);
                 randomStaff.forEach((ppp) => {
                   finalAppliedStaff.push(allAppliedStaff[ppp]);
                 });
                 const finalRandomStaff = getRandomNumber(allAppliedStaff.length, slll.opsGroupQuotaValue);
-                //console.logs('finalRandomStaff', finalRandomStaff)
-                //console.logs('sdhfys', allAppliedStaff.length, finalRandomStaff, slll.opsGroupQuotaValue);
                 finalRandomStaff.forEach((ppp) => {
                   finalWinStaff.push(finalAppliedStaff[ppp]);
                 });
@@ -9470,7 +8863,6 @@ async function conductBallot(id) {
             }
           });
         });
-        console.log("finalWinStaff", finalWinStaff);
         const updateWin = await Ballot.findOneAndUpdate(
           { _id: ballotId },
           {
@@ -9490,7 +8882,6 @@ async function conductBallot(id) {
       return true;
     }
   } catch (e) {
-    console.log("éee", e);
     logError('conductBallot has error', e)
     logError('conductBallot has error', e.stack)
     return false;
@@ -9498,7 +8889,6 @@ async function conductBallot(id) {
 }
 
 function getRandomNumber(length, howMany) {
-  //console.logs("aaaaa")
   if (howMany > length) {
     howMany = length;
   }
@@ -9521,7 +8911,6 @@ async function checkIsAnnualLeave(userId, companyId, year, isFixedBallotingLeave
     annualLeave = await leaveType.findOne({ name: "Annual Leave", isActive: true, companyId });
   }
 
-  console.log("annualLeaveannualLeaveannualLeaveannualLeaveannualLeavewwwwwqqq", annualLeave)
 
   // const annualLeave = await leaveType.findOne({ name: "Annual Leave", isActive: true, companyId });
   if (annualLeave) {
@@ -9565,7 +8954,6 @@ async function checkIsAnnualLeave(userId, companyId, year, isFixedBallotingLeave
   return { status: false };
 }
 async function managePlanLeave(userId, leaveQuota, leaveTypeData, startYear = new Date().getFullYear()) {
-  console.log("leave aa", leaveQuota);
   const updateStaffLeave = await staffLeave.findOneAndUpdate(
     { userId, leaveDetails: { "$elemMatch": { "year": startYear, leaveTypeId: leaveTypeData.leaveTypeId } } },
     { $inc: { "leaveDetails.$.planQuota": leaveQuota, "leaveDetails.$.request": leaveQuota } }
@@ -9585,10 +8973,8 @@ async function insertStaffLeaveForBallot(finalWinStaff, ballot, totalDeducated) 
       const slotArr = ballot.weekRange;
       const slotValue = slotArr[slotWon];
       let startDate = moment(slotValue.start); //.format('DD-MM-YYYY');
-      console.log("startDate", startDate);
       let endDate = moment(slotValue.end);
       const diff = endDate.diff(startDate, "days") + 1;
-      console.log("diff", diff);
       let leaveTypeId = leaveTypeData.leaveTypeData.leaveTypeId;
       let leaveGroupId = leaveTypeData.leaveGroupId;
       let parentBussinessUnitId = leaveTypeData.businessUnitId;
@@ -9617,7 +9003,6 @@ async function insertStaffLeaveForBallot(finalWinStaff, ballot, totalDeducated) 
   const finalLeavePush = await Ballot.findOneAndUpdate({ _id: ballot._id }, { $set: { staffLeave: finalLeave } });
 }
 async function unSuccessfullStaffLeaveBallotBalanaceUpdate(ballotId) {
-  //console.logs('ballotId', ballotId)
   const ballotData = await Ballot.findOne({ _id: ballotId });
   let leave = 5;
   if (ballotData.leaveConfiguration === 2) {
@@ -9630,10 +9015,8 @@ async function unSuccessfullStaffLeaveBallotBalanaceUpdate(ballotId) {
   if (ballotData.leaveType == 2) {
     leave = 1;
   }
-  console.log("leaveleave", leave);
   const appliedStaff = groupBy(ballotData.appliedStaff, "userId");
   const wonStaff = groupBy(ballotData.wonStaff, "userId");
-  ////console.logs('ba', JSON.stringify(ballotData));
   const updateLeaveBy = [];
   for (let key in appliedStaff) {
     const obj = {
@@ -9665,7 +9048,6 @@ async function unSuccessfullStaffLeaveBallotBalanaceUpdate(ballotId) {
       leaveTypeData = await checkIsAnnualLeave(userId, ballotData.companyId, null, false);
     }
     // const leaveTypeData = await checkIsAnnualLeave(userId, ballotData.companyId);
-    //console.logs('user', user)
     if (leaveTypeData.status) {
       let totalLeave = leaveTypeData.leaveTypeData.planQuota + user.value;
       const update = await managePlanLeave(userId, user.value, leaveTypeData.leaveTypeData, startYear);
@@ -9675,7 +9057,6 @@ async function unSuccessfullStaffLeaveBallotBalanaceUpdate(ballotId) {
       //     if (totalLeave > staffLevae.leavesBalanced) {
       //         totalLeave = staffLevae.leavesBalanced;
       //     }
-      //     // //console.logs(staffLevae)
       //     const update = await StaffSapData.update({staff_Id: user.userId}, {$set: {ballotLeaveBalanced: totalLeave}});
       // }
     }
