@@ -284,19 +284,20 @@ class challenge {
         companyId: req.user.companyId,
         status: 1,
       }).select('pointSystems');
-
+      let list  =  challengeStatus.map((c) => {
+        const finder = pageSettings.pointSystems.find((ps) =>
+          !!c._id
+            ? ps._id.toString() === c._id.toString()
+            : `Reward points`.toUpperCase() === ps.title.toUpperCase(),
+        );
+        c.icon = !!finder ? finder.icon : '';
+        return c;
+      });
+      list = list.sort((a,b)=>  b.count - a.count)
       return __.out(
         res,
         201,
-        challengeStatus.map((c) => {
-          const finder = pageSettings.pointSystems.find((ps) =>
-            !!c._id
-              ? ps._id.toString() === c._id.toString()
-              : `Reward points`.toUpperCase() === ps.title.toUpperCase(),
-          );
-          c.icon = !!finder ? finder.icon : '';
-          return c;
-        }),
+        list
       );
     } catch (error) {
       logError("Challenge Controller: getPointsSummary", error.stack)
