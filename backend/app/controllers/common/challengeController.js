@@ -284,16 +284,16 @@ class challenge {
         companyId: req.user.companyId,
         status: 1,
       }).select('pointSystems');
-      let list  =  challengeStatus.map((c) => {
-        const finder = pageSettings.pointSystems.find((ps) =>
-          !!c._id
-            ? ps._id.toString() === c._id.toString()
-            : `Reward points`.toUpperCase() === ps.title.toUpperCase(),
+      let list  =  challengeStatus.map((status) => {
+        const finder = pageSettings.pointSystems.find((pointSystem) =>
+          !!status._id
+            ? pointSystem._id.toString() === status._id.toString()
+            : `Reward points`.toUpperCase() === pointSystem.title.toUpperCase(),
         );
-        c.icon = !!finder ? finder.icon : '';
-        return c;
+        status.icon = !!finder ? finder.icon : '';
+        return status;
       });
-      list = list.sort((a,b)=>  b.count - a.count)
+      list = list.sort((first,second)=>  second.count - first.count)
       return __.out(
         res,
         201,
