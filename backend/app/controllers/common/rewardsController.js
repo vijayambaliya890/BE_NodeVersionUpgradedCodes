@@ -657,10 +657,7 @@ class redeemedRewards {
           'Subsection': `${reward.businessUnit.name}`
         };
       })
-      let csv = json2csv({
-        data: rowResult,
-        fields: headers
-      });
+      let csv = json2csv(rowResult,headers);
       await new Promise((resolve, reject) => {
         fs.writeFile(`./public/uploads/reward/rewardsExport.csv`, csv, (err) => {
           if (err) {

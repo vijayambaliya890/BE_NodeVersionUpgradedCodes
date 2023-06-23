@@ -7368,15 +7368,25 @@ class shift {
             var insertAppliedStaffs = await new StaffLimit(obj).save();
             // add new
           } else {
-            // update
+            let extendedStaff = shiftDetails.extendedStaff.filter((item) => {
+              return item.userId.toString() == userId.toString();
+            });
+            let updateQuery = {}
+            if (extendedStaff.length > 0) {
+              updateQuery = {
+                  startTime: new Date(extendedStaff[0].startDateTime),
+                  endTime: new Date(extendedStaff[0].endDateTime),
+              };
+            } else {
+              updateQuery = {
+                  startTime: new Date(shiftDetails.startTime),
+                  endTime: new Date(shiftDetails.endTime),
+              };
+            }
             const upppp = await StaffLimit.findByIdAndUpdate(
               staffLimitPresentData._id,
-              {
-                $inc: {
-                  normalDuration: normalDuration,
-                  otDuration: otDuration,
-                },
-              },
+              updateQuery,
+              { new: true }
             );
           }
 
@@ -7928,15 +7938,31 @@ class shift {
         shiftDetailsData,
         true,
       );
+
+      let staffLimitData = await StaffLimit.findOne({userId:userId,shiftDetailId:shiftDetailId})
+
       shiftDetailsData.extendedStaff = shiftDetailsData.extendedStaff.filter(
         (oldShift) => {
-          return oldShift.userId.toString() !== userId;
+          return oldShift.userId.toString() === userId;
         },
       );
-      if (shiftDetailsData.extendedStaff.length == 0) {
-        shiftDetailsData.isExtendedShift = false;
+      let shNew;
+      if(shiftDetailsData.extendedStaff.length > 0){
+         shNew = await ShiftDetails.findOneAndUpdate(
+          {
+            _id: mongoose.Types.ObjectId(shiftDetailId),
+            'extendedStaff.userId': userId
+          },
+          { 
+            $set: { 
+            'extendedStaff.$.confirmStatus': 4,
+            'extendedStaff.$.duration': staffLimitData.normalDuration,
+            'extendedStaff.$.startDateTime': staffLimitData.startTime,
+            'extendedStaff.$.endDateTime': staffLimitData.endTime
+          } 
+        },{ new: true }
+        )
       }
-      const shNew = await shiftDetailsData.save();
       Shift.findById(shiftDetailsData.shiftId).then((shiftInfo) => {
         let statusLogData = {
           userId: req.body.userId,
@@ -7990,18 +8016,20 @@ class shift {
           },
         ]);
         schemeDetails = schemeDetails.schemeId;
+
+        let shiftDetail = await ShiftDetails.findOne({
+          _id: mongoose.Types.ObjectId(shiftDetailId),
+          'extendedStaff.userId': mongoose.Types.ObjectId(req.body.userId),
+        });
+        if (!shiftDetail) {
+          logError(`shift/shiftExtension/confirmation API, 'Shift extension not found'`, req.body);
+          return __.out(res, 300, 'Shift extension not found');
+        }
+        let shiftExtensionInfo = shiftDetail.extendedStaff.filter((ii) => {
+          return ii.userId.toString() == req.body.userId.toString();
+        })[0];
+
         if (schemeDetails.isShiftInterval) {
-          const shiftDetail = await ShiftDetails.findOne({
-            _id: mongoose.Types.ObjectId(shiftDetailId),
-            'extendedStaff.userId': mongoose.Types.ObjectId(req.body.userId),
-          });
-          if (!shiftDetail) {
-            logError(`shift/shiftExtension/confirmation API, 'Shift extension not found'`, req.body);
-            return __.out(res, 300, 'Shift extension not found');
-          }
-          const shiftExtensionInfo = shiftDetail.extendedStaff.filter((ii) => {
-            return ii.userId.toString() == req.body.userId.toString();
-          })[0];
           const intervalRequireTime = schemeDetails.shiftIntervalTotal - 1;
           const intervalResult = await ShiftHelper.checkShiftInterval(
             userId,
@@ -8018,22 +8046,57 @@ class shift {
               'Minimum interval between shift is not met. Kindly choose another shift with required interval.',
             );
           }
+
+          await StaffLimit.updateOne(
+            { userId: userId, shiftDetailId: shiftDetailId },
+            { 
+              normalDuration: shiftExtensionInfo.duration,
+              startTime: shiftExtensionInfo.startDateTime,
+              endTime: shiftExtensionInfo.endDateTime
+             },
+          );
         }
+
+        await StaffLimit.updateOne(
+          { userId: userId, shiftDetailId: shiftDetailId },
+          { 
+            normalDuration: shiftExtensionInfo.duration,
+            startTime: shiftExtensionInfo.startDateTime,
+            endTime: shiftExtensionInfo.endDateTime 
+          } 
+        );
+
       }
       if (limitData.status == 1) {
         var isLimit = false;
         if (limitData.limit) {
           isLimit = true;
         }
+        let staffLimitData = await StaffLimit.findOne({userId:req.body.userId,shiftDetailId:shiftDetailId})
+
+        let query = {
+            $set: { 
+              'extendedStaff.$.confirmStatus': req.body.status,
+          },
+        }
+
+        if(req.body.status === 3){
+          query = {
+            $set: {
+              'extendedStaff.$.confirmStatus': req.body.status,
+              'extendedStaff.$.startDateTime': staffLimitData.startTime,
+              'extendedStaff.$.endDateTime': staffLimitData.endTime,
+              'extendedStaff.$.duration': staffLimitData.normalDuration
+          },
+        }
+      }
         ShiftDetails.findOneAndUpdate(
           {
             _id: mongoose.Types.ObjectId(shiftDetailId),
             'extendedStaff.userId': mongoose.Types.ObjectId(req.body.userId),
           },
-          {
-            $set: { 'extendedStaff.$.confirmStatus': req.body.status }, // "extendedStaff.$.isLimit": isLimit, isLimit: isLimit
-          },
-          { new: true },
+            query,
+            { new: true },
         )
           .then(async (result) => {
             if (result) {
@@ -8306,11 +8369,11 @@ class shift {
       } else {
         otDuration = -1 * extendedDuration;
       }
-      const value = await StaffLimit.updateOne(
-        { userId: userId, shiftDetailId: shiftDetails._id },
-        { $inc: { normalDuration: normalDuration, otDuration: otDuration } },
-      );
-      return value;
+      // const value = await StaffLimit.updateOne(
+      //   { userId: userId, shiftDetailId: shiftDetails._id },
+      //   { $inc: { normalDuration: normalDuration, otDuration: otDuration } },
+      // );
+      return;
     } catch (err) {
       __.log(err);
       __.out(res, 500, err);

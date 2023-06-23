@@ -51,6 +51,14 @@ const StaffLimitSchema = new Schema({
     assignShiftId:{
         type: Schema.Types.ObjectId,
         ref:"AssignShift"
+    },
+    startTime: {
+        type: Date,
+        default: null
+    },
+    endTime: {
+        type: Date,
+        default: null
     }
 }, {
     timestamps: true

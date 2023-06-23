@@ -428,7 +428,7 @@ class staffShift {
                     );
                   });
                   if (obj.length > 0) {
-                    item.extendedStaff = {};
+                    item.extendedStaff = obj;
                     if (
                       obj[0].confirmStatus == 1 ||
                       obj[0].confirmStatus == 2
