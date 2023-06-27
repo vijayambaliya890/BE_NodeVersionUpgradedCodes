@@ -59,6 +59,14 @@ const StaffLimitSchema = new Schema({
     endTime: {
         type: Date,
         default: null
+    },
+    splitStartTime: {
+        type: Date,
+        default: null
+    },
+    splitEndTime: {
+        type: Date,
+        default: null
     }
 }, {
     timestamps: true

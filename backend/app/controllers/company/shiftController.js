@@ -6411,6 +6411,7 @@ class shift {
         duration: ((endTimeInSeconds - startTimeInSeconds) / 3600).toFixed(2),
         reportLocationId: req.body.reportLocationId,
         isRequested: true,
+        isAssignShift: shiftDetailsData.isAssignShift,
         requestedBy: req.user._id,
         referenceShiftDetailsId: req.body.shiftDetailsId,
         appliedStaffs: [],
@@ -6601,6 +6602,7 @@ class shift {
             }
           }
           for (let elemBackup of shiftDetailsData.backUpStaffs) {
+            await this.reduceLimitCancel(res, elemBackup._id, shiftDetailsData);
             if (elemBackup.deviceToken != null) {
               usersDeviceTokens.push(elemBackup.deviceToken);
             }
