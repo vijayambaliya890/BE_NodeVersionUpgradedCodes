@@ -346,9 +346,9 @@ class staffShift {
                 });
                 if (obj.length > 0) {
                   item.extendedStaff = {};
-                  if (obj[0].confirmStatus == 1 || obj[0].confirmStatus == 2) {
+                  // if (obj[0].confirmStatus == 1 || obj[0].confirmStatus == 2) {
                     item.extendedStaff = obj[0];
-                  }
+                  // }
                 }
               }
               if (item.isSplitShift) {
@@ -2055,6 +2055,7 @@ class staffShift {
 
           if (!isPresent) {
             console.log('aaaaaaaaaaaaaaaaaaaaa', normalDuration, otDuration);
+            let splitShiftData = await ShiftDetails.findOne({randomShiftId:shiftDetails.randomShiftId,isParent:2})
             const obj = {
               userId: userId,
               shiftId: shiftDetails.shiftId._id,
@@ -2064,10 +2065,23 @@ class staffShift {
               otDuration: otDuration,
               weekNumber: weekNumber,
               businessUnitId: shiftDetails.shiftId.businessUnitId,
+              startTime: shiftDetails.startTime,
+              endTime: shiftDetails.endTime,
+              splitStartTime: splitShiftData?.startTime? splitShiftData.startTime : null,
+              splitEndTime: splitShiftData?.endTime? splitShiftData.endTime : null,
             };
-            var insertAppliedStaffs = await new StaffLimit(obj).save();
-            //console.log('dddd', insertAppliedStaffs)
+            
             // add new
+            var insertAppliedStaffs = await new StaffLimit(obj).save();
+
+            if(shiftDetails.isSplitShift === false){
+              let removeKey = await StaffLimit.updateOne({ _id: insertAppliedStaffs._id }, 
+                { $unset : { 
+                  splitStartTime : 1,
+                  splitEndTime : 1,
+              } 
+              })
+            }
           } else {
             // update
             if ((bookNewShift && shiftDuration == 0) || !bookNewShift) {
@@ -4699,9 +4713,8 @@ class staffShift {
           var isOt = false;
           let durationChange =
             shiftDetails.duration - referenceShiftDetails.duration;
-          console.log('durationChange', durationChange);
           if (
-            schemeDetails.shiftSchemeType == 1 ||
+            (schemeDetails.shiftSchemeType == 1 || (referenceShiftDetails?.isAssignShift? schemeDetails.shiftSchemeType == 2 : false)) ||
             schemeDetails.shiftSchemeType == 3
           ) {
             let otDuration = 0;

@@ -3470,7 +3470,19 @@ class assignShift {
       if (value.matchedCount == 0 && from == 1 && limitData) {
         let obj = limitData.staffLimitData;
         obj.assignShiftId = details._id;
-        await new StaffLimit(obj).save();
+        let insertAppliedStaffs = await new StaffLimit(obj).save();
+
+          let removeKey = await StaffLimit.updateOne(
+            { _id: insertAppliedStaffs._id },
+            {
+              $unset: {
+                splitStartTime: 1,
+                splitEndTime: 1,
+                startTime: 1,
+                endTime: 1,
+              },
+            },
+          );
         //limitData
       }
       return value;
@@ -3782,15 +3794,36 @@ class assignShift {
                 insertShiftDetail = JSON.stringify(insertShiftDetail);
                 insertShiftDetail = JSON.parse(insertShiftDetail);
                 insertShiftDetail.status = 1;
-                const staffLimitUpdate = await StaffLimit.updateOne(
-                  { assignShiftId: item._id },
-                  {
+
+                let splitShiftData = await ShiftDetails.findOne({draftId:insertShiftDetail.draftId,isParent:2})
+                let query = {}
+                if(insertShiftDetail.isSplitShift){
+                  query = {
                     $set: {
                       shiftDetailId: insertShiftDetail._id,
                       shiftId: insertShift._id,
+                      startTime: insertShiftDetail.startTime,
+                      endTime: insertShiftDetail.endTime,
+                      splitStartTime: splitShiftData?.startTime? splitShiftData.startTime : null,
+                      splitEndTime: splitShiftData?.endTime? splitShiftData.endTime : null,
                     },
-                  },
+                  }
+                }else{
+                  query = {
+                    $set: {
+                      shiftDetailId: insertShiftDetail._id,
+                      shiftId: insertShift._id,
+                      startTime: insertShiftDetail.startTime,
+                      endTime: insertShiftDetail.endTime,
+                    },
+                  }
+                }
+
+                let staffLimitUpdate = await StaffLimit.updateOne(
+                  { assignShiftId: item._id },
+                  query,
                 );
+
                 insertShiftDetail.reportLocationName = item.reportLocationName;
                 insertShiftDetail.faildMessage = 'Shift Publish Successfully';
                 colKey = item._id;
