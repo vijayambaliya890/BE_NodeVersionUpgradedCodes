@@ -27,7 +27,7 @@ class facialDataController {
 
     async create(data, res) {
         try {
-            logInfo(`facial/create API Start!`, { name: req.user.name, staffId: req.user.staffId });
+            logInfo(`facial/create API Start!`, { name: data.user.name, staffId: data.user.staffId });
             let doc = await FacialData.findOne({
                 userId: data.body.userId,
             });
@@ -45,7 +45,7 @@ class facialDataController {
                 let result = await doc.save();
                 const userUpdate = await User.findOneAndUpdate({ _id: doc.userId }, { $set: { facialId: doc._id } })
             }
-            logInfo(`facial/create API ends here!`, { name: req.user.name, staffId: req.user.staffId });
+            logInfo(`facial/create API ends here!`, { name: data.user.name, staffId: data.user.staffId });
             __.out(res, 200);
         } catch (err) {
             logError(`facial/create API, there is an error`, err.toString());
