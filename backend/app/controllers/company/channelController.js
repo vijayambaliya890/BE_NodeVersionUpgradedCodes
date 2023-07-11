@@ -85,7 +85,7 @@ class channel {
           postId.push(item._id);
         });
         let reportData = [];
-        if (req.body.type == 'view') {
+        if (req.body.type == 'readership') {
           reportData = await PostView.aggregate([
             {
               $match: {
@@ -166,13 +166,7 @@ class channel {
           keys[6] = 'Month of (count of postlikes) ';
           keys[7] = 'Year of (count of postlikes)';
           keys[8] = 'Count of __V (postlikes)';
-        } else if (req.body.type == 'comment') {
-          //console.log('heree');
-          //reportData = await PostComment.find({postId:{$in:postId}});
-          console.log(
-            'new Date(new Date(firstDay).toISOString()',
-            new Date(new Date(firstDay).toISOString()),
-          );
+        } else if (req.body.type == 'comments') {
           reportData = await PostComment.aggregate([
             {
               $match: {
