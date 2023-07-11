@@ -25616,7 +25616,1389 @@
                     "url": "https://admin.netroc3.tk"
                 }
             ]
-        }               
+        },
+        "/customForm/myForms/": {
+            "get": {
+                "tags": [
+                    "Integration Logs module"
+                ],
+                "parameters": [
+                    {
+                        "name": "sortWith",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "createdAt"
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example":"desc"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "data": {
+                                  "data": [
+                                    {
+                                      "_id": "64ac3dc46c0e81c15866fe10",
+                                      "title": "10 july form",
+                                      "formName": "",
+                                      "isDeployed": 1,
+                                      "companyId": "5a9d162b36ab4f444b4271c8",
+                                      "assignUsers": [
+                                        {
+                                          "businessUnits": ["5bd723a8c1e35a7a250d562a"],
+                                          "buFilterType": 1,
+                                          "appointments": [],
+                                          "subSkillSets": [],
+                                          "user": [],
+                                          "admin": [],
+                                          "allBuToken": false,
+                                          "allBuTokenStaffId": "",
+                                          "customField": [],
+                                          "_id": "64ac3dc46c0e81c15866fe11"
+                                        }
+                                      ],
+                                      "formLogo": "https://admin.netroc3.tk/uploads/notificationAttachment/0047607b-c048-4697-a633-4df24469f8bb.png",
+                                      "description": "data",
+                                      "viewOnly": true,
+                                      "formUrl": "",
+                                      "createdBy": "5a98fb9536ab4f444b427176",
+                                      "userStatusVisibility": false,
+                                      "quickNavEnabled": false,
+                                      "moduleIncluded": true,
+                                      "moduleId": "64ac3bbd14d85abec8a29174",
+                                      "statusFormType": 0,
+                                      "status": 1,
+                                      "formSubmitted": false,
+                                      "formStatus": [],
+                                      "formDisplayType": null,
+                                      "workflow": [
+                                        {
+                                          "title": "work 10",
+                                          "type": 1,
+                                          "status": 1,
+                                          "additionalModuleId": null,
+                                          "questionResponse": [],
+                                          "workflowResponse": [],
+                                          "userStatusVisibility": false,
+                                          "workflowStatus": [
+                                            {
+                                              "field": "july",
+                                              "status": 1,
+                                              "color": "#d72d2d",
+                                              "isDefault": false,
+                                              "tempId": 1689009520007,
+                                              "_id": "64ac3dc46c0e81c15866fe13"
+                                            }
+                                          ],
+                                          "admin": ["5a98fb9536ab4f444b427176"],
+                                          "tempId": 1689009583303,
+                                          "_id": "64ac3dc46c0e81c15866fe12"
+                                        }
+                                      ],
+                                      "deletedWorkflows": [],
+                                      "createdAt": "2023-07-10T17:20:04.865Z",
+                                      "updatedAt": "2023-07-10T17:20:04.865Z",
+                                      "__v": 0
+                                    }
+                                  ]
+                                }
+                            }                                                                                                                                                                                 
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },          
+        "/integration/readMasterData/": {
+            "get": {
+                "tags": [
+                    "Integration Logs module"
+                ],
+                "parameters": [
+                    {
+                        "name": "sortWith",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "createdAt"
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example":"desc"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": ""
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "draw": "1",
+                                "recordsTotal": 2920,
+                                "recordsFiltered": 2920,
+                                "data": [
+                                  {
+                                    "_id": "5eabb638ac855632cfd4b1b5",
+                                    "createdAt": "2020-05-01T05:40:08.767Z",
+                                    "sourcePath": "dailyMySATS20200501130012.csv",
+                                    "errorFilePath": null,
+                                    "errorMessage": "",
+                                    "status": "Success",
+                                    "company": { "name": "SATS" },
+                                    "noOfNewUsers": 0,
+                                    "noOfUpdatedUsers": 179,
+                                    "faildUpdateUsers": 0
+                                  }
+                                ]
+                            }                                                                                                                                                                                
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/integration/read": {
+            "get": {
+                "tags": [
+                    "Integration Logs module"
+                ],
+                "parameters": [
+                    {
+                        "name": "draw",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 12
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example":0
+                    },
+                    {
+                        "name": "length",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "order[0][dir]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "search[regex]",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": false
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "draw": "12",
+                                "recordsTotal": 2920,
+                                "recordsFiltered": 2920,
+                                "data": [
+                                  {
+                                    "_id": "5ea51eb5e88d354225262d26",
+                                    "createdAt": "2020-04-26T05:40:05.479Z",
+                                    "sourcePath": "dailyMySATS20200426130013.csv",
+                                    "errorFilePath": null,
+                                    "errorMessage": "",
+                                    "status": "Success",
+                                    "company": { "name": "SATS" },
+                                    "noOfNewUsers": 0,
+                                    "noOfUpdatedUsers": 117,
+                                    "faildUpdateUsers": 0
+                                  }
+                                ]
+                            }                                                                                                                                                                                                              
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/integration/readQuota": {
+            "get": {
+                "tags": [
+                    "Integration Logs module"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "parameters": [
+                    {
+                        "name": "draw",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 12
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example":0
+                    },
+                    {
+                        "name": "length",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "order[0][dir]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "search[regex]",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "draw": "1",
+                                "recordsTotal": 568,
+                                "recordsFiltered": 568,
+                                "data": [
+                                  {
+                                    "_id": "618c1236c1f7246b11e86a35",
+                                    "createdAt": "2021-11-10T18:40:54.400Z",
+                                    "sourcePath": "Quota",
+                                    "errorFilePath": "/LBSQuota/NonUpdatedQuotaData20211111.csv",
+                                    "errorMessage": "",
+                                    "status": "Partially completed",
+                                    "company": { "name": "SATS" },
+                                    "noOfNewUsers": 0,
+                                    "noOfUpdatedUsers": 1180,
+                                    "faildUpdateUsers": 531
+                                  }
+                                ]
+                            }                                                                                                                                                                                                                                          
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },         
+        "/integration/readApprove/": {
+            "get": {
+                "tags": [
+                    "Integration Logs module"
+                ],
+                "parameters": [
+                    {
+                        "name": "draw",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 12
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example":0
+                    },
+                    {
+                        "name": "length",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "order[0][dir]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "search[regex]",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "draw": "1",
+                                "recordsTotal": 535,
+                                "recordsFiltered": 535,
+                                "data": [
+                                  {
+                                    "_id": "618b54ad405a2451b5ae03ff",
+                                    "createdAt": "2021-11-10T05:12:13.038Z",
+                                    "sourcePath": "Approve",
+                                    "errorFilePath": "/LBSQuota/NonUpdatedApprovedData20211111.csv",
+                                    "errorMessage": "",
+                                    "status": "Partially completed",
+                                    "company": { "name": "SATS" },
+                                    "noOfNewUsers": 0,
+                                    "noOfUpdatedUsers": 83,
+                                    "faildUpdateUsers": 19
+                                  }
+                                ]
+                            }                                                                                                                                                                                                                                                                        
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },            
+        "/companyUser/lockedAccounts": {
+            "get": {
+                "tags": [
+                    "Locked Accounts module"
+                ],
+                "parameters": [
+                    {
+                        "name": "draw",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 12
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example":0
+                    },
+                    {
+                        "name": "length",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "order[0][dir]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "search[regex]",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "draw": "1",
+                                "recordsTotal": 4,
+                                "recordsFiltered": 4,
+                                "data": [
+                                  {
+                                    "_id": "62a81f4f3a4aeb658db02644",
+                                    "contactNumber": "0000000000",
+                                    "staffId": "88014064",
+                                    "name": "Voon Choon Wei",
+                                    "appointment": { "name": "Customer Services Agent" },
+                                    "businessUnit": "SATS > SATS AIRPORT SERVICES PTE LTD > PAX OPERATIONS I > __"
+                                  }
+                                ]
+                            }                                                                                                                                                                                                                                                                                                      
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/companyUser/active": {
+            "post": {
+                "tags": [
+                    "Locked Accounts module"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type":"object",
+                                "properties":{
+                                    "userId":{
+                                        "type":"string"
+                                    }
+                                }
+                            },
+                            "examples": {
+                                "0":{
+                                    "value":{
+                                        "userId": "626b7a494c65fb542cc687a9"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Updated",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":"Successfully updated"}                                                                                                                                                                                                                                                                           
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/resetPass/getResetPasswordLog/": {
+            "get": {
+                "tags": [
+                    "Reset Password module"
+                ],
+                "parameters": [
+                    {
+                        "name": "draw",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 12
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example":0
+                    },
+                    {
+                        "name": "length",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "order[0][dir]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "search[regex]",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "draw": "6",
+                                "recordsTotal": 3023,
+                                "recordsFiltered": 3022,
+                                "data": [
+                                  {
+                                    "_id": "5dc5a8f183a3817b3f5b524c",
+                                    "createdAt": "2019-11-08T17:42:09.741Z",
+                                    "staffId": { "staffId": "123230", "name": "A Perumal" },
+                                    "resetUserId": { "staffId": "admin001", "name": "System Administrator" }
+                                  }
+                                ]
+                            }                                                                                                                                                                                                                                                                                                      
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/resetPass/getUserData/{staffId}": {
+            "get": {
+                "tags": [
+                    "Reset Password module"
+                ],
+                "parameters": [
+                    {
+                        "name": "staffId",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true,
+                        "example": "5a99734636ab4f444b427189"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "data": {
+                                  "_id": "5a99734636ab4f444b427189",
+                                  "parentBussinessUnitId": {
+                                    "_id": "5bd723a8c1e35a7a250d562a",
+                                    "sectionId": {
+                                      "_id": "5bd7239cc1e35a7a250d5629",
+                                      "departmentId": {
+                                        "_id": "5bd7233bc1e35a7a250d5628",
+                                        "companyId": { "_id": "5a9d162b36ab4f444b4271c8", "name": "SATS" },
+                                        "name": "test"
+                                      },
+                                      "name": "test"
+                                    },
+                                    "name": "test BU"
+                                  },
+                                  "staffId": "test200",
+                                  "name": "Test - Flexi 200"
+                                }
+                            }                                                                                                                                                                                                                                                                                                                                    
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/resetPass/updatePassword": {
+            "post": {
+                "tags": [
+                    "Reset Password module"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type":"object",
+                                "properties":{
+                                    "staffId":{
+                                        "type":"string"
+                                    },
+                                    "password":{
+                                        "type":"string"
+                                    }
+                                }
+                            },
+                            "examples": {
+                                "0":{
+                                    "value":{
+                                        "staffId": "test200",
+                                        "password": "test200"
+                                    }                                      
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Updated",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":"Password updated successfully"}                                                                                                                                                                                                                                                                           
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/centralBuilder/readOne/{moduleId}": {
+            "get": {
+                "tags": [
+                    "My Forms module"
+                ],
+                "parameters": [
+                    {
+                        "name": "moduleId",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true,
+                        "example": "64ac3bbd14d85abec8a29174"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "data": {
+                                  "data": {
+                                    "_id": "64ac3bbd14d85abec8a29174",
+                                    "moduleName": "10 july",
+                                    "questions": [
+                                      {
+                                        "_id": "64ac3bd114d85abec8a29264",
+                                        "question": "<p>without sequence</p>",
+                                        "type": 15,
+                                        "options": [
+                                          {
+                                            "value": "12",
+                                            "correctAns": false,
+                                            "imageSrc": "",
+                                            "_id": "64ac3bd114d85abec8a29266"
+                                          }
+                                        ],
+                                        "optionsView": 0,
+                                        "value": 0,
+                                        "assignUsers": [],
+                                        "dateTime": [1, 1],
+                                        "maxlength": 0,
+                                        "explanation": "",
+                                        "conditionalQuestions": [],
+                                        "profile": [],
+                                        "required": false,
+                                        "chooseCount": 1,
+                                        "moduleId": "64ac3bbd14d85abec8a29174",
+                                        "indexNum": 0,
+                                        "status": 1,
+                                        "imageSrc": "",
+                                        "ppimageuploadfrom": 0,
+                                        "extendedOption": false,
+                                        "pollingSelectionCount": 0,
+                                        "createdAt": "2023-07-10T17:11:45.557Z",
+                                        "updatedAt": "2023-07-10T18:51:10.311Z",
+                                        "__v": 0
+                                      }
+                                    ],
+                                    "viewCount": 0,
+                                    "welComeMessage": "Welcome to sequnce",
+                                    "welComeAttachement": "https://admin.netroc3.tk/uploads/wall/7e98e68c-dcdd-4b59-8762-459250cc0375.jpg",
+                                    "closingMessage": "Thanks",
+                                    "status": 1,
+                                    "postSubmissionRequired": false,
+                                    "postSubmissionMessage": "",
+                                    "postSubmissionImage": "",
+                                    "postSubmissionResponse": [],
+                                    "mobileModule": 0,
+                                    "scoringEnabled": false,
+                                    "scorePerQuestion": 0,
+                                    "companyId": "5a9d162b36ab4f444b4271c8",
+                                    "createdBy": "5a98fb9536ab4f444b427176",
+                                    "createdAt": "2023-07-10T17:11:25.384Z",
+                                    "updatedAt": "2023-07-10T18:51:10.329Z",
+                                    "__v": 0,
+                                    "randomOrder": false
+                                  }
+                                }
+                            }                                                                                                                                                                                                                                                                                                                                                                
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/common/questionModule/getModuleQuestions": {
+            "post": {
+                "tags": [
+                    "My Forms module"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/getModuleQuestions_get_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "customFormId": "64a010f134e9e5d1cbd89438",
+                                        "moduleId": "64a7421514d85abec89c4c5e",
+                                        "moduleType": "customForms",
+                                        "trackQns": true
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                       
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "data": {
+                                  "data": {
+                                    "_id": "64ac3bbd14d85abec8a29174",
+                                    "moduleName": "10 july",
+                                    "questions": [
+                                      {
+                                        "_id": "64ac3bd114d85abec8a29264",
+                                        "question": "<p>without sequence</p>",
+                                        "type": 15,
+                                        "options": [
+                                          {
+                                            "value": "12",
+                                            "correctAns": false,
+                                            "imageSrc": "",
+                                            "_id": "64ac3bd114d85abec8a29266"
+                                          }
+                                        ],
+                                        "optionsView": 0,
+                                        "value": 0,
+                                        "assignUsers": [],
+                                        "dateTime": [1, 1],
+                                        "maxlength": 0,
+                                        "explanation": "",
+                                        "conditionalQuestions": [],
+                                        "profile": [],
+                                        "required": false,
+                                        "chooseCount": 1,
+                                        "moduleId": "64ac3bbd14d85abec8a29174",
+                                        "indexNum": 0,
+                                        "status": 1,
+                                        "imageSrc": "",
+                                        "ppimageuploadfrom": 0,
+                                        "extendedOption": false,
+                                        "pollingSelectionCount": 0,
+                                        "createdAt": "2023-07-10T17:11:45.557Z",
+                                        "updatedAt": "2023-07-10T18:51:10.311Z",
+                                        "__v": 0,
+                                        "selectedOptions": [null, null],
+                                        "answer": [
+                                          {
+                                            "value": "11",
+                                            "correctAns": false,
+                                            "imageSrc": "",
+                                            "_id": "64ac3bd114d85abec8a29265"
+                                          },
+                                          {
+                                            "value": "12",
+                                            "correctAns": false,
+                                            "imageSrc": "",
+                                            "_id": "64ac3bd114d85abec8a29266"
+                                          }
+                                        ],
+                                        "qnsAnswered": true,
+                                        "correctSequence": [
+                                          {
+                                            "value": "11",
+                                            "correctAns": false,
+                                            "imageSrc": "",
+                                            "_id": "64ac3bd114d85abec8a29265"
+                                          },
+                                          {
+                                            "value": "12",
+                                            "correctAns": false,
+                                            "imageSrc": "",
+                                            "_id": "64ac3bd114d85abec8a29266"
+                                          }
+                                        ],
+                                        "images": [],
+                                        "videos": []
+                                      }
+                                    ],
+                                    "viewCount": 0,
+                                    "welComeMessage": "Welcome to sequnce",
+                                    "welComeAttachement": "https://admin.netroc3.tk/uploads/wall/7e98e68c-dcdd-4b59-8762-459250cc0375.jpg",
+                                    "closingMessage": "Thanks",
+                                    "status": 1,
+                                    "postSubmissionRequired": false,
+                                    "postSubmissionMessage": "",
+                                    "postSubmissionImage": "",
+                                    "postSubmissionResponse": [],
+                                    "mobileModule": 0,
+                                    "scoringEnabled": false,
+                                    "scorePerQuestion": 0,
+                                    "companyId": "5a9d162b36ab4f444b4271c8",
+                                    "createdBy": "5a98fb9536ab4f444b427176",
+                                    "createdAt": "2023-07-10T17:11:25.384Z",
+                                    "updatedAt": "2023-07-10T18:51:10.329Z",
+                                    "__v": 0,
+                                    "randomOrder": false
+                                  }
+                                }
+                            }                                                                                                                                                                                                                                                                                                                                                                                              
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/common/questionModule/resCustomFormQuestions": {
+            "post": {
+                "tags": [
+                    "My Forms module"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/resCustomFormQuestions_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "answers": [
+                                          {
+                                            "_id": "64a7424b14d85abec89c4d4f",
+                                            "answer": [
+                                              {
+                                                "value": "grapes",
+                                                "correctAns": false,
+                                                "imageSrc": "https://admin.netroc3.tk/uploads/wall/403d67f3-08a7-4d35-b458-8b60b05ed0a9.jpg",
+                                                "_id": "64a8270114d85abec89cf64c"
+                                              }
+                                            ],
+                                            "type": 15,
+                                            "required": true
+                                          }
+                                        ],
+                                        "customFormId": "64a010f134e9e5d1cbd89438",
+                                        "questions": ["64a7422a14d85abec89c4cba"]
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {"data":{"message":"Submitted  Successfully!!","data":[]}}                                                                                                                                                                                                                                                                                                                                                                
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/customForm/getManageFormUsers": {
+            "post": {
+                "tags": [
+                    "My Forms module"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type":"object",
+                                "properties":{
+                                    "customFormId":{
+                                        "type":"string"
+                                    }
+                                }
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "customFormId": "64ac3dc46c0e81c15866fe10"
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "data": {
+                                  "data": [
+                                    {
+                                      "_id": "64ac3de66c0e81c1586700bc",
+                                      "userId": "5a98fb9536ab4f444b427176",
+                                      "customFormId": "64ac3dc46c0e81c15866fe10",
+                                      "staffName": "System Administrator",
+                                      "formStatus": [],
+                                      "workflowStatus": [
+                                        {
+                                          "fieldId": "64ac3dc46c0e81c15866fe12",
+                                          "_id": "64ac3de66c0e81c1586700bd"
+                                        }
+                                      ],
+                                      "questionId": [
+                                        {
+                                          "_id": "64ac3e016c0e81c1586701f4",
+                                          "questionId": {
+                                            "_id": "64ac3bd114d85abec8a29264",
+                                            "question": "<p>without sequence</p>",
+                                            "type": 15,
+                                            "options": [
+                                              {
+                                                "value": "11",
+                                                "correctAns": false,
+                                                "imageSrc": "",
+                                                "_id": "64ac3bd114d85abec8a29265"
+                                              },
+                                              {
+                                                "value": "12",
+                                                "correctAns": false,
+                                                "imageSrc": "",
+                                                "_id": "64ac3bd114d85abec8a29266"
+                                              }
+                                            ],
+                                            "optionsView": 0,
+                                            "value": 0,
+                                            "assignUsers": [],
+                                            "dateTime": [1, 1],
+                                            "maxlength": 0,
+                                            "explanation": "",
+                                            "conditionalQuestions": [],
+                                            "profile": [],
+                                            "required": false,
+                                            "chooseCount": 1,
+                                            "moduleId": "64ac3bbd14d85abec8a29174",
+                                            "indexNum": 0,
+                                            "status": 1,
+                                            "imageSrc": "",
+                                            "ppimageuploadfrom": 0,
+                                            "extendedOption": false,
+                                            "pollingSelectionCount": 0,
+                                            "createdAt": "2023-07-10T17:11:45.557Z",
+                                            "updatedAt": "2023-07-10T18:51:10.311Z",
+                                            "__v": 0,
+                                            "images": [],
+                                            "videos": []
+                                          },
+                                          "answer": [
+                                            {
+                                              "value": "12",
+                                              "_id": "64ac3bd114d85abec8a29266",
+                                              "correctAns": false
+                                            },
+                                            {
+                                              "value": "11",
+                                              "_id": "64ac3bd114d85abec8a29265",
+                                              "correctAns": false
+                                            }
+                                          ],
+                                          "userId": "5a98fb9536ab4f444b427176",
+                                          "customFormId": "64ac3dc46c0e81c15866fe10",
+                                          "status": 1,
+                                          "createdAt": "2023-07-10T17:21:05.316Z",
+                                          "updatedAt": "2023-07-10T17:21:05.316Z",
+                                          "__v": 0
+                                        }
+                                      ],
+                                      "questions": ["64ac3bd114d85abec8a29264", "64ac3d1614d85abec8a29355"],
+                                      "formId": "1JF_0000000400",
+                                      "userScore": 0,
+                                      "totalScore": 0,
+                                      "createdAt": "2023-07-10T17:20:38.451Z",
+                                      "updatedAt": "2023-07-10T17:21:05.322Z",
+                                      "__v": 0,
+                                      "showFormWorkflowStatus": [{ "fieldName": "work 10", "status": "---" }]
+                                    }
+                                  ]
+                                }
+                            }                                                                                                                                                                                                                                                                                                                                                                                              
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        }
     },
     "components": {
         "schemas": {
@@ -29944,6 +31326,77 @@
               },
               "userId": {
                 "type": "string"
+              }
+            }
+          },
+          "getModuleQuestions_get_body": {
+            "type": "object",
+            "properties": {
+              "customFormId": {
+                "type": "string"
+              },
+              "moduleId": {
+                "type": "string"
+              },
+              "moduleType": {
+                "type": "string"
+              },
+              "trackQns": {
+                "type": "boolean"
+              }
+            }
+          },
+          "resCustomFormQuestions_body": {
+            "type": "object",
+            "properties": {
+                "_id": {
+                    "type": "string"
+                  },
+                "answers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "answer": {
+                          "type": "boolean"
+                        },
+                        "type": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "value": {
+                                        "type": "string"
+                                    },
+                                    "correctAns": {
+                                        "type": "boolean"
+                                    },
+                                    "imageSrc": {
+                                        "type": "string"
+                                    },
+                                    "_id": {
+                                        "type": "string"
+                                    }
+                                } 
+                            }
+                        },
+                        "required": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                },
+                "customFormId": {
+                "type": "string"
+               },
+              "questions": {
+                "type": "array",
+                "items": {
+                    "type":"string"
+                }
               }
             }
           }
