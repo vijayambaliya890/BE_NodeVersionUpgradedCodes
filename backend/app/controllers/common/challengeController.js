@@ -1820,364 +1820,275 @@ class challenge {
 
   async manageChallenge(req, res) {
     try {
-      logInfo("Challenge Controller: manageChallenge", { soruceUser: req.user._id })
-      if (!__.checkHtmlContent(req.query)) {
-        return __.out(res, 300, `You've entered malicious input`);
-      }
-      let {
-        challengeId,
-        startDate,
-        endDate,
-        businessUnit,
-        individual,
-        nonRewardPointSystemEnabled,
-      } = req.query;
-      let pageNum = req.query.draw ? parseInt(req.query.draw) : 1;
-      let limit = req.query.length ? parseInt(req.query.length) : 10;
-      console.log(req.query.skip, pageNum);
-      const skip = req.query.skip
-        ? parseInt(req.query.skip)
-        : (pageNum - 1) * limit;
-
-      if (!!!challengeId) {
-        return __.out(res, 300, 'challengeId is required');
-      }
-      let query = {
-        challengeId: mongoose.Types.ObjectId(challengeId),
-        rewardPoints: {
-          $exists: true,
-        },
-        rewardPoints: {
-          $gt: 0,
-        },
-      };
-      let userQuery = {
-        'user.status': {
-          $in: [1, 2],
-        },
-      };
-
-      if (!!businessUnit) {
-        userQuery['user.parentBussinessUnitId'] = {
-          $in: [mongoose.Types.ObjectId(businessUnit)],
-        };
-      }
-      let populateQuery = [
-        {
-          $match: query,
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'userId',
-            foreignField: '_id',
-            as: 'user',
-          },
-        },
-        {
-          $unwind: '$user',
-        },
-        {
-          $match: userQuery,
-        },
-      ];
-
-      if (!!startDate) {
-        query['createdAt'] = query['createdAt'] || {};
-        query['createdAt']['$gte'] = query['createdAt']['$gte'] || {};
-        query['createdAt']['$gte'] = moment(startDate, 'YYYY-MM-DD').toDate();
-      }
-      if (!!endDate) {
-        query['createdAt'] = query['createdAt'] || {};
-        query['createdAt']['$lte'] = query['createdAt']['$lte'] || {};
-        query['createdAt']['$lte'] = moment(endDate, 'YYYY-MM-DD').toDate();
-      }
-      const ind = individual === 'true';
-      let countRecordsTotal = await this.getChallengeCriteriaModel(
-        eval(nonRewardPointSystemEnabled),
-      )
-        .aggregate([
-          ...populateQuery,
-          {
-            $group: {
-              _id: !!ind ? '$_id' : '$user._id',
-              count: !!ind
-                ? { $first: '$rewardPoints' }
-                : { $sum: '$rewardPoints' },
-            },
-          },
-          {
-            $group: {
-              _id: null,
-              total: { $sum: 1 },
-            },
-          },
-        ])
-        .allowDiskUse(true);
-      let recordsTotal = 0;
-      if (countRecordsTotal.length) {
-        recordsTotal = countRecordsTotal[0].total;
-      }
-      let searchQuery = {};
-      if (req.query.search && req.query.search.value) {
-        //, "company.name", "department.name", "section.name", "subsection.name", "rewardPoints", "rewardedBy.name"
-        searchQuery['$or'] = [
-          'challengeTitle',
-          'staffId',
-          'name',
-          'businessUnit',
-          'count',
-          'rewardedBy.name',
-        ].map((v) => {
-          let obj = {};
-          obj[v] = {
-            $regex: `${req.query.search.value}`,
-            $options: 'i',
-          };
-          return obj;
-        });
-      }
-
-      populateQuery = [
-        ...populateQuery,
-        /* {
-          $lookup: {
-            from: 'subsections',
-            localField: 'user.parentBussinessUnitId',
-            foreignField: '_id',
-            as: 'subsection'
-          }
-        },
-        {
-          $unwind: '$subsection'
-        },
-        {
-          $lookup: {
-            from: 'sections',
-            localField: 'subsection.sectionId',
-            foreignField: '_id',
-            as: 'section'
-          }
-        },
-        {
-          $unwind: '$section'
-        },
-        {
-          $lookup: {
-            from: 'departments',
-            localField: 'section.departmentId',
-            foreignField: '_id',
-            as: 'department'
-          }
-        },
-        {
-          $unwind: '$department'
-        },
-        {
-          $lookup: {
-            from: 'companies',
-            localField: 'department.companyId',
-            foreignField: '_id',
-            as: 'company'
-          }
-        },
-        {
-          $unwind: '$company'
-        }, */
-        {
-          //   $lookup: {
-          //     from: "challenges",
-          //     localField: "challengeId",
-          //     foreignField: "_id",
-          //     as: "challenge"
-          //   }
-          // },
-          // {
-          //   $unwind: "$challenge"
-          // }, {
-          $lookup: {
-            from: 'users',
-            localField: 'directReward.rewardedBy',
-            foreignField: '_id',
-            as: 'rewardedBy',
-          },
-        },
-        {
-          $unwind: {
-            path: '$rewardedBy',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            // "challenge._id": 1,
-            // "challenge.title": 1,
-            'user.staffId': 1,
-            'user.name': 1,
-            'user._id': 1,
-            'user.parentBussinessUnitId': 1,
-            // "company.name": 1,
-            // "department.name": 1,
-            // "section.name": 1,
-            // "subsection.name": 1,
-            rewardPoints: 1,
-            directReward: 1,
-            'rewardedBy.name': 1,
-            createdAt: 1,
-            // businessUnit:{$concat:['$company.name', ' > ', "$department.name", ' > ','$section.name', ' > ', '$subsection.name']}//, '$department.name', '>', '$section.name', '>', '$subsection.name}']}
-          },
-        },
-        {
-          $group: {
-            _id: !!ind ? '$_id' : '$user._id',
-            count: !!ind
-              ? { $first: '$rewardPoints' }
-              : { $sum: '$rewardPoints' },
-            // businessUnit: {$first:'$businessUnit'},
-            parentBussinessUnitId: { $first: '$user.parentBussinessUnitId' },
-            // challengeTitle: {$first:'$challenge.title'},
-            staffId: { $first: '$user.staffId' },
-            name: { $first: '$user.name' },
-            directReward: { $first: '$directReward' },
-            createdAt: { $first: '$createdAt' },
-            directRewardBy: { $first: '$rewardedBy' },
-          },
-        },
-        {
-          $match: searchQuery,
-        },
-      ];
-
-      let sort = {};
-      if (req.query.order) {
-        let orderData = req.query.order;
-        const getSort = (val) => ('asc' === val ? 1 : -1);
-        for (let i = 0; i < orderData.length; i++) {
-          switch (orderData[i].column) {
-            case '0':
-              sort[`challengeTitle`] = getSort(orderData[i].dir);
-              break;
-            case '1':
-              sort[`name`] = getSort(orderData[i].dir);
-              break;
-            case '2':
-              sort[`staffId`] = getSort(orderData[i].dir);
-              break;
-            case '3':
-              sort[`businessUnit`] = getSort(orderData[i].dir);
-              break;
-            case '4':
-              sort[`count`] = getSort(orderData[i].dir);
-              break;
-            case '5':
-              sort[`createdAt`] = getSort(orderData[i].dir);
-              break;
-            case '6':
-              sort[`rewardedBy.name`] = getSort(orderData[i].dir);
-              break;
-          }
+        logInfo("Challenge Controller: manageChallenge", {
+            soruceUser: req.user._id
+        })
+        if (!__.checkHtmlContent(req.query)) {
+            return __.out(res, 300, `You've entered malicious input`);
         }
-      }
-      const recordsFilteredCount = await this.getChallengeCriteriaModel(
-        eval(nonRewardPointSystemEnabled),
-      )
-        .aggregate([
-          ...populateQuery,
-          {
-            $group: {
-              _id: null,
-              total: { $sum: 1 },
-            },
-          },
-        ])
-        .allowDiskUse(true);
+        let {
+            challengeId,
+            startDate,
+            endDate,
+            businessUnit,
+            individual,
+            nonRewardPointSystemEnabled,
+        } = req.query;
+        let pageNum = req.query.draw ? parseInt(req.query.draw) : 1;
+        let limit = req.query.length ? parseInt(req.query.length) : 10;
+        console.log(req.query.skip, pageNum);
+        const skip = req.query.skip ?
+            parseInt(req.query.skip) :
+            (pageNum - 1) * limit;
 
-      let recordsFiltered = 0;
-      if (recordsFilteredCount.length) {
-        recordsFiltered = recordsFilteredCount[0].total;
-      }
-
-      let totalRecords = await this.getChallengeCriteriaModel(
-        eval(nonRewardPointSystemEnabled),
-      )
-        .aggregate([
-          ...populateQuery,
-          {
-            $sort: sort,
-          },
-          {
-            $skip: skip,
-          },
-          {
-            $limit: limit,
-          },
-        ])
-        .allowDiskUse(true);
-
-      // get bu details separatly, to reduce run time
-      totalRecords = await subSection.populate(totalRecords, {
-        path: 'parentBussinessUnitId',
-        select: 'name status',
-        match: {
-          status: 1,
-        },
-        populate: {
-          path: 'sectionId',
-          match: {
-            status: 1,
-          },
-          select: 'name',
-          populate: {
-            path: 'departmentId',
-            match: {
-              status: 1,
+        if (!!!challengeId) {
+            return __.out(res, 300, 'challengeId is required');
+        }
+        let query = {
+            challengeId: mongoose.Types.ObjectId(challengeId),
+            rewardPoints: {
+                $gt: 0,
             },
-            select: 'name',
-            populate: {
-              path: 'companyId',
-              match: {
-                status: 1,
-              },
-              select: 'name',
-            },
-          },
-        },
-      });
-      const getFullBU = (businessUnit) =>
-        `${businessUnit.sectionId.departmentId.companyId.name} > ${businessUnit.sectionId.departmentId.name} > ${businessUnit.sectionId.name} > ${businessUnit.name}`;
-      totalRecords.forEach((record) => {
-        record.businessUnit = getFullBU(record.parentBussinessUnitId);
-        delete record.parentBussinessUnitId;
-      });
-      // get bu details separatly, to reduce run time
-      /*totalRecords = totalRecords.map(d => {
-        let r = {
-          count: d.rewardPoints,
-          businessUnit: `${d.company.name} > ${d.department.name} > ${d.section.name} > ${d.subsection.name}`,
-          challengeTitle: d.challenge.title,
-          staffId: d.user.staffId,
-          name: d.user.name,
-          directReward: d.directReward,
-          createdAt: d.createdAt
         };
-        r.directRewardBy = d.rewardedBy || {};
-        r['count'] = d.rewardPoints;
-        return r;
-      });*/
+        let userQuery = null;
 
-      const result = {
-        draw: req.query.draw || 0,
-        recordsTotal: recordsTotal || 0,
-        recordsFiltered: recordsFiltered || 0,
-        data: totalRecords,
-      };
-      return res.status(201).json(result);
+        if (!!businessUnit) {
+            userQuery = {};
+            userQuery['user.parentBussinessUnitId'] = mongoose.Types.ObjectId(businessUnit)
+        }
+        let populateQuery = [{
+                $match: query,
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'user',
+                    pipeline: [{
+                        $project: {
+                            "staffId": 1,
+                            "name": 1,
+                            "parentBussinessUnitId": 1
+                        }
+                    }]
+                },
+            },
+            {
+                $unwind: '$user',
+            }
+        ];
+        if (userQuery) {
+            populateQuery.push({
+                $match: userQuery,
+            })
+        }
+
+        if (!!startDate) {
+            query['createdAt'] = query['createdAt'] || {};
+            query['createdAt']['$gte'] = query['createdAt']['$gte'] || {};
+            query['createdAt']['$gte'] = moment(startDate, 'YYYY-MM-DD').toDate();
+        }
+        if (!!endDate) {
+            query['createdAt'] = query['createdAt'] || {};
+            query['createdAt']['$lte'] = query['createdAt']['$lte'] || {};
+            query['createdAt']['$lte'] = moment(endDate, 'YYYY-MM-DD').toDate();
+        }
+        const ind = individual === 'true';
+        let searchQuery = null;
+        if (req.query.search && req.query.search.value) {
+            searchQuery = {};
+            searchQuery['$or'] = [
+                'challengeTitle',
+                'staffId',
+                'name',
+                'businessUnit',
+                'count',
+                'rewardedBy.name',
+            ].map((v) => {
+                let obj = {};
+                obj[v] = {
+                    $regex: `${req.query.search.value}`,
+                    $options: 'i',
+                };
+                return obj;
+            });
+        }
+
+        populateQuery = [
+            ...populateQuery,
+
+            {
+
+                $lookup: {
+                    from: 'users',
+                    localField: 'directReward.rewardedBy',
+                    foreignField: '_id',
+                    as: 'rewardedBy',
+                    pipeline: [{
+                        $project: {
+                            "name": 1,
+                        }
+                    }]
+                },
+            },
+            {
+                $unwind: {
+                    path: '$rewardedBy',
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+            {
+                $project: {
+                    _id: 1,
+                    'user.staffId': 1,
+                    'user.name': 1,
+                    'user._id': 1,
+                    'user.parentBussinessUnitId': 1,
+                    rewardPoints: 1,
+                    directReward: 1,
+                    'rewardedBy.name': 1,
+                    createdAt: 1,
+                },
+            },
+            {
+                $group: {
+                    _id: !!ind ? '$_id' : '$user._id',
+                    count: !!ind ? {
+                        $first: '$rewardPoints'
+                    } : {
+                        $sum: '$rewardPoints'
+                    },
+                    parentBussinessUnitId: {
+                        $first: '$user.parentBussinessUnitId'
+                    },
+                    staffId: {
+                        $first: '$user.staffId'
+                    },
+                    name: {
+                        $first: '$user.name'
+                    },
+                    directReward: {
+                        $first: '$directReward'
+                    },
+                    createdAt: {
+                        $first: '$createdAt'
+                    },
+                    directRewardBy: {
+                        $first: '$rewardedBy'
+                    }
+                }
+            },
+        ];
+        if (searchQuery) {
+            populateQuery.push({
+                $match: searchQuery,
+            }, )
+        }
+        let sort = {};
+        if (req.query.order) {
+            let orderData = req.query.order;
+            const getSort = (val) => ('asc' === val ? 1 : -1);
+            for (let i = 0; i < orderData.length; i++) {
+                switch (orderData[i].column) {
+                    case '0':
+                        sort[`createdAt`] = 1;
+                        break;
+                    case '1':
+                        sort[`name`] = getSort(orderData[i].dir);
+                        break;
+                    case '2':
+                        sort[`staffId`] = getSort(orderData[i].dir);
+                        break;
+                    case '3':
+                        sort[`businessUnit`] = getSort(orderData[i].dir);
+                        break;
+                    case '4':
+                        sort[`count`] = getSort(orderData[i].dir);
+                        break;
+                    case '5':
+                        sort[`createdAt`] = getSort(orderData[i].dir);
+                        break;
+                    case '6':
+                        sort[`rewardedBy.name`] = getSort(orderData[i].dir);
+                        break;
+                }
+            }
+        }
+
+        const allCall = [this.getChallengeCriteriaModel(
+                eval(nonRewardPointSystemEnabled),
+            )
+            .aggregate([
+                ...populateQuery,
+                {
+                    $group: {
+                        _id: null,
+                        total: {
+                            $sum: 1
+                        },
+                    },
+                },
+            ]).allowDiskUse(true)
+        ]
+
+        allCall.push(this.getChallengeCriteriaModel(
+                eval(nonRewardPointSystemEnabled),
+            )
+            .aggregate([
+                ...populateQuery,
+                {
+                    $sort: sort,
+                },
+                {
+                    $skip: skip,
+                },
+                {
+                    $limit: limit,
+                },
+                {
+                    $lookup: {
+                        from: 'subsections',
+                        localField: 'parentBussinessUnitId',
+                        foreignField: '_id',
+                        as: 'bu'
+                    }
+                },
+                {
+                    $unwind: '$bu'
+                },
+                {
+                    $project: {
+                        "_id": 1,
+                        "count": 1,
+                        "parentBussinessUnitId": '$bu.orgName',
+                        "staffId": 1,
+                        "name": 1,
+                        "directReward": 1,
+                        "createdAt": 1,
+                        "directRewardBy": 1
+                    }
+                }
+            ])
+            .allowDiskUse(true));
+
+        let [recordsFilteredCount, totalRecords] = await Promise.all(allCall);
+        let recordsFiltered = 0;
+        if (recordsFilteredCount.length) {
+            recordsFiltered = recordsFilteredCount[0].total;
+        }
+        const result = {
+            draw: req.query.draw || 0,
+            recordsTotal: recordsFiltered || 0,
+            recordsFiltered: recordsFiltered || 0,
+            data: totalRecords,
+        };
+        return res.status(201).json(result);
     } catch (error) {
-      logError("Challenge Controller: manageChallenge", error.stack)
-      return __.out(res, 300, 'something went wrong try later');
+        logError("Challenge Controller: manageChallenge", error.stack)
+        return __.out(res, 300, 'something went wrong try later');
     }
-  }
+}
 
   async triggerChallenge(res, userId, postId, postType, sourceType) {
     try {
