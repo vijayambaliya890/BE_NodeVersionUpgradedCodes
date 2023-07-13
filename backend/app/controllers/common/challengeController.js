@@ -1901,6 +1901,30 @@ class challenge {
     }
   }
 
+  async getUsers(businessUnit, value) {
+    let userQuery = {};
+
+    if (!!businessUnit) {
+      userQuery['parentBussinessUnitId'] =
+        mongoose.Types.ObjectId(businessUnit);
+    }
+    if (value) {
+      userQuery['$or'] = [
+        'staffId',
+        'name',
+      ].map((v) => {
+        let obj = {};
+        obj[v] = {
+          $regex: `${value}`,
+          $options: 'i',
+        };
+        return obj;
+      });
+    }
+    const userIds = await User.find(userQuery).distinct("_id");
+    return userIds; 
+  }
+
   async manageChallenge(req, res) {
     try {
       logInfo('Challenge Controller: manageChallenge', {
@@ -1933,44 +1957,6 @@ class challenge {
           $gt: 0,
         },
       };
-      let userQuery = null;
-
-      if (!!businessUnit) {
-        userQuery = {};
-        userQuery['user.parentBussinessUnitId'] =
-          mongoose.Types.ObjectId(businessUnit);
-      }
-      let populateQuery = [
-        {
-          $match: query,
-        },
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'userId',
-            foreignField: '_id',
-            as: 'user',
-            pipeline: [
-              {
-                $project: {
-                  staffId: 1,
-                  name: 1,
-                  parentBussinessUnitId: 1,
-                },
-              },
-            ],
-          },
-        },
-        {
-          $unwind: '$user',
-        },
-      ];
-      if (userQuery) {
-        populateQuery.push({
-          $match: userQuery,
-        });
-      }
-
       if (!!startDate) {
         query['createdAt'] = query['createdAt'] || {};
         query['createdAt']['$gte'] = query['createdAt']['$gte'] || {};
@@ -1981,100 +1967,7 @@ class challenge {
         query['createdAt']['$lte'] = query['createdAt']['$lte'] || {};
         query['createdAt']['$lte'] = moment(endDate, 'YYYY-MM-DD').toDate();
       }
-      const ind = individual === 'true';
-      let searchQuery = null;
-      if (req.query.search && req.query.search.value) {
-        searchQuery = {};
-        searchQuery['$or'] = [
-          'challengeTitle',
-          'staffId',
-          'name',
-          'businessUnit',
-          'count',
-          'rewardedBy.name',
-        ].map((v) => {
-          let obj = {};
-          obj[v] = {
-            $regex: `${req.query.search.value}`,
-            $options: 'i',
-          };
-          return obj;
-        });
-      }
 
-      populateQuery = [
-        ...populateQuery,
-
-        {
-          $lookup: {
-            from: 'users',
-            localField: 'directReward.rewardedBy',
-            foreignField: '_id',
-            as: 'rewardedBy',
-            pipeline: [
-              {
-                $project: {
-                  name: 1,
-                },
-              },
-            ],
-          },
-        },
-        {
-          $unwind: {
-            path: '$rewardedBy',
-            preserveNullAndEmptyArrays: true,
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            'user.staffId': 1,
-            'user.name': 1,
-            'user._id': 1,
-            'user.parentBussinessUnitId': 1,
-            rewardPoints: 1,
-            directReward: 1,
-            'rewardedBy.name': 1,
-            createdAt: 1,
-          },
-        },
-        {
-          $group: {
-            _id: !!ind ? '$_id' : '$user._id',
-            count: !!ind
-              ? {
-                  $first: '$rewardPoints',
-                }
-              : {
-                  $sum: '$rewardPoints',
-                },
-            parentBussinessUnitId: {
-              $first: '$user.parentBussinessUnitId',
-            },
-            staffId: {
-              $first: '$user.staffId',
-            },
-            name: {
-              $first: '$user.name',
-            },
-            directReward: {
-              $first: '$directReward',
-            },
-            createdAt: {
-              $first: '$createdAt',
-            },
-            directRewardBy: {
-              $first: '$rewardedBy',
-            },
-          },
-        },
-      ];
-      if (searchQuery) {
-        populateQuery.push({
-          $match: searchQuery,
-        });
-      }
       let sort = {};
       if (req.query.order) {
         let orderData = req.query.order;
@@ -2105,36 +1998,130 @@ class challenge {
           }
         }
       }
+      console.log('req.query.search.value', req.query.search.value)
+      if (businessUnit || (req.query.search && req.query.search.value)) {
+        // get userId to pass in main query
+        const userIdArr = await this.getUsers(businessUnit, req.query.search.value);
+        query.userId = {$in: userIdArr}
+      }
+
+      const ind = individual === 'true';
 
       const allCall = [
-        this.getChallengeCriteriaModel(eval(nonRewardPointSystemEnabled))
-          .aggregate([
-            ...populateQuery,
-            {
-              $group: {
-                _id: null,
-                total: {
-                  $sum: 1,
+        !!ind
+          ? this.getChallengeCriteriaModel(
+              eval(nonRewardPointSystemEnabled),
+            ).countDocuments(query)
+          : this.getChallengeCriteriaModel(
+              eval(nonRewardPointSystemEnabled),
+            ).aggregate([
+              { $match: query },
+              {
+                $group: {
+                  _id: '$userId',
                 },
               },
+              { $count: 'total' },
+            ]),
+      ];
+
+      const populateQuery = [
+        { $match: query },
+        {
+          $group: {
+            _id: !!ind ? '$_id' : '$userId',
+            count: !!ind
+              ? {
+                  $first: '$rewardPoints',
+                }
+              : {
+                  $sum: '$rewardPoints',
+                },
+            directReward: {
+              $first: '$directReward',
             },
-          ])
-          .allowDiskUse(true),
+            userId: {
+              $first: '$userId',
+            },
+            createdAt: {
+              $first: '$createdAt',
+            },
+            directRewardBy: {
+              $first: '$rewardedBy',
+            },
+          },
+        },
+        {
+          $sort: sort,
+        },
+        {
+          $skip: skip,
+        },
+        {
+          $limit: limit,
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'userId',
+            foreignField: '_id',
+            as: 'user',
+            pipeline: [
+              {
+                $project: {
+                  staffId: 1.0,
+                  name: 1.0,
+                  parentBussinessUnitId: 1.0,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: '$user',
+          },
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'directReward.rewardedBy',
+            foreignField: '_id',
+            as: 'rewardedBy',
+            pipeline: [
+              {
+                $project: {
+                  name: 1,
+                },
+              },
+            ],
+          },
+        },
+        {
+          $unwind: {
+            path: '$rewardedBy',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $project: {
+            staffId: '$user.staffId',
+            name: '$user.name',
+            _id: '$user._id',
+            parentBussinessUnitId: '$user.parentBussinessUnitId',
+            rewardPoints: 1,
+            directReward: 1,
+            'rewardedBy.name': 1,
+            createdAt: 1,
+            count: 1,
+          },
+        },
       ];
 
       allCall.push(
         this.getChallengeCriteriaModel(eval(nonRewardPointSystemEnabled))
           .aggregate([
             ...populateQuery,
-            {
-              $sort: sort,
-            },
-            {
-              $skip: skip,
-            },
-            {
-              $limit: limit,
-            },
             {
               $lookup: {
                 from: 'subsections',
@@ -2164,8 +2151,12 @@ class challenge {
 
       let [recordsFilteredCount, totalRecords] = await Promise.all(allCall);
       let recordsFiltered = 0;
-      if (recordsFilteredCount.length) {
-        recordsFiltered = recordsFilteredCount[0].total;
+      if (!!ind) {
+        recordsFiltered = recordsFilteredCount;
+      } else {
+        if (recordsFilteredCount.length) {
+          recordsFiltered = recordsFilteredCount[0].total;
+        }
       }
       const result = {
         draw: req.query.draw || 0,
