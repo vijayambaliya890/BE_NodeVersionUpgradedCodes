@@ -62,5 +62,5 @@ const ChallengeCriteriaNonRewardSchema = new Schema(
     timestamps: true
   }
 );
-
+ChallengeCriteriaNonRewardSchema.index({ challengeId: 1, createdAt: 1 });
 module.exports = mongoose.model("ChallengeCriteriaNonReward", ChallengeCriteriaNonRewardSchema);
