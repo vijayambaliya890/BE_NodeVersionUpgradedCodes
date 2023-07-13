@@ -2137,7 +2137,7 @@ class challenge {
               $project: {
                 _id: 1,
                 count: 1,
-                parentBussinessUnitId: '$bu.orgName',
+                businessUnit: '$bu.orgName',
                 staffId: 1,
                 name: 1,
                 directReward: 1,
