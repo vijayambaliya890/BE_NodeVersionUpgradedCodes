@@ -22252,6 +22252,120 @@
                 }
             ]
         },
+        "/common/emoji/remove": {
+            "post": {
+                "tags": [
+                    "Board Setup module"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type":"object",
+                                "properties":{
+                                    "emojiId":{
+                                        "type":"string"
+                                    }
+                                }
+                              },
+                              "examples": {
+                                "0": {
+                                    "value": {
+                                        "emojiId": "64ae894cd2df88674d2cd741"
+                                    }                                                                                                                                                     
+                                }
+                            }                              
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {"data":"Removed Successfully"}                                                                                                                                                                                                                                               
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/common/emoji/uploadEmoji": {
+            "post": {
+                "tags": [
+                    "Board Setup module"
+                ],
+                "summary": "Upload an Emoji file",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "description": "Select an Emoji file to upload"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "data": "Uploaded successfully!"
+                                }
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
         "/companyuser/readUserByBU/": {
             "post": {
                 "tags": [
@@ -26998,6 +27112,2020 @@
                     "url": "https://admin.netroc3.tk"
                 }
             ]
+        },
+        "/centralBuilder/readCentralBuilder": {
+            "get": {
+                "tags": [
+                    "Question Builder module"
+                ],
+                "parameters": [
+                    {
+                        "name": "sortWith",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "createdAt"
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example":"desc"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "search[value]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": ""
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 0
+                    },
+                    {
+                        "name": "order[0][column]",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "order[0][dir]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "draw": 0,
+                                "recordsTotal": 198,
+                                "recordsFiltered": 198,
+                                "data": [
+                                  {
+                                    "_id": "64ad0ab714d85abec8a471b2",
+                                    "status": 1,
+                                    "mobileModule": 0,
+                                    "updatedAt": "2023-07-11T07:55:47.612Z",
+                                    "moduleName": "test005"
+                                  }
+                                ]
+                            }                                                                                                                                                                                                                                                                                                                                    
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/centralBuilder/create": {
+            "post": {
+                "tags": [
+                    "Question Builder module"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/centralBuilder_create_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "moduleName": "swagger question",
+                                        "status": 0,
+                                        "questions": [],
+                                        "viewCount": 0
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                       
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "message": {
+                                      "moduleId": {
+                                        "moduleName": "swagger question",
+                                        "questions": [],
+                                        "viewCount": 0,
+                                        "welComeMessage": "",
+                                        "welComeAttachement": "",
+                                        "closingMessage": "",
+                                        "status": 0,
+                                        "postSubmissionRequired": false,
+                                        "postSubmissionMessage": "",
+                                        "postSubmissionImage": "",
+                                        "postSubmissionResponse": [],
+                                        "mobileModule": 0,
+                                        "scoringEnabled": false,
+                                        "scorePerQuestion": 0,
+                                        "_id": "64ad4ca99913b9ee7434d7c1",
+                                        "companyId": "5a9d162b36ab4f444b4271c8",
+                                        "createdBy": "5a98fb9536ab4f444b427176",
+                                        "createdAt": "2023-07-11T12:35:53.071Z",
+                                        "updatedAt": "2023-07-11T12:35:53.071Z",
+                                        "__v": 0
+                                      }
+                                    }
+                                }                                                                                                                                                                                                                                                                            
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/centralBuilder/removeQuestion": {
+            "post": {
+                "tags": [
+                    "Question Builder module"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "moduleId": {
+                                        "type": "string"
+                                    },
+                                    "questionId": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "moduleId": "64afbfa6450be619c81df6a1",
+                                        "questionId": "64afbfc1450be619c81df72a"
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":"Module deleted"}                                                                                                                                                                                                                                                                            
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/centralBuilder/remove/{moduleId}": {
+            "get": {
+                "tags": [
+                    "Question Builder module"
+                ],
+                "parameters": [
+                    {
+                        "name": "moduleId",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true,
+                        "example": "64ad4e529913b9ee7434d929"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {"data":"Module deleted"}                                                                                                                                                                                                                                                                                                                                                               
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/centralBuilder/questionsUpdate": {
+            "post": {
+                "tags": [
+                    "Question Builder module"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/centralBuilder_questionsUpdate_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "moduleId": "64ae716339881c98d94e6b2d",
+                                        "type": 2,
+                                        "indexNum": 1,
+                                        "required": false,
+                                        "value": 0,
+                                        "options": [
+                                          {
+                                            "value": "abc",
+                                            "correctAns": false,
+                                            "imageSrc": ""
+                                          },
+                                          {
+                                            "value": "xyz",
+                                            "correctAns": false,
+                                            "imageSrc": ""
+                                          }
+                                        ],
+                                        "dateTime": [1, 1],
+                                        "date": 1,
+                                        "time": 2,
+                                        "maxlength": "",
+                                        "profile": [],
+                                        "conditionalQuestions": [],
+                                        "optionsView": 0,
+                                        "explanation": "",
+                                        "imageSrc": "",
+                                        "isConditional": false,
+                                        "question": "<p>multiple Q</p>"
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":"Question created successfully"}                                                                                                                                                                                                                                                                            
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/wall/uploadFiles": {
+            "post": {
+                "tags": [
+                    "Question Builder module"
+                ],
+                "summary": "Upload file",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "description": "Select file to upload"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":{"filePath":"uploads/wall/6650331b-a1ac-46f0-a178-e0e9cca6b67c.jpg"}}
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/centralBuilder/updateModule": {
+            "post": {
+                "tags": [
+                    "Question Builder module"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/centralBuilder_update_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "moduleName": "swagger question",
+                                        "questions": [
+                                          {
+                                            "_id": "64afbfc1450be619c81df72a",
+                                            "required": true
+                                          }
+                                        ],
+                                        "closingMessage": "",
+                                        "randomOrder": true,
+                                        "scorePerQuestion": 0,
+                                        "scoringEnabled": false,
+                                        "status": 0,
+                                        "viewCount": 0,
+                                        "welComeAttachement": "",
+                                        "welComeMessage": "",
+                                        "_id": "64afbfa6450be619c81df6a1"
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Updated",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":"Updated Successfully!"}                                                                                                                                                                                                                                                                           
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+
+        "/customform/readFormsList": {
+            "get": {
+                "tags": [
+                    "Forms module"
+                ],
+                "parameters": [
+                    {
+                        "name": "draw",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example":0
+                    },
+                    {
+                        "name": "length",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "order[0][dir]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "search[regex]",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": false
+                    },
+                    {
+                        "name": "onlyViewBU",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "draw": "1",
+                                "recordsTotal": 96,
+                                "recordsFiltered": 96,
+                                "data": [
+                                  {
+                                    "_id": "64ac3dc46c0e81c15866fe10",
+                                    "title": "10 july form",
+                                    "formName": "",
+                                    "isDeployed": 1,
+                                    "companyId": "5a9d162b36ab4f444b4271c8",
+                                    "assignUsers": [
+                                      {
+                                        "businessUnits": [
+                                          {
+                                            "_id": "5bd723a8c1e35a7a250d562a",
+                                            "status": 1,
+                                            "orgName": "SATS > test > test > test BU"
+                                          }
+                                        ],
+                                        "buFilterType": 1,
+                                        "appointments": [],
+                                        "subSkillSets": [],
+                                        "user": [],
+                                        "admin": [],
+                                        "allBuToken": false,
+                                        "allBuTokenStaffId": "",
+                                        "customField": [],
+                                        "_id": "64ac3dc46c0e81c15866fe11"
+                                      }
+                                    ],
+                                    "formLogo": "https://admin.netroc3.tk/uploads/notificationAttachment/0047607b-c048-4697-a633-4df24469f8bb.png",
+                                    "description": "data",
+                                    "viewOnly": true,
+                                    "formUrl": "",
+                                    "createdBy": {
+                                      "_id": "5a98fb9536ab4f444b427176",
+                                      "name": "System Administrator"
+                                    },
+                                    "userStatusVisibility": false,
+                                    "quickNavEnabled": false,
+                                    "moduleIncluded": true,
+                                    "moduleId": {
+                                      "_id": "64ac3bbd14d85abec8a29174",
+                                      "moduleName": "10 july",
+                                      "questions": [
+                                        {
+                                          "_id": "64ac3bd114d85abec8a29264",
+                                          "question": "<p>without sequence</p>",
+                                          "type": 15,
+                                          "options": [
+                                            {
+                                              "value": "11",
+                                              "correctAns": false,
+                                              "imageSrc": "",
+                                              "_id": "64ac3bd114d85abec8a29265"
+                                            },
+                                            {
+                                              "value": "12",
+                                              "correctAns": false,
+                                              "imageSrc": "",
+                                              "_id": "64ac3bd114d85abec8a29266"
+                                            }
+                                          ],
+                                          "optionsView": 0,
+                                          "value": 0,
+                                          "assignUsers": [],
+                                          "dateTime": [1, 1],
+                                          "maxlength": 0,
+                                          "explanation": "",
+                                          "conditionalQuestions": [],
+                                          "profile": [],
+                                          "required": false,
+                                          "chooseCount": 1,
+                                          "moduleId": "64ac3bbd14d85abec8a29174",
+                                          "indexNum": 0,
+                                          "status": 1,
+                                          "imageSrc": "",
+                                          "ppimageuploadfrom": 0,
+                                          "extendedOption": false,
+                                          "pollingSelectionCount": 0,
+                                          "createdAt": "2023-07-10T17:11:45.557Z",
+                                          "updatedAt": "2023-07-11T15:54:58.326Z",
+                                          "__v": 0
+                                        }
+                                      ]
+                                    },
+                                    "statusFormType": 0,
+                                    "status": 1,
+                                    "formSubmitted": false,
+                                    "formStatus": [],
+                                    "formDisplayType": null,
+                                    "workflow": [
+                                      {
+                                        "title": "work 10",
+                                        "type": 1,
+                                        "status": 1,
+                                        "additionalModuleId": null,
+                                        "questionResponse": [],
+                                        "workflowResponse": [],
+                                        "userStatusVisibility": false,
+                                        "workflowStatus": [
+                                          {
+                                            "field": "july",
+                                            "status": 1,
+                                            "color": "#d72d2d",
+                                            "isDefault": false,
+                                            "tempId": 1689009520007,
+                                            "_id": "64ac3dc46c0e81c15866fe13"
+                                          }
+                                        ],
+                                        "admin": [
+                                          {
+                                            "_id": "5a98fb9536ab4f444b427176",
+                                            "staffId": "admin001",
+                                            "name": "System Administrator"
+                                          }
+                                        ],
+                                        "tempId": 1689009583303,
+                                        "_id": "64ac3dc46c0e81c15866fe12",
+                                        "isAdmin": true
+                                      }
+                                    ],
+                                    "deletedWorkflows": [],
+                                    "createdAt": "2023-07-10T17:20:04.865Z",
+                                    "updatedAt": "2023-07-10T17:20:04.865Z",
+                                    "__v": 0
+                                  }
+                                ]
+                            }                                                                                                                                                                                                                                                                                                                                    
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/customForm/readManageFormLog": {
+            "get": {
+                "tags": [
+                    "Forms module"
+                ],
+                "parameters": [
+                    {
+                        "name": "draw",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "order[0][column]",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example":0
+                    },
+                    {
+                        "name": "length",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "order[0][dir]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "search[regex]",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "draw": "1",
+                                "recordsTotal": 61385,
+                                "data": [
+                                  {
+                                    "_id": "649eedd47936efee454d5703",
+                                    "changeMessage": " work 13 :  76",
+                                    "userName": "System Administrator",
+                                    "changeType": 1,
+                                    "createdAt": "2023-06-30T14:59:32.219Z",
+                                    "user": { "staffId": "admin001", "name": "System Administrator" },
+                                    "customForm": { "title": "new test form" }
+                                  }
+                                ]
+                            }                                                                                                                                                                                                                                                                                                                                                                  
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/centralBuilder/read": {
+            "get": {
+                "tags": [
+                    "Forms module"
+                ],
+                "parameters": [
+                    {
+                        "name": "nonLinkedModules",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "data": {
+                                  "moduleList": [
+                                    {
+                                      "_id": "64916cd66978a090382796f1",
+                                      "moduleName": "Tests",
+                                      "questions": ["64916cf86978a09038279721"],
+                                      "viewCount": 0,
+                                      "welComeMessage": "Welcome ",
+                                      "welComeAttachement": "https://admin.netroc3.tk/null",
+                                      "closingMessage": "Closeing",
+                                      "status": 1,
+                                      "postSubmissionRequired": true,
+                                      "postSubmissionMessage": "Post submission msg",
+                                      "postSubmissionImage": null,
+                                      "postSubmissionResponse": ["64916cf86978a09038279721"],
+                                      "mobileModule": 1,
+                                      "scoringEnabled": false,
+                                      "scorePerQuestion": 0,
+                                      "companyId": "5a9d162b36ab4f444b4271c8",
+                                      "createdBy": "5a98fb9536ab4f444b427176",
+                                      "createdAt": "2023-06-20T09:09:42.151Z",
+                                      "updatedAt": "2023-06-20T09:11:54.298Z",
+                                      "__v": 0,
+                                      "randomOrder": false
+                                    }
+                                  ]
+                                }
+                            }                                                                                                                                                                                                                                                                                                                                                                                                
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/businessunit/v2/readWithPn": {
+            "get": {
+                "tags": [
+                    "Forms module"
+                ],
+                "parameters": [
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "createdAt"
+                    },
+                    {
+                        "name": "sortWith",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example":"desc"
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 1
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": ""
+                    },
+                    {
+                        "name": "filter[type]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "plan"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "businessUnitList": [
+                                  {
+                                    "_id": "5a9d165f36ab4f444b4271cb",
+                                    "orgName": "SATS > APS > Pax > 3K / DI"
+                                  }
+                                ]
+                            }                                                                                                                                                                                                                                                                                                                                                                  
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/customform/readManageforms/{customFormId}": {
+            "post": {
+                "tags": [
+                    "Forms module"
+                ],
+                "parameters": [
+                    {
+                        "name": "customFormId",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required":true,
+                        "example": "64aebaa939881c98d94ea335"
+                    },
+                    {
+                        "name": "customFormId",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "64aebaa939881c98d94ea335"
+                    },
+                    {
+                        "name": "timeZone",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": -330
+                    },
+                    {
+                        "name": "order[0][column]",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 0
+                    },
+                    {
+                        "name": "order[0][dir]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customform_readManageforms_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "draw": 2,
+                                        "columns": [
+                                          {
+                                            "data": "_id",
+                                            "name": "",
+                                            "searchable": true,
+                                            "orderable": true,
+                                            "search": {
+                                              "value": "",
+                                              "regex": false
+                                            }
+                                          }
+                                        ],
+                                        "order": [
+                                          {
+                                            "column": 0,
+                                            "dir": "desc"
+                                          }
+                                        ],
+                                        "start": 0,
+                                        "length": 10,
+                                        "search": {
+                                          "value": "",
+                                          "regex": false
+                                        }
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "draw": 2,
+                                "recordsTotal": 1,
+                                "recordsFiltered": 1,
+                                "data": {
+                                  "result": [
+                                    {
+                                      "_id": "64aebabf0127c61c64e137ab",
+                                      "createdAt": "2023-07-12T14:37:51.931Z",
+                                      "formName": "moment test form",
+                                      "viewOnly": true,
+                                      "user": "System Administrator",
+                                      "formId": "MTF_0000000409",
+                                      "64aeb9ed0127c61c64e1343d": { "date": "14-07-2023", "time": "11-25-am" }
+                                    }
+                                  ],
+                                  "groupByStatus": [],
+                                  "groupByWFStatus": [{ "_id": null, "count": 1 }]
+                                }
+                            }                                                                                                                                                                                                                                                                                                                                                                                             
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/customform/getFormSettings/{customFormId}": {
+            "get": {
+                "tags": [
+                    "Forms module"
+                ],
+                "parameters": [
+                    {
+                        "name": "customFormId",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required":true,
+                        "example": "649eb0977936efee454d0b56"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "data": {
+                                  "fieldStatus": [],
+                                  "statusFilter": [{ "_id": "649eb0977936efee454d0b59", "status": true }]
+                                }
+                            }                                                                                                                                                                                                                                                                                                                                                                                                                         
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/customForm/exportFormCsv": {
+            "post": {
+                "tags": [
+                    "Forms module"
+                ],
+                "parameters": [
+                    {
+                        "name": "timeZone",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": -330
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customForm_exportFormCsv_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "customFormId": "64a010f134e9e5d1cbd89438",
+                                        "fromDate": "2023-01-01T07:15:48.462Z",
+                                        "toDate": "2023-07-12T07:15:48.463Z",
+                                        "workflow": [
+                                          {
+                                            "workflowId": "64a010f134e9e5d1cbd8943a",
+                                            "workflowStatusId": "64a010f134e9e5d1cbd8943b"
+                                          }
+                                        ]
+                                    }                                                                                                                                                                                                                                                                  
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Exported",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":{"csvLink":"/uploads/customForm/64a010f134e9e5d1cbd89438.csv"}}                                                                                                                                                                                                          
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/uploads/customForm/{csvData}": {
+            "get": {
+                "tags": [
+                    "Forms module"
+                ],
+                "parameters": [
+                    {
+                        "name": "csvData",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required":true,
+                        "example": "64a010f134e9e5d1cbd89438.csv"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "text/csv:": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": [
+                                "SNo","Form name","Form Id","Updated At","Updated By","Status",
+                                1,"1st july new form","--","Jul 2, 2023 5:43 PM","System Administrator"," work12 :  12",
+                                2,"1st july new form","--","Jul 7, 2023 9:44 PM","System Administrator"," work12 :  12"
+                            ]                                                                                                                                              
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/customForm/createCustomForm": {
+            "post": {
+                "tags": [
+                    "Forms module"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customForm_create_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "title": "13 July 2023 Test",
+                                        "isDeployed": 1,
+                                        "formLogo": "https://admin.netroc3.tk/uploads/notificationAttachment/cc4ac9b5-2bde-4261-af2c-163b8f77f831.jpg",
+                                        "description": "decs",
+                                        "viewOnly": true,
+                                        "userStatusVisibility": false,
+                                        "quickNavEnabled": false,
+                                        "moduleId": "64afa641d9a4f6ef0bc856f8",
+                                        "status": 1,
+                                        "formStatus": [],
+                                        "formDisplayType": null,
+                                        "timeZone": -330,
+                                        "_id": null,
+                                        "assignUsers": [
+                                          {
+                                            "businessUnits": ["5bd723a8c1e35a7a250d562a"],
+                                            "buFilterType": 1,
+                                            "appointments": [],
+                                            "subSkillSets": [],
+                                            "user": [],
+                                            "admin": [],
+                                            "allBuToken": false,
+                                            "allBuTokenStaffId": "",
+                                            "customField": []
+                                          }
+                                        ],
+                                        "workflow": [
+                                          {
+                                            "title": "Workflow 001",
+                                            "type": 1,
+                                            "status": 1,
+                                            "additionalModuleId": "64ac4f3c14d85abec8a42deb",
+                                            "questionResponse": [],
+                                            "workflowResponse": [],
+                                            "userStatusVisibility": false,
+                                            "workflowStatus": [
+                                              {
+                                                "field": "Yes",
+                                                "tempId": 1689238152819,
+                                                "isDefault": false,
+                                                "color": "#31800f"
+                                              }
+                                            ],
+                                            "admin": ["5a98fb9536ab4f444b427176"],
+                                            "tempId": 1689238378821,
+                                            "_id": null
+                                          }
+                                        ]
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":{"message":"Form Created Successfully"}}                                                                                                                                                                                                                                                                            
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/notification/uploadContentFiles": {
+            "post": {
+                "tags": [
+                    "Forms module"
+                ],
+                "summary": "Upload file",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "description": "Select file to upload"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "link": "https://admin.netroc3.tk/uploads/notificationAttachment/53f9d295-ccbc-4554-a272-8cd8998f59ff.jpg",
+                                    "filePath": "uploads/notificationAttachment/53f9d295-ccbc-4554-a272-8cd8998f59ff.jpg"
+                                }                                  
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/customform/setFormSettings": {
+            "post": {
+                "tags": [
+                    "Forms module"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "allOf": [
+                                  { "$ref": "#/components/schemas/customform_setFormSettings1_body" },
+                                  { "$ref": "#/components/schemas/customform_setFormSettings2_body" }
+                                ]
+                              },
+                            "examples": {
+                                "1": {
+                                    "value": {
+                                        "customFormId": "649eb0977936efee454d0b56",
+                                        "statusFilter": [
+                                          {
+                                            "status": true,
+                                            "_id": "649eb0977936efee454d0b59",
+                                            "field": "asd"
+                                          }
+                                        ]
+                                    }                                      
+                                },
+                                "2": {
+                                    "value": {
+                                        "customFormId": "649eb0977936efee454d0b56",
+                                        "fieldStatus": [
+                                            {
+                                                "_id": "649eb0977936efee454d0b58",
+                                                "status": true
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":"Setting successfully updated"}                                                                                                                                                                                                                                                                                                              
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/customForm/exportCustomForm": {
+            "post": {
+                "tags": [
+                    "Forms module"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customForm_exportCustomForm_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "timeZone": -330,
+                                        "_id": "64ad9d1d39881c98d94e562b"
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":{"csvLink":"./uploads/customFormExport/64ad9d1d39881c98d94e562b.pdf"}}                                                                                                                                                                                                                                                                            
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/uploads/customFormExport/{csvData}": {
+            "get": {
+                "tags": [
+                    "Forms module"
+                ],
+                "parameters": [
+                    {
+                        "name": "csvData",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required":true,
+                        "example": "64ad9d1d39881c98d94e562b.pdf"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "text/csv:": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": ["DownloadFile"]                                                                                                                                            
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/customForm/getManageFormAnswers": {
+            "post": {
+                "tags": [
+                    "Forms module"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customForm_getManageFormAnswers_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "isAdminModule": true,
+                                        "customFormId": "649eb0977936efee454d0b56",
+                                        "manageFormId": "64ad9d1d39881c98d94e562b",
+                                        "workflowId": "649eb0977936efee454d0b58",
+                                        "moduleId": "649eb01434e9e5d1cbd750fd"
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {
+                                    "data": {
+                                      "data": [
+                                        {
+                                          "_id": "64afdc6d450be619c81e26ef",
+                                          "userId": "5a98fb9536ab4f444b427176",
+                                          "customFormId": "649eb0977936efee454d0b56",
+                                          "manageFormId": "64ad9d1d39881c98d94e562b",
+                                          "workflowId": "649eb0977936efee454d0b58",
+                                          "moduleId": "649eb01434e9e5d1cbd750fd",
+                                          "staffName": "System Administrator",
+                                          "questionId": [
+                                            {
+                                              "_id": "64afdc6d450be619c81e26de",
+                                              "questionId": {
+                                                "_id": "649eb02d34e9e5d1cbd75186",
+                                                "question": "<p>asw</p>",
+                                                "type": 13,
+                                                "options": [],
+                                                "optionsView": 0,
+                                                "value": 5,
+                                                "assignUsers": [],
+                                                "dateTime": [1, 1],
+                                                "maxlength": 0,
+                                                "explanation": "",
+                                                "conditionalQuestions": [],
+                                                "profile": [],
+                                                "required": false,
+                                                "chooseCount": 1,
+                                                "moduleId": "649eb01434e9e5d1cbd750fd",
+                                                "indexNum": 0,
+                                                "status": 1,
+                                                "imageSrc": "",
+                                                "ppimageuploadfrom": 0,
+                                                "extendedOption": false,
+                                                "pollingSelectionCount": 0,
+                                                "createdAt": "2023-06-30T10:36:29.338Z",
+                                                "updatedAt": "2023-07-10T16:40:51.163Z",
+                                                "__v": 0,
+                                                "images": [],
+                                                "videos": []
+                                              },
+                                              "answer": 1,
+                                              "userId": "5a98fb9536ab4f444b427176",
+                                              "customFormId": "649eb0977936efee454d0b56",
+                                              "status": 1,
+                                              "createdAt": "2023-07-13T11:13:49.817Z",
+                                              "updatedAt": "2023-07-13T11:13:49.817Z",
+                                              "__v": 0
+                                            }
+                                          ],
+                                          "questions": [
+                                            "649eb02d34e9e5d1cbd75186"
+                                          ],
+                                          "createdAt": "2023-07-13T11:13:49.850Z",
+                                          "updatedAt": "2023-07-13T11:13:49.850Z",
+                                          "__v": 0
+                                        }
+                                      ]
+                                    }
+                                }                                                                                                                                                                                                                                                                                                              
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/customform/readManageFormLog/{manageFormId}": {
+            "get": {
+                "tags": [
+                    "Forms module"
+                ],
+                "parameters": [
+                    {
+                        "name": "manageFormId",
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required":true,
+                        "example": "64ad9d1d39881c98d94e562b"
+                    },
+                    {
+                        "name": "draw",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 2
+                    },
+                    {
+                        "name": "order[0][column]",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 0
+                    },
+                    {
+                        "name": "order[0][dir]",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "desc"
+                    },
+                    {
+                        "name": "start",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example":0
+                    },
+                    {
+                        "name": "length",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        },
+                        "example": 10
+                    },
+                    {
+                        "name": "search[regex]",
+                        "in": "query",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "example": false
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                          "application/json": {
+                            "schema": {
+                              "type": "object"
+                            },
+                            "example": {
+                                "draw": "2",
+                                "recordsTotal": 1,
+                                "recordsFiltered": 1,
+                                "data": [
+                                  {
+                                    "_id": "64afdcea450be619c81e2961",
+                                    "changeMessage": " awer :  asd",
+                                    "userName": "System Administrator",
+                                    "changeType": 1,
+                                    "createdAt": "2023-07-13T11:15:54.319Z",
+                                    "user": { "staffId": "admin001", "name": "System Administrator Rocky" }
+                                  }
+                                ]
+                            }                                                                                                                                                                                                                                                                                                                                                                                                
+                          }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/customForm/updateWorkflowStatus": {
+            "post": {
+                "tags": [
+                    "Forms module"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/customForm_updateWorkflowStatus_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "workflowStatus": {
+                                          "fieldId": "649eb0977936efee454d0b58",
+                                          "fieldStatusId": "649eb0977936efee454d0b59"
+                                        },
+                                        "_id": "64ad9d1d39881c98d94e562b"
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Updated",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":"Updated Successfully!"}                                                                                                                                                                                                                                                                           
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
+        },
+        "/common/questionModule/customFormQuestionsUpdate": {
+            "post": {
+                "tags": [
+                    "Forms module"
+                ],
+                "description": "Auto generated using Swagger Inspector",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/questionModule_customFormQuestionsUpdate_body"
+                            },
+                            "examples": {
+                                "0": {
+                                    "value": {
+                                        "answers": [
+                                          {
+                                            "_id": "64afaae5450be619c81de1dd",
+                                            "answer": [
+                                              {
+                                                "value": "abc",
+                                                "_id": "64afaae5450be619c81de1df",
+                                                "correctAns": false,
+                                                "imageSrc": "https://admin.netroc3.tk/uploads/wall/da9a8ae3-9d34-4d23-9c78-8122cb5ffc40.PNG"
+                                              },
+                                              {
+                                                "value": "opq",
+                                                "_id": "64afaae5450be619c81de1de",
+                                                "correctAns": false,
+                                                "imageSrc": "https://admin.netroc3.tk/uploads/wall/6ecfded4-5e13-495e-8102-ad94ace6c84b.JPG"
+                                              },
+                                              {
+                                                "value": "xyz",
+                                                "_id": "64afaae5450be619c81de1e0",
+                                                "correctAns": false,
+                                                "imageSrc": "https://admin.netroc3.tk/uploads/wall/d3f96cb2-e928-4128-8262-840602aaa523.JPG"
+                                              }
+                                            ],
+                                            "type": 15
+                                          }
+                                        ],
+                                        "manageFormId": "64aff72bb22743c0e2e0fb8f",
+                                        "questions": [
+                                          "64afaae5450be619c81de1dd"
+                                        ]
+                                    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Updated",
+                        "headers": {
+                            "Server": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object"
+                                },
+                                "example": {"data":"Updated Successfully!"}                                                                                                                                                                                                                                                                           
+                            }
+                        }
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "https://admin.netroc3.tk"
+                    }
+                ]
+            },
+            "servers": [
+                {
+                    "url": "https://admin.netroc3.tk"
+                }
+            ]
         }
     },
     "components": {
@@ -31398,6 +33526,595 @@
                     "type":"string"
                 }
               }
+            }
+          },
+          "centralBuilder_create_body": {
+            "type": "object",
+            "properties": {
+              "moduleName": {
+                "type": "string"
+              },
+              "status": {
+                "type": "number"
+              },
+              "questions": {
+                "type": "array",
+                "items":{
+                    "type": "object",
+                    "properties": {
+                        "_id": {
+                           "type": "string"
+                        },
+                        "required": {
+                           "type": "boolean"
+                        }
+                    }
+                }
+              },
+              "viewCount": {
+                "type": "number"
+              }
+            }
+          },
+          "centralBuilder_update_body": {
+            "type": "object",
+            "properties": {
+              "moduleName": {
+                "type": "string"
+              },
+              "questions": {
+                "type": "array",
+                "items":{
+                    "type": "object",
+                    "properties": {
+                        "_id": {
+                           "type": "string"
+                        },
+                        "required": {
+                           "type": "boolean"
+                        }
+                    }
+                }
+              },
+              "closingMessage": {
+                "type": "string"
+              },
+              "randomOrder": {
+                "type": "boolean"
+              },
+              "scorePerQuestion": {
+                "type": "number"
+              },
+              "scoringEnabled": {
+                "type": "boolean"
+              },
+              "status": {
+                "type": "number"
+              },
+              "viewCount": {
+                "type": "number"
+              },
+              "welComeAttachement": {
+                "type": "string"
+              },
+              "welComeMessage": {
+                "type": "string"
+              },
+              "_id": {
+                "type": "string"
+              }
+            }
+          },
+          "centralBuilder_questionsUpdate_body": {
+            "type": "object",
+            "properties": {
+              "moduleId": {
+                "type": "string"
+              },
+              "type": {
+                "type": "number"
+              },
+              "indexNum": {
+                "type": "number"
+              },
+              "required": {
+                "type": "boolean"
+              },
+              "value": {
+                "type": "number"
+              },
+              "options": {
+                "type": "array",
+                "items":{
+                    "type":"object",
+                    "properties":{
+                        "value": {
+                            "type": "string"
+                        },
+                        "correctAns": {
+                            "type": "boolean"
+                        },
+                        "imageSrc": {
+                            "type": "string"
+                        }
+                    }
+                }
+              },
+              "dateTime": {
+                "type": "array",
+                "items":{
+                    "type":"string"
+                }
+              },
+              "date": {
+                "type": "number"
+              },
+              "time": {
+                "type": "number"
+              },
+              "maxlength": {
+                "type": "string"
+              },
+              "profile": {
+                "type": "array",
+                "items":{
+                    "type": "object"
+                }
+              },
+              "conditionalQuestions": {
+                "type": "array",
+                "items":{
+                    "type": "string"
+                }
+              },
+              "optionsView": {
+                "type": "number"
+              },
+              "explanation": {
+                "type": "string"
+              },
+              "imageSrc": {
+                "type": "string"
+              },
+              "isConditional": {
+                "type": "boolean"
+              },
+              "question": {
+                "type": "string"
+              }
+            }
+          },
+          "customform_readManageforms_body": {
+            "type": "object",
+            "properties": {
+              "draw": {
+                "type": "number"
+              },
+              "columns": {
+                "type": "array",
+                "items":{
+                    "type":"object",
+                    "properties":{
+                        "data": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "searchable": {
+                            "type": "boolean"
+                        },
+                        "orderable": {
+                            "type": "boolean"
+                        },
+                        "search": {
+                            "type":"object",
+                            "properties":{
+                                "value": {
+                                    "type": "string"
+                                },
+                                "regex": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                }
+              },
+              "order": {
+                "type": "array",
+                "items":{
+                    "type":"object",
+                    "properties":{
+                        "column": {
+                            "type": "number"
+                        },
+                        "dir": {
+                            "type": "string"
+                        }
+                    }
+                }
+              },
+              "start": {
+                "type": "number"
+              },
+              "length": {
+                "type": "number"
+              },
+              "search": {
+                "type":"object",
+                "properties":{
+                    "value": {
+                        "type": "string"
+                    },
+                    "regex": {
+                        "type": "boolean"
+                    }
+                }
+             }
+            }
+          },
+          "customform_getFormSettings_body": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties":{
+                        "viewCount": {
+                            "type": "array",
+                            "items":{
+                                "type":"string"
+                            }
+                        },
+                        "statusFilter": {
+                            "type": "array",
+                            "items":{
+                                "type":"string"
+                            }
+                        }
+                    }
+                }
+            }
+          },
+          "customForm_exportFormCsv_body": {
+            "type": "object",
+            "properties": {
+                "customFormId": {
+                    "type": "number"
+                },
+                "fromDate": {
+                    "type": "number"
+                },
+                "toDate": {
+                    "type": "number"
+                },
+                "workflow": {
+                    "type": "array",
+                    "items":{
+                        "type": "object",
+                        "properties": {
+                            "workflowId": {
+                                "type": "string"
+                            },
+                            "workflowStatusId": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+          },
+          "customForm_create_body": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "isDeployed": {
+                    "type": "number"
+                },
+                "formLogo": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "viewOnly": {
+                    "type": "boolean"
+                },
+                "userStatusVisibility": {
+                    "type": "boolean"
+                },
+                "quickNavEnabled": {
+                    "type": "boolean"
+                },
+                "moduleId": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "number"
+                },
+                "formStatus": {
+                    "type": "array",
+                    "items":{
+                        "type": "string"
+                    }
+                },
+                "formDisplayType": {
+                    "type": "string"
+                },
+                "timeZone": {
+                    "type": "number"
+                },
+                "_id": {
+                    "type": "string"
+                },
+                "assignUsers": {
+                    "type": "array",
+                    "items":{
+                        "type": "object",
+                        "properties": {
+                            "businessUnits": {
+                                "type": "array",
+                                "items":{
+                                    "type": "string"
+                                }
+                            },
+                            "buFilterType": {
+                                "type": "number"
+                            },
+                            "appointments": {
+                                "type": "array",
+                                "items":{
+                                    "type": "string"
+                                }
+                            },
+                            "subSkillSets": {
+                                "type": "array",
+                                "items":{
+                                    "type": "string"
+                                }
+                            },
+                            "user": {
+                                "type": "array",
+                                "items":{
+                                    "type": "string"
+                                }
+                            },
+                            "admin": {
+                                "type": "array",
+                                "items":{
+                                    "type": "string"
+                                }
+                            },
+                            "allBuToken": {
+                                "type": "boolean"
+                            },
+                            "allBuTokenStaffId": {
+                                "type": "string"
+                            },
+                            "customField": {
+                                "type": "array",
+                                "items":{
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "workflow": {
+                    "type": "array",
+                    "items":{
+                        "type": "object",
+                        "properties": {
+                            "title": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "number"
+                            },
+                            "status": {
+                                "type": "number"
+                            },
+                            "additionalModuleId": {
+                                "type": "string"
+                            },
+                            "questionResponse": {
+                                "type": "array",
+                                "items":{
+                                    "type": "string"
+                                }
+                            },
+                            "workflowResponse": {
+                                "type": "array",
+                                "items":{
+                                    "type": "string"
+                                }
+                            },
+                            "userStatusVisibility": {
+                                "type": "boolean"
+                            },
+                            "workflowStatus": {
+                                "type": "array",
+                                "items":{
+                                    "type": "object",
+                                    "properties": {
+                                        "field": {
+                                            "type": "string"
+                                        },
+                                        "tempId": {
+                                            "type": "number"
+                                        },
+                                        "isDefault": {
+                                            "type": "boolean"
+                                        },
+                                        "color": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "admin": {
+                                "type": "array",
+                                "items":{
+                                    "type": "string"
+                                }
+                            },
+                            "tempId": {
+                                "type": "number"
+                            },
+                            "_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+          },
+          "customform_setFormSettings1_body": {
+            "type": "object",
+            "properties": {
+                "customFormId": {
+                    "type": "string"
+                },
+                "statusFilter": {
+                    "type": "array",
+                    "items":{
+                        "type": "object",
+                        "properties": {
+                            "status": {
+                                "type": "boolean"
+                            },
+                            "_id": {
+                                "type": "string"
+                            },
+                            "field": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+          },
+          "customform_setFormSettings2_body": {
+            "type": "object",
+            "properties": {
+                "customFormId": {
+                    "type": "string"
+                },
+                "statusFilter": {
+                    "type": "array",
+                    "items":{
+                        "type": "object",
+                        "properties": {
+                            "status": {
+                                "type": "boolean"
+                            },
+                            "_id": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+          },
+          "customForm_exportCustomForm_body": {
+            "type": "object",
+            "properties": {
+                "timeZone": {
+                    "type": "number"
+                },
+                "_id": {
+                    "type": "string"
+                }
+            }
+          },
+          "customForm_getManageFormAnswers_body": {
+            "type": "object",
+            "properties": {
+                "isAdminModule": {
+                    "type": "boolean"
+                },
+                "customFormId": {
+                    "type": "string"
+                },
+                "manageFormId": {
+                    "type": "string"
+                },
+                "workflowId": {
+                    "type": "string"
+                },
+                "moduleId": {
+                    "type": "string"
+                }
+            }
+          },
+          "customForm_updateWorkflowStatus_body": {
+            "type": "object",
+            "properties": {
+                "workflowStatus": {
+                    "type": "object",
+                    "properties": {
+                        "fieldId": {
+                            "type": "string"
+                        },
+                        "fieldStatusId": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "_id": {
+                    "type": "string"
+                }
+            }
+          },
+          "questionModule_customFormQuestionsUpdate_body": {
+            "type": "object",
+            "properties": {
+                "answers": {
+                    "type": "array",
+                    "items":{
+                        "type": "object",
+                        "properties": {
+                            "_id": {
+                                "type": "string"
+                            },
+                            "answer": {
+                                "type": "array",
+                                "items":{
+                                    "type": "object",
+                                    "properties": {
+                                        "value": {
+                                            "type": "string"
+                                        },
+                                        "_id": {
+                                            "type": "string"
+                                        },
+                                        "correctAns": {
+                                            "type": "boolean"
+                                        },
+                                        "imageSrc": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            },
+                            "type": {
+                                "type": "number"
+                            }
+                        }
+                    }
+                },
+                "manageFormId": {
+                    "type": "string"
+                },
+                "questions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                        
+                    }
+                }
             }
           }
         },

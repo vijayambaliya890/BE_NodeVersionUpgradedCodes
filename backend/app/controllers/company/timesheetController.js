@@ -207,13 +207,10 @@ class timeSheetController {
         return __.out(res, 300, `You've entered malicious input`);
       }
       // redis key businessUnitId+timeDashbaord
-      console.log('^^^^^^^^^^^^^^^^^^^^');
       // const redisData = await redisClient.get(
       //   `${req.params.businessUnitId}timeDashboard`,
       // );
-      // console.log('*************^^^^^^^^^^', redisData);
       // if (redisData) {
-      //   console.log('DATATATATATA Present');
       //   return res.json({
       //     status: 1,
       //     message: 'Data Found',
@@ -231,15 +228,10 @@ class timeSheetController {
       let currentDateTimeStart = new Date(
         moment(new Date()).utcOffset(timeZone).format('MM/DD/YYYY HH:mm'),
       );
-      // console.log(timeZone, 'aaaa', date);
-      //  moment(date).utcOffset(timeZone).format('MM/DD/YYYY HH:mm');
       date = new Date(
         moment(date).utcOffset(timeZone).format('MM/DD/YYYY HH:mm'),
       );
-      //  currentDateTime = new Date(moment(currentDateTime).utcOffset(timeZone).format('MM/DD/YYYY HH:mm'));
-      // console.log('aaaaaaa', date);
       date = new Date(date.setHours(0, 0, 0, 0));
-      console.log('ddddd', date);
       let daysBefore = 3;
       let startDateTime = new Date(
         new Date(date).getTime() - daysBefore * 24 * 60 * 60 * 1000,
@@ -247,14 +239,12 @@ class timeSheetController {
       startDateTime = new Date(startDateTime).toUTCString();
       date = new Date(moment.utc().format());
       date = new Date(date.setHours(0, 0, 0, 0));
-      //   console.log('currentDateTime.getHours()', currentDateTime.getHours())
       let endDateTime = new Date(
         currentDateTime.setHours(currentDateTime.getHours() + 18),
       );
       let newStartTime = new Date(
         currentDateTimeStart.setHours(currentDateTimeStart.getHours() - 18),
       );
-      //console.log('start', new Date(newStartTime).toISOString(), new Date(endDateTime).toISOString());
       Shift.aggregate([
         {
           $match: {
@@ -323,7 +313,18 @@ class timeSheetController {
           },
         },
         {
-          $unwind: '$reportingLocation',
+          $unwind: {path: '$reportingLocation',  preserveNullAndEmptyArrays: true},
+        },
+        {
+          $lookup: {
+            from: 'georeportinglocations',
+            localField: 'shiftDetails.geoReportingLocation',
+            foreignField: '_id',
+            as: 'georeportinglocations',
+          },
+        },
+        {
+          $unwind: { path:'$georeportinglocations',  preserveNullAndEmptyArrays: true},
         },
         { $sort: { 'shiftDetails.date': -1 } },
         {
@@ -336,11 +337,9 @@ class timeSheetController {
             'userInfo.facialId': 1,
             'userInfo._id': 1,
             'userInfo.staffId': 1,
-            // 'userInfo.email': 1,
-            // 'userInfo.contactNumber': 1,
-            // 'userInfo.appointmentId': 1,
             'shiftDetails.startTime': 1,
             'shiftDetails.reportLocationId': 1,
+            'shiftDetails.geoReportingLocation': 1,
             'shiftDetails.endTime': 1,
             'shiftDetails.day': 1,
             'shiftDetails.date': 1,
@@ -351,13 +350,12 @@ class timeSheetController {
             'shiftDetails.extendedStaff': 1,
             'shiftDetails.isSplitShift': 1,
             'shiftDetails.isAssignShift': 1,
-            // 'appointmentInfo.name': 1,
             'reportingLocation.name': 1,
+            'georeportinglocations.name': 1,
           },
         },
       ])
         .then(async (results) => {
-          console.log('total shift found', results.length);
           const hours_6_mili = 60000 * 540;
           if (results.length > 0) {
             const finalResult = [];
@@ -399,7 +397,6 @@ class timeSheetController {
               message: 'No Data Found 1',
               data: null,
             });
-            //__.out(res,200,"No Data Found");
           }
         })
         .catch((err) => {
@@ -408,7 +405,6 @@ class timeSheetController {
             message: 'Something Went wrong',
             data: null,
           });
-          // __.out(res,500,err);
         });
     } catch (err) {
       __.log(err);
@@ -468,7 +464,6 @@ class timeSheetController {
         }
       }
     });
-    // if (newResult.length > 0) {
       resultData.forEach((item, index) => {
         if(item){
           if (item.shiftDetails.isExtendedShift) {
@@ -508,12 +503,9 @@ class timeSheetController {
                   if (
                     item.shiftDetails.startTime < splitItem.shiftDetails.startTime
                   ) {
-                    console.log(item.shiftDetails.day);
                     if (splitItem.attendance) {
                       item.splitAttendance = splitItem.attendance;
                     }
-                    // item.shiftDetails.splitShiftObj = splitItem.shiftDetails;
-                    // newResult.splice(splitIndex, 1);
                     item.position = 1;
                     splitItem.position = 2;
                     newResult.push(item);
@@ -522,8 +514,6 @@ class timeSheetController {
                     if (item.attendance) {
                       splitItem.splitAttendance = item.attendance;
                     }
-                    // splitItem.shiftDetails.splitShiftObj = item.shiftDetails;
-                    // newResult.splice(index, 1);
                     item.position = 2;
                     splitItem.position = 1;
                     newResult.push(splitItem);
@@ -601,22 +591,17 @@ class timeSheetController {
       },
     ])
       .then((results) => {
-        console.log(new Date());
         let endDate = new Date();
         let startDate = new Date();
         let date = new Date(moment.utc().format());
         date = new Date(date.setHours(0, 0, 0, 0));
-        console.log('date', endDate);
         endDate = endDate.setHours(date.getHours() + 36);
         endDate = new Date(endDate);
         startDate = startDate.setHours(date.getHours() - 12);
         startDate = new Date(startDate);
-        console.log('enddate', endDate);
-        console.log('startdate', startDate);
         if (results.length > 0) {
           const data = results[0];
           data.isFacial = true;
-          console.log(req.params.shiftDetailId);
           ShiftDetails.aggregate([
             {
               $match: {
@@ -637,22 +622,18 @@ class timeSheetController {
             },
           ])
             .then((shiftDetail) => {
-              console.log('shiftDetail', shiftDetail);
               shiftDetail = JSON.stringify(shiftDetail);
               shiftDetail = JSON.parse(shiftDetail);
               let i = 0;
               async.eachSeries(shiftDetail, (item, next) => {
                 this.getAttendance(item._id, req.params.userID).then(
                   (attendanceData) => {
-                    console.log('aaaaa', attendanceData);
                     if (attendanceData) {
-                      console.log('att', attendanceData);
                       item.attendance = attendanceData;
                     } else item.attendance = null;
                     if (shiftDetail.length - 1 === i) {
                       data.shiftDetail = shiftDetail;
                       this.sendReadUser(data, res);
-                      //return res.json({status: 1, data: data})
                     }
                     i++;
                     next();
@@ -731,7 +712,6 @@ class timeSheetController {
                         data.message = 'No facial Info Found';
                         data.shiftDetail = shiftDetail;
                         this.sendReadUser(data, res);
-                        //return res.json({status: 1, data:data});
                       }
                       i++;
                       next();
@@ -798,22 +778,17 @@ class timeSheetController {
       },
     ])
       .then((results) => {
-        console.log(new Date());
         let endDate = new Date();
         let startDate = new Date();
         let date = new Date(moment.utc().format());
         date = new Date(date.setHours(0, 0, 0, 0));
-        console.log('date', endDate);
         endDate = endDate.setHours(date.getHours() + 36);
         endDate = new Date(endDate);
         startDate = startDate.setHours(date.getHours() - 12);
         startDate = new Date(startDate);
-        console.log('enddate', endDate);
-        console.log('startdate', startDate);
         if (results.length > 0) {
           const data = results[0];
           data.isFacial = true;
-          console.log(req.params.shiftDetailId);
           ShiftDetails.aggregate([
             {
               $match: {
@@ -835,7 +810,6 @@ class timeSheetController {
             },
           ])
             .then((shiftDetail) => {
-              console.log('shiftDetail', shiftDetail);
               shiftDetail = JSON.stringify(shiftDetail);
               shiftDetail = JSON.parse(shiftDetail);
               let i = 0;
@@ -844,35 +818,9 @@ class timeSheetController {
                   (attendanceData) => {
                     if (attendanceData) item.attendance = attendanceData;
                     else item.attendance = null;
-                    /* {  userId: null,
-                                     shiftId: null,
-                                     shiftDetailId: null,
-                                     clockInDateTime:null,
-                                     clockOutDateTime:null,
-                                     attendanceTakenBy:null,
-                                     attendanceMode:null,
-                                     duration:0,
-                                     totalBreakDuration:0,
-                                     breakTime:[],
-                                     businessUnitId:null,
-                                     approval:{
-                                         shift: false,
-                                         clocked:false,
-                                         neither: false,
-                                         neitherMessage:null,
-                                         approveClockInTime:null,
-                                         approveClockOutTime:null,
-                                         duration:0,
-                                         totalBreakDuration:0,
-                                         breakTime:[],
-                                     },
-                                     status: 0,
-                                     IsLock: false
-                                 };*/
                     if (shiftDetail.length - 1 === i) {
                       data.shiftDetail = shiftDetail;
                       this.sendReadUser(data, res);
-                      //return res.json({status: 1, data: data})
                     }
                     i++;
                     next();
@@ -950,36 +898,10 @@ class timeSheetController {
                     (attendanceData) => {
                       if (attendanceData) item.attendance = attendanceData;
                       else item.attendance = null;
-                      /*     {  userId: null,
-                                                 shiftId: null,
-                                                 shiftDetailId: null,
-                                                 clockInDateTime:null,
-                                                 clockOutDateTime:null,
-                                                 attendanceTakenBy:null,
-                                                 attendanceMode:null,
-                                                 duration:0,
-                                                 totalBreakDuration:0,
-                                                 breakTime:[],
-                                                 businessUnitId:null,
-                                                 approval:{
-                                                     shift: false,
-                                                     clocked:false,
-                                                     neither: false,
-                                                     neitherMessage:null,
-                                                     approveClockInTime:null,
-                                                     approveClockOutTime:null,
-                                                     duration:0,
-                                                     totalBreakDuration:0,
-                                                     breakTime:[],
-                                                 },
-                                                 status: 0,
-                                                 IsLock: false
-                                             };*/
                       if (shiftDetail.length - 1 === i) {
                         data.message = 'No facial Info Found';
                         data.shiftDetail = shiftDetail;
                         this.sendReadUser(data, res);
-                        //return res.json({status: 1, data:data});
                       }
                       i++;
                       next();
@@ -1012,7 +934,6 @@ class timeSheetController {
     return new Promise((resolve, reject) => {
       Attendance.findOne({ shiftDetailId: shiftId, userId: userID }).then(
         (data) => {
-          console.log('data', data);
           resolve(data);
         },
       );
@@ -1025,7 +946,6 @@ class timeSheetController {
     if (!__.checkHtmlContent(req.params)) {
       return __.out(res, 300, `You've entered malicious input`);
     }
-    console.log(req.params.userId);
     try {
       let doc = await User.findOne({
         _id: mongoose.Types.ObjectId(req.params.userId),
@@ -1033,18 +953,13 @@ class timeSheetController {
       if (doc === null) {
         __.log('Invalid staff id');
         res.json({ status: 1, message: 'Invalid staff Id', data: null });
-        //__.out(res, 200, 'Invalid staff id');
       } else {
-        console.log(new Date());
         let endDate = new Date();
         let startDate = new Date();
-        console.log('date', endDate);
         endDate = endDate.setHours(endDate.getHours() + 12);
         endDate = new Date(endDate);
         startDate = startDate.setHours(startDate.getHours() - 12);
         startDate = new Date(startDate);
-        console.log('date', endDate);
-        console.log('start', startDate);
         ShiftDetails.findOne(
           {
             _id: mongoose.Types.ObjectId(req.params.shiftDetailId),
@@ -1062,14 +977,12 @@ class timeSheetController {
               shiftId: shiftDetail.shiftId,
               shiftDetailId: shiftDetail._id,
             };
-            console.log('req.params.userId', req.params.userId);
             QrCode.find({
               userId: mongoose.Types.ObjectId(req.params.userId),
               shiftId: mongoose.Types.ObjectId(shiftDetail.shiftId),
               status: 1,
               shiftDetailId: mongoose.Types.ObjectId(qrCodeObj.shiftDetailId),
             }).then((userQrData) => {
-              console.log('userQrData', userQrData);
               if (userQrData.length > 0) {
                 return res.json({
                   data: {
@@ -1138,7 +1051,6 @@ class timeSheetController {
       return __.out(res, 300, `You've entered malicious input`);
     }
     // timesheet page businessUnitId+timeTimesheet
-    console.log('******************');
     const redisKey = `${req.params.businessUnitId}timeTimesheet`;
     // const redisData = await redisClient.get(`${redisKey}`);
     // if (redisData) {
@@ -1148,7 +1060,6 @@ class timeSheetController {
     //     data: JSON.parse(redisData),
     //   });
     // }
-    console.log('******************');
     let date = new Date(moment.utc().format());
     date = new Date(date.setHours(0, 0, 0, 0));
     let startDateTime = date.setHours(date.getHours() - 19);
@@ -1157,7 +1068,6 @@ class timeSheetController {
     date = new Date(date.setHours(0, 0, 0, 0));
     let endDateTime = date.setHours(date.getHours() + 43);
     endDateTime = new Date(endDateTime).toUTCString();
-    console.log('start', new Date(startDateTime), new Date(endDateTime));
     Shift.aggregate([
       {
         $match: {
@@ -1228,8 +1138,6 @@ class timeSheetController {
           'userInfo.name': 1,
           'userInfo._id': 1,
           'userInfo.staffId': 1,
-          // 'userInfo.contactNumber': 1,
-          // 'userInfo.appointmentId': 1,
           'userInfo.schemeId': 1,
           'shiftDetails.startTime': 1,
           'shiftDetails.endTime': 1,
@@ -1248,7 +1156,6 @@ class timeSheetController {
       },
     ])
       .then(async (results) => {
-        //return res.json({ results })
         if (results.length > 0) {
           const final = [];
           for (let i = 0; i < results.length; i++) {
@@ -1371,7 +1278,6 @@ class timeSheetController {
             }
           })
           .catch((err) => {
-            console.log('.......... err ', err)
             resolve(null);
           });
       } else {
@@ -1382,7 +1288,6 @@ class timeSheetController {
   async sendReadUser(item, res) {
     try {
       if (item.shiftDetail.isExtendedShift) {
-        console.log('inside');
         const userId = item.userInfo._id;
         const extendData = item.shiftDetail.extendedStaff.find((extendData) => {
           return (
@@ -1403,7 +1308,6 @@ class timeSheetController {
   }
   async sendTimesheetData(results, res, redisKey) {
     try {
-      console.log('aaaher');
       results.sort(function (a, b) {
         return a &&
           a.shiftDetails &&
@@ -1432,7 +1336,6 @@ class timeSheetController {
             item.schemeInfo = item.schemeInfo.shiftSetup;
           }
           if (item.shiftDetails.isExtendedShift) {
-            console.log('inside');
             const userId = item.userInfo._id;
             const extendData = item.shiftDetails.extendedStaff.find(
               (extendData) => {
@@ -1445,15 +1348,12 @@ class timeSheetController {
             if (extendData) {
               item.shiftDetails.extendedStaff = [];
               item.shiftDetails.extendedStaff[0] = extendData;
-              //  item.shiftDetails.startTime = extendData.startDateTime;
-              //item.shiftDetails.endTime = extendData.endDateTime;
             } else {
               item.shiftDetails.extendedStaff = [];
             }
           }
           if (!newArrayResult.includes(item)) {
             if (item.shiftDetails.isSplitShift) {
-              console.log('aaaaa');
               let isFound = false;
               results.some((splitItem, splitIndex) => {
                 if (
@@ -1466,7 +1366,6 @@ class timeSheetController {
                   item.shiftDetails.confirmedStaffs.toString() ==
                   splitItem.shiftDetails.confirmedStaffs.toString()
                 ) {
-                  console.log('insplit');
                   isFound = true;
                   if (
                     item.shiftDetails.startTime <
@@ -1509,7 +1408,6 @@ class timeSheetController {
     if (shiftDetails.isAssignShift) {
       return { valid: false };
     } else {
-      //console.log('schemeDetails',schemeDetails);
       if (
         schemeDetails.shiftSchemeType == 1 ||
         schemeDetails.shiftSchemeType == 3
@@ -1553,7 +1451,6 @@ class timeSheetController {
   }
   async checkLimit(userId, shiftDetails, attendanceObj, isShiftExtentend) {
     if (attendanceObj.breakTime.length > 0) {
-      console.log('approve attend', JSON.stringify(attendanceObj));
       let schemeDetails = await User.findById(userId, {
         schemeId: 1,
         _id: 0,
@@ -2036,21 +1933,18 @@ class timeSheetController {
         //   result.businessUnitId,
         //   result.shiftDetailId,
         // );
-        // console.log('rR', rR);
         // this.updateRedis(result.businessUnitId, 'add');
         return res.json({
           status: 1,
           message: 'Successfully Updated',
           data: result,
         });
-        //__.out(res,200,result);
       } else {
         return res.json({
           status: 2,
           message: 'No attendance Found',
           data: null,
         });
-        //__.out(res,200,'No attendance found');
       }
     } catch (err) {
       __.log(err);
@@ -2469,8 +2363,6 @@ class timeSheetController {
       if (!__.checkHtmlContent(req.params)) {
         return __.out(res, 300, `You've entered malicious input`);
       }
-      console.log(moment.utc().format());
-      console.log();
       let date = new Date(moment.utc().format());
       date = new Date(date.setHours(0, 0, 0, 0));
       const startDate = new Date(moment.utc().format());
@@ -2481,15 +2373,6 @@ class timeSheetController {
       date = new Date(date.setHours(0, 0, 0, 0));
       let endDateTime = date.setHours(date.getHours() + 43);
       endDateTime = new Date(endDateTime).toUTCString();
-      console.log('start', new Date(startDateTime), new Date(endDateTime));
-      console.log(
-        'ISO ',
-        new Date(new Date(endDateTime).toISOString()),
-        new Date(new Date(startDateTime).toISOString()),
-      );
-      // ,
-      //     weekRangeStartsAt: { $lte: new Date() },
-      //     weekRangeEndsAt: {$gte: new Date()}
       Shift.aggregate([
         {
           $match: {
@@ -2581,7 +2464,6 @@ class timeSheetController {
         .then((results) => {
           if (results.length > 0) {
             async.eachSeries(results, (item, next) => {
-              //console.log('index', results.indexOf(item));
               const index = results.indexOf(item);
               if (item.userInfo) {
                 Attendance.findOne({
@@ -2601,66 +2483,30 @@ class timeSheetController {
                         item.attendance.approval.breakTime = null;
                       }
                     }
-                    console.log('1');
                     if (index === results.length - 1) {
-                      console.log('ressss', results.length);
-                      // for(let i=results.length-1; i>=0; i--){
-                      //    // console.log('infor loop', results[i].attendance);
-                      //     console.log('iiii', i, results[i].attendance._id);
-                      //     if(!results[i].attendance) {
-                      //         console.log('ii', i)
-                      //         results.splice(i, 1);
-                      //     }
-                      //
-                      // }
                       return this.sendTimesheetDataExport(results, res);
-                      //results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-
-                      //  return res.json({status: 1, message: 'Data Found', data: results});
-                      // __.out(res, 200, results);
                     }
                     next();
                   })
                   .catch((err) => {
                     if (index === results.length - 1) {
-                      // for(let i=results.length-1; i>=0; i--){
-                      //   //  console.log('infor loop', results[i].attendance);
-                      //     if(!results[i].attendance) {
-                      //         results.splice(i, 1);
-                      //     }
-                      //
-                      // }
                       return this.sendTimesheetDataExport(results, res);
-                      // results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-                      // return res.json({status: 1, message: 'Data Found', data: results});
-                      //__.out(res, 200, results);
                     }
                     next();
                   });
               } else {
                 if (index === results.length - 1) {
-                  // for(let i=results.length-1; i>=0; i--){
-                  //    // console.log('infor loop', results[i].attendance);
-                  //     if(!results[i].attendance) {
-                  //         results.splice(i, 1);
-                  //     }
-                  // }
                   return this.sendTimesheetDataExport(results, res);
-                  // results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-                  //return res.json({status: 1, message: 'Data Found', data: results});
-                  //__.out(res, 200, results);
                 }
                 next();
               }
             });
-            console.log('2');
           } else {
             return res.json({
               status: 2,
               message: 'No Data Found',
               data: null,
             });
-            // __.out(res,200,"No Data Found");
           }
         })
         .catch((err) => {
@@ -2669,7 +2515,6 @@ class timeSheetController {
             message: 'Something Went Wrong',
             data: null,
           });
-          // __.out(res,500,err);
         });
     } catch (err) {
       __.log(err);
@@ -2687,17 +2532,14 @@ class timeSheetController {
     }
   }
   hourMin(date) {
-    console.log('dateee', date);
     if (date) {
       const d = new Date(date);
-      console.log(d.getHours(), d.getMinutes());
       return `${d.getHours()}:${d.getMinutes()}`;
     } else {
       return '';
     }
   }
   hourMinNew(date, timeZone = '+0800') {
-    console.log('dateee', date);
     if (date) {
       return moment(date).utcOffset(timeZone).format('HH:mm');
     } else {
@@ -2733,12 +2575,10 @@ class timeSheetController {
   async sendTimesheetDataExport(results, res) {
     try {
       results.forEach((item) => {
-        // console.log("item: ",item);
         if (item.schemeInfo) {
           item.schemeInfo = item.schemeInfo.shiftSetup;
         }
         if (item.shiftDetails.isExtendedShift) {
-          console.log('inside');
           const userId = item.userInfo._id;
           const extendData = item.shiftDetails.extendedStaff.find(
             (extendData) => {
@@ -2751,17 +2591,12 @@ class timeSheetController {
           if (extendData) {
             item.shiftDetails.extendedStaff = [];
             item.shiftDetails.extendedStaff[0] = extendData;
-            //  item.shiftDetails.startTime = extendData.startDateTime;
-            //item.shiftDetails.endTime = extendData.endDateTime;
           } else {
             item.shiftDetails.extendedStaff = [];
           }
         }
       });
-      //results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
       const csvData = [];
-      //            'Extended shift start',
-      //             'Extended shift End',
       const keys = [
         'Date',
         'StaffId',
@@ -2789,8 +2624,6 @@ class timeSheetController {
         'Absent',
       ];
       results.forEach((item) => {
-        //console.log('aaa', JSON.stringify(results));
-        console.log('date: ', item.shiftDetails.timeZone);
         let timeZone = item.shiftDetails.timeZone;
         if (!timeZone) {
           timeZone = '+0800';
@@ -2802,8 +2635,6 @@ class timeSheetController {
         obj['Date'] = date;
         obj['StaffId'] = item.userInfo.staffId;
         obj['Staff Name'] = item.userInfo.name;
-        // console.log('aaaaa',obj.Date)
-        // console.log('this.getDateFormat(item.shiftDetails.startTime)', this.getDateFormat(item.shiftDetails.startTime));
         obj['Shift Start Time'] = this.getDateFormat(
           item.shiftDetails.startTime,
           timeZone,
@@ -2813,8 +2644,6 @@ class timeSheetController {
           timeZone,
         );
         if (item.shiftDetails.extendedStaff.length > 0) {
-          //console.log('it', item);
-          //console.log('this.getDuration(item.attendance.approval.otDuration)',this.getDuration(item.attendance.otDuration));
           obj['Extended Start Time'] = this.getDateFormat(
             item.shiftDetails.extendedStaff[0].startDateTime,
             timeZone,
@@ -2962,32 +2791,14 @@ class timeSheetController {
             obj['Absent'] = 'No';
           }
         }
-        // console.log(Object.keys(obj));
         csvData.push(obj);
       });
       csvData.sort(function (a, b) {
-        // console.log("a['Shift Start Time']",a['Shift Start Time'], moment(b['Shift Start Time'], 'DD/MM/YYYY HH:mm').valueOf()-moment(a['Shift Start Time', 'DD/MM/YYYY HH:mm']).valueOf())
         return (
           moment(a['Shift Start Time'], 'DD/MM/YYYY HH:mm').valueOf() -
           moment(b['Shift Start Time'], 'DD/MM/YYYY HH:mm').valueOf()
         );
       });
-      //  return res.json({status: 1, message: 'Data Found', data: csvData});
-      // json2csv({ data: csvData, fields: keys }, function (err, csv) {
-      //   if (err) console.log(err);
-      // console.log(csv);
-      //  res.send(csv);
-      //  fs.writeFile('file.csv', csv, function(err) {
-      //      if (err) throw err;
-      //      console.log('file saved');
-      //  });
-      //   res.setHeader(
-      //     'Content-disposition',
-      //     'attachment; filename=testing.csv',
-      //   );
-      //   res.set('Content-Type', 'application/csv');
-      //   res.status(200).json({ csv, noData: true });
-      // });
 
       const csv = await json2csv(csvData, keys);
       const csvType = 'dubbyData';
@@ -3011,13 +2822,8 @@ class timeSheetController {
       endDateTime =
         endDateTime[1] + '-' + endDateTime[0] + '-' + endDateTime[2];
       endDateTime = new Date(endDateTime);
-      console.log('endDateTime', endDateTime);
-      console.log('req', req.body);
-      console.log('startDateTime', new Date(startDateTime));
       endDateTime = endDateTime.setDate(endDateTime.getDate() + 1);
       endDateTime = new Date(endDateTime);
-      console.log('eee');
-      console.log('endDateTime', endDateTime);
       if (req.body.userId) {
         getDataAsPerUser(this);
       } else {
@@ -3113,7 +2919,6 @@ class timeSheetController {
           .then((results) => {
             if (results.length > 0) {
               async.eachSeries(results, (item, next) => {
-                //console.log('index', results.indexOf(item));
                 const index = results.indexOf(item);
                 if (item.userInfo) {
                   Attendance.findOne({
@@ -3133,65 +2938,30 @@ class timeSheetController {
                           item.attendance.approval.breakTime = null;
                         }
                       }
-                      console.log('1');
                       if (index === results.length - 1) {
-                        console.log('ressss', results.length);
-                        // for(let i=results.length-1; i>=0; i--){
-                        //    // console.log('infor loop', results[i].attendance);
-                        //     console.log('iiii', i, results[i].attendance._id);
-                        //     if(!results[i].attendance) {
-                        //         console.log('ii', i)
-                        //         results.splice(i, 1);
-                        //     }
-                        //
-                        // }
                         return this.sendTimesheetDataExport(results, res);
-                        //results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-                        //  return res.json({status: 1, message: 'Data Found', data: results});
-                        // __.out(res, 200, results);
                       }
                       next();
                     })
                     .catch((err) => {
                       if (index === results.length - 1) {
-                        // for(let i=results.length-1; i>=0; i--){
-                        //   //  console.log('infor loop', results[i].attendance);
-                        //     if(!results[i].attendance) {
-                        //         results.splice(i, 1);
-                        //     }
-                        //
-                        // }
                         return this.sendTimesheetDataExport(results, res);
-                        // results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-                        // return res.json({status: 1, message: 'Data Found', data: results});
-                        //__.out(res, 200, results);
                       }
                       next();
                     });
                 } else {
                   if (index === results.length - 1) {
-                    // for(let i=results.length-1; i>=0; i--){
-                    //    // console.log('infor loop', results[i].attendance);
-                    //     if(!results[i].attendance) {
-                    //         results.splice(i, 1);
-                    //     }
-                    // }
                     return this.sendTimesheetDataExport(results, res);
-                    // results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-                    //return res.json({status: 1, message: 'Data Found', data: results});
-                    //__.out(res, 200, results);
                   }
                   next();
                 }
               });
-              console.log('2');
             } else {
               return res.json({
                 status: 2,
                 message: 'No Data Found',
                 data: null,
               });
-              // __.out(res,200,"No Data Found");
             }
           })
           .catch((err) => {
@@ -3200,12 +2970,10 @@ class timeSheetController {
               message: 'Something Went Wrong',
               data: null,
             });
-            // __.out(res,500,err);
           });
       }
 
       function getDataAsPerUser(useThis) {
-        console.log('insideuser');
         Shift.aggregate([
           {
             $match: {
@@ -3305,7 +3073,6 @@ class timeSheetController {
           .then((results) => {
             if (results.length > 0) {
               async.eachSeries(results, (item, next) => {
-                //console.log('index', results.indexOf(item));
                 const index = results.indexOf(item);
                 if (item.userInfo) {
                   Attendance.findOne({
@@ -3325,66 +3092,30 @@ class timeSheetController {
                           item.attendance.approval.breakTime = null;
                         }
                       }
-                      console.log('1');
                       if (index === results.length - 1) {
-                        console.log('ressss', results.length);
-                        // for(let i=results.length-1; i>=0; i--){
-                        //    // console.log('infor loop', results[i].attendance);
-                        //     console.log('iiii', i, results[i].attendance._id);
-                        //     if(!results[i].attendance) {
-                        //         console.log('ii', i)
-                        //         results.splice(i, 1);
-                        //     }
-                        //
-                        // }
                         return useThis.sendTimesheetData(results, res);
-                        //results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-
-                        //  return res.json({status: 1, message: 'Data Found', data: results});
-                        // __.out(res, 200, results);
                       }
                       next();
                     })
                     .catch((err) => {
                       if (index === results.length - 1) {
-                        // for(let i=results.length-1; i>=0; i--){
-                        //   //  console.log('infor loop', results[i].attendance);
-                        //     if(!results[i].attendance) {
-                        //         results.splice(i, 1);
-                        //     }
-                        //
-                        // }
                         return useThis.sendTimesheetData(results, res);
-                        // results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-                        // return res.json({status: 1, message: 'Data Found', data: results});
-                        //__.out(res, 200, results);
                       }
                       next();
                     });
                 } else {
                   if (index === results.length - 1) {
-                    // for(let i=results.length-1; i>=0; i--){
-                    //    // console.log('infor loop', results[i].attendance);
-                    //     if(!results[i].attendance) {
-                    //         results.splice(i, 1);
-                    //     }
-                    // }
                     return useThis.sendTimesheetData(results, res);
-                    // results.sort(function(a,b){return a.shiftDetails.date.getTime() - b.shiftDetails.date.getTime()});
-                    //return res.json({status: 1, message: 'Data Found', data: results});
-                    //__.out(res, 200, results);
                   }
                   next();
                 }
               });
-              console.log('2');
             } else {
               return res.json({
                 status: 2,
                 message: 'No Data Found',
                 data: null,
               });
-              // __.out(res,200,"No Data Found");
             }
           })
           .catch((err) => {
@@ -3393,7 +3124,6 @@ class timeSheetController {
               message: 'Something Went Wrong',
               data: null,
             });
-            // __.out(res,500,err);
           });
       }
     } catch (err) {

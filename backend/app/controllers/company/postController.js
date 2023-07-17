@@ -507,7 +507,6 @@ class post {
         !!req.body.wallTitle &&
         req.body.wallTitle.isTeaserImageForWall == true
       ) {
-        console.log('INIT');
         postData.bannerImage = req.body.teaser.image;
       }
       // postData.wallTitle=req.body.wallTitle;
@@ -544,17 +543,11 @@ class post {
         postData.moduleIncluded = false;
       }
       if (postData.notifiedSent || bodyContent.isNotifi == 'true') {
-        console.log(
-          'aaaa',
-          typeof bodyContent.isNotifi,
-          bodyContent.isNotifi ? false : true,
-        );
         postData.notifiedSent = bodyContent.isNotifi == 'true' ? false : true;
       }
       let updatedPost = await postData.save();
       var isWallUpdated;
       if (req.body.postType == 'event') {
-        console.log('Ro update Wall here....!');
         isWallUpdated = await updateWall(updatedPost, req.body, postData);
         postData.wallId = isWallUpdated._id;
         postData.save();
@@ -629,7 +622,6 @@ class post {
         if (!channelData) return false;
 
         if (req.wallId) {
-          console.log('In wall underscore Id');
           // req.wallTitle = req.wallTitle.replace(/<(.|\n)*?>/g, ' ');
           if (!postdata.bannerImage) {
             let newWall = await SocialWallModel.findOneAndUpdate(
@@ -640,7 +632,7 @@ class post {
                 $set: {
                   wallName: body.wallTitle.title,
                   isEventWallRequired: body.eventDetails?.isEventWallRequired,
-                  // bannerImage: postdata.bannerImage,
+                  bannerImage: body?.content?.eventWallLogoImage? body.content.eventWallLogoImage:'',
                   assignUsers: channelData.userDetails,
                   status: body.status,
                   eventWallStartDate: body.content.eventWallStartDate,
@@ -685,7 +677,6 @@ class post {
             isEventWallRequired: body.eventDetails?.isEventWallRequired,
           };
           let Wall = await new SocialWallModel(newWall).save();
-          console.log('NEWWALL: ', Wall);
           return Wall;
         }
       } catch (error) {
@@ -838,7 +829,6 @@ class post {
         postList: postList,
       });
     } catch (error) {
-      console.log(error);
     }
   }
   async read(req, res) {
@@ -1589,7 +1579,6 @@ class post {
       const getAnswer = (question, response) => {
         let answer = null;
         if (response.answer == '') {
-          console.log('kuch nhi');
           switch (question.type) {
             case 1:
             case 8:
@@ -1797,7 +1786,6 @@ class post {
           },
         ])
         .lean();
-      console.log('wallDetails: ', wallPosts);
       if (wallPosts.length > 0) {
         for (let i = 0; i <= wallPosts.length - 1; i++) {
           var date = moment(wallPosts[i].createdAt).format('D MMM, YYYY');
@@ -1836,7 +1824,6 @@ class post {
           jsonArray.push(wall);
         }
       }
-      //  console.log("wallDetailsWALL: ",wall);
       if (wallDetails == null) {
         return __.out(res, 300, 'Wall not found');
       } else {
@@ -1852,13 +1839,11 @@ class post {
           ];
 
         // fieldsArray = [...fieldsArray, ...wallsdata];
-        console.log('FILD:', fieldsArray);
         if (jsonArray.length !== 0) {
           const fields = fieldsArray;
           const opts = { fields };
           var csv = parse(jsonArray, opts);
           let fileName = wallDetails.wallName;
-          console.log('FILENAME IS: ', fileName);
           fileName = fileName.split(' ').join('_');
           fs.writeFile(`./public/uploads/wall/${fileName}.csv`, csv, (err) => {
             if (err) {
@@ -2025,14 +2010,12 @@ class post {
 
       let wallData = {};
 
-      console.log(postData[0].wallId);
-
       if (postData[0].wallId) {
         wallData.endDate = postData[0].wallId.eventWallEndDate;
         wallData.eventWallLogoImage = postData[0].wallId.bannerImage,
         wallData.startDate = postData[0].wallId.eventWallStartDate,
         wallData.wallName = postData[0].wallName;
-        wallData.isEventWallRequired = postData[0].wallId.isEventWallRequired;
+        wallData.isEventWallRequired = postData[0].eventDetails.isEventWallRequired;
       }
 
       const data = {
@@ -2048,7 +2031,7 @@ class post {
           organizerName: postData[0].eventDetails.organizerName,
           startDate: postData[0].eventDetails.startDate,
           title: postData[0].content.title,
-          isEventWallRequired: postData[0].eventDetails.isEventWallRequired,
+          // isEventWallRequired: postData[0].eventDetails.isEventWallRequired,
         },
         teaser: postData[0].teaser,
         eventBoard: wallData,

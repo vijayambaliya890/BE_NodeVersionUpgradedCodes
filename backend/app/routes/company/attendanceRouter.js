@@ -4,17 +4,17 @@ let express = require('express'),
     passport = require('passport'),
     jwt = require('jsonwebtoken');
 
-attendanceRouter.use((req, res, next) => {
-    console.log('pa', req.path);
-    if (req.user.isFlexiStaff !== 1 || req.path.includes("breakTime") || req.path.includes("staff"))
-        next();
-    else
-        return res.status(402).send('This account is not permitted to access');
-});
-
     attendanceRouter.post('/add', (req, res) => {
         attendanceController.addAttendance(req, res)
     });
+
+    attendanceRouter.use((req, res, next) => {
+        if (req.user.isFlexiStaff !== 1 || req.path.includes("breakTime") || req.path.includes("staff"))
+            next();
+        else
+            return res.status(402).send('This account is not permitted to access');
+    });
+
     attendanceRouter.post('/', (req, res) => {
         attendanceController.update(req, res)
     });

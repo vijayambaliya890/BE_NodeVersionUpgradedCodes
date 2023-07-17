@@ -24,7 +24,6 @@ class attendanceController {
   // async updateRedisSingle(res, businessUnitId, shiftDetailId) {
   //   try {
   //     // redisData.history(businessUnitId)
-  //     console.log('before redis setting data');
   //     const ree = await Promise.all(
   //       [
   //         redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId),
@@ -34,7 +33,6 @@ class attendanceController {
   //     );
   //     // const r = await redisData.readModifyAshishSingleShift(businessUnitId, shiftDetailId);
   //     // const p = await redisData.timesheetDataSingleShift(businessUnitId, shiftDetailId);
-  //     console.log('after redis setting data', ree);
   //     return ree;
   //     // redisData.timesheetData(businessUnitId)
   //   } catch (err) {
@@ -113,11 +111,11 @@ class attendanceController {
         item.shiftStartTime = this.getDateFormat(
           item.shiftDetailId.startTime,
           timeZone,
-        ); // item.shiftDetailId.startTime;
+        );
         item.shiftEndTime = this.getDateFormat(
           item.shiftDetailId.endTime,
           timeZone,
-        ); // item.shiftDetailId.endTime;
+        );
         item.createdAt = this.getDateFormat(item.createdAt, timeZone);
         delete item.shiftDetailId;
         delete item.businessUnitId;
@@ -145,10 +143,8 @@ class attendanceController {
   }
   async add(req, res) {
     try {
-      console.log(new Date());
       let endDate = new Date();
       let startDate = new Date();
-      console.log('date', endDate);
       endDate = endDate.setHours(endDate.getHours() + 12);
       endDate = new Date(endDate);
       startDate = startDate.setHours(startDate.getHours() - 12);
@@ -171,10 +167,8 @@ class attendanceController {
             shfitStartTime = shfitStartTime.setDate(
               new Date(shfitStartTime).getDate() - 1,
             );
-            console.log('shfitEndTime', new Date(shfitStartTime));
             var diff = new Date(shfitStartTime) - new Date();
             let min = Math.floor(diff / 1000 / 60);
-            console.log('min1', min);
             if (shiftDetail.isExtendedShift) {
               const shiftExtendedObj = shiftDetail.extendedStaff.filter((i) => {
                 return i.userId.toString() === req.body.userId;
@@ -187,7 +181,6 @@ class attendanceController {
                 min = Math.floor(diff / 1000 / 60);
               }
             }
-            console.log('min2', min);
             //min < 60
             if (true) {
               Attendance.find({
@@ -206,22 +199,12 @@ class attendanceController {
                     else if (req.body.status === 2)
                       req.body.clockOutDateTime = new Date();
                   }
-                  console.log(
-                    'req.body.clockInDateTime',
-                    req.body.clockInDateTime,
-                  );
                   let attend = (status === 1) ? { clockInDateTime: req.body.clockInDateTime } : { clockOutDateTime: req.body.clockOutDateTime }
 
                   if (attendanceResult.length === 0) {
 
                     delete req.body.breakTime;
-                    await AttendanceLog(req.body).save();
-                    // new AttendanceLog(req.body)
-                    //   .save()
-                    //   .then((log) => {})
-                    //   .catch((e) => {
-                    //     console.log('eeee', e);
-                    //   });
+                    await AttendanceLog(req.body).save()
                     const result = await Attendance(req.body).save();
                     if (req.body.status === 4) {
                       return res.json({
@@ -237,14 +220,11 @@ class attendanceController {
                     });
                     /*
                     new Attendance(req.body).save().then(async (result) => {
-                      console.log('clocking done ***************');
                       // const rR = await this.updateRedisSingle(
                       //   res,
                       //   shiftData.businessUnitId,
                       //   req.body.shiftDetailId,
                       // );
-                      // console.log('rR', rR);
-                      // console.log('after redis');
                       // this.updateRedis(shiftData.businessUnitId, 'add');
                       if (req.body.status === 4) {
                         return res.json({
@@ -271,14 +251,6 @@ class attendanceController {
                         $set: { ... { attendanceMode, status, checkOutLocation }, ...attend },
                       }, { new: true });
 
-                      // await attendance.findOneAndUpdateAttendance({
-                      //   shiftDetailId: mongoose.Types.ObjectId(shiftDetailId),
-                      //   shiftId: mongoose.Types.ObjectId(shiftId),
-                      //   userId: mongoose.Types.ObjectId(userId)
-                      // }, {
-                      //   $set: { ... { attendanceMode, status, checkOutLocation }, ...attend },
-                      // }, { new: true });
-
                       const attendanceLog = await AttendanceLog.findOneAndUpdate({
                         shiftDetailId: mongoose.Types.ObjectId(shiftDetailId),
                         shiftId: mongoose.Types.ObjectId(shiftId),
@@ -287,17 +259,7 @@ class attendanceController {
                         $set: { ... { attendanceMode, status, checkOutLocation }, attend },
 
                       }, { new: true })
-
-                      // attendanceLog = await attendance.findOneAndUpdateAttendanceLog({
-                      //   shiftDetailId: mongoose.Types.ObjectId(shiftDetailId),
-                      //   shiftId: mongoose.Types.ObjectId(shiftId),
-                      //   userId: mongoose.Types.ObjectId(userId),
-                      // }, {
-                      //   $set: { ... { attendanceMode, status, checkOutLocation }, attend },
-
-                      // }, { new: true });
                     } catch (e) {
-                      console.log("eeee", e);
                     }
                     if (status === 4) {
                       return res.json({
@@ -482,7 +444,6 @@ class attendanceController {
             }
           } catch (err) {
             logError(`timesheet/history/5bd723a8c1e35a7a250d562a  API, there is an error`, err.toString());
-            console.log(err)
             return res.json({
               status: 3,
               data: null,
@@ -512,7 +473,6 @@ class attendanceController {
 
   async autoApprove(req, res) {
     try {
-      console.log('aa');
       let today = new Date();
       today = new Date(today.setHours(0, 0, 0, 0));
       let today1 = new Date();
@@ -533,10 +493,8 @@ class attendanceController {
         ])
         .lean();
       attendanceData = JSON.parse(JSON.stringify(attendanceData));
-      //return res.json({attendanceData})
       let buDataArr = [];
       const len = attendanceData.length;
-      console.log('len', len);
       const approveAttandanceData = [];
       const otHr = 0;
       for (let ii = 0; ii < len; ii++) {
@@ -549,7 +507,6 @@ class attendanceController {
           return item._id.toString() == buId.toString();
         });
         if (buData.length === 0) {
-          console.log('aaaa');
           buInfo = await SubSection.findOne(
             { _id: buId },
             {
@@ -581,7 +538,6 @@ class attendanceController {
             },
           );
           if (isStaffPresent.length > 0) {
-            console.log('present hai');
             const normalHr =
               (new Date(data.shiftDetailId.endTime) -
                 new Date(data.shiftDetailId.startTime)) /
@@ -598,7 +554,6 @@ class attendanceController {
             data.shiftDetailId.endTime = isStaffPresent[0].endDateTime;
           }
         }
-        //if(new Date(data.clockInDateTime).getTime()> new Date(data.shiftDetailId.startTime).getTime()){
         var diff =
           new Date(data.clockInDateTime).getTime() -
           new Date(data.shiftDetailId.startTime).getTime();
@@ -619,12 +574,7 @@ class attendanceController {
           new Date(data.shiftDetailId.endTime).getTime() -
           new Date(data.shiftDetailId.startTime).getTime();
         shiftDuration = shiftDuration / 60000;
-        console.log('buInfo', buInfo.breakInMinutes, data.totalBreakDuration);
-        console.log('clockoutDiff', clockoutDiff);
-        console.log('clockin', clockinDiff);
         let shiftShortDuration = diffMin - clockoutDiff;
-        console.log('shiftShortDuration', shiftShortDuration);
-        // if(clockinDiff<=15&& shiftShortDuration<=15){
         if (clockoutDiff < 0) {
           clockoutDiff = -1 * clockoutDiff;
         }
@@ -658,14 +608,6 @@ class attendanceController {
               neitherMessage: '',
             },
           };
-          console.log('aaaiiiii');
-          //   const updateAtt = await Attendance.findOneAndUpdate({_id: mongoose.Types.ObjectId(data._id)}, {
-          //         $set: {
-          //             approval: obj.approval,
-          //             status: 3,
-          //             isAutoApprove: true
-          //         }
-          //     })
           approveAttandanceData.push(obj);
         }
       }
@@ -677,7 +619,6 @@ class attendanceController {
   }
   async update(req, res) {
     try {
-      console.log(req.body);
       delete req.body.userId;
       delete req.body.shiftDetailId;
       delete req.body._id;
@@ -708,25 +649,20 @@ class attendanceController {
           { new: true },
         )
           .then(async (result) => {
-            console.log('result', result);
             if (result) {
               let logs = JSON.parse(JSON.stringify(result));
               delete logs._id;
-              console.log('##################################### beofre redis');
               // const re = await this.updateRedisSingle(
               //   res,
               //   result.businessUnitId,
               //   result.shiftDetailId,
               // );
-              // console.log('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ after redis', re);
               // this.updateRedis(result.businessUnitId, 'add');
               new AttendanceLog(logs)
                 .save()
                 .then((log) => {
-                  // console.log("logss", log);
                 })
                 .catch((e) => {
-                  console.log('eeee', e);
                 });
               if (obj.status === 2)
                 return res.json({
@@ -925,6 +861,11 @@ class attendanceController {
                         message: 'No Clock in attendance found',
                       });
                     }
+                    return res.json({
+                      status: 2,
+                      message: 'BreakTime Entered Successfully',
+                      data: result.breakTime,
+                    });
                   })
                   .catch((err) => {
                     return res.json({
@@ -971,7 +912,6 @@ class attendanceController {
         { status: 1, attendanceMode: 1 },
       )
         .then((result) => {
-          console.log('res', result);
           if (result.length > 0) {
             return res.json({
               status: 1,
@@ -1108,7 +1048,6 @@ class attendanceController {
   }
   async getStaffAddendance(req, res) {
     try {
-      console.log('here');
       let results = await this.getShiftDetails(
         req.params.shiftId,
         req.params.shiftDetailId,
@@ -1210,7 +1149,6 @@ class attendanceController {
                   normalDuration,
                 });
               }
-              //return res.json({status: 1, message: 'Data Found Spplit', data: results});
             }
           })
           .catch((err) => {
@@ -1233,7 +1171,6 @@ class attendanceController {
     try {
       const shiftId = [];
       shiftId.push(req.params.shiftDetailId);
-      console.log('req.params.splitShiftId', req.params.splitShiftId);
       if (req.params.splitShiftId !== '0') {
         shiftId.push(req.params.splitShiftId);
       }
@@ -1252,10 +1189,7 @@ class attendanceController {
         },
       )
         .then((result) => {
-          console.log('res', result);
           if (result.length > 0) {
-            //console.log(result[0].breakTime);
-            //console.log(result[1].breakTime)
             if (result[1]) {
               result[0].breakTime = result[0].breakTime.concat(
                 result[1].breakTime,
@@ -1288,7 +1222,6 @@ class attendanceController {
   }
   async deleteBreakTime(req, res) {
     try {
-      console.log(req.body);
       Attendance.findOne({
         _id: req.body.attendanceId,
         breakTime: { $elemMatch: { _id: req.body.breakId } },
@@ -1324,7 +1257,6 @@ class attendanceController {
   async updateBreakTimeSplit(req, res) {
     try {
       const obj = req.body;
-      console.log('sss', req.body.startTime);
       var timeZone = moment
         .parseZone(req.body.startTime, 'MM-DD-YYYY HH:mm:ss Z')
         .format('Z'),
@@ -1334,16 +1266,12 @@ class attendanceController {
         endTimeDate = moment(req.body.endTime, 'MM-DD-YYYY HH:mm:ss Z')
           .utc()
           .format();
-      console.log(startTimeDate, endTimeDate);
       let startDate = moment(req.body.startTime, 'MM-DD-YYYY HH:mm:ss Z')
         .utc()
         .format();
-      console.log('startDate before', startDate);
       startDate = new Date(startDate).setHours(0, 0, 0, 0);
-      console.log('startDate after', new Date(startDate));
       var diff = Math.abs(new Date(startTimeDate) - new Date(endTimeDate));
       const min = Math.floor(diff / 1000 / 60);
-      console.log('min', min);
       ShiftDetails.find(
         { _id: { $in: req.body.shiftIds }, confirmedStaffs: req.body.userId },
         {
@@ -1355,18 +1283,12 @@ class attendanceController {
         },
       )
         .then((shiftInfo) => {
-          console.log('shiftinfo', shiftInfo);
           if (shiftInfo.length > 0) {
             let shiftStartDate = new Date(shiftInfo[0].startTime).setHours(
               0,
               0,
               0,
               0,
-            );
-            console.log(
-              'startDate11',
-              shiftStartDate,
-              new Date(shiftStartDate),
             );
             //  if(startDate === shiftStartDate) {
             if (
@@ -1379,7 +1301,6 @@ class attendanceController {
               minutesOfDay(endTimeDate) >= minutesOfDay(shiftInfo[0].startTime)
             ) {
               markBreakTime(shiftInfo[0]._id);
-              console.log('infirst shift');
             } else if (
               shiftInfo[1] &&
               minutesOfDay(shiftInfo[1].endTime) >=
@@ -1390,17 +1311,12 @@ class attendanceController {
               minutesOfDay(endTimeDate) >= minutesOfDay(shiftInfo[1].startTime)
             ) {
               markBreakTime(shiftInfo[1]._id);
-              console.log('in second shift');
             } else {
               res.json({
                 status: false,
                 message: 'Break Time is Not between shift',
               });
             }
-            //res.send(shiftInfo);
-            // } else {
-            //     res.json({status: false, message: 'Break Time is Not between shift2'})
-            // }
           } else {
             res.json({
               status: false,
@@ -1413,11 +1329,9 @@ class attendanceController {
         });
 
       function minutesOfDay(m) {
-        //console.log(m);
         return new Date(m).getMinutes() + new Date(m).getHours() * 60;
       }
       function markBreakTime(shiftDetailId) {
-        //        ,
         //         status: {$in:[1,3,4]}
         Attendance.findOneAndUpdate(
           {
@@ -1437,7 +1351,6 @@ class attendanceController {
           { new: true },
         )
           .then(async (result) => {
-            console.log('result', result);
             if (result) {
               // await this.updateRedisSingle(
               //   res,
@@ -1473,7 +1386,6 @@ class attendanceController {
 }
 async function autoApproveCron() {
   try {
-    console.log('aa');
     let today = new Date();
     let otHr = '';
     today = new Date(today.setHours(0, 0, 0, 0));
@@ -1500,7 +1412,6 @@ async function autoApproveCron() {
     attendanceData = JSON.parse(JSON.stringify(attendanceData));
     let buDataArr = [];
     const len = attendanceData.length;
-    console.log('len', len);
     const approveAttandanceData = [];
     for (let ii = 0; ii < len; ii++) {
       const data = attendanceData[ii];
@@ -1512,7 +1423,6 @@ async function autoApproveCron() {
         return item._id.toString() == buId.toString();
       });
       if (buData.length === 0) {
-        console.log('aaaa');
         buInfo = await SubSection.findOne(
           { _id: buId },
           {
@@ -1544,7 +1454,6 @@ async function autoApproveCron() {
           },
         );
         if (isStaffPresent.length > 0) {
-          console.log('present hai');
           const normalHr =
             (new Date(data.shiftDetailId.endTime) -
               new Date(data.shiftDetailId.startTime)) /
@@ -1561,7 +1470,6 @@ async function autoApproveCron() {
           data.shiftDetailId.endTime = isStaffPresent[0].endDateTime;
         }
       }
-      //if(new Date(data.clockInDateTime).getTime()> new Date(data.shiftDetailId.startTime).getTime()){
       var diff =
         new Date(data.clockInDateTime).getTime() -
         new Date(data.shiftDetailId.startTime).getTime();
@@ -1617,7 +1525,6 @@ async function autoApproveCron() {
             neitherMessage: '',
           },
         };
-        console.log('aaaiiiii');
         const updateAtt = await Attendance.findOneAndUpdate(
           { _id: mongoose.Types.ObjectId(data._id) },
           {

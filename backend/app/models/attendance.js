@@ -99,6 +99,14 @@ const AttendanceSchema = new Schema({
         type: Boolean,
         default: false
     },
+    checkInLocation:{
+        type: String,
+        default:""
+    },
+    checkOutLocation:{
+        type: String,
+        default:""
+    },
     otDuration: {
         type: Number,
         default:0
