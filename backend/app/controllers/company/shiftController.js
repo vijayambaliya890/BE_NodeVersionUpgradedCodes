@@ -129,13 +129,13 @@ class shift {
                     'MM-DD-YYYY HH:mm:ss Z',
                   )
                     .utc()
-                    .unix(); // new Date(shiftObj.startTime).getTime();
+                    .unix();
                   shiftObj.endTimeInSeconds = moment(
                     new Date(shiftObj.endTime),
                     'MM-DD-YYYY HH:mm:ss Z',
                   )
                     .utc()
-                    .unix(); //new Date(shiftObj.endTime).getTime();
+                    .unix();
                   let dateSplit = dayDate.date.split('-');
                   userInfo.Date =
                     dateSplit[1] + '-' + dateSplit[0] + '-' + dateSplit[2];
@@ -146,7 +146,7 @@ class shift {
                     .format();
                   shiftObj.weekNumber = __.weekNoStartWithMonday(
                     shift.weekRangeStartsAt,
-                  ); //moment(shiftObj.date).format('ww');
+                  );
                   var startSecond = new Date(shiftObj.startTime).getTime();
                   var endSecond = new Date(shiftObj.endTime).getTime();
                   shiftObj.duration = (endSecond - startSecond) / 3600000;
@@ -2209,7 +2209,6 @@ class shift {
                   }
                 }
               }
-              //if(!element.isAssignShift){
               if (
                 typeof staffNeedWeekdaysObj[weekDay][dateTimeUnix] !=
                 'undefined'
@@ -2791,7 +2790,6 @@ class shift {
             startTime: -1,
           });
         if (!req.body.shiftDetailsId) {
-          // var listData = {},
            var graphData = {},
             graphDataWeb = {},
             dashboardGraphData = {
@@ -2817,7 +2815,6 @@ class shift {
                 tz = '+0800';
               }
               var key = __.getDateStringFormat(element.date, tz);
-              console.log("Key======",key);
               for (let ki = 0; ki < element.confirmedStaffs.length; ki++) {
                 const uCI = element.confirmedStaffs[ki];
                 let startDI = element.startTime;
@@ -2899,7 +2896,6 @@ class shift {
               // Remove Cancelled Shifts on Calculation
               if (graphData[key]) {
                 /*if date already keyed in array */
-                // listData[key].push(element);
                 // Add Hours in calculation only it is active shift
                 if (element.status == 1 && !element.isAssignShift) {
                   graphData[key].totalHours +=
@@ -2953,8 +2949,6 @@ class shift {
                 }
               } else {
                 /*else create a new key by date in array */
-                // listData[key] = [];
-                // listData[key].push(element);
                 graphData[key] = {};
                 graphData[key].totalHours = 0;
                 graphData[key].totalShifts = 0;
@@ -3096,7 +3090,6 @@ class shift {
                   }
                 }
               }
-              //if(!element.isAssignShift){
               if (
                 typeof staffNeedWeekdaysObj[weekDay][dateTimeUnix] !=
                 'undefined'
@@ -3230,85 +3223,6 @@ class shift {
             updatedDashboardGraphData[each] =
               dashboardGraphData[each].toFixed(2);
           }
-
-          // var templistData = JSON.stringify(listData);
-          // listData = JSON.parse(templistData);
-          // for (let date in listData) {
-          //   listData[date].forEach((item, index) => {
-          //     if (item.isLimit) {
-          //       const isLimitedStaff = item.appliedStaffs.filter((limit) => {
-          //         return limit.status == 1 && limit.isLimit;
-          //       });
-          //       if (isLimitedStaff.length > 0) {
-          //         for (let kk = 0; kk < item.confirmedStaffs.length; kk++) {
-          //           const staffCheck = item.confirmedStaffs[kk];
-          //           let isLimitStaffId = isLimitedStaff.filter((limit) => {
-          //             return limit.flexiStaff == staffCheck._id;
-          //           });
-          //           if (isLimitStaffId.length > 0) {
-          //             item.confirmedStaffs[kk].isLimit = true;
-          //           }
-          //         }
-          //       }
-          //     }
-          //     if (item.isExtendedShift) {
-          //       if (item.extendedStaff) {
-          //         item.extendedStaff.forEach((extendedStaffItem) => {
-          //           if (item.confirmedStaffs) {
-          //             item.confirmedStaffs.forEach((confirmedStaffsItem) => {
-          //               if (
-          //                 confirmedStaffsItem._id.toString() ===
-          //                 extendedStaffItem.userId.toString()
-          //               ) {
-          //                 confirmedStaffsItem.confirmStatus =
-          //                   extendedStaffItem.confirmStatus;
-          //                 confirmedStaffsItem.endDateTime =
-          //                   extendedStaffItem.endDateTime;
-          //                 confirmedStaffsItem.startDateTime =
-          //                   extendedStaffItem.startDateTime;
-          //                 confirmedStaffsItem.isLimit =
-          //                   extendedStaffItem.isLimit;
-          //               }
-          //             });
-          //           }
-          //         });
-          //       }
-          //     }
-          //     if (item.isSplitShift) {
-          //       listData[date].forEach((splitItem, splitIndex) => {
-          //         if (splitIndex !== index) {
-          //           if (
-          //             item.randomShiftId &&
-          //             splitItem.randomShiftId &&
-          //             splitItem.isSplitShift &&
-          //             new Date(splitItem.date).getTime() ===
-          //             new Date(item.date).getTime() &&
-          //             splitItem.randomShiftId.toString() ===
-          //             item.randomShiftId.toString()
-          //           ) {
-          //             if (splitItem.isParent === 2) {
-          //               item.splitShiftStartTime = splitItem.startTime;
-          //               item.splitShiftEndTime = splitItem.endTime;
-          //               item.splitShiftId = splitItem._id;
-          //               listData[date].splice(splitIndex, 1);
-          //             } else {
-          //               const splitShiftStartTime = item.startTime;
-          //               const splitShiftEndTime = item.endTime;
-          //               const splitShiftId = item._id;
-          //               item.startTime = splitItem.startTime;
-          //               item.endTime = splitItem.endTime;
-          //               item._id = splitItem._id;
-          //               item.splitShiftStartTime = splitShiftStartTime;
-          //               item.splitShiftEndTime = splitShiftEndTime;
-          //               item.splitShiftId = splitShiftId;
-          //               listData[date].splice(splitIndex, 1);
-          //             }
-          //           }
-          //         }
-          //       });
-          //     }
-          //   });
-          // }
           for (var prop in graphData) {
             if (Object.prototype.hasOwnProperty.call(graphData, prop)) {
               // do stuff
@@ -3357,9 +3271,7 @@ class shift {
               }, {});
           }
 
-          // listData = sortObject(listData);
           const finalDataResult = {
-            // list: listData,
             graph: graphData,
             graphDataWeb: graphDataWeb,
             dashboardGraphData: updatedDashboardGraphData,
@@ -3367,7 +3279,6 @@ class shift {
           };
           logInfo('shift/graphData api end!', { name: req.user.name, staffId: req.user.staffId });
           __.out(res, 201, {
-            // list: listData,
             graph: graphData,
             graphDataWeb: graphDataWeb,
             dashboardGraphData: updatedDashboardGraphData,
@@ -3538,18 +3449,6 @@ class shift {
           },
         ])
         .lean();
-      // result.forEach((item)=>{
-      //     var myJSONString = JSON.stringify(item.shiftId);
-      //     var myEscapedJSONString = myJSONString.replace(/\\n/g, "\\n")
-      //         .replace(/\\'/g, "\\'")
-      //         .replace(/\\"/g, '\\"')
-      //         .replace(/\\&/g, "\\&")
-      //         .replace(/\\r/g, "\\r")
-      //         .replace(/\\t/g, "\\t")
-      //         .replace(/\\b/g, "\\b")
-      //         .replace(/\\f/g, "\\f");
-      //    item.shiftId = JSON.parse(myEscapedJSONString)
-      // });
       __.out(res, 201, result);
     } catch (err) {
       __.log(err);
@@ -3626,7 +3525,6 @@ class shift {
             $gte: startDate,
             $lte: endDate,
           };
-          // __.log(moment(endDate).endOf('day').utc().format(), moment(startDate).startOf('day').utc().format(), 'formatIssues')
           // Show Cancelled Shifts Also
           if (req.body.cancelledShifts && req.body.cancelledShifts === true) {
             where.status = {
@@ -3789,7 +3687,6 @@ class shift {
                 }
               }
             });
-            // __.log(graphData, "graphData");
             let newListData = JSON.stringify(listData);
             newListData = JSON.parse(newListData);
             for (let date in newListData) {
@@ -3868,7 +3765,7 @@ class shift {
         __.out(res, 400, requiredResult1.missingFields);
       } else {
         const currentDateR = req.body.startDate.split(' ')[0];
-        const redisKey = `ViewBooking${req.body.businessUnitId}${currentDateR}`;
+        // const redisKey = `ViewBooking${req.body.businessUnitId}${currentDateR}`;
         var timeZone = moment
           .parseZone(req.body.startDate, 'MM-DD-YYYY HH:mm:ss Z')
           .format('Z'),
@@ -3993,6 +3890,13 @@ class shift {
                 select: 'name status',
                 match: {
                   status: 1,
+                },
+              },
+              {
+                path: 'geoReportingLocation',
+                select: 'name status',
+                match: {
+                  status: 'active',
                 },
               },
               {
@@ -4153,7 +4057,6 @@ class shift {
               if (
                 (((element.mainSkillSets && element.mainSkillSets.length) ||
                   (element.subSkillSets && element.subSkillSets.length)) &&
-                  element.reportLocationId &&
                   element.shiftId &&
                   element.shiftId.businessUnitId) ||
                 element.isAssignShift
@@ -4674,7 +4577,6 @@ class shift {
         })
           .select('shiftDetails')
           .lean();
-        //return res.json({weekNumber})
         function plucker(prop) {
           return function (o) {
             return o[prop];
@@ -4852,7 +4754,6 @@ class shift {
                 }
               }
             });
-            // __.log(graphData, "graphData");
             let newListData = JSON.stringify(listData);
             newListData = JSON.parse(newListData);
             for (let date in newListData) {
@@ -5290,7 +5191,6 @@ class shift {
         })
         .lean();
       var deviceTokens = [];
-      // __.log('matchging staffs', users)
       for (let x of users) {
         if (x.role && x.role.isFlexiStaff == 1)
           /*only flexistaff */
@@ -5806,14 +5706,6 @@ class shift {
                 select:
                   'businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
               },
-              // ,
-              // {
-              //     path: 'shiftId',
-              //     select: 'businessUnitId weekNumber weekRangeStartsAt weekRangeEndsAt',
-              //     populate: {
-              //         path: 'businessUnitId',
-              //     }
-              // }
             ],
           });
           if (shiftDetails) {
@@ -5849,13 +5741,9 @@ class shift {
               shiftDetails.totalStaffNeedCount =
                 shiftDetails.totalStaffNeedCount + staffIncreasedBy;
               await shiftDetails.save();
-              // const splitShiftUpdate = await ShiftDetails.update({_id:req.body.splitShiftId}, {$set:{staffNeedCount: req.body.staffNeedCount,
-              //         totalStaffNeedCount: shiftDetails.totalStaffNeedCount}},
-              //     {upsert: true}).lean();
               var weeksStartsAtForPush = moment(shiftDetails.startTime).unix();
               var weeksEndsAtForPush = moment(shiftDetails.endTime).unix(),
                 toConfirmDeviceTokens = [];
-              // delete req.body.shiftDetailsId;
               var shiftStartsWithIn = await __.getDurationInHours(
                 moment().utc().format(),
                 shiftDetails.startTime,
@@ -6546,7 +6434,6 @@ class shift {
         schemeDetails.shiftSetup.openShift.normal
       ) {
         normalDuration = -1 * shiftDetails.duration;
-        // normalDuration = shiftDetails.isSplitShift ? 0 : -1 * shiftDetails.duration;
       } else {
         otDuration = -1 * shiftDetails.duration;
       }
@@ -7302,33 +7189,22 @@ class shift {
             });
           } else {
             data.forEach((item) => {
-              // console.log('new Date(item.date)', new Date(item.date))
               if (new Date(item.date).getDate() == new Date(date).getDate()) {
-                console.log(
-                  'item.shiftDetailId',
-                  item.shiftDetailId,
-                  shiftDetails._id,
-                );
                 if (
                   item.shiftDetailId.toString() == shiftDetails._id.toString()
                 ) {
                   isPresent = true;
                   staffLimitPresentData = item;
                 }
-                console.log('ottttt', dailyDuration);
                 dailyDuration += item.otDuration;
                 dailyOverall += item.otDuration;
                 dailyOverall += item.normalDuration;
-                console.log('ottttt after', dailyDuration);
-                console.log('dailyOverall', dailyOverall);
               }
               if (new Date(item.date).getMonth() == new Date(date).getMonth()) {
                 monthlyDuration += item.otDuration;
                 monthlyOverall += item.otDuration;
                 monthlyOverall += item.normalDuration;
               }
-              // console.log('item.weekNo', item.weekNumber);
-              //console.log('sss', weekNumber)
               if (item.weekNumber == weekNumber) {
                 weeklyDuration += item.otDuration;
                 weekLlyOverall += item.otDuration;
@@ -8193,10 +8069,6 @@ class shift {
         var endDateTimeA = moment(req.body.endDateTime, 'MM-DD-YYYY HH:mm:ss Z')
           .utc()
           .format();
-        // var isCross = await this.checkTimingCross(res, shiftDetails,startDateTimeA,endDateTimeA,userId);
-        // if(isCross){
-        //     return res.json({status: false, message: 'Shift is overlapping with other shift', data: null});
-        // }
       } else if (req.body.from.toLowerCase() == 'shiftextensionagain') {
         const staffExten = shiftDetails.extendedStaff.filter((exSt) => {
           return userId === exSt.userId.toString() && exSt.confirmStatus != 1;
@@ -8267,7 +8139,7 @@ class shift {
         userId = req.body.userId;
       } else {
         userId = req.user._id;
-      } //req.user._id;
+      };
       let shiftDetailId = req.body.shiftDetailsId;
       let shiftDetails = await ShiftDetails.findOne({ _id: shiftDetailId })
         .populate([
@@ -8371,10 +8243,6 @@ class shift {
       } else {
         otDuration = -1 * extendedDuration;
       }
-      // const value = await StaffLimit.updateOne(
-      //   { userId: userId, shiftDetailId: shiftDetails._id },
-      //   { $inc: { normalDuration: normalDuration, otDuration: otDuration } },
-      // );
       return;
     } catch (err) {
       __.log(err);
