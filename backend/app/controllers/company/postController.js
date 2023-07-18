@@ -652,7 +652,7 @@ class post {
               {
                 $set: {
                   wallName: body.wallTitle.title,
-                  bannerImage: postdata.bannerImage,
+                  bannerImage: body?.content?.eventWallLogoImage? body.content.eventWallLogoImage:'',
                   assignUsers: channelData.userDetails,
                   status: body.status,
                   eventWallStartDate: body.content.eventWallStartDate,
@@ -669,7 +669,7 @@ class post {
         } else {
           let newWall = {
             wallName: body.wallTitle.title,
-            bannerImage: postdata.bannerImage,
+            bannerImage: body?.content?.eventWallLogoImage? body.content.eventWallLogoImage:'',
             assignUsers: channelData.userDetails,
             status: body.status,
             eventWallStartDate: body.content.eventWallStartDate,
