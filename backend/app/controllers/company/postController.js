@@ -2031,7 +2031,6 @@ class post {
           organizerName: postData[0].eventDetails.organizerName,
           startDate: postData[0].eventDetails.startDate,
           title: postData[0].content.title,
-          // isEventWallRequired: postData[0].eventDetails.isEventWallRequired,
         },
         teaser: postData[0].teaser,
         eventBoard: wallData,
