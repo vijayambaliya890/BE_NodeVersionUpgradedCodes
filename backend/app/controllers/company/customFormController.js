@@ -4137,10 +4137,7 @@ class customform {
       }
       // SNo	formname	Submitted At	staffId	StaffName	bussinessUnit	Q1	Q2	Q3	Q4	S	S2
       let headers = Array.from(new Set(['SNo', ...questionTitles]));
-      let csv = json2csv({
-        data: responseBody,
-        fields: headers,
-      });
+      let csv = json2csv(responseBody,headers);
       fs.writeFile(
         `./public/uploads/customForm/${customFormId}.csv`,
         csv,
