@@ -434,7 +434,7 @@ class nativeAuth {
       const a = moment();
       if (
         !!parsedToken &&
-        `${parsedToken.otp}` === `${otp}` &&
+        `${user?.otp}` === `${otp}` &&
         a.diff(b, "hours") < 2
       ) {
         if (!!forgotPassword) {
@@ -568,12 +568,12 @@ class nativeAuth {
         user.otp = otp;
         await mailer.sendOtp(user);
       }
-      data["otp"] = otp;
       data["otpSentAt"] = new Date();
       if (!!user) {
         const token = jwt.sign(data, process.env.API_KEY, {
           expiresIn: "2h",
         });
+        await User.findByIdAndUpdate(user._id, {otp});
         return __.out(res, 201, {
           token,
           firstLogin: true,
